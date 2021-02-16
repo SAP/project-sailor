@@ -1,0 +1,55 @@
+// Jenkins must checkout the repository as subfolder MAIN
+pipeline {
+    agent {
+        kubernetes {
+            defaultContainer 'container-exec'
+            yamlFile 'MAIN/.ci/KubernetesPod.yml'
+        }
+    }
+    environment {
+        DOCS_SOURCE_DIR = 'docs'
+    }
+    stages {
+        stage('Install tools') {
+            steps {
+                dir("MAIN") {
+                    sh 'apt install -y ssh-client'
+                    sh 'apt install -y make'
+                    sh 'pip install -r ./.ci/docs/requirements_docs.txt'
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+                dir("MAIN") {
+                    sh './.ci/docs/build_docs.sh $DOCS_SOURCE_DIR'
+                }
+            }
+        }
+        stage('Publish') {
+            environment {
+                GIT_SSH_COMMAND = 'ssh -o StrictHostKeyChecking=no'
+                GIT_CONFIG_USER_NAME = "dscdatascience"
+                GIT_CONFIG_USER_MAIL = "jenkins@dscdatascience"
+            }
+            steps {
+                sshagent(['github-wdf-ssh-key']) {
+                    dir("MAIN") {
+                        sh './.ci/docs/publish_docs.sh $DOCS_SOURCE_DIR'
+                    }
+                }
+            }
+        }
+    }
+    post {
+        failure {
+            slackSend (
+                color: 'warning', 
+                message: """Documentation build on master failed - ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+
+Please check the logs and take corrective action if necessary.
+${env.BUILD_URL}/console
+""")
+        }
+    }
+}

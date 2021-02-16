@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+spec:
+  name: pr-validation-pod
+  imagePullSecrets: ['dscdatascience-jenkins']
+  containers:
+  - name: container-exec
+    image: dscdatascience.common.repositories.cloud.sap/pr_validation:2011b
+    command:
+    - sleep
+    args:
+    - infinity
