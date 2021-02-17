@@ -141,15 +141,11 @@ class TestEquipmentSet:
         assert expected_result == actual_result
 
 
-@pytest.mark.parametrize('testdescription,find_params,expected_call_args', [
-    ('without filters', {}, ([], [])),
-    ('with filters',
-     dict(extended_filters=['integer_param1 < 10'], location_name=['Paris', 'London']),
-     (['integer_param1 lt 10'], [["location eq 'Paris'", "location eq 'London'"]])),
-])
 @pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
 @patch('sailor.assetcentral.equipment.fetch_data')
-def test_find_equipments_expect_fetch_call_args(mock_fetch, find_params, expected_call_args, testdescription, mock_url):
+def test_find_equipments_expect_fetch_call_args(mock_fetch, mock_url):
+    find_params = dict(extended_filters=['integer_param1 < 10'], location_name=['Paris', 'London'])
+    expected_call_args = (['integer_param1 lt 10'], [["location eq 'Paris'", "location eq 'London'"]])
     mock_fetch.return_value = [{'equipmentId': 'eq_id1'}, {'equipmentId': 'eq_id2'}]
     expected_result = EquipmentSet([Equipment({'equipmentId': 'eq_id1'}), Equipment({'equipmentId': 'eq_id2'})])
 
