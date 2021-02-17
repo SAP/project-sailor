@@ -1,0 +1,458 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting started &mdash; sailor 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial" href="tutorial.html" />
+    <link rel="prev" title="sailor" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> sailor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#environment">Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#yaml-file">YAML file</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quickstart-example">Quickstart Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-limitations"><em>Optional: Limitations</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#known-issues">Known Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-obtain-support">How to obtain support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-contributing"><em>Optional: Contributing</em></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#install-the-package-in-editable-mode">Install the package in editable mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#install-requirements">Install requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#requirements-management">Requirements management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dev-tools">Dev tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-the-package">Building the package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#building-the-documentation">Building the documentation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Requirements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build">Build</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#adding-or-removing-api-doc-pages">Adding or removing API doc pages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-upcoming-changes"><em>Optional: Upcoming Changes</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-license"><em>Optional: License</em></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter_language.html">Filter language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently asked questions</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sailor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Getting started</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/SAP/project-sailor/blob/master/docs/introduction.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>README needs to be updated. You can find the link to the guidelines in our Wiki.</p>
+<p><strong>TODO</strong>: Put <strong>DESCRIPTION</strong> here.</p>
+<ul class="simple">
+<li><p>what is it?</p></li>
+<li><p>why does it exist?</p></li>
+</ul>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO</strong>: This section should describe the requirements, hardware and software, that are used with your sample code. This section should list any expected SAP software that is necessary to run this sample code, if applicable. Also include any other requirements that are necessary (or optional) to use this project.
+Any external requirements must be hyperlinked to the site where that software, or that documentation, can be found.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Install the package with pip</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">sailor</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>Sailor talks to two services: Asset Central and SAP IoT.
+You have two options of specifying the configuration:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#environment">Environment</a></p></li>
+<li><p><a class="reference internal" href="#yaml-file">YAML file</a></p></li>
+</ol>
+<p>The above order is honoured when Sailor checks for the configuration.</p>
+<div class="section" id="environment">
+<h3>Environment<a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h3>
+<p>A JSON string can be provided with the environment variable SAILOR_CONFIG_JSON. Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAILOR_CONFIG_JSON&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+    <span class="s1">&#39;asset_central&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;client_id&#39;</span><span class="p">:</span> <span class="s1">&#39;ACexampleId&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;client_secret&#39;</span><span class="p">:</span> <span class="s1">&#39;ACexampleSecret&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;application_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://asset-central.com&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;subdomain&#39;</span><span class="p">:</span> <span class="s1">&#39;account-name&#39;</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;sap_iot&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;client_id&#39;</span><span class="p">:</span> <span class="s1">&#39;IoTexampleId&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;client_secret&#39;</span><span class="p">:</span> <span class="s1">&#39;IoTexampleSecret&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;application_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://sap-iot.com&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;subdomain&#39;</span><span class="p">:</span> <span class="s1">&#39;account-name&#39;</span>
+    <span class="p">},</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="yaml-file">
+<h3>YAML file<a class="headerlink" href="#yaml-file" title="Permalink to this headline">¶</a></h3>
+<p>Specify the location of a YAML file via environment variable (e.g.: <em>SAILOR_CONFIG_PATH=/home/my_sailor_config.yml</em>). Alternatively you can put a YAML file named <em>config.yml</em> next to your main script/notebook without setting the SAILOR_CONFIG_PATH. Example YAML file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">asset_central</span><span class="p">:</span>
+  <span class="nt">client_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ACexampleId</span>
+  <span class="nt">client_secret</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ACexampleSecret</span>
+  <span class="nt">application_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://asset-central.com</span>
+  <span class="nt">subdomain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">account-name</span>
+<span class="nt">sap_iot</span><span class="p">:</span>
+  <span class="nt">client_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">IoTexampleId</span>
+  <span class="nt">client_secret</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">IoTexampleSecret</span>
+  <span class="nt">application_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://sap-iot.com</span>
+  <span class="nt">subdomain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">account-name</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="quickstart-example">
+<h2>Quickstart Example<a class="headerlink" href="#quickstart-example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># This is just a random placeholder</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>TODO</strong>: Update!!! First basic functionality that should be supported:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dsc.asset_central</span> <span class="kn">import</span> <span class="n">AssetCentral</span>
+
+<span class="n">ac</span> <span class="o">=</span> <span class="n">AssetCentral</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
+
+<span class="c1"># get a specific equi model uniquely specified by id</span>
+<span class="c1"># should return a custom object of class `EquipmentModel`</span>
+<span class="n">euipment_model</span> <span class="o">=</span> <span class="n">ac</span><span class="o">.</span><span class="n">get_equipment_model</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">)</span>
+
+<span class="c1"># find some equipment models (might be multiple) based on some filters</span>
+<span class="c1"># additional filters (e.g. location, class, whatever) beyond MVP</span>
+<span class="c1"># should return a list of `EquipmentModel`s</span>
+<span class="n">ac</span><span class="o">.</span><span class="n">find_equipment_models</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;NAME&#39;</span><span class="p">)</span>
+
+<span class="c1"># the same goes for individual equipments:</span>
+<span class="n">equipment</span> <span class="o">=</span> <span class="n">ac</span><span class="o">.</span><span class="n">get_equipment</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">)</span>
+<span class="n">ac</span><span class="o">.</span><span class="n">find_equipments</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Name&#39;</span><span class="p">)</span>
+
+<span class="c1"># Find all instances belonging to a certain model</span>
+<span class="n">equipments</span> <span class="o">=</span> <span class="n">equipment_model</span><span class="o">.</span><span class="n">get_equipments</span><span class="p">()</span>
+
+<span class="c1"># Find all Failure Modes assigned to an equipment/equipment model</span>
+<span class="n">failure_modes</span> <span class="o">=</span> <span class="n">equipment_model</span><span class="o">.</span><span class="n">get_failure_modes</span><span class="p">()</span>
+<span class="n">failure_modes</span> <span class="o">=</span> <span class="n">equipment</span><span class="o">.</span><span class="n">get_failure_modes</span><span class="p">()</span>
+
+<span class="c1"># Find all (or specific) notifications for an equipment</span>
+<span class="c1"># by default returns notifications for all failure modes,</span>
+<span class="c1"># but you can specify a subset of failure modes to filter</span>
+<span class="n">equipment</span><span class="o">.</span><span class="n">get_notifications</span><span class="p">(</span><span class="n">failure_modes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="c1"># I think that&#39;s a good start for AC. Let&#39;s tackle IoT AE later.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="optional-limitations">
+<h2><em>Optional: Limitations</em><a class="headerlink" href="#optional-limitations" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO</strong>: If your sample code has limitations that prevent it from working on certain hardware, or in certain software or configurations, please list those here.</p>
+</div>
+<div class="section" id="known-issues">
+<h2>Known Issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO</strong>: Please list all known issues, or bugs, here. Even if the sample code is provided “as-is” any known problems should be listed.</p>
+<p>Maybe just refer to FAQ as Link??</p>
+</div>
+<div class="section" id="how-to-obtain-support">
+<h2>How to obtain support<a class="headerlink" href="#how-to-obtain-support" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO</strong>: This section should contain details on how the outside user can obtain support, ask questions, or post a bug report on your sample code.
+For example, if your project allows and expects users to post questions or bug reports in the GitHub bug tracking system, put that information here. If your team is also monitoring another website for questions (for example, the SAP Q&amp;A, or StackOverflow), that should also be listed.
+If your project is provided “as-is”, with no expected changes or support, you must state that here.</p>
+</div>
+<div class="section" id="optional-contributing">
+<h2><em>Optional: Contributing</em><a class="headerlink" href="#optional-contributing" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="install-the-package-in-editable-mode">
+<h3>Install the package in editable mode<a class="headerlink" href="#install-the-package-in-editable-mode" title="Permalink to this headline">¶</a></h3>
+<p>For development, this will install the package into your environment with a link to the source files.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="install-requirements">
+<h3>Install requirements<a class="headerlink" href="#install-requirements" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="requirements-management">
+<h3>Requirements management<a class="headerlink" href="#requirements-management" title="Permalink to this headline">¶</a></h3>
+<p>The concrete dependencies we develop against are pinned in <cite>requirements.txt</cite>. Our code has been tested to run for the versions listed in <code class="code docutils literal notranslate"><span class="pre">requirements.txt</span></code>. (TODO: make that happen: ~~Continuous integration ensures that we test the code against new versions automatically.~~) <cite>requirements.txt</cite> should never be modified manually, only through pip-compile (see below).</p>
+<p><code class="code docutils literal notranslate"><span class="pre">requirements.in</span></code> lists abstract dependencies.  If you have used a new library in this project:</p>
+<ol class="arabic simple">
+<li><p>please add it to <strong>requirements.in</strong> and run <code class="code docutils literal notranslate"><span class="pre">pip-compile</span></code> to update the requirements.txt</p></li>
+<li><p>Add the resulting changes to your next pull request.</p></li>
+</ol>
+<p><em>pip-compile</em> is part of package <em>pip-tools</em> (can be installed via <cite>pip install pip-tools</cite>).</p>
+</div>
+<div class="section" id="dev-tools">
+<h3>Dev tools<a class="headerlink" href="#dev-tools" title="Permalink to this headline">¶</a></h3>
+<p>Install all tools required for testing and linting with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="o">.</span><span class="n">ci</span><span class="o">/</span><span class="n">requirements_ci</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-the-package">
+<h3>Building the package<a class="headerlink" href="#building-the-package" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">build</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-the-documentation">
+<h3>Building the documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h3>
+<p><strong>Sphinx</strong> is used to build the documentation.</p>
+<div class="section" id="id1">
+<h4>Requirements<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p>You will need to install Sphinx and dependencies that we use. This can be done via pip:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="o">.</span><span class="n">ci</span><span class="o">/</span><span class="n">docs</span><span class="o">/</span><span class="n">requirements_docs</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="build">
+<h4>Build<a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h4>
+<p>Go to the docs directory and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">html</span>
+</pre></div>
+</div>
+<p>The HTML is built into the docs/_build directory. You can view the docs by simply opening <strong>index.html</strong> with your browser.</p>
+<blockquote>
+<div><p>If you just ran <cite>make html</cite> for the <strong>first time</strong>, it might be that the documentation is not rendered properly (specifically the TOC for the API documentation on the left).
+In this case please run once:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">touch</span> <span class="n">apidoc</span><span class="o">.</span><span class="n">rst</span>
+<span class="n">make</span> <span class="n">html</span> <span class="n">SPHINXOPTS</span><span class="o">=</span><span class="s2">&quot;-a&quot;</span>
+</pre></div>
+</div>
+<p>Further builds should only require <cite>make html</cite>.</p>
+</div></blockquote>
+</div>
+<div class="section" id="adding-or-removing-api-doc-pages">
+<h4>Adding or removing API doc pages<a class="headerlink" href="#adding-or-removing-api-doc-pages" title="Permalink to this headline">¶</a></h4>
+<p>This step is only required when new modules/packages have been added or removed.
+If you want to update the apidoc:</p>
+<ol class="arabic simple">
+<li><p>run: <code class="code docutils literal notranslate"><span class="pre">make</span> <span class="pre">apidoc</span></code></p></li>
+<li><p>(only if any packages/modules have been removed): delete the corresponding .rst files</p></li>
+<li><p>commit the changes</p></li>
+</ol>
+</div>
+</div>
+</div>
+<div class="section" id="optional-upcoming-changes">
+<h2><em>Optional: Upcoming Changes</em><a class="headerlink" href="#optional-upcoming-changes" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO</strong>: Details on any expected changes in later versions. If your project is released “as-is”, or you know of no upcoming changes, this section can be omitted.</p>
+</div>
+<div class="section" id="optional-license">
+<h2><em>Optional: License</em><a class="headerlink" href="#optional-license" title="Permalink to this headline">¶</a></h2>
+<p><strong>TODO</strong>: The governing license for the project can be referenced in the README file for the project by adding a section entitled “License” (or similar title) and including the following statement:
+“This project is licensed under [License file type] except as noted otherwise in the LICENSE file.”</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="sailor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, DSC Data Science Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

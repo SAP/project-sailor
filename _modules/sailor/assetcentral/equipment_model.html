@@ -1,0 +1,385 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sailor.assetcentral.equipment_model &mdash; sailor 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> sailor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../filter_language.html">Filter language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently asked questions</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sailor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sailor.assetcentral.equipment_model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sailor.assetcentral.equipment_model</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Retrieve EquipmentModel information from AssetCentral.</span>
+
+<span class="sd">Classes are provided for individual EquipmentModels as well as groups of EquipemtModels (EquipmentModelSet).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">EQUIPMENT_MODEL_INDICATORS</span><span class="p">,</span> <span class="n">EQUIPMENT_MODEL_API</span><span class="p">,</span> <span class="n">INDICATOR_CONFIGURATION</span>
+<span class="kn">from</span> <span class="nn">.indicators</span> <span class="kn">import</span> <span class="n">Indicator</span><span class="p">,</span> <span class="n">IndicatorSet</span>
+<span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">find_equipments</span><span class="p">,</span> <span class="n">EquipmentSet</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">fetch_data</span><span class="p">,</span> <span class="n">add_properties</span><span class="p">,</span> <span class="n">parse_filter_parameters</span><span class="p">,</span> \
+    <span class="n">apply_filters_post_request</span><span class="p">,</span> <span class="n">ac_application_url</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_string_to_date_parser</span>
+
+
+<div class="viewcode-block" id="EquipmentModel"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment_model.html#sailor.assetcentral.equipment_model.EquipmentModel">[docs]</a><span class="nd">@add_properties</span>
+<span class="k">class</span> <span class="nc">EquipmentModel</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    AssetCentral EquipmentModel object.</span>
+
+<span class="sd">    Properties (in AC terminology) are:  # as returned by &#39;models&#39;-api, not model-details</span>
+<span class="sd">    modelId, name, internalId, status, version, hasInRevision, templateId, modelTemplate, subclass,</span>
+<span class="sd">    generation, manufacturer, shortDescription, longDescription, completeness, createdOn, changedOn,</span>
+<span class="sd">    imageURL, publishedOn, source, equipmentTracking, serviceExpirationDate, modelExpirationDate,</span>
+<span class="sd">    releaseDate, isManufacturerValid, image, isClientValid, consume, primaryExternalId, modelSearchTerms,</span>
+<span class="sd">    sourceSearchTerms, manufacturerSearchTerms, class</span>
+
+<span class="sd">    Additional properties returned in model-details (again ac terminology, some have sub-structure):</span>
+<span class="sd">    organizationID, calibrationDate, orderStopDate, noSparePartsDate, globalId, keywords, safetyRiskCode,</span>
+<span class="sd">    description, descriptions[], gtin, brand, isFirmwareCompatible, templates[], classId, subclassId, adminData{},</span>
+<span class="sd">    sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="EquipmentModel.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment_model.html#sailor.assetcentral.equipment_model.EquipmentModel.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;modelId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;short_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;shortDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;long_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;longDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;generation&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;generation&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;manufacturer&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;manufacturer&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;model_expiration_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;modelExpirationDate&#39;</span><span class="p">,</span> <span class="n">_string_to_date_parser</span><span class="p">(</span><span class="s1">&#39;modelExpirationDate&#39;</span><span class="p">,</span> <span class="s1">&#39;ms&#39;</span><span class="p">),</span>
+                                      <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;model_template_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;modelTemplate&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;service_expiration_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;serviceExpirationDate&#39;</span><span class="p">,</span> <span class="n">_string_to_date_parser</span><span class="p">(</span><span class="s1">&#39;serviceExpirationDate&#39;</span><span class="p">,</span> <span class="s1">&#39;ms&#39;</span><span class="p">),</span>
+                                        <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;template_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;templateId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="EquipmentModel.find_equipments"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment_model.html#sailor.assetcentral.equipment_model.EquipmentModel.find_equipments">[docs]</a>    <span class="k">def</span> <span class="nf">find_equipments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EquipmentSet</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of equipments derived from this EquipmentModel.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extended_filters</span>
+<span class="sd">            See :ref:`filter`.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            See :ref:`filter`.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        Find all equipments for Equipment Model &#39;myEquipmentModelName&#39;. Return an EquipmentSet::</span>
+
+<span class="sd">           model = find_equipment_models(name=&#39;myEquipmentModelName&#39;)</span>
+<span class="sd">           model[0].find_equipments()</span>
+
+<span class="sd">        The resulting Equipments can further be filter based on their properties (name, location etc).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;equipment_model_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="n">find_equipments</span><span class="p">(</span><span class="n">extended_filters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EquipmentModel.find_model_indicators"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment_model.html#sailor.assetcentral.equipment_model.EquipmentModel.find_model_indicators">[docs]</a>    <span class="k">def</span> <span class="nf">find_model_indicators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndicatorSet</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return all `Indicator`s assigned to the EquipmentModel.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extended_filters</span>
+<span class="sd">            See :ref:`filter`.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            See :ref:`filter`.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        Find all indicators for Equipment Model &#39;myEquipmentModelName&#39;::</span>
+
+<span class="sd">            models = find_equipment_models(name=&#39;myEquipmentModelName&#39;)</span>
+<span class="sd">            model[0].find_model_indicators()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">EQUIPMENT_MODEL_INDICATORS</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="s1">&#39;/indicatorvalues&#39;</span>
+
+        <span class="c1"># AC-BUG: this api doesn&#39;t support filters (thank you AC) so we have to fetch all of them and then filter below</span>
+        <span class="n">object_list</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
+        <span class="n">filtered_objects</span> <span class="o">=</span> <span class="n">apply_filters_post_request</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span>
+                                                      <span class="n">Indicator</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">IndicatorSet</span><span class="p">([</span><span class="n">Indicator</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">filtered_objects</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="EquipmentModel.get_header"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment_model.html#sailor.assetcentral.equipment_model.EquipmentModel.get_header">[docs]</a>    <span class="k">def</span> <span class="nf">get_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve header information for the EquipmentModel.&quot;&quot;&quot;</span>
+        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">EQUIPMENT_MODEL_API</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="s1">&#39;/header&#39;</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">header</span></div>
+
+<div class="viewcode-block" id="EquipmentModel.get_indicator_configuration_of_model"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment_model.html#sailor.assetcentral.equipment_model.EquipmentModel.get_indicator_configuration_of_model">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_configuration_of_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieve details on an indicator attached to an equipment model.&quot;&quot;&quot;</span>
+        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">INDICATOR_CONFIGURATION</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="s1">&#39;/header&#39;</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">header</span></div></div>
+
+
+<div class="viewcode-block" id="EquipmentModelSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment_model.html#sailor.assetcentral.equipment_model.EquipmentModelSet">[docs]</a><span class="k">class</span> <span class="nc">EquipmentModelSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class representing a group of EquipmentModels.&quot;&quot;&quot;</span>
+
+    <span class="n">_element_name</span> <span class="o">=</span> <span class="s1">&#39;EquipmentModel&#39;</span>
+    <span class="n">_set_name</span> <span class="o">=</span> <span class="s1">&#39;EquipmentModelSet&#39;</span>
+    <span class="n">_method_defaults</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;plot_distribution&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;by&#39;</span><span class="p">:</span> <span class="s1">&#39;model_template&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;as_df&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="n">EquipmentModel</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="find_equipment_models"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment_model.html#sailor.assetcentral.equipment_model.find_equipment_models">[docs]</a><span class="k">def</span> <span class="nf">find_equipment_models</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EquipmentModelSet</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Fetch EquipmentModels from AssetCentral with the applied filters, return an EquipmentModelSet.</span>
+
+<span class="sd">    This method supports the usual filter criteria, i.e.</span>
+<span class="sd">    Any named keyword arguments applied as equality filters, i.e. the name of the EquipmentModel property is checked</span>
+<span class="sd">    against the value of the keyword argument. If the value of the keyword argument is an iterable (e.g. a list)</span>
+<span class="sd">    then all objects matching any of the values in the iterable are returned.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    extended_filters</span>
+<span class="sd">        See :ref:`filter`.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        See :ref:`filter`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Find all EquipmentModels with name &#39;MyEquipmentModel&#39;::</span>
+
+<span class="sd">        find_equipment_models(name=&#39;MyEquipmentModel&#39;)</span>
+
+<span class="sd">    Find all EquipmentModels which either have the name &#39;MyEquipmentModel&#39; or the name &#39;MyOtherEquipmentModel&#39;::</span>
+
+<span class="sd">        find_equipment_models(name=[&#39;MyEquipmentModel&#39;, &#39;MyOtherEquipmentModel&#39;])</span>
+
+
+<span class="sd">    If multiple named arguments are provided then *all* conditions have to match.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    Find all EquipmentModels with name &#39;MyEquipmentModel&#39; which also have the short description &#39;Description&#39;::</span>
+
+<span class="sd">        find_equipment_models(name=&#39;MyEquipmentModel&#39;, short_description=&#39;Description&#39;)</span>
+
+<span class="sd">    The ``extended_filters`` parameter can be used to specify filters that can not be expressed as an equality. Each</span>
+<span class="sd">    extended_filter needs to be provided as a string, multiple filters can be passed as a list of strings. As above,</span>
+<span class="sd">    all filter criteria need to match. Inequality filters can be freely combined with named arguments. Here, too, all</span>
+<span class="sd">    filter criteria need to match for an EquipmentModel to be returned.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    Find all EquipmentModels with an expiration date before January 1, 2018::</span>
+
+<span class="sd">        find_equipment_models(extended_filters=[&#39;model_expiration_date &lt; &quot;2018-01-01&quot;&#39;])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \
+        <span class="n">parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">EquipmentModel</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
+
+    <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">EQUIPMENT_MODEL_API</span>
+    <span class="n">object_list</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">EquipmentModelSet</span><span class="p">([</span><span class="n">EquipmentModel</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">],</span>
+                             <span class="p">{</span><span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;extended_filters&#39;</span><span class="p">:</span> <span class="n">extended_filters</span><span class="p">})</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, DSC Data Science Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

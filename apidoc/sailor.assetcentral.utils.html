@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sailor.assetcentral.utils &mdash; sailor 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sailor.assetcentral.workorder" href="sailor.assetcentral.workorder.html" />
+    <link rel="prev" title="sailor.assetcentral.timeseries" href="sailor.assetcentral.timeseries.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> sailor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../filter_language.html">Filter language</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apidoc.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.constants</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.equipment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.equipment_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment_model</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.failure_mode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.failure_mode</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.indicators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.notification.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.timeseries.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.timeseries</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.workorder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently asked questions</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sailor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../apidoc.html">API documentation</a> &raquo;</li>
+        
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/SAP/project-sailor/blob/master/docs/apidoc/sailor.assetcentral.utils.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-sailor.assetcentral.utils">
+<span id="sailor-assetcentral-utils"></span><h1><a class="reference internal" href="#module-sailor.assetcentral.utils" title="sailor.assetcentral.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a><a class="headerlink" href="#module-sailor.assetcentral.utils" title="Permalink to this headline">¶</a></h1>
+<p>Module for various utility functions, in particular those related to fetching data from remote oauth endpoints.</p>
+<dl class="py exception">
+<dt id="sailor.assetcentral.utils.DataNotFoundWarning">
+<em class="property">exception </em><code class="sig-prename descclassname">sailor.assetcentral.utils.</code><code class="sig-name descname">DataNotFoundWarning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#DataNotFoundWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.DataNotFoundWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Warning</span></code></p>
+<p>Use this warning to indicate that a query-like function returned an empty result.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="sailor.assetcentral.utils.AssetcentralEntity">
+<em class="property">class </em><code class="sig-prename descclassname">sailor.assetcentral.utils.</code><code class="sig-name descname">AssetcentralEntity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ac_json</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#AssetcentralEntity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.AssetcentralEntity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Common base class for Assetcentral entities.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="sailor.assetcentral.utils.ResultSet">
+<em class="property">class </em><code class="sig-prename descclassname">sailor.assetcentral.utils.</code><code class="sig-name descname">ResultSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span></em>, <em class="sig-param"><span class="n">generating_query_params</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#ResultSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.ResultSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.Sequence</span></code></p>
+<p>Baseclass to be used in all <a href="#id1"><span class="problematic" id="id2">`</span></a>Set`s of AssetCentral objects.</p>
+<dl class="py method">
+<dt id="sailor.assetcentral.utils.ResultSet.as_df">
+<code class="sig-name descname">as_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">columns</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#ResultSet.as_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.ResultSet.as_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all information on the objects stored in the ResultSet as a pandas dataframe.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.utils.ResultSet.filter">
+<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#ResultSet.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.ResultSet.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select a subset of the ResultSet based on named filter criteria for the attributes of the elements.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.utils.ResultSet.plot_distribution">
+<code class="sig-name descname">plot_distribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">by</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fill</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dropna</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#ResultSet.plot_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.ResultSet.plot_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of elements of a ResultSet based on their properties.</p>
+<p>This effectively creates a histogram with the number of elements per group on the y-axis, and the group
+(given by the <cite>by</cite> parameter) on the x-axis. Additionally, the fill colour of the bar can be used to
+distinguish a second dimension.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.utils.ac_application_url">
+<code class="sig-prename descclassname">sailor.assetcentral.utils.</code><code class="sig-name descname">ac_application_url</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#ac_application_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.ac_application_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Assetcentral application URL from the SailorConfig.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.utils.add_properties">
+<code class="sig-prename descclassname">sailor.assetcentral.utils.</code><code class="sig-name descname">add_properties</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cls</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#add_properties"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.add_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add AssetCentral properties to a class based on the property mapping defined in the class.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.utils.any_to_timestamp">
+<code class="sig-prename descclassname">sailor.assetcentral.utils.</code><code class="sig-name descname">any_to_timestamp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#any_to_timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.any_to_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to parse a timestamp provided in a variety of formats into a uniform representation as pd.Timestamp.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>, </em><em>datetime.datetime</em><em>]</em>) – </p></li>
+<li><p><strong>default</strong> (<em>pandas._libs.tslibs.timestamps.Timestamp</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.utils.apply_filters_post_request">
+<code class="sig-prename descclassname">sailor.assetcentral.utils.</code><code class="sig-name descname">apply_filters_post_request</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">equality_filters</span></em>, <em class="sig-param"><span class="n">extended_filters</span></em>, <em class="sig-param"><span class="n">property_mapping</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#apply_filters_post_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.apply_filters_post_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allow filtering of the results returned by an AssetCentral query if the endpoint doesn’t implement <cite>filter</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.utils.fetch_data">
+<code class="sig-prename descclassname">sailor.assetcentral.utils.</code><code class="sig-name descname">fetch_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">endpoint_url</span></em>, <em class="sig-param"><span class="n">unbreakable_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">breakable_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">service_name</span><span class="o">=</span><span class="default_value">'asset_central'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#fetch_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.fetch_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve data from one of the remote services (AssetCentral or SAP IoT).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.utils.parse_filter_parameters">
+<code class="sig-prename descclassname">sailor.assetcentral.utils.</code><code class="sig-name descname">parse_filter_parameters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">equality_filters</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="n">property_mapping</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#parse_filter_parameters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.parse_filter_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse equality and extended filters into breakable and unbreakable filters.</p>
+<p>The distinction between breakable and unbreakable filters is necessary because the AssetCentral endpoints are
+generally queried via <cite>GET</cite> requests with filter parameters passed in the header, and there is a limit to the
+header size. This allows breaking a query into multiple queries of shorter length while still retrieving the
+minimal result set the filters requested.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.utils.timestamp_to_isoformat">
+<code class="sig-prename descclassname">sailor.assetcentral.utils.</code><code class="sig-name descname">timestamp_to_isoformat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timestamp</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#timestamp_to_isoformat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.utils.timestamp_to_isoformat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iso-format string of a timestamp after conversion to UTC and without the timezone information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timestamp</strong> (<em>pandas._libs.tslibs.timestamps.Timestamp</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sailor.assetcentral.workorder.html" class="btn btn-neutral float-right" title="sailor.assetcentral.workorder" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sailor.assetcentral.timeseries.html" class="btn btn-neutral float-left" title="sailor.assetcentral.timeseries" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, DSC Data Science Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

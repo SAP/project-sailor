@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sailor.assetcentral.indicators &mdash; sailor 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> sailor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../filter_language.html">Filter language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently asked questions</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sailor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sailor.assetcentral.indicators</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sailor.assetcentral.indicators</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Indicators module can be used to retrieve Indicator information from AssetCentral.</span>
+
+<span class="sd">Classes are provided for individual Indicators as well as groups of indicators (IndicatorSet).</span>
+<span class="sd">Note that the indicators here represent &#39;materialized&#39; indicators, i.e. indicators attached to an equipment.</span>
+<span class="sd">Hence they contain information on indicator_group and template used to attach it to the equipment. Currently there</span>
+<span class="sd">is no support for unrealized &#39;Indicator Templates&#39;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">add_properties</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span>
+
+
+<div class="viewcode-block" id="Indicator"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.Indicator">[docs]</a><span class="nd">@add_properties</span>
+<span class="k">class</span> <span class="nc">Indicator</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    AssetCentral Indicator Object.</span>
+
+<span class="sd">    Properties (in AC terminology) are: categoryID, propertyId, indicatorGroupName, indicatorName,</span>
+<span class="sd">    indicatorGroupDesc, objectId, indicatorSource, aggUpdatedTimestamp, indicatorCategory, colorCode,</span>
+<span class="sd">    thresholdDescription, convertedAggregatedValue, trend, dataType, indicatorType, convertedUOMDesc,</span>
+<span class="sd">    UOM, convertedUOM, indicatorDesc, indicatorColorCode, isFavorite, UOMDescription, Dimension, DimensionDesc,</span>
+<span class="sd">    uomdescription, dimension, dimensionDesc, pstid, uom</span>
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># TODO update field list - I think e.g. template id is also part of hte API response</span>
+
+<div class="viewcode-block" id="Indicator.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.Indicator.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
+        <span class="c1"># TODO: There is still some weird stuff here, e.g. UOM vs. uom or convertedXXX</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;propertyId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;indicatorName&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;indicatorDesc&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;dimension_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DimensionDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;dimension_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Dimension&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;indicator_group_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;indicatorGroupDesc&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;indicator_group_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;pstid&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;indicator_group_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;indicatorGroupName&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;model_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;objectId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;template_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;categoryID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;indicatorType&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;uom&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;UOM&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;uom_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;UOMDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;_liot_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;propertyId&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="s1">&#39;I_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;propertyId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;_liot_group_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;pstid&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="s1">&#39;IG_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pstid&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="p">}</span></div>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determine whether two (materialized) indicator instances are equal.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">and</span>
+                <span class="n">other</span><span class="o">.</span><span class="n">indicator_group_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">indicator_group_id</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">template_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IndicatorSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.IndicatorSet">[docs]</a><span class="k">class</span> <span class="nc">IndicatorSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class representing a group of indicators.&quot;&quot;&quot;</span>
+
+    <span class="n">_element_name</span> <span class="o">=</span> <span class="s1">&#39;Indicator&#39;</span>
+    <span class="n">_set_name</span> <span class="o">=</span> <span class="s1">&#39;IndicatorSet&#39;</span>
+    <span class="n">_method_defaults</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;plot_distribution&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;by&#39;</span><span class="p">:</span> <span class="s1">&#39;group_name&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;as_df&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="n">Indicator</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span></div>
+
+
+<span class="c1"># while there is a generic &#39;/services/api/v1/indicators&#39; endpoint that allows to find indicators,</span>
+<span class="c1"># that endpoint returns a very different object from the one that you can find via the equipment.</span>
+<span class="c1"># it only has properties &#39;id&#39;, &#39;dataType&#39;, &#39;description&#39; and &#39;internalId&#39;, which makes it incompatible</span>
+<span class="c1"># with property mapping above. Therefore, `find_indicators` is not implemented here...</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, DSC Data Science Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

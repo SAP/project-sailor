@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sailor.assetcentral.workorder &mdash; sailor 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> sailor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../filter_language.html">Filter language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently asked questions</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sailor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sailor.assetcentral.workorder</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sailor.assetcentral.workorder</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Workorder module can be used to retrieve Workorder information from AssetCentral.</span>
+
+<span class="sd">Classes are provided for individual Workorders as well as groups of Workorders (WorkorderSet).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">fetch_data</span><span class="p">,</span> <span class="n">add_properties</span><span class="p">,</span> <span class="n">parse_filter_parameters</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> \
+    <span class="n">ac_application_url</span>
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_WORKORDER</span>
+
+
+<div class="viewcode-block" id="Workorder"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.Workorder">[docs]</a><span class="nd">@add_properties</span>
+<span class="k">class</span> <span class="nc">Workorder</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    AssetCentral Workorder Object.</span>
+
+<span class="sd">    Properties (in AC terminology) are:</span>
+<span class="sd">    workOrderID, shortDescription, status, statusDescription, workOrderType, workOrderTypeDescription, priority,</span>
+<span class="sd">    priorityDescription, isInternal, createdBy, creationDateTime, lastChangedBy, lastChangeDateTime, longDescription,</span>
+<span class="sd">    startDate, endDate, progressStatus, progressStatusDescription, equipmentId, equipmentName, rootEquipmentId,</span>
+<span class="sd">    rootEquipmentName, locationId, coordinates, source, sourceId, operatorId, location, isSourceActive,</span>
+<span class="sd">    assetCoreEquipmentId, operator, internalId, modelId, plant, workCenter, basicStartDate, basicEndDate,</span>
+<span class="sd">    actualStartDate, actualEndDate, personResponsible</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Workorder.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.Workorder.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;workOrderID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;internalId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;short_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;shortDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;long_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;longDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;equipmentId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;equipment_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;equipmentName&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;endDate&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;end_date&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;plant&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;plant&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;priority_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;priorityDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;start_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;status_text&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;statusDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;workOrderType&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;type_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;workOrderTypeDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="WorkorderSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.WorkorderSet">[docs]</a><span class="k">class</span> <span class="nc">WorkorderSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class representing a group of Workorders.&quot;&quot;&quot;</span>
+
+    <span class="n">_element_name</span> <span class="o">=</span> <span class="s1">&#39;Workorder&#39;</span>
+    <span class="n">_set_name</span> <span class="o">=</span> <span class="s1">&#39;WorkorderSet&#39;</span>
+    <span class="n">_method_defaults</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;plot_distribution&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;by&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;as_df&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="n">Workorder</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="find_workorders"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.find_workorders">[docs]</a><span class="k">def</span> <span class="nf">find_workorders</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkorderSet</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Fetch Workorders from AssetCentral with the applied filters, return a WorkorderSet.</span>
+
+<span class="sd">    This method supports the usual filter criteria, i.e.</span>
+<span class="sd">    - Any named keyword arguments applied as equality filters, i.e. the name of the Workorder property is checked</span>
+<span class="sd">    against the value of the keyword argument. If the value of the keyword argument is an iterable (e.g. a list)</span>
+<span class="sd">    then all objects matching any of the values in the iterable are returned.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    extended_filters</span>
+<span class="sd">        See :ref:`filter`.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        See :ref:`filter`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Find all Workorders with name &#39;MyWorkorder&#39;::</span>
+
+<span class="sd">        find_workorders(name=&#39;MyWorkorder&#39;)</span>
+
+<span class="sd">    Find all Workorders which either have the name &#39;MyWorkorder&#39; or the name &#39;MyOtherWorkorder&#39;::</span>
+
+<span class="sd">        find_workorders(name=[&#39;MyWorkorder&#39;, &#39;MyOtherWorkorder&#39;])</span>
+
+<span class="sd">    Find all workorders with very high priority::</span>
+
+<span class="sd">        find_workorders(priority = 20)</span>
+
+<span class="sd">    If multiple named arguments are provided then *all* conditions have to match.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    Find all workorders with very high priority (20) and has progress status &#39;pending&#39;(15) ::</span>
+
+<span class="sd">        find_workorders(priority = 20, progressStatus = 15).</span>
+
+
+<span class="sd">    The ``extended_filters`` parameter can be used to specify filters that can not be expressed as an equality. Each</span>
+<span class="sd">    extended_filter needs to be provided as a string, multiple filters can be passed as a list of strings. As above,</span>
+<span class="sd">    all filter criteria need to match. Inequality filters can be freely combined with named arguments. Here, too all</span>
+<span class="sd">    filter criteria need to match for a Workorder to be returned.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    Find all Workorders with start date higher than 2020-01-01::</span>
+
+<span class="sd">        find_workorders(extended_filters=[&#39;start_date &gt;= &quot;2020-01-01&quot;&#39;])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \
+        <span class="n">parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Workorder</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
+
+    <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_WORKORDER</span>
+    <span class="n">object_list</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">WorkorderSet</span><span class="p">([</span><span class="n">Workorder</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">],</span>
+                        <span class="p">{</span><span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;extended_filters&#39;</span><span class="p">:</span> <span class="n">extended_filters</span><span class="p">})</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, DSC Data Science Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

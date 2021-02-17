@@ -1,0 +1,374 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sailor.assetcentral.equipment_model &mdash; sailor 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sailor.assetcentral.failure_mode" href="sailor.assetcentral.failure_mode.html" />
+    <link rel="prev" title="sailor.assetcentral.equipment" href="sailor.assetcentral.equipment.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> sailor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../filter_language.html">Filter language</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apidoc.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.constants</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.equipment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment_model</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.failure_mode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.failure_mode</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.indicators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.notification.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.timeseries.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.timeseries</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.workorder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently asked questions</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sailor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../apidoc.html">API documentation</a> &raquo;</li>
+        
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment_model</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/SAP/project-sailor/blob/master/docs/apidoc/sailor.assetcentral.equipment_model.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-sailor.assetcentral.equipment_model">
+<span id="sailor-assetcentral-equipment-model"></span><h1><a class="reference internal" href="#module-sailor.assetcentral.equipment_model" title="sailor.assetcentral.equipment_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment_model</span></code></a><a class="headerlink" href="#module-sailor.assetcentral.equipment_model" title="Permalink to this headline">¶</a></h1>
+<p>Retrieve EquipmentModel information from AssetCentral.</p>
+<p>Classes are provided for individual EquipmentModels as well as groups of EquipemtModels (EquipmentModelSet).</p>
+<dl class="py class">
+<dt id="sailor.assetcentral.equipment_model.EquipmentModel">
+<em class="property">class </em><code class="sig-prename descclassname">sailor.assetcentral.equipment_model.</code><code class="sig-name descname">EquipmentModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ac_json</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment_model.html#EquipmentModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment_model.EquipmentModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity" title="sailor.assetcentral.utils.AssetcentralEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.AssetcentralEntity</span></code></a></p>
+<p>AssetCentral EquipmentModel object.</p>
+<p>Properties (in AC terminology) are:  # as returned by ‘models’-api, not model-details
+modelId, name, internalId, status, version, hasInRevision, templateId, modelTemplate, subclass,
+generation, manufacturer, shortDescription, longDescription, completeness, createdOn, changedOn,
+imageURL, publishedOn, source, equipmentTracking, serviceExpirationDate, modelExpirationDate,
+releaseDate, isManufacturerValid, image, isClientValid, consume, primaryExternalId, modelSearchTerms,
+sourceSearchTerms, manufacturerSearchTerms, class</p>
+<p>Additional properties returned in model-details (again ac terminology, some have sub-structure):
+organizationID, calibrationDate, orderStopDate, noSparePartsDate, globalId, keywords, safetyRiskCode,
+description, descriptions[], gtin, brand, isFirmwareCompatible, templates[], classId, subclassId, adminData{},
+sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]</p>
+<dl class="py method">
+<dt id="sailor.assetcentral.equipment_model.EquipmentModel.find_equipments">
+<code class="sig-name descname">find_equipments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment_model.html#EquipmentModel.find_equipments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment_model.EquipmentModel.find_equipments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of equipments derived from this EquipmentModel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet">sailor.assetcentral.equipment.EquipmentSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Find all equipments for Equipment Model ‘myEquipmentModelName’. Return an EquipmentSet:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">find_equipment_models</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;myEquipmentModelName&#39;</span><span class="p">)</span>
+<span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find_equipments</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The resulting Equipments can further be filter based on their properties (name, location etc).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.equipment_model.EquipmentModel.find_model_indicators">
+<code class="sig-name descname">find_model_indicators</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment_model.html#EquipmentModel.find_model_indicators"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment_model.EquipmentModel.find_model_indicators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all <a href="#id1"><span class="problematic" id="id2">`</span></a>Indicator`s assigned to the EquipmentModel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.IndicatorSet" title="sailor.assetcentral.indicators.IndicatorSet">sailor.assetcentral.indicators.IndicatorSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Find all indicators for Equipment Model ‘myEquipmentModelName’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">models</span> <span class="o">=</span> <span class="n">find_equipment_models</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;myEquipmentModelName&#39;</span><span class="p">)</span>
+<span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find_model_indicators</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.equipment_model.EquipmentModel.get_header">
+<code class="sig-name descname">get_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment_model.html#EquipmentModel.get_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment_model.EquipmentModel.get_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve header information for the EquipmentModel.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.equipment_model.EquipmentModel.get_indicator_configuration_of_model">
+<code class="sig-name descname">get_indicator_configuration_of_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment_model.html#EquipmentModel.get_indicator_configuration_of_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment_model.EquipmentModel.get_indicator_configuration_of_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve details on an indicator attached to an equipment model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.equipment_model.EquipmentModel.get_property_mapping">
+<em class="property">classmethod </em><code class="sig-name descname">get_property_mapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment_model.html#EquipmentModel.get_property_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment_model.EquipmentModel.get_property_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a mapping from assetcentral terminology to our terminology.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="sailor.assetcentral.equipment_model.EquipmentModelSet">
+<em class="property">class </em><code class="sig-prename descclassname">sailor.assetcentral.equipment_model.</code><code class="sig-name descname">EquipmentModelSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span></em>, <em class="sig-param"><span class="n">generating_query_params</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment_model.html#EquipmentModelSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment_model.EquipmentModelSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet" title="sailor.assetcentral.utils.ResultSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.ResultSet</span></code></a></p>
+<p>Class representing a group of EquipmentModels.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.equipment_model.find_equipment_models">
+<code class="sig-prename descclassname">sailor.assetcentral.equipment_model.</code><code class="sig-name descname">find_equipment_models</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment_model.html#find_equipment_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment_model.find_equipment_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch EquipmentModels from AssetCentral with the applied filters, return an EquipmentModelSet.</p>
+<p>This method supports the usual filter criteria, i.e.
+Any named keyword arguments applied as equality filters, i.e. the name of the EquipmentModel property is checked
+against the value of the keyword argument. If the value of the keyword argument is an iterable (e.g. a list)
+then all objects matching any of the values in the iterable are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sailor.assetcentral.equipment_model.EquipmentModelSet" title="sailor.assetcentral.equipment_model.EquipmentModelSet">sailor.assetcentral.equipment_model.EquipmentModelSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Find all EquipmentModels with name ‘MyEquipmentModel’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment_models</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyEquipmentModel&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all EquipmentModels which either have the name ‘MyEquipmentModel’ or the name ‘MyOtherEquipmentModel’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment_models</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyEquipmentModel&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherEquipmentModel&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>If multiple named arguments are provided then <em>all</em> conditions have to match.</p>
+<p class="rubric">Example</p>
+<p>Find all EquipmentModels with name ‘MyEquipmentModel’ which also have the short description ‘Description’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment_models</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyEquipmentModel&#39;</span><span class="p">,</span> <span class="n">short_description</span><span class="o">=</span><span class="s1">&#39;Description&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">extended_filters</span></code> parameter can be used to specify filters that can not be expressed as an equality. Each
+extended_filter needs to be provided as a string, multiple filters can be passed as a list of strings. As above,
+all filter criteria need to match. Inequality filters can be freely combined with named arguments. Here, too, all
+filter criteria need to match for an EquipmentModel to be returned.</p>
+<p class="rubric">Example</p>
+<p>Find all EquipmentModels with an expiration date before January 1, 2018:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment_models</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;model_expiration_date &lt; &quot;2018-01-01&quot;&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sailor.assetcentral.failure_mode.html" class="btn btn-neutral float-right" title="sailor.assetcentral.failure_mode" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sailor.assetcentral.equipment.html" class="btn btn-neutral float-left" title="sailor.assetcentral.equipment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, DSC Data Science Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

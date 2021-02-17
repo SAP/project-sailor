@@ -1,0 +1,641 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sailor.assetcentral.utils &mdash; sailor 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> sailor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../filter_language.html">Filter language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently asked questions</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sailor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sailor.assetcentral.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sailor.assetcentral.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module for various utility functions, in particular those related to fetching data from remote oauth endpoints.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">plotnine</span> <span class="k">as</span> <span class="nn">p9</span>
+
+<span class="kn">from</span> <span class="nn">..utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">OAuthFlow</span>
+<span class="kn">from</span> <span class="nn">..utils.plot_helper</span> <span class="kn">import</span> <span class="n">default_plot_theme</span>
+<span class="kn">from</span> <span class="nn">..utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
+
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">_compose_queries</span><span class="p">(</span><span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">):</span>
+    <span class="c1"># So the AC endpoints can only accept a certain URL length</span>
+    <span class="c1"># and since the filters are part of the URL for GET requests</span>
+    <span class="c1"># we have to make sure the query doesn&#39;t get too long.</span>
+    <span class="c1"># Assume we have a query like (A AND B AND (C OR D) AND (E OR F OR G))</span>
+    <span class="c1"># (where the &#39;OR&#39; terms can become quite long).</span>
+    <span class="c1"># The shortest way to break this up is into a number of sequential query</span>
+    <span class="c1"># like ((A AND B AND C AND E) OR (A AND B AND C AND F) OR ...) where we can</span>
+    <span class="c1"># break on each OR.</span>
+    <span class="c1"># If any of these individual terms is longer than the allowed length we can&#39;t</span>
+    <span class="c1"># execute the query.</span>
+    <span class="c1">#</span>
+    <span class="c1"># However, while this way of breaking it gives us the shortest possible URLs</span>
+    <span class="c1"># it also gives us the largest amount of queries. So it would be better to break</span>
+    <span class="c1"># it into e.g. ((A AND B AND (C OR D) AND (E OR F)) OR (A AND B AND (C OR D) AND G)</span>
+    <span class="c1"># which gives us two queries. Unfortunately I can&#39;t think of a sane (and non-exponential)</span>
+    <span class="c1"># algorithms to find this optimal breakup.</span>
+    <span class="c1">#</span>
+    <span class="c1"># So my compromise is to include all the (OR) groups that can fit as a whole in the query,</span>
+    <span class="c1"># and to break the remaining part up into cartesian products.</span>
+
+    <span class="n">max_filter_length</span> <span class="o">=</span> <span class="mi">2000</span>
+
+    <span class="n">filter_string</span> <span class="o">=</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unbreakable_filters</span><span class="p">)</span>
+    <span class="n">current_fixed_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filter_string</span><span class="p">)</span>
+
+    <span class="n">cartesian_product</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">breakable_filters</span><span class="p">))</span>
+    <span class="n">remaining_cartesian_length_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cartesian_product</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">max_filter_length</span> <span class="o">&lt;</span> <span class="n">current_fixed_length</span> <span class="o">+</span> <span class="n">remaining_cartesian_length_max</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="s1">&#39; and &#39;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Filter too long even in cartesian product&#39;</span><span class="p">)</span>
+
+    <span class="n">breakable_filters</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">breakable_filters</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span>
+
+    <span class="c1"># add entire groups for as long as we can</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">breakable_filters</span><span class="p">)):</span>
+        <span class="n">subfilter</span> <span class="o">=</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="s1">&#39; or &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">breakable_filters</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+        <span class="n">cartesian_product</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">breakable_filters</span><span class="p">[(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):]))</span>
+        <span class="n">remaining_cartesian_length_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cartesian_product</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">max_filter_length</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">subfilter</span><span class="p">)</span> <span class="o">+</span> <span class="n">current_fixed_length</span> <span class="o">+</span> <span class="n">remaining_cartesian_length_max</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39; and &#39;</span><span class="p">):</span>
+            <span class="n">filter_string</span> <span class="o">=</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">filter_string</span><span class="p">,</span> <span class="n">subfilter</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">filter_string</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39; and &#39;</span><span class="p">):</span>
+                <span class="n">filter_string</span> <span class="o">=</span> <span class="n">filter_string</span><span class="p">[</span><span class="mi">5</span><span class="p">:]</span>
+            <span class="n">current_fixed_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filter_string</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Can not fit next filter term completely, breaking at </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># did not break, so we could process all breakable filters here</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">filter_string</span><span class="p">]</span>
+
+    <span class="c1"># add everything that&#39;s left as cartesian product</span>
+    <span class="c1"># as a small optimisation: everything but the *last* group.</span>
+    <span class="c1"># we&#39;ll split the last group again, to fill up the space</span>
+    <span class="c1"># we have as much as possible</span>
+    <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">breakable_filters</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># more than one group left</span>
+        <span class="n">cartesian_product</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">breakable_filters</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">filter_string</span> <span class="o">+</span> <span class="s1">&#39; and &#39;</span> <span class="o">+</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cartesian_product</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="p">[</span><span class="n">filter_string</span><span class="p">]</span>
+
+    <span class="c1"># now we add the last group, in chunks</span>
+    <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">breakable_filters</span><span class="p">):</span>
+        <span class="n">current_max_length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">query</span><span class="p">)</span> <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">)</span>
+        <span class="n">remaining_length</span> <span class="o">=</span> <span class="n">max_filter_length</span> <span class="o">-</span> <span class="n">current_max_length</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="s1">&#39; and &#39;</span><span class="p">)</span>
+        <span class="n">filter_group</span> <span class="o">=</span> <span class="n">breakable_filters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">start_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">end_idx</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">while</span> <span class="n">end_idx</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filter_group</span><span class="p">):</span>
+            <span class="n">subfilter</span> <span class="o">=</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="s1">&#39; or &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filter_group</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+
+            <span class="c1"># this one is too long, we need to break one before</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subfilter</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">remaining_length</span><span class="p">:</span>
+                <span class="n">last_subfilter</span> <span class="o">=</span> <span class="s1">&#39;(&#39;</span> <span class="o">+</span> <span class="s1">&#39; or &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filter_group</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:(</span><span class="n">end_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)])</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">q</span> <span class="o">+</span> <span class="s1">&#39; and &#39;</span> <span class="o">+</span> <span class="n">last_subfilter</span> <span class="k">if</span> <span class="n">q</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="n">last_subfilter</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">)</span>
+                <span class="c1"># this one is too long, but also the last element</span>
+                <span class="c1"># since we had to break, we have to add the last element separately</span>
+                <span class="k">if</span> <span class="n">end_idx</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">filter_group</span><span class="p">):</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">q</span> <span class="o">+</span> <span class="s1">&#39; and &#39;</span> <span class="o">+</span> <span class="n">filter_group</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">)</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">start_idx</span> <span class="o">=</span> <span class="n">end_idx</span> <span class="o">-</span> <span class="mi">1</span>
+
+            <span class="c1"># we&#39;ve reached the and, but didn&#39;t neet to break. add everything we have left</span>
+            <span class="k">if</span> <span class="n">end_idx</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">filter_group</span><span class="p">):</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">q</span> <span class="o">+</span> <span class="s1">&#39; and &#39;</span> <span class="o">+</span> <span class="n">subfilter</span> <span class="k">if</span> <span class="n">q</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="n">subfilter</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="n">end_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">filters</span> <span class="o">=</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">filters</span>
+
+
+<div class="viewcode-block" id="fetch_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.fetch_data">[docs]</a><span class="k">def</span> <span class="nf">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="o">=</span><span class="p">(),</span> <span class="n">breakable_filters</span><span class="o">=</span><span class="p">(),</span> <span class="n">service_name</span><span class="o">=</span><span class="s1">&#39;asset_central&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Retrieve data from one of the remote services (AssetCentral or SAP IoT).&quot;&quot;&quot;</span>
+    <span class="n">filters</span> <span class="o">=</span> <span class="n">_compose_queries</span><span class="p">(</span><span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">OAuthFlow</span><span class="p">(</span><span class="n">service_name</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">filter_string</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">:</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;$filter&#39;</span><span class="p">:</span> <span class="n">filter_string</span><span class="p">}</span> <span class="k">if</span> <span class="n">filter_string</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">endpoint_data</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">fetch_endpoint_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">endpoint_data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">endpoint_data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">endpoint_data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">DataNotFoundWarning</span><span class="p">(),</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="add_properties"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.add_properties">[docs]</a><span class="k">def</span> <span class="nf">add_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add AssetCentral properties to a class based on the property mapping defined in the class.&quot;&quot;&quot;</span>
+    <span class="n">property_map</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">our_name</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">property_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">their_name</span><span class="p">,</span> <span class="n">getter</span><span class="p">,</span> <span class="n">setter</span><span class="p">,</span> <span class="n">deleter</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="c1"># the assignment of the default value (`key=their_name`)</span>
+        <span class="c1"># is necessary due to the closure rules in loops</span>
+        <span class="k">def</span> <span class="nf">_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">their_name</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">getter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">getter</span> <span class="o">=</span> <span class="n">_getter</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">our_name</span><span class="p">,</span> <span class="nb">property</span><span class="p">(</span><span class="n">getter</span><span class="p">,</span> <span class="n">setter</span><span class="p">,</span> <span class="n">deleter</span><span class="p">))</span>
+    <span class="k">return</span> <span class="bp">cls</span></div>
+
+
+<span class="k">def</span> <span class="nf">_unify_filters</span><span class="p">(</span><span class="n">equality_filters</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">property_mapping</span><span class="p">):</span>
+    <span class="n">operator_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span> <span class="s1">&#39;gt&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;&lt;&#39;</span><span class="p">:</span> <span class="s1">&#39;lt&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;&gt;=&#39;</span><span class="p">:</span> <span class="s1">&#39;ge&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;&lt;=&#39;</span><span class="p">:</span> <span class="s1">&#39;le&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;!=&#39;</span><span class="p">:</span> <span class="s1">&#39;ne&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;==&#39;</span><span class="p">:</span> <span class="s1">&#39;eq&#39;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">equality_filters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">equality_filters</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">extended_filters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">extended_filters</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">property_mapping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">property_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">unified_filters</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">not_our_term</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">equality_filters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">property_mapping</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">property_mapping</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="n">not_our_term</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">quote_if_string</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="p">[</span><span class="n">quote_if_string</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">quote_if_string</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+        <span class="n">unified_filters</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;eq&#39;</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+
+    <span class="n">quoted_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\w+) *?(&gt;|&lt;|==|&lt;=|&gt;=|!=) *?([\&quot;</span><span class="se">\&#39;</span><span class="s1">])((?:</span><span class="se">\\</span><span class="s1">?.)*?)\3$&#39;</span><span class="p">)</span>
+    <span class="n">unquoted_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\w+) *?(&gt;|&lt;|==|&lt;=|&gt;=|!=) *?([+-]?[\w.]+)$&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">filter_entry</span> <span class="ow">in</span> <span class="n">extended_filters</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="o">:=</span> <span class="n">quoted_pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">filter_entry</span><span class="p">):</span>
+            <span class="n">k</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&#39;&quot;</span>  <span class="c1"># we always need single quotes, but want to accept double quotes as well, hence re-writing.</span>
+        <span class="k">elif</span> <span class="n">match</span> <span class="o">:=</span> <span class="n">unquoted_pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">filter_entry</span><span class="p">):</span>
+            <span class="n">k</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to parse filter entry </span><span class="si">{</span><span class="n">filter_entry</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">property_mapping</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">property_mapping</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="n">not_our_term</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="n">unified_filters</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">operator_map</span><span class="p">[</span><span class="n">o</span><span class="p">],</span> <span class="n">v</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">not_our_term</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Following parameters are not in our terminology: </span><span class="si">{</span><span class="n">not_our_term</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">unified_filters</span>
+
+
+<div class="viewcode-block" id="parse_filter_parameters"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.parse_filter_parameters">[docs]</a><span class="k">def</span> <span class="nf">parse_filter_parameters</span><span class="p">(</span><span class="n">equality_filters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="n">property_mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse equality and extended filters into breakable and unbreakable filters.</span>
+
+<span class="sd">    The distinction between breakable and unbreakable filters is necessary because the AssetCentral endpoints are</span>
+<span class="sd">    generally queried via `GET` requests with filter parameters passed in the header, and there is a limit to the</span>
+<span class="sd">    header size. This allows breaking a query into multiple queries of shorter length while still retrieving the</span>
+<span class="sd">    minimal result set the filters requested.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unified_filters</span> <span class="o">=</span> <span class="n">_unify_filters</span><span class="p">(</span><span class="n">equality_filters</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">property_mapping</span><span class="p">)</span>
+
+    <span class="n">breakable_filters</span> <span class="o">=</span> <span class="p">[]</span>      <span class="c1"># always required</span>
+    <span class="n">unbreakable_filters</span> <span class="o">=</span> <span class="p">[]</span>    <span class="c1"># can be broken into sub-filters if length is exceeded</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">unified_filters</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
+            <span class="n">breakable_filters</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">elem</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">value</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">unbreakable_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">op</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span></div>
+
+
+<div class="viewcode-block" id="apply_filters_post_request"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.apply_filters_post_request">[docs]</a><span class="k">def</span> <span class="nf">apply_filters_post_request</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">equality_filters</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">property_mapping</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Allow filtering of the results returned by an AssetCentral query if the endpoint doesn&#39;t implement `filter`.&quot;&quot;&quot;</span>
+    <span class="n">unified_filters</span> <span class="o">=</span> <span class="n">_unify_filters</span><span class="p">(</span><span class="n">equality_filters</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">property_mapping</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">strip_quote_marks</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&#39;&quot;</span> <span class="ow">and</span> <span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">unified_filters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">strip_quote_marks</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">elem</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">strip_quote_marks</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">operator</span><span class="p">,</span> <span class="n">op</span><span class="p">)(</span><span class="n">elem</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">value</span><span class="p">):</span>
+                    <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="ac_application_url"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ac_application_url">[docs]</a><span class="k">def</span> <span class="nf">ac_application_url</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return the Assetcentral application URL from the SailorConfig.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;asset_central&#39;</span><span class="p">,</span> <span class="s1">&#39;application_url&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AssetcentralEntity"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity">[docs]</a><span class="k">class</span> <span class="nc">AssetcentralEntity</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Common base class for Assetcentral entities.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ac_json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new entity.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">ac_json</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return a very short string representation.&quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;short_description&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(name=&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;, id=&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">&quot;)&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compare two objects based on instance type and id.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span></div>
+
+
+<div class="viewcode-block" id="ResultSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet">[docs]</a><span class="k">class</span> <span class="nc">ResultSet</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Baseclass to be used in all `Set`s of AssetCentral objects.&quot;&quot;&quot;</span>
+
+    <span class="n">_element_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_set_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_method_defaults</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">generating_query_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new ResultSet from the passed elements.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="n">elements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__generating_query_params</span> <span class="o">=</span> <span class="n">generating_query_params</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of objects stored in the ResultSet to implement the `Sequence` interface.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Two ResultSets are equal if all of their elements are equal with order respected.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">all</span><span class="p">((</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">other</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))))</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">]):</span>
+        <span class="sd">&quot;&quot;&quot;Return a subset of the ResultSet to implement the `Sequence` interface.&quot;&quot;&quot;</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">selection</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">selection</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Combine two ResultSets as the sum of all elements, required to implement the `Sequence` interface.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Only ResultSets of the same type can be added.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">elements</span><span class="p">,</span> <span class="s1">&#39;set-summation&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ResultSet.as_df"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.as_df">[docs]</a>    <span class="k">def</span> <span class="nf">as_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return all information on the objects stored in the ResultSet as a pandas dataframe.&quot;&quot;&quot;</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method_defaults</span><span class="p">[</span><span class="s1">&#39;as_df&#39;</span><span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">columns</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="n">prop</span><span class="p">:</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">columns</span>
+        <span class="p">})</span></div>
+
+<div class="viewcode-block" id="ResultSet.filter"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Select a subset of the ResultSet based on named filter criteria for the attributes of the elements.&quot;&quot;&quot;</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span> <span class="o">!=</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">selection</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">selection</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ResultSet.plot_distribution"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.plot_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">plot_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the distribution of elements of a ResultSet based on their properties.</span>
+
+<span class="sd">        This effectively creates a histogram with the number of elements per group on the y-axis, and the group</span>
+<span class="sd">        (given by the `by` parameter) on the x-axis. Additionally, the fill colour of the bar can be used to</span>
+<span class="sd">        distinguish a second dimension.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">by</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method_defaults</span><span class="p">[</span><span class="s1">&#39;plot_distribution&#39;</span><span class="p">][</span><span class="s1">&#39;by&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">by</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">by</span>
+        <span class="n">display_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element_name</span> <span class="o">+</span> <span class="s1">&#39;s&#39;</span>
+
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">by</span><span class="p">]</span>
+        <span class="n">aes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">by</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">fill</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fill</span><span class="p">)</span>
+            <span class="n">aes</span><span class="p">[</span><span class="s1">&#39;fill&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fill</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_df</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dropna</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">by</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No </span><span class="si">{</span><span class="n">display_name</span><span class="si">}</span><span class="s1"> with non-empty &quot;</span><span class="si">{</span><span class="n">by</span><span class="si">}</span><span class="s1">&quot; found. Can not create plot.&#39;</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;NA&#39;</span><span class="p">)</span>
+
+        <span class="n">plot</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">p9</span><span class="o">.</span><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">p9</span><span class="o">.</span><span class="n">aes</span><span class="p">(</span><span class="o">**</span><span class="n">aes</span><span class="p">))</span> <span class="o">+</span>
+                <span class="n">p9</span><span class="o">.</span><span class="n">geom_bar</span><span class="p">()</span> <span class="o">+</span>
+                <span class="n">default_plot_theme</span><span class="p">()</span> <span class="o">+</span>
+                <span class="n">p9</span><span class="o">.</span><span class="n">ggtitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Number of </span><span class="si">{</span><span class="n">display_name</span><span class="si">}</span><span class="s1"> per </span><span class="si">{</span><span class="n">by</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">plot</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_odata_to_timestamp_parser</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="mi">1000</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_string_to_timestamp_parser</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_string_to_date_parser</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="any_to_timestamp"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.any_to_timestamp">[docs]</a><span class="k">def</span> <span class="nf">any_to_timestamp</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">],</span> <span class="n">default</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Try to parse a timestamp provided in a variety of formats into a uniform representation as pd.Timestamp.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">):</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Can only parse strings, pandas timestamps or python native timestamps.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">:</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Trying to parse non-timezone-aware timestamp, assuming UTC.&#39;</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">,</span> <span class="n">ambiguous</span><span class="o">=</span><span class="s1">&#39;NaT&#39;</span><span class="p">,</span> <span class="n">nonexistent</span><span class="o">=</span><span class="s1">&#39;NaT&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">timestamp</span></div>
+
+
+<div class="viewcode-block" id="timestamp_to_isoformat"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.timestamp_to_isoformat">[docs]</a><span class="k">def</span> <span class="nf">timestamp_to_isoformat</span><span class="p">(</span><span class="n">timestamp</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return an iso-format string of a timestamp after conversion to UTC and without the timezone information.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">:</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span></div>
+
+
+<span class="c1"># this warning concerns the interactive use case</span>
+<div class="viewcode-block" id="DataNotFoundWarning"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.DataNotFoundWarning">[docs]</a><span class="k">class</span> <span class="nc">DataNotFoundWarning</span><span class="p">(</span><span class="ne">Warning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Use this warning to indicate that a query-like function returned an empty result.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;No data found for given parameters.&quot;</span> <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">message</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, DSC Data Science Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

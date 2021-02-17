@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sailor.assetcentral.notification &mdash; sailor 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> sailor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../filter_language.html">Filter language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently asked questions</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sailor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sailor.assetcentral.notification</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sailor.assetcentral.notification</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Retrieve Notification information from AssetCentral.</span>
+
+<span class="sd">Classes are provided for individual Notifications as well as groups of Notifications (NotificationSet).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">plotnine</span> <span class="k">as</span> <span class="nn">p9</span>
+
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_NOTIFICATIONS</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">fetch_data</span><span class="p">,</span> <span class="n">add_properties</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">parse_filter_parameters</span><span class="p">,</span> <span class="n">_string_to_date_parser</span><span class="p">,</span> \
+    <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ac_application_url</span>
+<span class="kn">from</span> <span class="nn">..utils.plot_helper</span> <span class="kn">import</span> <span class="n">default_plot_theme</span>
+
+
+<div class="viewcode-block" id="Notification"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification">[docs]</a><span class="nd">@add_properties</span>
+<span class="k">class</span> <span class="nc">Notification</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    AssetCentral Notification Object.</span>
+
+<span class="sd">    Properties (in AC terminology) are: notificationId, shortDescription, status, statusDescription, notificationType,</span>
+<span class="sd">    notificationTypeDescription, priority, priorityDescription, isInternal, createdBy, creationDateTime,</span>
+<span class="sd">    lastChangedBy, lastChangeDateTime, longDescription, startDate, endDate, malfunctionStartDate, malfunctionEndDate,</span>
+<span class="sd">    progressStatus, progressStatusDescription, equipmentId, equipmentName, rootEquipmentId, rootEquipmentName,</span>
+<span class="sd">    locationId, breakdown, coordinates, source, operatorId, location, assetCoreEquipmentId, operator, internalId,</span>
+<span class="sd">    modelId, proposedFailureModeID, proposedFailureModeDisplayID, proposedFailureModeDesc, confirmedFailureModeID,</span>
+<span class="sd">    confirmedFailureModeDesc, confirmedFailureModeDisplayIDs, systemProposedFailureModeID,</span>
+<span class="sd">    systemProposedFailureModeDesc, systemProposedFailureModeDisplayID, effectID, effectDisplayID, effectDesc,</span>
+<span class="sd">    causeID, causeDisplayID, causeDesc, instructionID, instructionTitle</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Notification.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;notificationId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;internalId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;short_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;shortDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;long_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;longDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;breakdown&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;breakdown&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># TODO: turn into boolean?</span>
+
+            <span class="s1">&#39;confirmed_failure_mode_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;confirmedFailureModeID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;confirmed_failure_mode_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;confirmedFailureModeDesc&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;confirmed_failure_mode_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;confirmedFailureModeDisplayID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;end_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;endDate&#39;</span><span class="p">,</span> <span class="n">_string_to_date_parser</span><span class="p">(</span><span class="s1">&#39;endDate&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;equipmentId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;equipment_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;equipmentName&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;location_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;locationID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;location_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;malfunction_end_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;malfunctionEndDate&#39;</span><span class="p">,</span> <span class="n">_string_to_date_parser</span><span class="p">(</span><span class="s1">&#39;malfunctionEndDate&#39;</span><span class="p">),</span>
+                                     <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;malfunction_start_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;malfunctionStartDate&#39;</span><span class="p">,</span> <span class="n">_string_to_date_parser</span><span class="p">(</span><span class="s1">&#39;malfunctionStartDate&#39;</span><span class="p">),</span>
+                                       <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;notification_type&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;notificationType&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;notification_type_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;notificationTypeDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;priority_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;priorityDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;start_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="n">_string_to_date_parser</span><span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;status_text&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;statusDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;system_failure_mode_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;systemProposedFailureModeID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;system_failure_mode_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;systemProposedFailureModeDesc&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;system_failure_mode_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;systemProposedFailureModeDisplayID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;user_failure_mode_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;proposedFailureModeID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;user_failure_mode_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;proposedFailureModeDesc&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;user_failure_mode_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;proposedFailureModeDisplayID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="Notification.plot_context"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification.plot_context">[docs]</a>    <span class="k">def</span> <span class="nf">plot_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">window_before</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span> <span class="n">window_after</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot a notification in the context of the timeseries data around the time of the notification.</span>
+
+<span class="sd">        This plot can be used to gain insight into the sensor behaviour around the time that a malfunction occurs.</span>
+<span class="sd">        If the `data` parameter is left as `None` the data required for plotting is automatically retrieved from</span>
+<span class="sd">        SAP IoT.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data</span>
+<span class="sd">            DSCTimeseriesWrapper to use for plotting indicator data near the Notification.</span>
+<span class="sd">        window_before</span>
+<span class="sd">            Time interval plotted before a notification. Default value is 7 days before a notification</span>
+<span class="sd">        window_after</span>
+<span class="sd">            Time interval plotted after a notification. Default value is 2 days after a notification</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># required to avoid circular imports. which is aweful. not sure about the best way to approach this though</span>
+        <span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">find_equipments</span>
+
+        <span class="n">equipment_set</span> <span class="o">=</span> <span class="n">find_equipments</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">equipment_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">:</span>
+            <span class="n">data_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">-</span> <span class="n">window_before</span>
+            <span class="n">area_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">data_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">)</span>
+            <span class="n">data_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">+</span> <span class="n">window_after</span>
+            <span class="n">area_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">data_end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">:</span>
+            <span class="n">data_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">-</span> <span class="n">window_before</span>
+            <span class="n">area_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">data_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">)</span>
+            <span class="n">data_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">+</span> <span class="n">window_after</span>
+            <span class="n">area_end</span> <span class="o">=</span> <span class="n">data_end</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">:</span>
+            <span class="n">data_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">-</span> <span class="n">window_before</span>
+            <span class="n">area_start</span> <span class="o">=</span> <span class="n">data_start</span>
+            <span class="n">data_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">+</span> <span class="n">window_after</span>
+            <span class="n">area_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">data_end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Either notification start_date or notification end_date must be known to plot context.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Fetching context data automatically is not implemented yet.&#39;</span><span class="p">)</span>
+
+        <span class="n">plot</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_start</span><span class="p">,</span> <span class="n">data_end</span><span class="p">,</span> <span class="n">equipment_set</span><span class="o">=</span><span class="n">equipment_set</span><span class="p">)</span> <span class="o">+</span>
+                <span class="n">p9</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;vline&#39;</span><span class="p">,</span> <span class="n">xintercept</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">linetype</span><span class="o">=</span><span class="s1">&#39;dotted&#39;</span><span class="p">)</span> <span class="o">+</span>
+                <span class="n">p9</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;rect&#39;</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="n">area_start</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">area_end</span><span class="p">,</span>
+                            <span class="n">ymin</span><span class="o">=-</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">ymax</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">plot</span></div></div>
+
+
+<div class="viewcode-block" id="NotificationSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet">[docs]</a><span class="k">class</span> <span class="nc">NotificationSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class representing a group of Notifications.&quot;&quot;&quot;</span>
+
+    <span class="n">_element_name</span> <span class="o">=</span> <span class="s1">&#39;Notification&#39;</span>
+    <span class="n">_set_name</span> <span class="o">=</span> <span class="s1">&#39;NotificationSet&#39;</span>
+    <span class="n">_method_defaults</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;plot_distribution&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;by&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;as_df&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="n">Notification</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="NotificationSet.plot_overview"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet.plot_overview">[docs]</a>    <span class="k">def</span> <span class="nf">plot_overview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot an overview over all notifications in the set as a function of time.</span>
+
+<span class="sd">        Each notification will be shown by a rectangle, on a y-scale representing the affected equipment</span>
+<span class="sd">        and with a color representing the confirmed failure mode description.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_df</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;malfunction_start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunction_end_date&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;confirmed_failure_mode_description&#39;</span><span class="p">])</span>
+
+        <span class="n">aes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="s1">&#39;malfunction_start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;xend&#39;</span><span class="p">:</span> <span class="s1">&#39;malfunction_end_date&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;yend&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;confirmed_failure_mode_description&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">p9</span><span class="o">.</span><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">p9</span><span class="o">.</span><span class="n">aes</span><span class="p">(</span><span class="o">**</span><span class="n">aes</span><span class="p">))</span>
+        <span class="n">plot</span> <span class="o">+=</span> <span class="n">p9</span><span class="o">.</span><span class="n">geom_segment</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+        <span class="n">plot</span> <span class="o">+=</span> <span class="n">default_plot_theme</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">plot</span></div></div>
+
+
+<div class="viewcode-block" id="find_notifications"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.find_notifications">[docs]</a><span class="k">def</span> <span class="nf">find_notifications</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NotificationSet</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Fetch Notifications from AssetCentral with the applied filters, return a NotificationSet.</span>
+
+<span class="sd">    This method supports the common filter language explained at :ref:`filter`.</span>
+
+<span class="sd">    **Allowed entries for filter terms**</span>
+
+<span class="sd">        Type of notifications and its meanings</span>
+<span class="sd">            M1: Maintenance Request, M2: BreakDown</span>
+
+<span class="sd">        Priorities and its meanings</span>
+<span class="sd">            5: Low, 10: Medium, 15: High, 20:  Very High, 25: Emergency</span>
+
+<span class="sd">        Status types and its meanings</span>
+<span class="sd">            NEW: New, PBD: Published, CPT: Completed, IPR: InProcess</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    extended_filters</span>
+<span class="sd">        See :ref:`filter`.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        See :ref:`filter`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Find all notifications with short_description &#39;MyNotification&#39;::</span>
+
+<span class="sd">        find_notifications(short_description=&#39;MyNotification&#39;)</span>
+
+<span class="sd">    Find all notifications which either have the short_description &#39;MyNotification&#39; or the short_description</span>
+<span class="sd">    &#39;MyOtherNotification&#39;::</span>
+
+<span class="sd">        find_notifications(short_description=[&#39;MyNotification&#39;, &#39;MyOtherNotification&#39;])</span>
+
+<span class="sd">    Find all notifications with short_description &#39;MyNotification&#39; which also have the start date &#39;2020-07-01&#39;::</span>
+
+<span class="sd">        find_notifications(short_description=&#39;MyNotification&#39;, start_date=&#39;2020-07-01&#39;)</span>
+
+<span class="sd">    Find all notifications with a confirmed failure mode description is not empty::</span>
+
+<span class="sd">        find_notifications(extended_filters=[&#39;confirmed_failure_mode_description != &quot;None&quot;&#39;])</span>
+
+<span class="sd">    Find all notifications in a given timeframe for specific equipments::</span>
+
+<span class="sd">        find_notifications([&#39;malfunctionStartDate &gt; &quot;2020-08-01&quot;&#39;, &#39;malfunctionEndDate &lt;= &quot;2020-09-01&quot;&#39;],</span>
+<span class="sd">                           equipment_id=[&#39;id1&#39;, &#39;id2&#39;])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \
+        <span class="n">parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Notification</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
+
+    <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_NOTIFICATIONS</span>
+    <span class="n">object_list</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">NotificationSet</span><span class="p">([</span><span class="n">Notification</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">],</span>
+                           <span class="p">{</span><span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;extended_filters&#39;</span><span class="p">:</span> <span class="n">extended_filters</span><span class="p">})</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, DSC Data Science Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

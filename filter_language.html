@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Filter language &mdash; sailor 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API documentation" href="apidoc.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> sailor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Filter language</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#equality-filters">Equality filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inequality-filters">Inequality filters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently asked questions</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sailor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Filter language</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/SAP/project-sailor/blob/master/docs/filter_language.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="filter-language">
+<span id="filter"></span><h1>Filter language<a class="headerlink" href="#filter-language" title="Permalink to this headline">¶</a></h1>
+<p>There is a function in each of the <cite>assetcentral</cite> modules for fetching data from AssetCentral. All of these functions support the same parameters, syntax and semantics.</p>
+<p>For example:
+<code class="docutils literal notranslate"><span class="pre">find_notifications(inequality_filters=None,</span> <span class="pre">**kwargs)</span></code></p>
+<div class="section" id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<dl class="simple">
+<dt><cite>inequality_filters</cite></dt><dd><p>A list of expressions that specify filters with inequality operators.</p>
+</dd>
+<dt><cite>**kwargs</cite></dt><dd><p>Any named keyword arguments are applied as equality filters.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="equality-filters">
+<h2>Equality filters<a class="headerlink" href="#equality-filters" title="Permalink to this headline">¶</a></h2>
+<p>Any <strong>named keyword arguments</strong> applied as equality filters.</p>
+<ul class="simple">
+<li><p>The <strong>key</strong> of the keyword argument is checked against the value of the keyword argument in Asset Central.</p></li>
+<li><p>If the <strong>value</strong> of the keyword argument is an <code class="xref py py-obj docutils literal notranslate"><span class="pre">Iterable</span></code> (e.g. a <code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code>) then all objects matching any of the values in the iterable are returned.</p></li>
+<li><p>If multiple named arguments are provided then <em>all</em> conditions have to match.</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">find_notifications(short_description='MyNotification')</span></code>
+will return all notifications with description ‘MyNotification’.</p>
+<p><code class="docutils literal notranslate"><span class="pre">find_notifications(short_description=['MyNotification',</span> <span class="pre">'MyOtherNotification'])</span></code>
+will return all notifications which either have the description ‘MyNotification’ OR the description ‘MyOtherNotification’.</p>
+<p><code class="docutils literal notranslate"><span class="pre">find_notifications(short_description='MyNotification',</span> <span class="pre">start_date='2020-07-01')</span></code>
+will return all notifications with description ‘MyNotification’ which also have the start date ‘2020-07-01’.</p>
+</div>
+<div class="section" id="inequality-filters">
+<h2>Inequality filters<a class="headerlink" href="#inequality-filters" title="Permalink to this headline">¶</a></h2>
+<p>The <em>inequality_filters</em> parameter can be used to specify filters that can not be expressed as an equality. Inequality filters need to be provided as <code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code>.
+Each element in the list needs to be provided as a <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code> expression conforming to the following grammar: <code class="docutils literal notranslate"><span class="pre">field</span> <span class="pre">operator</span> <span class="pre">(field|literal)</span></code> where <em>literal</em> must be quoted.</p>
+<ul class="simple">
+<li><p>Supported operators are <code class="docutils literal notranslate"><span class="pre">&lt;</span></code> <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> <code class="docutils literal notranslate"><span class="pre">!=</span></code>.</p></li>
+<li><p>As with equality filters, <em>all</em> conditions need to match for a result to be returned.</p></li>
+<li><p>Inequality filters can be freely combined with named arguments. All filter criteria need to match for a result to be returned.</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">find_notifications(inequality_filters=['short_description</span> <span class="pre">!=</span> <span class="pre">&quot;MyNotification&quot;'])</span></code>
+will return all notifications with a description not matching ‘MyNotification’.</p>
+<p><code class="docutils literal notranslate"><span class="pre">find_notifications(['malfunctionStartDate</span> <span class="pre">&gt;</span> <span class="pre">&quot;2020-08-01&quot;',</span> <span class="pre">'malfunctionEndDate</span> <span class="pre">&lt;=</span> <span class="pre">&quot;2020-09-01&quot;])</span></code>
+will return all notifications in a given timeframe.</p>
+<p>The following example will return all notifications in a given timeframe for both equipments with ‘id1’ and ‘id2’.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">([</span><span class="s1">&#39;malfunctionStartDate &gt; &quot;2020-08-01&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunctionEndDate &lt;= &quot;2020-09-01&quot;&#39;</span><span class="p">],</span>
+                  <span class="n">equipment_id</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id1&#39;</span><span class="p">,</span> <span class="s1">&#39;id2&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="apidoc.html" class="btn btn-neutral float-right" title="API documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tutorial.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, DSC Data Science Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

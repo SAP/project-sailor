@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sailor.assetcentral.timeseries &mdash; sailor 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sailor.assetcentral.utils" href="sailor.assetcentral.utils.html" />
+    <link rel="prev" title="sailor.assetcentral.system" href="sailor.assetcentral.system.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> sailor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../filter_language.html">Filter language</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apidoc.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.constants</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.equipment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.equipment_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment_model</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.failure_mode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.failure_mode</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.indicators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.notification.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.timeseries</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.workorder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently asked questions</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sailor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../apidoc.html">API documentation</a> &raquo;</li>
+        
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.timeseries</span></code></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/SAP/project-sailor/blob/master/docs/apidoc/sailor.assetcentral.timeseries.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-sailor.assetcentral.timeseries">
+<span id="sailor-assetcentral-timeseries"></span><h1><a class="reference internal" href="#module-sailor.assetcentral.timeseries" title="sailor.assetcentral.timeseries"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.timeseries</span></code></a><a class="headerlink" href="#module-sailor.assetcentral.timeseries" title="Permalink to this headline">¶</a></h1>
+<p>Timeseries module can be used to retrieve timeseries data from the SAP iot abstract timeseries api.</p>
+<p>Interfaces for retrieval are aligned with AssetCentral objects such as equipments and indicators.
+Timeseries data is generally stored in a pandas dataframe, wrapped in a convenience class to make it easier
+to interact with the data in AssetCentral terms.</p>
+<dl class="py class">
+<dt id="sailor.assetcentral.timeseries.DSCTimeseriesWrapper">
+<em class="property">class </em><code class="sig-prename descclassname">sailor.assetcentral.timeseries.</code><code class="sig-name descname">DSCTimeseriesWrapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">feature_details</span></em>, <em class="sig-param"><span class="n">equipment_set</span></em>, <em class="sig-param"><span class="n">nominal_interval</span></em>, <em class="sig-param"><span class="n">nominal_data_start</span></em>, <em class="sig-param"><span class="n">nominal_data_end</span></em>, <em class="sig-param"><span class="n">is_normalized</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#DSCTimeseriesWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A Wrapper class to make accessing timeseries data from SAP iot more convenient.</p>
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.DSCTimeseriesWrapper.as_df">
+<code class="sig-name descname">as_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">speaking_names</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#DSCTimeseriesWrapper.as_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper.as_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the data stored within this TimeseriesWrapper object as a pandas dataframe.</p>
+<p>By default the data is returned with opaque column headers. If speaking_names is set to true, the data is
+converted such that equipment_id and equipment_model_id are replaced by human-readable names, and the opaque
+column headers are replaced by a hierarchical index of template_id, indicator_group_name, indicator_name and
+aggregation_function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.DSCTimeseriesWrapper.filter">
+<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">equipment_ids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#DSCTimeseriesWrapper.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new DSCTimeseriesWrapper extracted from an original data with filter parameters.</p>
+<p>Only indicator data specified in filters are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>equipment_ids</strong> (<em>Iterable</em><em>[</em><em>str</em><em>]</em>) – Optional equipment set ids to filter timeseries data.</p></li>
+<li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime</em><em>]</em>) – Optional start time of timeseries data are returned.</p></li>
+<li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime</em><em>]</em>) – Optional end time until timeseries data are returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper" title="sailor.assetcentral.timeseries.DSCTimeseriesWrapper">DSCTimeseriesWrapper</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.DSCTimeseriesWrapper.get_feature_columns">
+<code class="sig-name descname">get_feature_columns</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">speaking_names</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#DSCTimeseriesWrapper.get_feature_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper.get_feature_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the names of all feature columns.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.DSCTimeseriesWrapper.get_index_columns">
+<code class="sig-name descname">get_index_columns</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">speaking_names</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#DSCTimeseriesWrapper.get_index_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper.get_index_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the names of all index columns (key columns and time column).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.DSCTimeseriesWrapper.get_key_columns">
+<code class="sig-name descname">get_key_columns</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">speaking_names</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#DSCTimeseriesWrapper.get_key_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper.get_key_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return those columns of the data that identify the asset.</p>
+<p>Currently we only support asset type ‘Equipment’ so this will always return columns based on the equipment.
+In the future other types (like System) will be supported here.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.DSCTimeseriesWrapper.get_time_column">
+<code class="sig-name descname">get_time_column</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#DSCTimeseriesWrapper.get_time_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper.get_time_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the name of the column containing the time information.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.DSCTimeseriesWrapper.merge">
+<code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em>, <em class="sig-param"><span class="n">leading_equipment</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#DSCTimeseriesWrapper.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Join two timeseries datasets.</p>
+<p>The two datasets may both contain only a single equipment, merging datasets where each datset contains
+more than one equipment is currently not supported. The equipment used as identifier in the final dataset
+must be provided in the <cite>leading_equipment</cite> parameter. The resulting join is an ‘outer’ join of the
+two datasets, and will contain a row for each timestamp occuring in at least one of the input datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<a class="reference internal" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper" title="sailor.assetcentral.timeseries.DSCTimeseriesWrapper"><em>DSCTimeseriesWrapper</em></a>) – Timeseries data which is merged with an original timeseries.</p></li>
+<li><p><strong>leading_equipment</strong> (<a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment" title="sailor.assetcentral.equipment.Equipment"><em>Equipment</em></a>) – Equipment used as a identifier in a final dataset.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper" title="sailor.assetcentral.timeseries.DSCTimeseriesWrapper">DSCTimeseriesWrapper</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.DSCTimeseriesWrapper.normalize">
+<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fitted_scaler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scaler</span><span class="o">=</span><span class="default_value">StandardScaler()</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#DSCTimeseriesWrapper.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize a data frame using scaler in normalization_factors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fitted_scaler</strong> – Optional fitted scaler, to be used to normalize self._df</p></li>
+<li><p><strong>scaler</strong> – Type of scaler to use for normalization. Default settings implies x -&gt; (x-m)/s, m= mean and s=std.
+Properties are computed along the columns.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>new_wrapper</em> – DSCTimeseriesWrapper with self._df updated to be the normalized dataframe.</p></li>
+<li><p><em>fitted_scaler</em> – Fitted scaler to be used to normalize the data.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple[<a class="reference internal" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper" title="sailor.assetcentral.timeseries.DSCTimeseriesWrapper">DSCTimeseriesWrapper</a>, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.DSCTimeseriesWrapper.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">aggregation_function</span><span class="o">=</span><span class="default_value">'AVG'</span></em>, <em class="sig-param"><span class="n">indicator_set</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">equipment_set</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#DSCTimeseriesWrapper.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the timeseries data stored within this wrapper.</p>
+<p>The plot will create different panels for each indicator_group and template in the data, as well as each
+indicator. Data from different equipments will be represented by different colors. The plotnine object
+returned by this method will be rendered in jupyter notebooks, but can also be further modified by the caller.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – Optional start time the timeseries data is plotted.</p></li>
+<li><p><strong>end</strong> – Optional end time the timeseries data is plotted.</p></li>
+<li><p><strong>aggregation_function</strong> – Optional aggregation function indicating how time series data is aggregated.</p></li>
+<li><p><strong>indicator_set</strong> – Optional Indicators which are plotted.</p></li>
+<li><p><strong>equipment_set</strong> – optional equipment which indicator data is plotted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Line charts of timeseries data.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>plot</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<dl class="simple">
+<dt>Plot all indicators in indicator data set ‘my_indicator_data’::</dt><dd><p>my_indicator_data(plot)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.DSCTimeseriesWrapper.union">
+<code class="sig-name descname">union</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#DSCTimeseriesWrapper.union"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper.union" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the union of two DSCTimeseriesWrappers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper" title="sailor.assetcentral.timeseries.DSCTimeseriesWrapper"><em>sailor.assetcentral.timeseries.DSCTimeseriesWrapper</em></a>) – Second timeseries data to union with.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sailor.assetcentral.timeseries.DSCTimeseriesWrapper" title="sailor.assetcentral.timeseries.DSCTimeseriesWrapper">sailor.assetcentral.timeseries.DSCTimeseriesWrapper</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="sailor.assetcentral.timeseries.FeatureDetails">
+<em class="property">class </em><code class="sig-prename descclassname">sailor.assetcentral.timeseries.</code><code class="sig-name descname">FeatureDetails</code><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#FeatureDetails"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.FeatureDetails" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>class stores the details of feature columns retrieved from the sap abstract timeseries api.</p>
+<p>Columns are generally identified by indicator_id, indicator_group_id, template_id and aggregation_function.
+Since it can be inconvenient at times to store all this information in pandas column headers, the column headers are
+based on an opaque hash, and this class can be used to map from column headers to semantics about the indicator.</p>
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.FeatureDetails.filter">
+<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">indicator_set</span></em>, <em class="sig-param"><span class="n">aggregation_functions</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#FeatureDetails.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.FeatureDetails.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the feature details stored in this class.</p>
+<p>The method returns a new instance of FeatureDetails() containing only those features which match the indicators
+and aggregation_functions passed in the parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.FeatureDetails.get_id_mapping">
+<code class="sig-name descname">get_id_mapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#FeatureDetails.get_id_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.FeatureDetails.get_id_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get details on an opaque column_id in terms of AssetCentral IDs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.FeatureDetails.get_name_mapping">
+<code class="sig-name descname">get_name_mapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#FeatureDetails.get_name_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.FeatureDetails.get_name_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get details on an opaque column_id in terms of AssetCentral names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.timeseries.FeatureDetails.put">
+<code class="sig-name descname">put</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">column_id</span></em>, <em class="sig-param"><span class="n">indicator</span></em>, <em class="sig-param"><span class="n">aggregation_function</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/timeseries.html#FeatureDetails.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.timeseries.FeatureDetails.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert details on a column_id to the FeatureDetails, overwriting existing details for column_id.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sailor.assetcentral.utils.html" class="btn btn-neutral float-right" title="sailor.assetcentral.utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sailor.assetcentral.system.html" class="btn btn-neutral float-left" title="sailor.assetcentral.system" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, DSC Data Science Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
