@@ -1,6 +1,6 @@
 # context must be git root:
 #   docker build . -f .ci/Dockerfile -t <tag>
-FROM python:3.8.6-slim
+FROM python:3.8.7-slim
 
 # installing git requires installing the git PPA first
 RUN set -ex; \
@@ -9,6 +9,8 @@ RUN set -ex; \
     apt update; apt install -y --no-install-recommends git; \
     apt remove --purge -y gnupg; \
     apt autoremove -y --purge; apt clean -y
+COPY .ci/requirements_pr.txt /tmp/requirements_pr.txt
+RUN pip install --no-cache-dir -r /tmp/requirements_pr.txt
 COPY .ci/requirements_ci.txt /tmp/requirements_ci.txt
 RUN pip install --no-cache-dir -r /tmp/requirements_ci.txt
 COPY requirements.txt /tmp/requirements.txt

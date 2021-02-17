@@ -1,12 +1,4 @@
-# testing
-pytest
-
-# linting
-flake8
-pep8-naming
-flake8-import-order
-pydocstyle
-bandit
+-r requirements_pr.txt
 
 # packaging
 build

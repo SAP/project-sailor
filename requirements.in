@@ -1,5 +1,5 @@
 furl
-pyjwt
+pyjwt<2
 matplotlib
 pandas
 plotnine

@@ -30,7 +30,7 @@ pipeline {
                 }
                 stage('Pytest') {
                     steps {
-                        sh 'pip install -qq -r .ci/requirements_ci.txt'
+                        sh 'pip install -qq -r .ci/requirements_pr.txt'
                         sh 'pip install -qq -r requirements.txt' // there can be new dependencies since the last docker build
                         sh 'pytest -q tests'
                     }

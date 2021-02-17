@@ -4,7 +4,7 @@ linter=$1
 args=$2
 
 GIT_REMOTE="$(git remote show | head -n 1)"
-GIT_MASTER_COMMIT=$(git log -n 1 --pretty=format:"%H" "${GIT_REMOTE}"/master)
+GIT_MASTER_COMMIT=$(git log -n 1 --pretty=format:"%H" "${GIT_REMOTE}"/main)
 GIT_LAST_COMMIT=$(git rev-parse HEAD)
 
 file_filter='\.py$'

@@ -6,7 +6,7 @@ spec:
   imagePullSecrets: ['dscdatascience-jenkins']
   containers:
   - name: container-exec
-    image: dscdatascience.common.repositories.cloud.sap/pr_validation:2011b
+    image: dscdatascience.common.repositories.cloud.sap/pr_validation:2102a
     command:
     - sleep
     args:
