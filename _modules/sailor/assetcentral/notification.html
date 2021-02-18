@@ -165,8 +165,9 @@
 <span class="kn">import</span> <span class="nn">plotnine</span> <span class="k">as</span> <span class="nn">p9</span>
 
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_NOTIFICATIONS</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">fetch_data</span><span class="p">,</span> <span class="n">add_properties</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">parse_filter_parameters</span><span class="p">,</span> <span class="n">_string_to_date_parser</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">fetch_data</span><span class="p">,</span> <span class="n">add_properties</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">parse_filter_parameters</span><span class="p">,</span>\
     <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ac_application_url</span>
+<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_date_parser</span>
 <span class="kn">from</span> <span class="nn">..utils.plot_helper</span> <span class="kn">import</span> <span class="n">default_plot_theme</span>
 
 
@@ -232,16 +233,16 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        data</span>
-<span class="sd">            DSCTimeseriesWrapper to use for plotting indicator data near the Notification.</span>
+<span class="sd">            TimeseriesDataset to use for plotting indicator data near the Notification.</span>
 <span class="sd">        window_before</span>
 <span class="sd">            Time interval plotted before a notification. Default value is 7 days before a notification</span>
 <span class="sd">        window_after</span>
 <span class="sd">            Time interval plotted after a notification. Default value is 2 days after a notification</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># required to avoid circular imports. which is aweful. not sure about the best way to approach this though</span>
-        <span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">find_equipments</span>
+        <span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">find_equipment</span>
 
-        <span class="n">equipment_set</span> <span class="o">=</span> <span class="n">find_equipments</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">equipment_id</span><span class="p">)</span>
+        <span class="n">equipment_set</span> <span class="o">=</span> <span class="n">find_equipment</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">equipment_id</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">:</span>
             <span class="n">data_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">-</span> <span class="n">window_before</span>
@@ -262,7 +263,7 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Either notification start_date or notification end_date must be known to plot context.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Fetching context data automatically is not implemented yet.&#39;</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="n">data_start</span><span class="p">,</span> <span class="n">data_end</span><span class="p">)</span>
 
         <span class="n">plot</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_start</span><span class="p">,</span> <span class="n">data_end</span><span class="p">,</span> <span class="n">equipment_set</span><span class="o">=</span><span class="n">equipment_set</span><span class="p">)</span> <span class="o">+</span>
@@ -352,7 +353,7 @@
 
 <span class="sd">        find_notifications(extended_filters=[&#39;confirmed_failure_mode_description != &quot;None&quot;&#39;])</span>
 
-<span class="sd">    Find all notifications in a given timeframe for specific equipments::</span>
+<span class="sd">    Find all notifications in a given timeframe for specific equipment::</span>
 
 <span class="sd">        find_notifications([&#39;malfunctionStartDate &gt; &quot;2020-08-01&quot;&#39;, &#39;malfunctionEndDate &lt;= &quot;2020-09-01&quot;&#39;],</span>
 <span class="sd">                           equipment_id=[&#39;id1&#39;, &#39;id2&#39;])</span>

@@ -5,4 +5,5 @@ API documentation
    :glob:
 
    apidoc/sailor.assetcentral.*
+   apidoc/sailor.sap_iot.*
 

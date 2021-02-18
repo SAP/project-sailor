@@ -99,9 +99,10 @@
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.timeseries.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.timeseries</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.workorder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.fetch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.wrappers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.wrappers</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
@@ -209,7 +210,7 @@ SAP IoT.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – DSCTimeseriesWrapper to use for plotting indicator data near the Notification.</p></li>
+<li><p><strong>data</strong> – TimeseriesDataset to use for plotting indicator data near the Notification.</p></li>
 <li><p><strong>window_before</strong> – Time interval plotted before a notification. Default value is 7 days before a notification</p></li>
 <li><p><strong>window_after</strong> – Time interval plotted after a notification. Default value is 2 days after a notification</p></li>
 </ul>
@@ -279,7 +280,7 @@ and with a color representing the confirmed failure mode description.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;confirmed_failure_mode_description != &quot;None&quot;&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
-<p>Find all notifications in a given timeframe for specific equipments:</p>
+<p>Find all notifications in a given timeframe for specific equipment:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">([</span><span class="s1">&#39;malfunctionStartDate &gt; &quot;2020-08-01&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunctionEndDate &lt;= &quot;2020-09-01&quot;&#39;</span><span class="p">],</span>
                    <span class="n">equipment_id</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id1&#39;</span><span class="p">,</span> <span class="s1">&#39;id2&#39;</span><span class="p">])</span>
 </pre></div>

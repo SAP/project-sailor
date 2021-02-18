@@ -99,9 +99,10 @@
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.notification.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.timeseries.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.timeseries</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.workorder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.fetch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.wrappers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.wrappers</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
@@ -178,7 +179,7 @@
   <div class="section" id="module-sailor.assetcentral.equipment">
 <span id="sailor-assetcentral-equipment"></span><h1><a class="reference internal" href="#module-sailor.assetcentral.equipment" title="sailor.assetcentral.equipment"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a><a class="headerlink" href="#module-sailor.assetcentral.equipment" title="Permalink to this headline">¶</a></h1>
 <p>Retrieve Equipment information from AssetCentral.</p>
-<p>Classes are provided for individual Equipments as well as groups of Equipments (EquipmentSet).</p>
+<p>Classes are provided for individual Equipment as well as groups of Equipment (EquipmentSet).</p>
 <dl class="py class">
 <dt id="sailor.assetcentral.equipment.Equipment">
 <em class="property">class </em><code class="sig-prename descclassname">sailor.assetcentral.equipment.</code><code class="sig-name descname">Equipment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ac_json</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment" title="Permalink to this definition">¶</a></dt>
@@ -195,7 +196,7 @@ equipmentSearchTerms, sourceSearchTerms, manufacturerSearchTerms, operatorSearch
 <dl class="py method">
 <dt id="sailor.assetcentral.equipment.Equipment.find_equipment_indicators">
 <code class="sig-name descname">find_equipment_indicators</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.find_equipment_indicators"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.find_equipment_indicators" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find all indicators assigned to this Equipment.</p>
+<dd><p>Find all Indicators assigned to this Equipment.</p>
 <p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -228,7 +229,7 @@ equipmentSearchTerms, sourceSearchTerms, manufacturerSearchTerms, operatorSearch
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.FailureModeSet" title="sailor.assetcentral.failure_mode.FailureModeSet">sailor.assetcentral.failure_mode.FailureModeSet</a></p>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.FailureModeSet" title="sailor.assetcentral.failure_mode.FailureModeSet">FailureModeSet</a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
@@ -253,7 +254,7 @@ that limits the fetch query to this equipment.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet" title="sailor.assetcentral.notification.NotificationSet">sailor.assetcentral.notification.NotificationSet</a></p>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet" title="sailor.assetcentral.notification.NotificationSet">NotificationSet</a></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -278,9 +279,40 @@ to this equipment.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.WorkorderSet" title="sailor.assetcentral.workorder.WorkorderSet">sailor.assetcentral.workorder.WorkorderSet</a></p>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.WorkorderSet" title="sailor.assetcentral.workorder.WorkorderSet">WorkorderSet</a></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.assetcentral.equipment.Equipment.get_indicator_data">
+<code class="sig-name descname">get_indicator_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">indicator_set</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.get_indicator_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.get_indicator_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.</p>
+<p>This is a wrapper for <code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.sap_iot.timeseries.get_indicator_data()</span></code> that limits the fetch query
+to this equipment. Note that filtering for the equipment can only be done locally, so calling this function
+repeatedly for different equipment with the same indicators can be very inefficient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pd.Timestamp</em><em>]</em>) – Date of beginning of requested timeseries data. Any time component will be ignored.</p></li>
+<li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pd.Timestamp</em><em>]</em>) – Date of end of requested timeseries data. Any time component will be ignored</p></li>
+<li><p><strong>indicator_set</strong> (<a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.IndicatorSet" title="sailor.assetcentral.indicators.IndicatorSet"><em>IndicatorSet</em></a>) – IndicatorSet for which timeseries data is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset">TimeseriesDataset</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<dl class="simple">
+<dt>Get indicator data for an equipment ‘my_equipment’ for a period from 01.06.2020 to 05.12.2020 ::</dt><dd><p>my_equipment = find_equipment(name=’my_equipment’)[0]
+my_equipment.get_indicator_data(‘2020-06-01’, ‘2020-12-05’)</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <cite>indicator_set</cite> is not specified, all indicators associated to this equipment are used.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -301,11 +333,11 @@ to this equipment.</p>
 <dt id="sailor.assetcentral.equipment.EquipmentSet">
 <em class="property">class </em><code class="sig-prename descclassname">sailor.assetcentral.equipment.</code><code class="sig-name descname">EquipmentSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span></em>, <em class="sig-param"><span class="n">generating_query_params</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet" title="sailor.assetcentral.utils.ResultSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.ResultSet</span></code></a></p>
-<p>Class representing a group of Equipments.</p>
+<p>Class representing a group of Equipment.</p>
 <dl class="py method">
 <dt id="sailor.assetcentral.equipment.EquipmentSet.find_common_indicators">
 <code class="sig-name descname">find_common_indicators</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.find_common_indicators"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.find_common_indicators" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find all Indicators common to all Equipments in this EquipmentSet.</p>
+<dd><p>Find all Indicators common to all Equipment in this EquipmentSet.</p>
 <p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -319,22 +351,22 @@ to this equipment.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<p>Find all common indicators for an equipment set ‘my_equipment_set’:</p>
+<p>Find all common indicators for an EquipmentSet ‘my_equipment_set’:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">my_equipment_set</span><span class="o">.</span><span class="n">find_common_indicators</span><span class="p">()</span><span class="o">.</span><span class="n">as_df</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If all the Equipments in the set are derived from the same EquipmentModel the overlap in
+<p>If all the Equipment in the set are derived from the same EquipmentModel the overlap in
 Indicators is likely very high. If you get fewer indicators than expected from this method
-verify the uniformity of the Equipments included in this set.</p>
+verify the uniformity of the Equipment included in this set.</p>
 </div>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sailor.assetcentral.equipment.EquipmentSet.find_notifications">
 <code class="sig-name descname">find_notifications</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.find_notifications"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.find_notifications" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find all Notifications for any of the equipments in this EquipmentSet.</p>
+<dd><p>Find all Notifications for any of the equipment in this EquipmentSet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -343,12 +375,12 @@ verify the uniformity of the Equipments included in this set.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet" title="sailor.assetcentral.notification.NotificationSet">sailor.assetcentral.notification.NotificationSet</a></p>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet" title="sailor.assetcentral.notification.NotificationSet">NotificationSet</a></p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <p>Get all notifications for the ‘equipment_set’ as a data frame:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">equipment_set</span> <span class="o">=</span> <span class="n">find_equipments</span><span class="p">()</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">equipment_set</span> <span class="o">=</span> <span class="n">find_equipment</span><span class="p">()</span>
 
 <span class="n">equipment_set</span><span class="o">.</span><span class="n">find_notifications</span><span class="p">()</span><span class="o">.</span><span class="n">as_df</span><span class="p">()</span>
 </pre></div>
@@ -362,7 +394,7 @@ verify the uniformity of the Equipments included in this set.</p>
 <dl class="py method">
 <dt id="sailor.assetcentral.equipment.EquipmentSet.find_workorders">
 <code class="sig-name descname">find_workorders</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.find_workorders"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.find_workorders" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find all Workorders for any of the equipments in this EquipmentSet.</p>
+<dd><p>Find all Workorders for any of the equipment in this EquipmentSet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -371,7 +403,7 @@ verify the uniformity of the Equipments included in this set.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.WorkorderSet" title="sailor.assetcentral.workorder.WorkorderSet">sailor.assetcentral.workorder.WorkorderSet</a></p>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.WorkorderSet" title="sailor.assetcentral.workorder.WorkorderSet">WorkorderSet</a></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -382,11 +414,42 @@ verify the uniformity of the Equipments included in this set.</p>
 <p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt id="sailor.assetcentral.equipment.EquipmentSet.get_indicator_data">
+<code class="sig-name descname">get_indicator_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em>, <em class="sig-param"><span class="n">indicator_set</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.get_indicator_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.get_indicator_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.</p>
+<p>This is a wrapper for <code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.sap_iot.timeseries.get_indicator_data()</span></code> that limits the fetch query
+to this equipment set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pd.Timestamp</em><em>]</em>) – Date of beginning of requested timeseries data. Any time component will be ignored.</p></li>
+<li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pd.Timestamp</em><em>]</em>) – Date of end of requested timeseries data. Any time component will be ignored.</p></li>
+<li><p><strong>indicator_set</strong> (<a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.IndicatorSet" title="sailor.assetcentral.indicators.IndicatorSet"><em>IndicatorSet</em></a>) – IndicatorSet for which timeseries data is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset">TimeseriesDataset</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Get indicator data for all Equipment belonging to the EquipmentModel ‘MyEquipmentModel’
+for a period from 01.06.2020 to 05.12.2020</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">my_equipment_set</span> <span class="o">=</span> <span class="n">find_equipment</span><span class="p">(</span><span class="n">equipment_model_name</span><span class="o">=</span><span class="s1">&#39;MyEquipmentModel&#39;</span><span class="p">)</span>
+<span class="n">my_equipment_set</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="s1">&#39;2020-06-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-12-05&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <cite>indicator_set</cite> is not specified, indicators common to all equipments in this set are used.</p>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
-<dt id="sailor.assetcentral.equipment.find_equipments">
-<code class="sig-prename descclassname">sailor.assetcentral.equipment.</code><code class="sig-name descname">find_equipments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#find_equipments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment.find_equipments" title="Permalink to this definition">¶</a></dt>
+<dt id="sailor.assetcentral.equipment.find_equipment">
+<code class="sig-prename descclassname">sailor.assetcentral.equipment.</code><code class="sig-name descname">find_equipment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#find_equipment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment.find_equipment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch Equipments from AssetCentral with the applied filters, return an EquipmentSet.</p>
 <p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p>
 <dl class="field-list simple">
@@ -401,20 +464,20 @@ verify the uniformity of the Equipments included in this set.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>Find all Equipments with the name ‘MyEquipment’:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipments</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyEquipment&#39;</span><span class="p">)</span>
+<p>Find all Equipment with the name ‘MyEquipment’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyEquipment&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Find all Equipments which either have the name ‘MyEquipment’ or the name ‘MyOtherEquipment’:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipments</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyEquipment&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherEquipment&#39;</span><span class="p">])</span>
+<p>Find all Equipment which either have the name ‘MyEquipment’ or the name ‘MyOtherEquipment’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyEquipment&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherEquipment&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
-<p>Find all Equipments with the name ‘MyEquipment’ which are also located in ‘London’:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipments</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyEquipment&#39;</span><span class="p">,</span> <span class="n">location_name</span><span class="o">=</span><span class="s1">&#39;London&#39;</span><span class="p">)</span>
+<p>Find all Equipment with the name ‘MyEquipment’ which are also located in ‘London’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyEquipment&#39;</span><span class="p">,</span> <span class="n">location_name</span><span class="o">=</span><span class="s1">&#39;London&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Find all Equipments installed between January 1, 2018 and January 1, 2019 in ‘London’:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipments</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;installationDate &gt;= &quot;2018-01-01&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;installationDate &lt; &quot;2019-01-01&quot;&#39;</span><span class="p">],</span>
+<p>Find all Equipment installed between January 1, 2018 and January 1, 2019 in ‘London’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;installationDate &gt;= &quot;2018-01-01&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;installationDate &lt; &quot;2019-01-01&quot;&#39;</span><span class="p">],</span>
                 <span class="n">location_name</span><span class="o">=</span><span class="s1">&#39;London&#39;</span><span class="p">)</span>
 </pre></div>
 </div>

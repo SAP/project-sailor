@@ -240,11 +240,14 @@
         <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calling </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="p">)</span>
         <span class="n">response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;application/json&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Request failed. Response </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s1">): </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s1">&#39;</span>
             <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="n">RequestError</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OAuthFlow.get_access_token"><a class="viewcode-back" href="../../../../apidoc/sailor.utils.oauth_wrapper.OAuthServiceImpl.html#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuthFlow.get_access_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_access_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -319,6 +322,16 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">resolved_scopes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">resolved_scopes</span> <span class="o">=</span> <span class="n">resolved_scopes</span></div>
+
+
+<div class="viewcode-block" id="RequestError"><a class="viewcode-back" href="../../../../apidoc/sailor.utils.oauth_wrapper.OAuthServiceImpl.html#sailor.utils.oauth_wrapper.OAuthServiceImpl.RequestError">[docs]</a><span class="k">class</span> <span class="nc">RequestError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception object with additional information about the status returned by a REST request.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">status_code</span><span class="p">,</span> <span class="n">reason</span><span class="p">,</span> <span class="n">error_text</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_code</span> <span class="o">=</span> <span class="n">status_code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reason</span> <span class="o">=</span> <span class="n">reason</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_text</span> <span class="o">=</span> <span class="n">error_text</span></div>
 </pre></div>
 
            </div>

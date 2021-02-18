@@ -36,7 +36,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sailor.assetcentral.timeseries" href="sailor.assetcentral.timeseries.html" />
+    <link rel="next" title="sailor.assetcentral.utils" href="sailor.assetcentral.utils.html" />
     <link rel="prev" title="sailor.assetcentral.notification" href="sailor.assetcentral.notification.html" /> 
 </head>
 
@@ -99,9 +99,10 @@
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.notification.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.timeseries.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.timeseries</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.workorder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.fetch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.wrappers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.wrappers</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
@@ -189,6 +190,22 @@ model, shortDescription, templateID, systemProvider, systemVersion, createdOn, c
 className, classID, subclass, subclassID, systemProviderID, sourceSearchTerms, systemProviderSearchTerms,
 publishedOn, operator, operatorID, completeness</p>
 <dl class="py method">
+<dt id="sailor.assetcentral.system.System.get_indicator_data">
+<code class="sig-name descname">get_indicator_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#System.get_indicator_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.system.System.get_indicator_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get timeseries data for all Equipment in the System.</p>
+<p>Each component equipment will be returned as separate rows in the dataset,
+potentially making the dataset very sparse.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>]</em>) – Begin of time series data.</p></li>
+<li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>]</em>) – End of time series data.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="sailor.assetcentral.system.System.get_property_mapping">
 <em class="property">classmethod </em><code class="sig-name descname">get_property_mapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#System.get_property_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.system.System.get_property_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a mapping from assetcentral terminology to our terminology.</p>
@@ -201,6 +218,22 @@ publishedOn, operator, operatorID, completeness</p>
 <em class="property">class </em><code class="sig-prename descclassname">sailor.assetcentral.system.</code><code class="sig-name descname">SystemSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span></em>, <em class="sig-param"><span class="n">generating_query_params</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#SystemSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.system.SystemSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet" title="sailor.assetcentral.utils.ResultSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.ResultSet</span></code></a></p>
 <p>Class representing a group of Systems.</p>
+<dl class="py method">
+<dt id="sailor.assetcentral.system.SystemSet.get_indicator_data">
+<code class="sig-name descname">get_indicator_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#SystemSet.get_indicator_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.system.SystemSet.get_indicator_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch data for a set of systems for all component equipment of each system.</p>
+<p>Similar to <code class="docutils literal notranslate"><span class="pre">System.get_indicator_data</span></code> each component will be returned as separate rows in the dataset,
+potentially making the dataset very sparse.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>]</em>) – Begin of time series data.</p></li>
+<li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>]</em>) – End of time series data.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -258,7 +291,7 @@ filter criteria need to match for a System to be returned.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="sailor.assetcentral.timeseries.html" class="btn btn-neutral float-right" title="sailor.assetcentral.timeseries" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="sailor.assetcentral.utils.html" class="btn btn-neutral float-right" title="sailor.assetcentral.utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="sailor.assetcentral.notification.html" class="btn btn-neutral float-left" title="sailor.assetcentral.notification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

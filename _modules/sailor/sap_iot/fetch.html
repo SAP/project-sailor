@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>sailor.sap_iot.fetch &mdash; sailor 0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> sailor
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../filter_language.html">Filter language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">Frequently asked questions</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sailor</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sailor.sap_iot.fetch</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sailor.sap_iot.fetch</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Timeseries module can be used to retrieve timeseries data from the SAP iot abstract timeseries api.</span>
+
+<span class="sd">Interfaces for retrieval are aligned with AssetCentral objects such as equipment_set and indicator_set.</span>
+<span class="sd">Timeseries data is generally stored in a pandas dataframe, wrapped in a convenience class to make it easier</span>
+<span class="sd">to interact with the data in AssetCentral terms (see wrappers.py for the convenience class).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">BinaryIO</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">any_to_timestamp</span><span class="p">,</span> <span class="n">timestamp_to_date_string</span>
+<span class="kn">from</span> <span class="nn">..utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">OAuthFlow</span><span class="p">,</span> <span class="n">RequestError</span>
+<span class="kn">from</span> <span class="nn">..utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
+<span class="kn">from</span> <span class="nn">..assetcentral.indicators</span> <span class="kn">import</span> <span class="n">IndicatorSet</span>
+<span class="kn">from</span> <span class="nn">.wrappers</span> <span class="kn">import</span> <span class="n">TimeseriesDataset</span>
+<span class="kn">from</span> <span class="nn">..utils.utils</span> <span class="kn">import</span> <span class="n">DataNotFoundWarning</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..assetcentral.equipment</span> <span class="kn">import</span> <span class="n">EquipmentSet</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+<span class="n">fixed_timeseries_columns</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;_TIME&#39;</span><span class="p">:</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;modelId&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_model_id&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;equipmentId&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_id&#39;</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">_start_bulk_timeseries_data_export</span><span class="p">(</span><span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">liot_indicator_group</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Triggering raw indicator data export for indicator group: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">liot_indicator_group</span><span class="p">)</span>
+    <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">OAuthFlow</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
+    <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;export_url&#39;</span><span class="p">)</span>  <span class="c1"># todo: figure out what to do about these urls</span>
+    <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/v1/InitiateDataExport/</span><span class="si">{</span><span class="n">liot_indicator_group</span><span class="si">}</span><span class="s1">?timerange=</span><span class="si">{</span><span class="n">start_date</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">end_date</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">oauth_iot</span><span class="o">.</span><span class="n">fetch_endpoint_data</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;RequestId&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_check_bulk_timeseries_export_status</span><span class="p">(</span><span class="n">export_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking export status for export id: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">export_id</span><span class="p">)</span>
+    <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">OAuthFlow</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
+    <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;export_url&#39;</span><span class="p">)</span>  <span class="c1"># todo: figure out what to do about these urls</span>
+    <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/v1/DataExportStatus?requestId=</span><span class="si">{</span><span class="n">export_id</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">oauth_iot</span><span class="o">.</span><span class="n">fetch_endpoint_data</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;GET&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;Status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;The file is available for download.&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;Status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Request for data download is submitted.&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">resp</span><span class="p">[</span><span class="s1">&#39;Status&#39;</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">_process_one_file</span><span class="p">(</span><span class="n">ifile</span><span class="p">:</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">:</span> <span class="n">EquipmentSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="c1"># each processed file contains data for some time range (one day it seems), one indicator group and all</span>
+    <span class="c1"># equipment_set holding any data for that group in that time period.</span>
+    <span class="c1"># Since the user might not have requested all indicators in the group we&#39;ll filter out any results that were not</span>
+    <span class="c1"># requested. This is complicated by the fact that it&#39;s possible that the same indicator_id is present in the</span>
+    <span class="c1"># indicator_group through two different templates. If it is requested only through one template it needs to be</span>
+    <span class="c1"># filtered out after parsing the csv into a pandas dataframe, and converting to a</span>
+    <span class="c1"># columnar format (one column for each (indicator_id, indicator_group_id, template_id)).</span>
+
+    <span class="n">selected_equipment_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">equipment</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="n">equipment_set</span><span class="p">]</span>  <span class="c1"># noqa: F841</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ifile</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">],</span> <span class="n">utc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="s1">&#39;equipmentId&#39;</span><span class="p">,</span> <span class="s1">&#39;modelId&#39;</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;indicatorGroupId&#39;</span><span class="p">,</span> <span class="s1">&#39;templateId&#39;</span><span class="p">])</span>
+
+    <span class="n">columns_to_keep</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">indicator_set</span><span class="p">:</span>
+        <span class="n">id_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">indicator</span><span class="o">.</span><span class="n">_liot_id</span><span class="p">,</span> <span class="n">indicator</span><span class="o">.</span><span class="n">_liot_group_id</span><span class="p">,</span> <span class="n">indicator</span><span class="o">.</span><span class="n">template_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">id_tuple</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_flat_index</span><span class="p">():</span>
+            <span class="n">columns_to_keep</span><span class="p">[</span><span class="n">id_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="n">indicator</span><span class="o">.</span><span class="n">_unique_id</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warning</span> <span class="o">=</span> <span class="n">DataNotFoundWarning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Could not find any data for indicator </span><span class="si">{</span><span class="n">indicator</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_flat_index</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">items</span><span class="o">=</span><span class="n">columns_to_keep</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+          <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+          <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns_to_keep</span><span class="p">)</span>
+          <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">fixed_timeseries_columns</span><span class="p">)</span>
+          <span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;equipment_id in @selected_equipment_ids&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">_get_exported_bulk_timeseries_data</span><span class="p">(</span><span class="n">export_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                                       <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span><span class="p">,</span>
+                                       <span class="n">equipment_set</span><span class="p">:</span> <span class="n">EquipmentSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">OAuthFlow</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
+    <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;download_url&#39;</span><span class="p">)</span>  <span class="c1"># todo: figure out what to do about these urls</span>
+    <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/v1/DownloadData(&#39;</span><span class="si">{</span><span class="n">export_id</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">oauth_iot</span><span class="o">.</span><span class="n">fetch_endpoint_data</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;GET&#39;</span><span class="p">)</span>
+
+    <span class="n">ifile</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">zip_content</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">ifile</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipFile</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Downloaded file is corrupted, can not process contents.&#39;</span><span class="p">)</span>
+
+    <span class="n">frames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">inner_file</span> <span class="ow">in</span> <span class="n">zip_content</span><span class="o">.</span><span class="n">filelist</span><span class="p">:</span>
+        <span class="n">gzip_file</span> <span class="o">=</span> <span class="n">zip_content</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">inner_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">gzip_file</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gzip_content</span> <span class="o">=</span> <span class="n">gzip</span><span class="o">.</span><span class="n">GzipFile</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">gzip_file</span><span class="p">))</span>
+            <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_process_one_file</span><span class="p">(</span><span class="n">gzip_content</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">gzip</span><span class="o">.</span><span class="n">BadGzipFile</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Downloaded file is corrupted, can not process contents.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">frames</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Downloaded File did not have any content.&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data">[docs]</a><span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="n">start_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+                       <span class="n">end_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+                       <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">:</span> <span class="n">EquipmentSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read indicator data for a certain time period, a set of equipments and a set of indicators.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    start_date:</span>
+<span class="sd">        Date of beginning of requested timeseries data. Time components of the date will be ignored.</span>
+<span class="sd">    end_date:</span>
+<span class="sd">        Date of end of requested timeseries data. Time components of the date will be ignored.</span>
+<span class="sd">    indicator_set:</span>
+<span class="sd">        IndicatorSet for which timeseries data is returned.</span>
+<span class="sd">    equipment_set:</span>
+<span class="sd">        Equipment set for which the timeseries data is read.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># some notes:</span>
+    <span class="c1"># the bulk export api *only* works on indicator groups. No filtering for equipment_set or indicator_set.</span>
+    <span class="c1"># so we always need to download data for the whole group. We filter on individual indicator-template combinations</span>
+    <span class="c1"># as well as individual equipment in `_process_one_file`.</span>
+    <span class="n">start_date</span> <span class="o">=</span> <span class="n">any_to_timestamp</span><span class="p">(</span><span class="n">start_date</span><span class="p">)</span>
+    <span class="n">end_date</span> <span class="o">=</span> <span class="n">any_to_timestamp</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span>
+
+    <span class="n">query_groups</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">indicator_set</span><span class="p">:</span>
+        <span class="n">query_groups</span><span class="p">[</span><span class="n">indicator</span><span class="o">.</span><span class="n">_liot_group_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indicator</span><span class="p">)</span>
+
+    <span class="n">request_ids</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">indicator_group</span><span class="p">,</span> <span class="n">indicator_subset</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">query_groups</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>  <span class="c1"># sorted to make query order reproducable</span>
+        <span class="n">formatted_start_date</span> <span class="o">=</span> <span class="n">timestamp_to_date_string</span><span class="p">(</span><span class="n">start_date</span><span class="p">)</span>
+        <span class="n">formatted_end_date</span> <span class="o">=</span> <span class="n">timestamp_to_date_string</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">request_id</span> <span class="o">=</span> <span class="n">_start_bulk_timeseries_data_export</span><span class="p">(</span><span class="n">formatted_start_date</span><span class="p">,</span> <span class="n">formatted_end_date</span><span class="p">,</span> <span class="n">indicator_group</span><span class="p">)</span>
+            <span class="n">request_ids</span><span class="p">[</span><span class="n">request_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">indicator_subset</span>
+        <span class="k">except</span> <span class="n">RequestError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">error_message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">error_text</span><span class="p">)[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">e</span>
+
+            <span class="k">if</span> <span class="n">error_message</span> <span class="o">==</span> <span class="s1">&#39;Data not found for the requested date range&#39;</span><span class="p">:</span>
+                <span class="n">warning</span> <span class="o">=</span> <span class="n">DataNotFoundWarning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;No data for indicator group </span><span class="si">{</span><span class="n">indicator_group</span><span class="si">}</span><span class="s1"> found in the requested time interval!&#39;</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">e</span>
+
+    <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data export triggered for </span><span class="si">%s</span><span class="s1"> indicator groups.&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">query_groups</span><span class="p">))</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;equipment_model_id&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Waiting for data export&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">request_id</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">request_ids</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">_check_bulk_timeseries_export_status</span><span class="p">(</span><span class="n">request_id</span><span class="p">):</span>
+                <span class="n">indicator_subset</span> <span class="o">=</span> <span class="n">IndicatorSet</span><span class="p">(</span><span class="n">request_ids</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">request_id</span><span class="p">))</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">_get_exported_bulk_timeseries_data</span><span class="p">(</span><span class="n">request_id</span><span class="p">,</span> <span class="n">indicator_subset</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">)</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;equipment_model_id&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">request_ids</span><span class="p">:</span>
+            <span class="k">break</span>
+
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+    <span class="n">wrapper</span> <span class="o">=</span> <span class="n">TimeseriesDataset</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapper</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, DSC Data Science Team
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

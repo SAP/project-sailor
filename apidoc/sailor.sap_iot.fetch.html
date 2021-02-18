@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>sailor.assetcentral.indicators &mdash; sailor 0.1 documentation</title>
+  <title>sailor.sap_iot.fetch &mdash; sailor 0.1 documentation</title>
   
 
   
@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sailor.assetcentral.location" href="sailor.assetcentral.location.html" />
-    <link rel="prev" title="sailor.assetcentral.failure_mode" href="sailor.assetcentral.failure_mode.html" /> 
+    <link rel="next" title="sailor.sap_iot.wrappers" href="sailor.sap_iot.wrappers.html" />
+    <link rel="prev" title="sailor.assetcentral.workorder" href="sailor.assetcentral.workorder.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -95,13 +95,13 @@
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.equipment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.equipment_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment_model</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.failure_mode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.failure_mode</span></code></a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.indicators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.notification.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.workorder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.fetch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.wrappers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.wrappers</span></code></a></li>
 </ul>
 </li>
@@ -155,14 +155,14 @@
         
           <li><a href="../apidoc.html">API documentation</a> &raquo;</li>
         
-      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></li>
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
             
-              <a href="https://github.com/SAP/project-sailor/blob/master/docs/apidoc/sailor.assetcentral.indicators.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/SAP/project-sailor/blob/master/docs/apidoc/sailor.sap_iot.fetch.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -176,36 +176,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-sailor.assetcentral.indicators">
-<span id="sailor-assetcentral-indicators"></span><h1><a class="reference internal" href="#module-sailor.assetcentral.indicators" title="sailor.assetcentral.indicators"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a><a class="headerlink" href="#module-sailor.assetcentral.indicators" title="Permalink to this headline">¶</a></h1>
-<p>Indicators module can be used to retrieve Indicator information from AssetCentral.</p>
-<p>Classes are provided for individual Indicators as well as groups of Indicators (IndicatorSet).
-Note that the indicators here represent ‘materialized’ indicators, i.e. indicators attached to an equipment.
-Hence they contain information on indicator_group and template used to attach it to the equipment. Currently there
-is no support for unrealized ‘Indicator Templates’.</p>
-<dl class="py class">
-<dt id="sailor.assetcentral.indicators.Indicator">
-<em class="property">class </em><code class="sig-prename descclassname">sailor.assetcentral.indicators.</code><code class="sig-name descname">Indicator</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ac_json</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#Indicator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.indicators.Indicator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity" title="sailor.assetcentral.utils.AssetcentralEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.AssetcentralEntity</span></code></a></p>
-<p>AssetCentral Indicator Object.</p>
-<p>Properties (in AC terminology) are: categoryID, propertyId, indicatorGroupName, indicatorName,
-indicatorGroupDesc, objectId, indicatorSource, aggUpdatedTimestamp, indicatorCategory, colorCode,
-thresholdDescription, convertedAggregatedValue, trend, dataType, indicatorType, convertedUOMDesc,
-UOM, convertedUOM, indicatorDesc, indicatorColorCode, isFavorite, UOMDescription, Dimension, DimensionDesc,
-uomdescription, dimension, dimensionDesc, pstid, uom</p>
-<dl class="py method">
-<dt id="sailor.assetcentral.indicators.Indicator.get_property_mapping">
-<em class="property">classmethod </em><code class="sig-name descname">get_property_mapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#Indicator.get_property_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.indicators.Indicator.get_property_mapping" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a mapping from assetcentral terminology to our terminology.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="sailor.assetcentral.indicators.IndicatorSet">
-<em class="property">class </em><code class="sig-prename descclassname">sailor.assetcentral.indicators.</code><code class="sig-name descname">IndicatorSet</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">elements</span></em>, <em class="sig-param"><span class="n">generating_query_params</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#IndicatorSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.indicators.IndicatorSet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet" title="sailor.assetcentral.utils.ResultSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.ResultSet</span></code></a></p>
-<p>Class representing a group of Indicators.</p>
+  <div class="section" id="module-sailor.sap_iot.fetch">
+<span id="sailor-sap-iot-fetch"></span><h1><a class="reference internal" href="#module-sailor.sap_iot.fetch" title="sailor.sap_iot.fetch"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a><a class="headerlink" href="#module-sailor.sap_iot.fetch" title="Permalink to this headline">¶</a></h1>
+<p>Timeseries module can be used to retrieve timeseries data from the SAP iot abstract timeseries api.</p>
+<p>Interfaces for retrieval are aligned with AssetCentral objects such as equipment_set and indicator_set.
+Timeseries data is generally stored in a pandas dataframe, wrapped in a convenience class to make it easier
+to interact with the data in AssetCentral terms (see wrappers.py for the convenience class).</p>
+<dl class="py function">
+<dt id="sailor.sap_iot.fetch.get_indicator_data">
+<code class="sig-prename descclassname">sailor.sap_iot.fetch.</code><code class="sig-name descname">get_indicator_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start_date</span></em>, <em class="sig-param"><span class="n">end_date</span></em>, <em class="sig-param"><span class="n">indicator_set</span></em>, <em class="sig-param"><span class="n">equipment_set</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/fetch.html#get_indicator_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.fetch.get_indicator_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read indicator data for a certain time period, a set of equipments and a set of indicators.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_date</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime.timestamp</em><em>, </em><em>datetime.date</em><em>]</em>) – Date of beginning of requested timeseries data. Time components of the date will be ignored.</p></li>
+<li><p><strong>end_date</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime.timestamp</em><em>, </em><em>datetime.date</em><em>]</em>) – Date of end of requested timeseries data. Time components of the date will be ignored.</p></li>
+<li><p><strong>indicator_set</strong> (<a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.IndicatorSet" title="sailor.assetcentral.indicators.IndicatorSet"><em>IndicatorSet</em></a>) – IndicatorSet for which timeseries data is returned.</p></li>
+<li><p><strong>equipment_set</strong> (<a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet"><em>EquipmentSet</em></a>) – Equipment set for which the timeseries data is read.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -218,10 +208,10 @@ uomdescription, dimension, dimensionDesc, pstid, uom</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="sailor.assetcentral.location.html" class="btn btn-neutral float-right" title="sailor.assetcentral.location" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="sailor.sap_iot.wrappers.html" class="btn btn-neutral float-right" title="sailor.sap_iot.wrappers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="sailor.assetcentral.failure_mode.html" class="btn btn-neutral float-left" title="sailor.assetcentral.failure_mode" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="sailor.assetcentral.workorder.html" class="btn btn-neutral float-left" title="sailor.assetcentral.workorder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

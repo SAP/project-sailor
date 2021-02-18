@@ -158,17 +158,30 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Retrieve Equipment information from AssetCentral.</span>
 
-<span class="sd">Classes are provided for individual Equipments as well as groups of Equipments (EquipmentSet).</span>
+<span class="sd">Classes are provided for individual Equipment as well as groups of Equipment (EquipmentSet).</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_EQUIPMENT</span><span class="p">,</span> <span class="n">VIEW_OBJECTS</span>
-<span class="kn">from</span> <span class="nn">.failure_mode</span> <span class="kn">import</span> <span class="n">find_failure_modes</span><span class="p">,</span> <span class="n">FailureModeSet</span>
+<span class="kn">from</span> <span class="nn">.failure_mode</span> <span class="kn">import</span> <span class="n">find_failure_modes</span>
 <span class="kn">from</span> <span class="nn">.indicators</span> <span class="kn">import</span> <span class="n">Indicator</span><span class="p">,</span> <span class="n">IndicatorSet</span>
-<span class="kn">from</span> <span class="nn">.notification</span> <span class="kn">import</span> <span class="n">NotificationSet</span><span class="p">,</span> <span class="n">find_notifications</span>
+<span class="kn">from</span> <span class="nn">.notification</span> <span class="kn">import</span> <span class="n">find_notifications</span>
 <span class="kn">from</span> <span class="nn">.location</span> <span class="kn">import</span> <span class="n">Location</span><span class="p">,</span> <span class="n">find_locations</span>
-<span class="kn">from</span> <span class="nn">.workorder</span> <span class="kn">import</span> <span class="n">WorkorderSet</span><span class="p">,</span> <span class="n">find_workorders</span>
+<span class="kn">from</span> <span class="nn">.workorder</span> <span class="kn">import</span> <span class="n">find_workorders</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">fetch_data</span><span class="p">,</span> <span class="n">add_properties</span><span class="p">,</span> <span class="n">parse_filter_parameters</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> \
-    <span class="n">ac_application_url</span><span class="p">,</span> <span class="n">apply_filters_post_request</span><span class="p">,</span> <span class="n">_string_to_date_parser</span>
+    <span class="n">ac_application_url</span><span class="p">,</span> <span class="n">apply_filters_post_request</span>
+<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_date_parser</span>
+<span class="kn">from</span> <span class="nn">..sap_iot</span> <span class="kn">import</span> <span class="n">get_indicator_data</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..sap_iot</span> <span class="kn">import</span> <span class="n">TimeseriesDataset</span>
+    <span class="kn">from</span> <span class="nn">.notification</span> <span class="kn">import</span> <span class="n">NotificationSet</span>
+    <span class="kn">from</span> <span class="nn">.failure_mode</span> <span class="kn">import</span> <span class="n">FailureModeSet</span>
+    <span class="kn">from</span> <span class="nn">.workorder</span> <span class="kn">import</span> <span class="n">WorkorderSet</span>
 
 
 <div class="viewcode-block" id="Equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment">[docs]</a><span class="nd">@add_properties</span>
@@ -220,7 +233,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_location</span>
 
 <div class="viewcode-block" id="Equipment.find_equipment_indicators"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment.find_equipment_indicators">[docs]</a>    <span class="k">def</span> <span class="nf">find_equipment_indicators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndicatorSet</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Find all indicators assigned to this Equipment.</span>
+        <span class="sd">&quot;&quot;&quot;Find all Indicators assigned to this Equipment.</span>
 
 <span class="sd">        This method supports the common filter language explained at :ref:`filter`.</span>
 
@@ -316,13 +329,45 @@
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
         <span class="k">return</span> <span class="n">find_workorders</span><span class="p">(</span><span class="n">extended_filters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Hash of an equipment object is the hash of it&#39;s id.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span></div>
+<div class="viewcode-block" id="Equipment.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">],</span> <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">],</span>
+                           <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.</span>
+
+<span class="sd">        This is a wrapper for :meth:`sailor.sap_iot.timeseries.get_indicator_data` that limits the fetch query</span>
+<span class="sd">        to this equipment. Note that filtering for the equipment can only be done locally, so calling this function</span>
+<span class="sd">        repeatedly for different equipment with the same indicators can be very inefficient.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        start</span>
+<span class="sd">            Date of beginning of requested timeseries data. Any time component will be ignored.</span>
+<span class="sd">        end</span>
+<span class="sd">            Date of end of requested timeseries data. Any time component will be ignored</span>
+<span class="sd">        indicator_set</span>
+<span class="sd">            IndicatorSet for which timeseries data is returned.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        Get indicator data for an equipment &#39;my_equipment&#39; for a period from 01.06.2020 to 05.12.2020 ::</span>
+<span class="sd">            my_equipment = find_equipment(name=&#39;my_equipment&#39;)[0]</span>
+<span class="sd">            my_equipment.get_indicator_data(&#39;2020-06-01&#39;, &#39;2020-12-05&#39;)</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        If `indicator_set` is not specified, all indicators associated to this equipment are used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Time parameters must be specified&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">indicator_set</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">indicator_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_equipment_indicators</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">get_indicator_data</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">,</span> <span class="n">EquipmentSet</span><span class="p">([</span><span class="bp">self</span><span class="p">]))</span></div></div>
 
 
 <div class="viewcode-block" id="EquipmentSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet">[docs]</a><span class="k">class</span> <span class="nc">EquipmentSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class representing a group of Equipments.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Class representing a group of Equipment.&quot;&quot;&quot;</span>
 
     <span class="n">_element_name</span> <span class="o">=</span> <span class="s1">&#39;Equipment&#39;</span>
     <span class="n">_set_name</span> <span class="o">=</span> <span class="s1">&#39;EquipmentSet&#39;</span>
@@ -336,7 +381,7 @@
     <span class="p">}</span>
 
 <div class="viewcode-block" id="EquipmentSet.find_notifications"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.find_notifications">[docs]</a>    <span class="k">def</span> <span class="nf">find_notifications</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NotificationSet</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Find all Notifications for any of the equipments in this EquipmentSet.</span>
+        <span class="sd">&quot;&quot;&quot;Find all Notifications for any of the equipment in this EquipmentSet.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -349,7 +394,7 @@
 <span class="sd">        --------</span>
 <span class="sd">        Get all notifications for the &#39;equipment_set&#39; as a data frame::</span>
 
-<span class="sd">            equipment_set = find_equipments()</span>
+<span class="sd">            equipment_set = find_equipment()</span>
 
 <span class="sd">            equipment_set.find_notifications().as_df()</span>
 
@@ -365,7 +410,7 @@
 
 <div class="viewcode-block" id="EquipmentSet.find_workorders"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.find_workorders">[docs]</a>    <span class="k">def</span> <span class="nf">find_workorders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkorderSet</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Find all Workorders for any of the equipments in this EquipmentSet.</span>
+<span class="sd">        Find all Workorders for any of the equipment in this EquipmentSet.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -390,7 +435,7 @@
 
 <div class="viewcode-block" id="EquipmentSet.find_common_indicators"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.find_common_indicators">[docs]</a>    <span class="k">def</span> <span class="nf">find_common_indicators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndicatorSet</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Find all Indicators common to all Equipments in this EquipmentSet.</span>
+<span class="sd">        Find all Indicators common to all Equipment in this EquipmentSet.</span>
 
 <span class="sd">        This method supports the common filter language explained at :ref:`filter`.</span>
 
@@ -403,16 +448,16 @@
 
 <span class="sd">        Example</span>
 <span class="sd">        -------</span>
-<span class="sd">        Find all common indicators for an equipment set &#39;my_equipment_set&#39;::</span>
+<span class="sd">        Find all common indicators for an EquipmentSet &#39;my_equipment_set&#39;::</span>
 
 <span class="sd">            my_equipment_set.find_common_indicators().as_df()</span>
 
 
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
-<span class="sd">        If all the Equipments in the set are derived from the same EquipmentModel the overlap in</span>
+<span class="sd">        If all the Equipment in the set are derived from the same EquipmentModel the overlap in</span>
 <span class="sd">        Indicators is likely very high. If you get fewer indicators than expected from this method</span>
-<span class="sd">        verify the uniformity of the Equipments included in this set.</span>
+<span class="sd">        verify the uniformity of the Equipment included in this set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;This EquipmentSet is empty, can not find common indicators.&#39;</span><span class="p">)</span>
@@ -423,10 +468,45 @@
             <span class="n">common_indicators</span> <span class="o">=</span> <span class="n">IndicatorSet</span><span class="p">([</span><span class="n">indicator</span> <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">common_indicators</span>
                                               <span class="k">if</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">equipment_indicators</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">common_indicators</span></div></div>
+        <span class="k">return</span> <span class="n">common_indicators</span></div>
+
+<div class="viewcode-block" id="EquipmentSet.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">],</span> <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">],</span>
+                           <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.</span>
+
+<span class="sd">        This is a wrapper for :meth:`sailor.sap_iot.timeseries.get_indicator_data` that limits the fetch query</span>
+<span class="sd">        to this equipment set.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        start</span>
+<span class="sd">            Date of beginning of requested timeseries data. Any time component will be ignored.</span>
+<span class="sd">        end</span>
+<span class="sd">            Date of end of requested timeseries data. Any time component will be ignored.</span>
+<span class="sd">        indicator_set</span>
+<span class="sd">            IndicatorSet for which timeseries data is returned.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        Get indicator data for all Equipment belonging to the EquipmentModel &#39;MyEquipmentModel&#39;</span>
+<span class="sd">        for a period from 01.06.2020 to 05.12.2020 ::</span>
+<span class="sd">            my_equipment_set = find_equipment(equipment_model_name=&#39;MyEquipmentModel&#39;)</span>
+<span class="sd">            my_equipment_set.get_indicator_data(&#39;2020-06-01&#39;, &#39;2020-12-05&#39;)</span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        If `indicator_set` is not specified, indicators common to all equipments in this set are used.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Time parameters must be specified&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">indicator_set</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">indicator_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_common_indicators</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">get_indicator_data</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="find_equipments"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.find_equipments">[docs]</a><span class="k">def</span> <span class="nf">find_equipments</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EquipmentSet</span><span class="p">:</span>
+<div class="viewcode-block" id="find_equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.find_equipment">[docs]</a><span class="k">def</span> <span class="nf">find_equipment</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EquipmentSet</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Fetch Equipments from AssetCentral with the applied filters, return an EquipmentSet.</span>
 
@@ -441,21 +521,21 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    Find all Equipments with the name &#39;MyEquipment&#39;::</span>
+<span class="sd">    Find all Equipment with the name &#39;MyEquipment&#39;::</span>
 
-<span class="sd">        find_equipments(name=&#39;MyEquipment&#39;)</span>
+<span class="sd">        find_equipment(name=&#39;MyEquipment&#39;)</span>
 
-<span class="sd">    Find all Equipments which either have the name &#39;MyEquipment&#39; or the name &#39;MyOtherEquipment&#39;::</span>
+<span class="sd">    Find all Equipment which either have the name &#39;MyEquipment&#39; or the name &#39;MyOtherEquipment&#39;::</span>
 
-<span class="sd">        find_equipments(name=[&#39;MyEquipment&#39;, &#39;MyOtherEquipment&#39;])</span>
+<span class="sd">        find_equipment(name=[&#39;MyEquipment&#39;, &#39;MyOtherEquipment&#39;])</span>
 
-<span class="sd">    Find all Equipments with the name &#39;MyEquipment&#39; which are also located in &#39;London&#39;::</span>
+<span class="sd">    Find all Equipment with the name &#39;MyEquipment&#39; which are also located in &#39;London&#39;::</span>
 
-<span class="sd">        find_equipments(name=&#39;MyEquipment&#39;, location_name=&#39;London&#39;)</span>
+<span class="sd">        find_equipment(name=&#39;MyEquipment&#39;, location_name=&#39;London&#39;)</span>
 
-<span class="sd">    Find all Equipments installed between January 1, 2018 and January 1, 2019 in &#39;London&#39;::</span>
+<span class="sd">    Find all Equipment installed between January 1, 2018 and January 1, 2019 in &#39;London&#39;::</span>
 
-<span class="sd">        find_equipments(extended_filters=[&#39;installationDate &gt;= &quot;2018-01-01&quot;&#39;, &#39;installationDate &lt; &quot;2019-01-01&quot;&#39;],</span>
+<span class="sd">        find_equipment(extended_filters=[&#39;installationDate &gt;= &quot;2018-01-01&quot;&#39;, &#39;installationDate &lt; &quot;2019-01-01&quot;&#39;],</span>
 <span class="sd">                        location_name=&#39;London&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \

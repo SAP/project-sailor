@@ -17,6 +17,8 @@ Submodules
 
    sailor.utils.config
    sailor.utils.plot_helper
+   sailor.utils.timestamps
+   sailor.utils.utils
 
 Module contents
 ---------------

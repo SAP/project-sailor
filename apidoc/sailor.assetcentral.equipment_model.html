@@ -99,9 +99,10 @@
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.notification.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.timeseries.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.timeseries</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.workorder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.fetch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.wrappers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.wrappers</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
@@ -195,9 +196,9 @@ organizationID, calibrationDate, orderStopDate, noSparePartsDate, globalId, keyw
 description, descriptions[], gtin, brand, isFirmwareCompatible, templates[], classId, subclassId, adminData{},
 sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]</p>
 <dl class="py method">
-<dt id="sailor.assetcentral.equipment_model.EquipmentModel.find_equipments">
-<code class="sig-name descname">find_equipments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment_model.html#EquipmentModel.find_equipments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment_model.EquipmentModel.find_equipments" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a list of equipments derived from this EquipmentModel.</p>
+<dt id="sailor.assetcentral.equipment_model.EquipmentModel.find_equipment">
+<code class="sig-name descname">find_equipment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment_model.html#EquipmentModel.find_equipment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment_model.EquipmentModel.find_equipment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of equipment derived from this EquipmentModel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -206,13 +207,13 @@ sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesD
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet">sailor.assetcentral.equipment.EquipmentSet</a></p>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet">EquipmentSet</a></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<p>Find all equipments for Equipment Model ‘myEquipmentModelName’. Return an EquipmentSet:</p>
+<p>Find all Equipment for EquipmentModel ‘myEquipmentModelName’. Return an EquipmentSet:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">find_equipment_models</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;myEquipmentModelName&#39;</span><span class="p">)</span>
-<span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find_equipments</span><span class="p">()</span>
+<span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find_equipment</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>The resulting Equipments can further be filter based on their properties (name, location etc).</p>
@@ -221,7 +222,7 @@ sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesD
 <dl class="py method">
 <dt id="sailor.assetcentral.equipment_model.EquipmentModel.find_model_indicators">
 <code class="sig-name descname">find_model_indicators</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment_model.html#EquipmentModel.find_model_indicators"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.equipment_model.EquipmentModel.find_model_indicators" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return all <a href="#id1"><span class="problematic" id="id2">`</span></a>Indicator`s assigned to the EquipmentModel.</p>
+<dd><p>Return all Indicators assigned to the EquipmentModel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
