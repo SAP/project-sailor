@@ -3,11 +3,16 @@ System module can be used to retrieve System information from AssetCentral.
 
 Classes are provided for individual Systems as well as groups of Systems (SystemSet).
 """
+from typing import Union
+
+import pandas as pd
 
 from .utils import fetch_data, add_properties, parse_filter_parameters, AssetcentralEntity, ResultSet, \
     ac_application_url
-from .equipment import find_equipments, EquipmentSet
+from .equipment import find_equipment, EquipmentSet
+from .indicators import IndicatorSet
 from .constants import VIEW_SYSTEM
+from ..sap_iot import get_indicator_data
 
 
 @add_properties
@@ -51,9 +56,27 @@ class System(AssetcentralEntity):
             equipment_ids.append(child_node['id'])
 
         if equipment_ids:
-            self.components = find_equipments(id=equipment_ids)
+            self.components = find_equipment(id=equipment_ids)
         else:
             self.components = EquipmentSet([])
+
+    def get_indicator_data(self, start: Union[str, int, pd.Timestamp], end: Union[str, int, pd.Timestamp]):
+        """
+        Get timeseries data for all Equipment in the System.
+
+        Each component equipment will be returned as separate rows in the dataset,
+        potentially making the dataset very sparse.
+
+
+        Parameters
+        ----------
+        start
+            Begin of time series data.
+        end
+            End of time series data.
+        """
+        all_indicators = sum((equipment.find_equipment_indicators() for equipment in self.components), IndicatorSet([]))
+        return get_indicator_data(start, end, all_indicators, self.components)
 
 
 class SystemSet(ResultSet):
@@ -69,6 +92,25 @@ class SystemSet(ResultSet):
             'properties': System.get_property_mapping().keys()
         }
     }
+
+    def get_indicator_data(self, start: Union[str, int, pd.Timestamp], end: Union[str, int, pd.Timestamp]):
+        """
+        Fetch data for a set of systems for all component equipment of each system.
+
+        Similar to ``System.get_indicator_data`` each component will be returned as separate rows in the dataset,
+        potentially making the dataset very sparse.
+
+        Parameters
+        ----------
+        start
+            Begin of time series data.
+        end
+            End of time series data.
+        """
+        all_equipment = sum((system.components for system in self), EquipmentSet([]))
+        all_indicators = sum((equipment.find_equipment_indicators() for equipment in all_equipment), IndicatorSet([]))
+
+        return get_indicator_data(start, end, all_indicators, all_equipment)
 
 
 def find_systems(extended_filters=(), **kwargs) -> SystemSet:

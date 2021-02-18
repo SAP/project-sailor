@@ -3,15 +3,8 @@ from unittest.mock import patch, Mock, call
 import pytest
 
 from sailor.assetcentral.location import Location, LocationSet
-from sailor.assetcentral.equipment import Equipment, EquipmentSet, find_equipments
-from sailor.assetcentral.indicators import Indicator, IndicatorSet
+from sailor.assetcentral.equipment import Equipment, EquipmentSet, find_equipment
 from sailor.assetcentral import constants
-
-
-@pytest.fixture(scope='module', autouse=True)
-def mock_config():
-    with patch('sailor.utils.config.SailorConfig') as mock:
-        yield mock
 
 
 @pytest.fixture
@@ -30,14 +23,15 @@ class TestEquipment:
 
     @patch('sailor.assetcentral.equipment.apply_filters_post_request')
     @patch('sailor.assetcentral.equipment.fetch_data')
-    def test_find_equipment_indicators_fetch_and_apply(self, mock_fetch, mock_apply, mock_url, eq_obj):
+    def test_find_equipment_indicators_fetch_and_apply(self, mock_fetch, mock_apply, mock_url,
+                                                       eq_obj, make_indicator_set):
         object_list = Mock(name='raw_object_list')
         mock_fetch.return_value = object_list
-        mock_apply.return_value = [{'propertyId': 'indicator_1'}, {'propertyId': 'indicator_2'}]
+        mock_apply.return_value = [{'propertyId': 'indicator_1', 'pstid': 'group_id', 'categoryID': 'template_id'},
+                                   {'propertyId': 'indicator_2', 'pstid': 'group_id', 'categoryID': 'template_id'}]
         filter_kwargs = {'param1': 'one'}
         extended_filters = ['other_param > 22']
-        expected_result = IndicatorSet([Indicator({'propertyId': 'indicator_1'}),
-                                        Indicator({'propertyId': 'indicator_2'})])
+        expected_result = make_indicator_set(propertyId=['indicator_1', 'indicator_2'])
 
         actual = eq_obj.find_equipment_indicators(**filter_kwargs, extended_filters=extended_filters)
 
@@ -46,7 +40,7 @@ class TestEquipment:
         assert actual == expected_result
 
     @patch('sailor.assetcentral.equipment.fetch_data')
-    def test_find_failure_modes(self, mock_fetch, eq_obj):
+    def test_find_failure_modes(self, mock_fetch, mock_config, eq_obj):
         mock_fetch.return_value = [{'ID': 'fm_id1'}, {'ID': 'fm_id2'}]
         expected = 'expected return value is the value returned by the delegate function "find_failure_modes"'
 
@@ -70,7 +64,7 @@ class TestEquipment:
             assert actual == expected
 
     @patch('sailor.assetcentral.location.fetch_data')
-    def test_location_returns_location(self, mock_fetch):
+    def test_location_returns_location(self, mock_fetch, mock_config):
         equipment = Equipment({'equipmentId': '123', 'location': 'Walldorf'})
         mock_fetch.return_value = [{'locationId': '456', 'name': 'Walldorf'}]
         expected_result = Location({'locationId': '456', 'name': 'Walldorf'})
@@ -123,18 +117,15 @@ class TestEquipmentSet:
                                                   equipment_id=[equipment.id for equipment in eq_set])
             assert actual == expected
 
-    def test_find_common_indicators(self):
+    def test_find_common_indicators(self, make_indicator, make_indicator_set):
         eq1 = Mock(Equipment)
-        eq1.find_equipment_indicators.return_value = IndicatorSet([
-            Indicator({'propertyId': '3'}), Indicator({'propertyId': '2'}), Indicator({'propertyId': '1'})])
+        eq1.find_equipment_indicators.return_value = make_indicator_set(propertyId=['1', '2', '3'])
         eq2 = Mock(Equipment)
-        eq2.find_equipment_indicators.return_value = IndicatorSet([
-            Indicator({'propertyId': '1'}), Indicator({'propertyId': '3'})])
+        eq2.find_equipment_indicators.return_value = make_indicator_set(propertyId=['1', '3'])
         eq3 = Mock(Equipment)
-        eq3.find_equipment_indicators.return_value = IndicatorSet([
-            Indicator({'propertyId': '3'}), Indicator({'propertyId': '1'})])
+        eq3.find_equipment_indicators.return_value = make_indicator_set(propertyId=['3', '1'])
         equipment_set = EquipmentSet([eq1, eq2, eq3])
-        expected_result = IndicatorSet([Indicator({'propertyId': '3'}), Indicator({'propertyId': '1'})])
+        expected_result = make_indicator_set(propertyId=['3', '1'])
 
         actual_result = equipment_set.find_common_indicators()
 
@@ -143,13 +134,13 @@ class TestEquipmentSet:
 
 @pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
 @patch('sailor.assetcentral.equipment.fetch_data')
-def test_find_equipments_expect_fetch_call_args(mock_fetch, mock_url):
+def test_find_equipment_expect_fetch_call_args(mock_fetch, mock_url):
     find_params = dict(extended_filters=['integer_param1 < 10'], location_name=['Paris', 'London'])
     expected_call_args = (['integer_param1 lt 10'], [["location eq 'Paris'", "location eq 'London'"]])
     mock_fetch.return_value = [{'equipmentId': 'eq_id1'}, {'equipmentId': 'eq_id2'}]
     expected_result = EquipmentSet([Equipment({'equipmentId': 'eq_id1'}), Equipment({'equipmentId': 'eq_id2'})])
 
-    actual_result = find_equipments(**find_params)
+    actual_result = find_equipment(**find_params)
 
     assert constants.VIEW_EQUIPMENT in mock_fetch.call_args.args[0]
     assert mock_fetch.call_args.args[1:] == expected_call_args

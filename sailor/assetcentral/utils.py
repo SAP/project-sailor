@@ -1,10 +1,9 @@
 """Module for various utility functions, in particular those related to fetching data from remote oauth endpoints."""
 
-from typing import List, Union
-from collections.abc import Sequence
+from typing import Union
+from collections.abc import Sequence, Iterable
 from itertools import product
 import operator
-import datetime
 import logging
 import warnings
 import re
@@ -15,7 +14,7 @@ import plotnine as p9
 from ..utils.oauth_wrapper import OAuthFlow
 from ..utils.plot_helper import default_plot_theme
 from ..utils.config import SailorConfig
-
+from ..utils.utils import DataNotFoundWarning
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -119,10 +118,10 @@ def _compose_queries(unbreakable_filters, breakable_filters):
     return filters
 
 
-def fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), service_name='asset_central'):
-    """Retrieve data from one of the remote services (AssetCentral or SAP IoT)."""
+def fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
+    """Retrieve data from the AssetCentral service."""
     filters = _compose_queries(unbreakable_filters, breakable_filters)
-    service = OAuthFlow(service_name)
+    service = OAuthFlow('asset_central')
 
     result = []
     for filter_string in filters:
@@ -189,7 +188,7 @@ def _unify_filters(equality_filters, extended_filters, property_mapping):
             else:
                 return str(x)
 
-        if isinstance(v, List):
+        if _is_non_string_iterable(v):
             v = [quote_if_string(x) for x in v]
         else:
             v = quote_if_string(v)
@@ -236,7 +235,7 @@ def parse_filter_parameters(equality_filters=None, extended_filters=(), property
     unbreakable_filters = []    # can be broken into sub-filters if length is exceeded
 
     for key, op, value in unified_filters:
-        if isinstance(value, List):
+        if _is_non_string_iterable(value):
             breakable_filters.append([f"{key} {op} {elem}" for elem in value])
         else:
             unbreakable_filters.append(f"{key} {op} {value}")
@@ -256,7 +255,7 @@ def apply_filters_post_request(data, equality_filters, extended_filters, propert
 
     for elem in data:
         for key, op, value in unified_filters:
-            if isinstance(value, List):
+            if _is_non_string_iterable(value):
                 value = [strip_quote_marks(v) for v in value]
                 if elem[key] not in value:
                     break
@@ -291,6 +290,10 @@ class AssetcentralEntity:
         """Compare two objects based on instance type and id."""
         return isinstance(obj, self.__class__) and obj.id == self.id
 
+    def __hash__(self):
+        """Hash of an asset central object is the hash of it's id."""
+        return self.id.__hash__()
+
 
 class ResultSet(Sequence):
     """Baseclass to be used in all `Set`s of AssetCentral objects."""
@@ -301,7 +304,10 @@ class ResultSet(Sequence):
 
     def __init__(self, elements, generating_query_params=None):
         """Create a new ResultSet from the passed elements."""
-        self.elements = elements
+        self.elements = list(set(elements))
+        if len(self.elements) != len(elements):
+            warnings.warn(f'Duplicate elements encountered when creating {type(self).__name__}, discarding duplicates.')
+
         self.__generating_query_params = generating_query_params
 
     def __len__(self) -> int:
@@ -309,10 +315,9 @@ class ResultSet(Sequence):
         return self.elements.__len__()
 
     def __eq__(self, other):
-        """Two ResultSets are equal if all of their elements are equal with order respected."""
+        """Two ResultSets are equal if all of their elements are equal (order is ignored)."""
         if isinstance(self, other.__class__):
-            if len(self) == len(other):
-                return all((self[i] == other[i] for i in range(len(self))))
+            return set(self.elements) == set(other.elements)
         return False
 
     def __getitem__(self, arg: Union[int, slice]):
@@ -342,9 +347,9 @@ class ResultSet(Sequence):
 
         for element in self.elements:
             for attribute, value in kwargs.items():
-                if isinstance(value, list) and getattr(element, attribute) not in value:
+                if _is_non_string_iterable(value) and getattr(element, attribute) not in value:
                     break
-                elif not isinstance(value, list) and getattr(element, attribute) != value:
+                elif not _is_non_string_iterable(value) and getattr(element, attribute) != value:
                     break
             else:
                 selection.append(element)
@@ -384,52 +389,7 @@ class ResultSet(Sequence):
         return plot
 
 
-def _odata_to_timestamp_parser(name):
-    return lambda self: pd.Timestamp(float(self.raw[name][6:-2])/1000, tz='UTC') if self.raw[name] else None
-
-
-def _string_to_timestamp_parser(name, unit=None):
-    return lambda self: pd.Timestamp(self.raw[name], unit=unit, tz='UTC') if self.raw[name] else None
-
-
-def _string_to_date_parser(name, unit=None):
-    return lambda self: pd.Timestamp(self.raw[name], unit=unit, tz='UTC').date() if self.raw[name] else None
-
-
-def any_to_timestamp(value: Union[str, pd.Timestamp, datetime.datetime], default: pd.Timestamp = None):
-    """Try to parse a timestamp provided in a variety of formats into a uniform representation as pd.Timestamp."""
-    if value is None:
-        return default
-
-    if isinstance(value, str):
-        timestamp = pd.Timestamp(value)
-    elif isinstance(value, datetime.datetime):
-        timestamp = pd.Timestamp(value)
-    elif isinstance(value, pd.Timestamp):
-        timestamp = value
-    else:
-        raise RuntimeError('Can only parse strings, pandas timestamps or python native timestamps.')
-
-    if timestamp.tzinfo:
-        timestamp = timestamp.tz_convert('UTC')
-    else:
-        warnings.warn('Trying to parse non-timezone-aware timestamp, assuming UTC.', stacklevel=2)
-        timestamp = timestamp.tz_localize('UTC', ambiguous='NaT', nonexistent='NaT')
-
-    return timestamp
-
-
-def timestamp_to_isoformat(timestamp: pd.Timestamp):
-    """Return an iso-format string of a timestamp after conversion to UTC and without the timezone information."""
-    if timestamp.tzinfo:
-        timestamp = timestamp.tz_convert('UTC')
-    return timestamp.tz_localize(None).isoformat()
-
-
-# this warning concerns the interactive use case
-class DataNotFoundWarning(Warning):
-    """Use this warning to indicate that a query-like function returned an empty result."""
-
-    def __init__(self, message=None):
-        message = "No data found for given parameters." if message is None else message
-        super().__init__(message)
+def _is_non_string_iterable(obj):
+    if issubclass(obj.__class__, str):
+        return False
+    return isinstance(obj, Iterable)

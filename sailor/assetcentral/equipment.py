@@ -1,17 +1,30 @@
 """
 Retrieve Equipment information from AssetCentral.
 
-Classes are provided for individual Equipments as well as groups of Equipments (EquipmentSet).
+Classes are provided for individual Equipment as well as groups of Equipment (EquipmentSet).
 """
+from __future__ import annotations
+
+from typing import Union, TYPE_CHECKING
+
+import pandas as pd
 
 from .constants import VIEW_EQUIPMENT, VIEW_OBJECTS
-from .failure_mode import find_failure_modes, FailureModeSet
+from .failure_mode import find_failure_modes
 from .indicators import Indicator, IndicatorSet
-from .notification import NotificationSet, find_notifications
+from .notification import find_notifications
 from .location import Location, find_locations
-from .workorder import WorkorderSet, find_workorders
+from .workorder import find_workorders
 from .utils import fetch_data, add_properties, parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    ac_application_url, apply_filters_post_request, _string_to_date_parser
+    ac_application_url, apply_filters_post_request
+from ..utils.timestamps import _string_to_date_parser
+from ..sap_iot import get_indicator_data
+
+if TYPE_CHECKING:
+    from ..sap_iot import TimeseriesDataset
+    from .notification import NotificationSet
+    from .failure_mode import FailureModeSet
+    from .workorder import WorkorderSet
 
 
 @add_properties
@@ -63,7 +76,7 @@ class Equipment(AssetcentralEntity):
         return self._location
 
     def find_equipment_indicators(self, extended_filters=(), **kwargs) -> IndicatorSet:
-        """Find all indicators assigned to this Equipment.
+        """Find all Indicators assigned to this Equipment.
 
         This method supports the common filter language explained at :ref:`filter`.
 
@@ -159,13 +172,45 @@ class Equipment(AssetcentralEntity):
         kwargs['equipment_id'] = self.id
         return find_workorders(extended_filters, **kwargs)
 
-    def __hash__(self):
-        """Hash of an equipment object is the hash of it's id."""
-        return self.id.__hash__()
+    def get_indicator_data(self, start: Union[str, int, pd.Timestamp], end: Union[str, int, pd.Timestamp],
+                           indicator_set: IndicatorSet = None) -> TimeseriesDataset:
+        """
+        Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.
+
+        This is a wrapper for :meth:`sailor.sap_iot.timeseries.get_indicator_data` that limits the fetch query
+        to this equipment. Note that filtering for the equipment can only be done locally, so calling this function
+        repeatedly for different equipment with the same indicators can be very inefficient.
+
+        Parameters
+        ----------
+        start
+            Date of beginning of requested timeseries data. Any time component will be ignored.
+        end
+            Date of end of requested timeseries data. Any time component will be ignored
+        indicator_set
+            IndicatorSet for which timeseries data is returned.
+
+        Example
+        -------
+        Get indicator data for an equipment 'my_equipment' for a period from 01.06.2020 to 05.12.2020 ::
+            my_equipment = find_equipment(name='my_equipment')[0]
+            my_equipment.get_indicator_data('2020-06-01', '2020-12-05')
+
+        Note
+        ----
+        If `indicator_set` is not specified, all indicators associated to this equipment are used.
+        """
+        if start is None or end is None:
+            raise ValueError("Time parameters must be specified")
+
+        if indicator_set is None:
+            indicator_set = self.find_equipment_indicators()
+
+        return get_indicator_data(start, end, indicator_set, EquipmentSet([self]))
 
 
 class EquipmentSet(ResultSet):
-    """Class representing a group of Equipments."""
+    """Class representing a group of Equipment."""
 
     _element_name = 'Equipment'
     _set_name = 'EquipmentSet'
@@ -179,7 +224,7 @@ class EquipmentSet(ResultSet):
     }
 
     def find_notifications(self, extended_filters=(), **kwargs) -> NotificationSet:
-        """Find all Notifications for any of the equipments in this EquipmentSet.
+        """Find all Notifications for any of the equipment in this EquipmentSet.
 
         Parameters
         ----------
@@ -192,7 +237,7 @@ class EquipmentSet(ResultSet):
         --------
         Get all notifications for the 'equipment_set' as a data frame::
 
-            equipment_set = find_equipments()
+            equipment_set = find_equipment()
 
             equipment_set.find_notifications().as_df()
 
@@ -208,7 +253,7 @@ class EquipmentSet(ResultSet):
 
     def find_workorders(self, extended_filters=(), **kwargs) -> WorkorderSet:
         """
-        Find all Workorders for any of the equipments in this EquipmentSet.
+        Find all Workorders for any of the equipment in this EquipmentSet.
 
         Parameters
         ----------
@@ -233,7 +278,7 @@ class EquipmentSet(ResultSet):
 
     def find_common_indicators(self, extended_filters=(), **kwargs) -> IndicatorSet:
         """
-        Find all Indicators common to all Equipments in this EquipmentSet.
+        Find all Indicators common to all Equipment in this EquipmentSet.
 
         This method supports the common filter language explained at :ref:`filter`.
 
@@ -246,16 +291,16 @@ class EquipmentSet(ResultSet):
 
         Example
         -------
-        Find all common indicators for an equipment set 'my_equipment_set'::
+        Find all common indicators for an EquipmentSet 'my_equipment_set'::
 
             my_equipment_set.find_common_indicators().as_df()
 
 
         Note
         ----
-        If all the Equipments in the set are derived from the same EquipmentModel the overlap in
+        If all the Equipment in the set are derived from the same EquipmentModel the overlap in
         Indicators is likely very high. If you get fewer indicators than expected from this method
-        verify the uniformity of the Equipments included in this set.
+        verify the uniformity of the Equipment included in this set.
         """
         if len(self) == 0:
             raise RuntimeError('This EquipmentSet is empty, can not find common indicators.')
@@ -268,8 +313,43 @@ class EquipmentSet(ResultSet):
 
         return common_indicators
 
+    def get_indicator_data(self, start: Union[str, int, pd.Timestamp], end: Union[str, int, pd.Timestamp],
+                           indicator_set: IndicatorSet = None) -> TimeseriesDataset:
+        """
+        Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.
 
-def find_equipments(extended_filters=(), **kwargs) -> EquipmentSet:
+        This is a wrapper for :meth:`sailor.sap_iot.timeseries.get_indicator_data` that limits the fetch query
+        to this equipment set.
+
+        Parameters
+        ----------
+        start
+            Date of beginning of requested timeseries data. Any time component will be ignored.
+        end
+            Date of end of requested timeseries data. Any time component will be ignored.
+        indicator_set
+            IndicatorSet for which timeseries data is returned.
+
+        Example
+        -------
+        Get indicator data for all Equipment belonging to the EquipmentModel 'MyEquipmentModel'
+        for a period from 01.06.2020 to 05.12.2020 ::
+            my_equipment_set = find_equipment(equipment_model_name='MyEquipmentModel')
+            my_equipment_set.get_indicator_data('2020-06-01', '2020-12-05')
+        Note
+        ----
+        If `indicator_set` is not specified, indicators common to all equipments in this set are used.
+        """
+        if start is None or end is None:
+            raise ValueError("Time parameters must be specified")
+
+        if indicator_set is None:
+            indicator_set = self.find_common_indicators()
+
+        return get_indicator_data(start, end, indicator_set, self)
+
+
+def find_equipment(extended_filters=(), **kwargs) -> EquipmentSet:
     """
     Fetch Equipments from AssetCentral with the applied filters, return an EquipmentSet.
 
@@ -284,21 +364,21 @@ def find_equipments(extended_filters=(), **kwargs) -> EquipmentSet:
 
     Examples
     --------
-    Find all Equipments with the name 'MyEquipment'::
+    Find all Equipment with the name 'MyEquipment'::
 
-        find_equipments(name='MyEquipment')
+        find_equipment(name='MyEquipment')
 
-    Find all Equipments which either have the name 'MyEquipment' or the name 'MyOtherEquipment'::
+    Find all Equipment which either have the name 'MyEquipment' or the name 'MyOtherEquipment'::
 
-        find_equipments(name=['MyEquipment', 'MyOtherEquipment'])
+        find_equipment(name=['MyEquipment', 'MyOtherEquipment'])
 
-    Find all Equipments with the name 'MyEquipment' which are also located in 'London'::
+    Find all Equipment with the name 'MyEquipment' which are also located in 'London'::
 
-        find_equipments(name='MyEquipment', location_name='London')
+        find_equipment(name='MyEquipment', location_name='London')
 
-    Find all Equipments installed between January 1, 2018 and January 1, 2019 in 'London'::
+    Find all Equipment installed between January 1, 2018 and January 1, 2019 in 'London'::
 
-        find_equipments(extended_filters=['installationDate >= "2018-01-01"', 'installationDate < "2019-01-01"'],
+        find_equipment(extended_filters=['installationDate >= "2018-01-01"', 'installationDate < "2019-01-01"'],
                         location_name='London')
     """
     unbreakable_filters, breakable_filters = \

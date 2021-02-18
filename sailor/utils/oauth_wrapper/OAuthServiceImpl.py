@@ -83,11 +83,14 @@ class OAuthFlow:
         LOG.debug("Calling %s", endpoint_url)
         response = session.request(method, endpoint_url)
         if response.ok:
-            return response.json()
+            if response.headers['Content-Type'] == 'application/json':
+                return response.json()
+            else:
+                return response.content
         else:
             msg = f'Request failed. Response {response.status_code} ({response.reason}): {response.text}'
             LOG.error(msg)
-            raise IOError(msg)
+            raise RequestError(msg, response.status_code, response.reason, response.text)
 
     def get_access_token(self):
         """
@@ -162,3 +165,13 @@ class OAuthFlow:
             self.resolved_scopes = []
         else:
             self.resolved_scopes = resolved_scopes
+
+
+class RequestError(Exception):
+    """Exception object with additional information about the status returned by a REST request."""
+
+    def __init__(self, msg, status_code, reason, error_text):
+        super().__init__(msg)
+        self.status_code = status_code
+        self.reason = reason
+        self.error_text = error_text

@@ -22,6 +22,7 @@ class TestOAuthFlow(TestCase):
 
     def test_fetch_endpoint_data_url_parameters(self):
         mock_session = Mock()
+        mock_session.request.return_value = Mock(headers={'Content-Type': 'application/json'})
         oauth_flow = OAuthFlow('test_service', {})
 
         current_url = 'https://some-service-url.to/api/resource?hello=world&old=true'
@@ -38,6 +39,7 @@ class TestOAuthFlow(TestCase):
 
         class MockResponse:
             ok = True
+            headers = {'Content-Type': 'application/json'}
 
             def json(self):
                 return expected_data
@@ -121,7 +123,7 @@ class TestOAuthFlow(TestCase):
             'test_service': ['scope1', 'scope2', 'scope3']
         }
 
-        invalid_encoded_token = 'xxxxxxxxxx'
+        invalid_encoded_token = 'xxxxxxxxxx'  # nosec
 
         oauth_flow = OAuthFlow('test_service', scope_config)
 

@@ -46,7 +46,7 @@ class TestResultSet:
         assert rs1 != rs2
 
     @pytest.mark.parametrize('testdescription,list1,list2,expected_result', [
-        ('Order not equal', [1, 2, 3], [2, 3, 1], False),
+        ('Order does not matter', [1, 2, 3], [2, 3, 1], True),
         ('Different content', [1, 2, 3], [1, 2, 4], False),
         ('Different size', [1, 2, 3, 4], [1, 2, 3], False),
         ('Equal content and order', [1, 2, 3], [1, 2, 3], True),

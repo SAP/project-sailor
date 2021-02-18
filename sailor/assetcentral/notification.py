@@ -8,8 +8,9 @@ import pandas as pd
 import plotnine as p9
 
 from .constants import VIEW_NOTIFICATIONS
-from .utils import fetch_data, add_properties, ResultSet, parse_filter_parameters, _string_to_date_parser, \
+from .utils import fetch_data, add_properties, ResultSet, parse_filter_parameters,\
     AssetcentralEntity, ac_application_url
+from ..utils.timestamps import _string_to_date_parser
 from ..utils.plot_helper import default_plot_theme
 
 
@@ -75,16 +76,16 @@ class Notification(AssetcentralEntity):
         Parameters
         ----------
         data
-            DSCTimeseriesWrapper to use for plotting indicator data near the Notification.
+            TimeseriesDataset to use for plotting indicator data near the Notification.
         window_before
             Time interval plotted before a notification. Default value is 7 days before a notification
         window_after
             Time interval plotted after a notification. Default value is 2 days after a notification
         """
         # required to avoid circular imports. which is aweful. not sure about the best way to approach this though
-        from .equipment import find_equipments
+        from .equipment import find_equipment
 
-        equipment_set = find_equipments(id=self.equipment_id)
+        equipment_set = find_equipment(id=self.equipment_id)
 
         if self.start_date and self.end_date:
             data_start = self.start_date - window_before
@@ -105,7 +106,7 @@ class Notification(AssetcentralEntity):
             raise RuntimeError('Either notification start_date or notification end_date must be known to plot context.')
 
         if data is None:
-            raise NotImplementedError('Fetching context data automatically is not implemented yet.')
+            data = equipment_set.get_indicator_data(data_start, data_end)
 
         plot = (
                 data.plot(data_start, data_end, equipment_set=equipment_set) +
@@ -195,7 +196,7 @@ def find_notifications(extended_filters=(), **kwargs) -> NotificationSet:
 
         find_notifications(extended_filters=['confirmed_failure_mode_description != "None"'])
 
-    Find all notifications in a given timeframe for specific equipments::
+    Find all notifications in a given timeframe for specific equipment::
 
         find_notifications(['malfunctionStartDate > "2020-08-01"', 'malfunctionEndDate <= "2020-09-01"'],
                            equipment_id=['id1', 'id2'])

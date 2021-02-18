@@ -3,13 +3,19 @@ Retrieve EquipmentModel information from AssetCentral.
 
 Classes are provided for individual EquipmentModels as well as groups of EquipemtModels (EquipmentModelSet).
 """
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from .constants import EQUIPMENT_MODEL_INDICATORS, EQUIPMENT_MODEL_API, INDICATOR_CONFIGURATION
 from .indicators import Indicator, IndicatorSet
-from .equipment import find_equipments, EquipmentSet
+from .equipment import find_equipment
 from .utils import fetch_data, add_properties, parse_filter_parameters, \
     apply_filters_post_request, ac_application_url, AssetcentralEntity, ResultSet
-from .utils import _string_to_date_parser
+from ..utils.timestamps import _string_to_date_parser
+
+if TYPE_CHECKING:
+    from .equipment import EquipmentSet
 
 
 @add_properties
@@ -48,9 +54,9 @@ class EquipmentModel(AssetcentralEntity):
             'template_id': ('templateId', None, None, None),
         }
 
-    def find_equipments(self, extended_filters=(), **kwargs) -> EquipmentSet:
+    def find_equipment(self, extended_filters=(), **kwargs) -> EquipmentSet:
         """
-        Get a list of equipments derived from this EquipmentModel.
+        Get a list of equipment derived from this EquipmentModel.
 
         Parameters
         ----------
@@ -61,18 +67,18 @@ class EquipmentModel(AssetcentralEntity):
 
         Example
         -------
-        Find all equipments for Equipment Model 'myEquipmentModelName'. Return an EquipmentSet::
+        Find all Equipment for EquipmentModel 'myEquipmentModelName'. Return an EquipmentSet::
 
            model = find_equipment_models(name='myEquipmentModelName')
-           model[0].find_equipments()
+           model[0].find_equipment()
 
         The resulting Equipments can further be filter based on their properties (name, location etc).
         """
         kwargs['equipment_model_id'] = self.id
-        return find_equipments(extended_filters, **kwargs)
+        return find_equipment(extended_filters, **kwargs)
 
     def find_model_indicators(self, extended_filters=(), **kwargs) -> IndicatorSet:
-        """Return all `Indicator`s assigned to the EquipmentModel.
+        """Return all Indicators assigned to the EquipmentModel.
 
         Parameters
         ----------

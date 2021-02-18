@@ -3,7 +3,6 @@ from unittest.mock import patch, Mock
 import pytest
 
 from sailor.assetcentral.equipment_model import EquipmentModel, EquipmentModelSet, find_equipment_models
-from sailor.assetcentral.indicators import Indicator, IndicatorSet
 from sailor.assetcentral import constants
 
 
@@ -22,9 +21,9 @@ class TestEquipmentModel:
             {'modelId': "D2602147691E463DA91EA2B4C3998C4B", "name": "testEquipment", "location": "USA"})
 
     @pytest.mark.parametrize('function_name', [
-        'find_equipments'
+        'find_equipment'
     ])
-    def test_find_equipments_delegate_called(self, equi_model, function_name):
+    def test_find_equipment_delegate_called(self, equi_model, function_name):
         expected = f'expected return value is the value returned by the delegate function "{function_name}"'
         function_under_test = getattr(equi_model, function_name)
 
@@ -37,14 +36,15 @@ class TestEquipmentModel:
 
     @patch('sailor.assetcentral.equipment_model.apply_filters_post_request')
     @patch('sailor.assetcentral.equipment_model.fetch_data')
-    def test_find_equipment_indicators_fetch_and_apply(self, mock_fetch, mock_apply, equi_model, mock_url):
+    def test_find_equipment_indicators_fetch_and_apply(self, mock_fetch, mock_apply, equi_model, mock_url,
+                                                       make_indicator_set):
         object_list = Mock(name='raw_object_list')
         mock_fetch.return_value = object_list
-        mock_apply.return_value = [{'propertyId': 'indicator_1'}, {'propertyId': 'indicator_2'}]
+        mock_apply.return_value = [{'propertyId': 'indicator_1', 'pstid': 'group_id', 'categoryID': 'template_id'},
+                                   {'propertyId': 'indicator_2', 'pstid': 'group_id', 'categoryID': 'template_id'}]
         filter_kwargs = {'param1': 'one'}
         extended_filters = ['other_param > 22']
-        expected_result = IndicatorSet([Indicator({'propertyId': 'indicator_1'}),
-                                        Indicator({'propertyId': 'indicator_2'})])
+        expected_result = make_indicator_set(propertyId=['indicator_1', 'indicator_2'])
 
         actual = equi_model.find_model_indicators(**filter_kwargs, extended_filters=extended_filters)
 
@@ -69,7 +69,7 @@ class TestEquipmentModel:
 
 @pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
 @patch('sailor.assetcentral.equipment_model.fetch_data')
-def test_find_equipments_expect_fetch_call_args(mock_fetch, mock_url):
+def test_find_equipment_expect_fetch_call_args(mock_fetch, mock_url):
     find_params = dict(extended_filters=['integer_param1 < 10'], generation=['one', 'two'])
     expected_call_args = (['integer_param1 lt 10'], [["generation eq 'one'", "generation eq 'two'"]])
     mock_fetch.return_value = [{'modelId': 'm_id1'}, {'modelId': 'm_id2'}]
