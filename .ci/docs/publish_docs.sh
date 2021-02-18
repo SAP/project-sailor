@@ -12,6 +12,6 @@ rm -rf ../DOCS/*
 cp -r "${docs_dir}"/_build/* ../DOCS
 cd ../DOCS
 git add .
-if git commit -m "[Jenkins CI] Updated documentation (ref: ${trigger_commit})."; then
+if git commit -m "[CI] Updated documentation (ref: ${trigger_commit})."; then
     git push origin gh-pages
 fi

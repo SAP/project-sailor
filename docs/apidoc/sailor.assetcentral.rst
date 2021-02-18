@@ -15,7 +15,6 @@ Submodules
    sailor.assetcentral.location
    sailor.assetcentral.notification
    sailor.assetcentral.system
-   sailor.assetcentral.timeseries
    sailor.assetcentral.utils
    sailor.assetcentral.workorder
 

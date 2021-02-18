@@ -13,7 +13,6 @@ pipeline {
         stage('Install tools') {
             steps {
                 dir("MAIN") {
-                    sh 'apt install -y ssh-client'
                     sh 'apt install -y make'
                     sh 'pip install -r ./.ci/docs/requirements_docs.txt'
                 }
@@ -28,24 +27,26 @@ pipeline {
         }
         stage('Publish') {
             environment {
-                GIT_SSH_COMMAND = 'ssh -o StrictHostKeyChecking=no'
-                GIT_CONFIG_USER_NAME = "dscdatascience"
-                GIT_CONFIG_USER_MAIL = "jenkins@dscdatascience"
+                GIT_CREDENTIALS = credentials('github-sailor-user-token')
+                GIT_CONFIG_USER_NAME = "${GIT_CREDENTIALS_USR}"
+                GIT_CONFIG_USER_MAIL = "78745571+sailor-ci@users.noreply.github.com"
             }
             steps {
-                sshagent(['github-wdf-ssh-key']) {
-                    dir("MAIN") {
-                        sh './.ci/docs/publish_docs.sh $DOCS_SOURCE_DIR'
-                    }
+                sh 'git config --global credential.helper "!f() { echo username=\$GIT_CREDENTIALS_USR; echo password=\$GIT_CREDENTIALS_PSW; }; f"'
+                dir("MAIN") {
+                    sh './.ci/docs/publish_docs.sh $DOCS_SOURCE_DIR'
                 }
             }
         }
     }
     post {
+        always {
+            step([$class: "GitHubCommitStatusSetter",]);
+        }
         failure {
             slackSend (
                 color: 'warning', 
-                message: """Documentation build on master failed - ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+                message: """Documentation build on main failed - ${env.JOB_NAME} [${env.BUILD_NUMBER}]
 
 Please check the logs and take corrective action if necessary.
 ${env.BUILD_URL}/console
