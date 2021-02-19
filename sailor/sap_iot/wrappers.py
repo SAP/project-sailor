@@ -73,6 +73,18 @@ class TimeseriesDataset(object):
 
         Currently we only support asset type 'Equipment' so this will always return columns based on the equipment.
         In the future other types (like System) will be supported here.
+
+        Parameters
+        ----------
+        speaking_names
+            False, return key columns
+            True, return corresponding names of key columns
+
+        Example
+        -------
+        Get key columns of the indicator data set 'my_indicator_data'::
+
+            my_indicator_data.get_key_columns()
         """
         if self.type != 'EQUIPMENT':
             raise NotImplementedError('Currently only Equipment is supported as base object for timeseries data.')
@@ -88,7 +100,23 @@ class TimeseriesDataset(object):
         return 'timestamp'
 
     def get_feature_columns(self, speaking_names=False):
-        """Get the names of all feature columns."""
+        """
+        Get the names of all feature columns.
+
+        Parameters
+        ----------
+        speaking_names
+            False, returns feature columns of a data set
+            True, returns corresponding names of feature columns
+
+        Example
+        -------
+        Get Template id, Indicator group name and Indicator name of columns including indicator values in the
+        data set 'my_indicator_data'::
+
+            my_indicator_data.get_feature_columns(speaking_names=True)
+
+        """
         if speaking_names:
             return list(self._indicator_set._unique_id_to_names().values())
         return list(self._indicator_set._unique_id_to_constituent_ids().keys())
@@ -154,8 +182,9 @@ class TimeseriesDataset(object):
 
         Example
         -------
-        Plot all Indicators in data set 'my_indicator_data'::
-            my_indicator_data(plot)
+        Plot all Indicators for a period from 2020-07-02 to 2020-09-01 in the data set 'my_indicator_data'::
+
+            my_indicator_data.plot('2020-07-02','2020-09-01')
         """
         key_vars = self.get_index_columns()
         time_column = self.get_time_column()
@@ -270,6 +299,12 @@ class TimeseriesDataset(object):
             TimeseriesDataset with self._df updated to be the normalized dataframe.
         fitted_scaler
             Fitted scaler to be used to normalize the data.
+
+        Example
+        -------
+        Get normalized values for indicators in the indicator data set 'My_indicator_data'::
+
+            My_indicator_data.normalize()[0]
         """
         features = [column for column in self._df.columns if column not in self.get_index_columns()]
         if fitted_scaler is None and self.is_normalized:
@@ -302,6 +337,12 @@ class TimeseriesDataset(object):
             Optional start time of timeseries data are returned.
         end
             Optional end time until timeseries data are returned.
+
+        Example
+        -------
+        Filter out indicator data for an equipment 'MyEquipmentId' from the indicator data 'My_indicator_data'::
+
+            My_indicator_data.filter(MyEquipmentId)
         """
         if isinstance(equipment_ids, str):
             equipment_ids = [equipment_ids]
