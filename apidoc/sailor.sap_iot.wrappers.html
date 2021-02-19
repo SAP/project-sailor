@@ -212,12 +212,29 @@ aggregation_function.</p>
 <dd class="field-even"><p><a class="reference internal" href="#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset">TimeseriesDataset</a></p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<p>Filter out indicator data for an equipment ‘MyEquipmentId’ from the indicator data ‘My_indicator_data’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">My_indicator_data</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">MyEquipmentId</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset.get_feature_columns">
 <code class="sig-name descname">get_feature_columns</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">speaking_names</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.get_feature_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.get_feature_columns" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the names of all feature columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>speaking_names</strong> – False, returns feature columns of a data set
+True, returns corresponding names of feature columns</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Get Template id, Indicator group name and Indicator name of columns including indicator values in the
+data set ‘my_indicator_data’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">my_indicator_data</span><span class="o">.</span><span class="n">get_feature_columns</span><span class="p">(</span><span class="n">speaking_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -232,6 +249,17 @@ aggregation_function.</p>
 <dd><p>Return those columns of the data that identify the asset.</p>
 <p>Currently we only support asset type ‘Equipment’ so this will always return columns based on the equipment.
 In the future other types (like System) will be supported here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>speaking_names</strong> – False, return key columns
+True, return corresponding names of key columns</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Get key columns of the indicator data set ‘my_indicator_data’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">my_indicator_data</span><span class="o">.</span><span class="n">get_key_columns</span><span class="p">()</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -263,6 +291,11 @@ Properties are computed along the columns.</p></li>
 <dd class="field-odd"><p>tuple[<a class="reference internal" href="#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset">TimeseriesDataset</a>, Any]</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<p>Get normalized values for indicators in the indicator data set ‘My_indicator_data’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">My_indicator_data</span><span class="o">.</span><span class="n">normalize</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -289,10 +322,10 @@ returned by this method will be rendered in jupyter notebooks, but can also be f
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<dl class="simple">
-<dt>Plot all Indicators in data set ‘my_indicator_data’::</dt><dd><p>my_indicator_data(plot)</p>
-</dd>
-</dl>
+<p>Plot all Indicators for a period from 2020-07-02 to 2020-09-01 in the data set ‘my_indicator_data’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">my_indicator_data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;2020-07-02&#39;</span><span class="p">,</span><span class="s1">&#39;2020-09-01&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>

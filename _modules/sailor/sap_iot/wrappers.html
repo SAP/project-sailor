@@ -230,6 +230,18 @@
 
 <span class="sd">        Currently we only support asset type &#39;Equipment&#39; so this will always return columns based on the equipment.</span>
 <span class="sd">        In the future other types (like System) will be supported here.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        speaking_names</span>
+<span class="sd">            False, return key columns</span>
+<span class="sd">            True, return corresponding names of key columns</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        Get key columns of the indicator data set &#39;my_indicator_data&#39;::</span>
+
+<span class="sd">            my_indicator_data.get_key_columns()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s1">&#39;EQUIPMENT&#39;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Currently only Equipment is supported as base object for timeseries data.&#39;</span><span class="p">)</span>
@@ -245,7 +257,23 @@
         <span class="k">return</span> <span class="s1">&#39;timestamp&#39;</span></div>
 
 <div class="viewcode-block" id="TimeseriesDataset.get_feature_columns"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_feature_columns">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speaking_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the names of all feature columns.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the names of all feature columns.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        speaking_names</span>
+<span class="sd">            False, returns feature columns of a data set</span>
+<span class="sd">            True, returns corresponding names of feature columns</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        Get Template id, Indicator group name and Indicator name of columns including indicator values in the</span>
+<span class="sd">        data set &#39;my_indicator_data&#39;::</span>
+
+<span class="sd">            my_indicator_data.get_feature_columns(speaking_names=True)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">speaking_names</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span><span class="o">.</span><span class="n">_unique_id_to_names</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span><span class="o">.</span><span class="n">_unique_id_to_constituent_ids</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
@@ -311,8 +339,9 @@
 
 <span class="sd">        Example</span>
 <span class="sd">        -------</span>
-<span class="sd">        Plot all Indicators in data set &#39;my_indicator_data&#39;::</span>
-<span class="sd">            my_indicator_data(plot)</span>
+<span class="sd">        Plot all Indicators for a period from 2020-07-02 to 2020-09-01 in the data set &#39;my_indicator_data&#39;::</span>
+
+<span class="sd">            my_indicator_data.plot(&#39;2020-07-02&#39;,&#39;2020-09-01&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">key_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_index_columns</span><span class="p">()</span>
         <span class="n">time_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_column</span><span class="p">()</span>
@@ -427,6 +456,12 @@
 <span class="sd">            TimeseriesDataset with self._df updated to be the normalized dataframe.</span>
 <span class="sd">        fitted_scaler</span>
 <span class="sd">            Fitted scaler to be used to normalize the data.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        Get normalized values for indicators in the indicator data set &#39;My_indicator_data&#39;::</span>
+
+<span class="sd">            My_indicator_data.normalize()[0]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_index_columns</span><span class="p">()]</span>
         <span class="k">if</span> <span class="n">fitted_scaler</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_normalized</span><span class="p">:</span>
@@ -459,6 +494,12 @@
 <span class="sd">            Optional start time of timeseries data are returned.</span>
 <span class="sd">        end</span>
 <span class="sd">            Optional end time until timeseries data are returned.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        Filter out indicator data for an equipment &#39;MyEquipmentId&#39; from the indicator data &#39;My_indicator_data&#39;::</span>
+
+<span class="sd">            My_indicator_data.filter(MyEquipmentId)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">equipment_ids</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">equipment_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">equipment_ids</span><span class="p">]</span>
