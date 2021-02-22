@@ -12,7 +12,7 @@ from .indicators import Indicator, IndicatorSet
 from .equipment import find_equipment
 from .utils import fetch_data, add_properties, parse_filter_parameters, \
     apply_filters_post_request, ac_application_url, AssetcentralEntity, ResultSet
-from ..utils.timestamps import _string_to_date_parser
+from ..utils.timestamps import _string_to_timestamp_parser
 
 if TYPE_CHECKING:
     from .equipment import EquipmentSet
@@ -46,11 +46,11 @@ class EquipmentModel(AssetcentralEntity):
             'long_description': ('longDescription', None, None, None),
             'generation': ('generation', None, None, None),
             'manufacturer': ('manufacturer', None, None, None),
-            'model_expiration_date': ('modelExpirationDate', _string_to_date_parser('modelExpirationDate', 'ms'),
-                                      None, None),
+            'model_expiration_date': ('modelExpirationDate',
+                                      _string_to_timestamp_parser('modelExpirationDate', 'ms'), None, None),
             'model_template_id': ('modelTemplate', None, None, None),
-            'service_expiration_date': ('serviceExpirationDate', _string_to_date_parser('serviceExpirationDate', 'ms'),
-                                        None, None),
+            'service_expiration_date': ('serviceExpirationDate',
+                                        _string_to_timestamp_parser('serviceExpirationDate', 'ms'), None, None),
             'template_id': ('templateId', None, None, None),
         }
 

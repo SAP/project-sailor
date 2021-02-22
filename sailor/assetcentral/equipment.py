@@ -17,7 +17,7 @@ from .location import Location, find_locations
 from .workorder import find_workorders
 from .utils import fetch_data, add_properties, parse_filter_parameters, AssetcentralEntity, ResultSet, \
     ac_application_url, apply_filters_post_request
-from ..utils.timestamps import _string_to_date_parser
+from ..utils.timestamps import _string_to_timestamp_parser
 from ..sap_iot import get_indicator_data
 
 if TYPE_CHECKING:
@@ -52,11 +52,12 @@ class Equipment(AssetcentralEntity):
             'name': ('name', None, None, None),
             'short_description': ('shortDescription', None, None, None),
             'batch_number': ('batchNumber', None, None, None),
-            'build_date': ('buildDate', _string_to_date_parser('buildDate', 'ms'), None, None),
+            'build_date': ('buildDate', _string_to_timestamp_parser('buildDate', 'ms'), None, None),
             'criticality_description': ('criticalityDescription', None, None, None),
             'equipment_model_id': ('modelId', None, None, None),
             'equipment_model_name': ('modelName', None, None, None),
-            'installation_date': ('installationDate', _string_to_date_parser('installationDate', 'ms'), None, None),
+            'installation_date': ('installationDate', _string_to_timestamp_parser('installationDate', 'ms'),
+                                  None, None),
             'lifecycle_description': ('lifeCycleDescription', None, None, None),
             'location_name': ('location', None, None, None),
             'manufacturer': ('manufacturer', None, None, None),

@@ -10,7 +10,7 @@ import plotnine as p9
 from .constants import VIEW_NOTIFICATIONS
 from .utils import fetch_data, add_properties, ResultSet, parse_filter_parameters,\
     AssetcentralEntity, ac_application_url
-from ..utils.timestamps import _string_to_date_parser
+from ..utils.timestamps import _string_to_timestamp_parser
 from ..utils.plot_helper import default_plot_theme
 
 
@@ -43,19 +43,19 @@ class Notification(AssetcentralEntity):
             'confirmed_failure_mode_id': ('confirmedFailureModeID', None, None, None),
             'confirmed_failure_mode_description': ('confirmedFailureModeDesc', None, None, None),
             'confirmed_failure_mode_name': ('confirmedFailureModeDisplayID', None, None, None),
-            'end_date': ('endDate', _string_to_date_parser('endDate'), None, None),
+            'end_date': ('endDate', _string_to_timestamp_parser('endDate'), None, None),
             'equipment_id': ('equipmentId', None, None, None),
             'equipment_name': ('equipmentName', None, None, None),
             'location_id': ('locationID', None, None, None),
             'location_name': ('location', None, None, None),
-            'malfunction_end_date': ('malfunctionEndDate', _string_to_date_parser('malfunctionEndDate'),
+            'malfunction_end_date': ('malfunctionEndDate', _string_to_timestamp_parser('malfunctionEndDate'),
                                      None, None),
-            'malfunction_start_date': ('malfunctionStartDate', _string_to_date_parser('malfunctionStartDate'),
+            'malfunction_start_date': ('malfunctionStartDate', _string_to_timestamp_parser('malfunctionStartDate'),
                                        None, None),
             'notification_type': ('notificationType', None, None, None),
             'notification_type_description': ('notificationTypeDescription', None, None, None),
             'priority_description': ('priorityDescription', None, None, None),
-            'start_date': ('startDate', _string_to_date_parser('startDate'), None, None),
+            'start_date': ('startDate', _string_to_timestamp_parser('startDate'), None, None),
             'status_text': ('statusDescription', None, None, None),
             'system_failure_mode_id': ('systemProposedFailureModeID', None, None, None),
             'system_failure_mode_description': ('systemProposedFailureModeDesc', None, None, None),

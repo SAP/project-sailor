@@ -15,10 +15,6 @@ def _string_to_timestamp_parser(name, unit=None):
     return lambda self: pd.Timestamp(self.raw[name], unit=unit, tz='UTC') if self.raw[name] else None
 
 
-def _string_to_date_parser(name, unit=None):
-    return lambda self: pd.Timestamp(self.raw[name], unit=unit, tz='UTC').date() if self.raw[name] else None
-
-
 def any_to_timestamp(value: Union[str, pd.Timestamp, datetime.datetime], default: pd.Timestamp = None):
     """Try to parse a timestamp provided in a variety of formats into a uniform representation as pd.Timestamp."""
     if value is None:
