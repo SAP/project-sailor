@@ -8,13 +8,13 @@ import pandas as pd
 import plotnine as p9
 
 from .constants import VIEW_NOTIFICATIONS
-from .utils import fetch_data, add_properties, ResultSet, parse_filter_parameters,\
-    AssetcentralEntity, ac_application_url
+from .utils import _fetch_data, _add_properties, ResultSet, _parse_filter_parameters,\
+    AssetcentralEntity, _ac_application_url
 from ..utils.timestamps import _string_to_timestamp_parser
 from ..utils.plot_helper import default_plot_theme
 
 
-@add_properties
+@_add_properties
 class Notification(AssetcentralEntity):
     """
     AssetCentral Notification Object.
@@ -198,9 +198,9 @@ def find_notifications(extended_filters=(), **kwargs) -> NotificationSet:
                            equipment_id=['id1', 'id2'])
     """
     unbreakable_filters, breakable_filters = \
-        parse_filter_parameters(kwargs, extended_filters, Notification.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Notification.get_property_mapping())
 
-    endpoint_url = ac_application_url() + VIEW_NOTIFICATIONS
-    object_list = fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
+    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return NotificationSet([Notification(obj) for obj in object_list],
                            {'filters': kwargs, 'extended_filters': extended_filters})

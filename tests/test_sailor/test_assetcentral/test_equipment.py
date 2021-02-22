@@ -9,7 +9,7 @@ from sailor.assetcentral import constants
 
 @pytest.fixture
 def mock_url():
-    with patch('sailor.assetcentral.equipment.ac_application_url') as mock:
+    with patch('sailor.assetcentral.equipment._ac_application_url') as mock:
         mock.return_value = 'base_url'
         yield mock
 
@@ -21,8 +21,8 @@ class TestEquipment:
         return Equipment(
             {'equipmentId': 'D2602147691E463DA91EA2B4C3998C4B', 'name': 'testEquipment', 'location': 'USA'})
 
-    @patch('sailor.assetcentral.equipment.apply_filters_post_request')
-    @patch('sailor.assetcentral.equipment.fetch_data')
+    @patch('sailor.assetcentral.equipment._apply_filters_post_request')
+    @patch('sailor.assetcentral.equipment._fetch_data')
     def test_find_equipment_indicators_fetch_and_apply(self, mock_fetch, mock_apply, mock_url,
                                                        eq_obj, make_indicator_set):
         object_list = Mock(name='raw_object_list')
@@ -39,7 +39,7 @@ class TestEquipment:
         assert mock_apply.call_args.args[:-1] == (object_list, filter_kwargs, extended_filters)
         assert actual == expected_result
 
-    @patch('sailor.assetcentral.equipment.fetch_data')
+    @patch('sailor.assetcentral.equipment._fetch_data')
     def test_find_failure_modes(self, mock_fetch, mock_config, eq_obj):
         mock_fetch.return_value = [{'ID': 'fm_id1'}, {'ID': 'fm_id2'}]
         expected = 'expected return value is the value returned by the delegate function "find_failure_modes"'
@@ -63,7 +63,7 @@ class TestEquipment:
             mock_delegate.assert_called_once_with(['some_param > some_value'], param='123', equipment_id=eq_obj.id)
             assert actual == expected
 
-    @patch('sailor.assetcentral.location.fetch_data')
+    @patch('sailor.assetcentral.location._fetch_data')
     def test_location_returns_location(self, mock_fetch, mock_config):
         equipment = Equipment({'equipmentId': '123', 'location': 'Walldorf'})
         mock_fetch.return_value = [{'locationId': '456', 'name': 'Walldorf'}]
@@ -133,7 +133,7 @@ class TestEquipmentSet:
 
 
 @pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
-@patch('sailor.assetcentral.equipment.fetch_data')
+@patch('sailor.assetcentral.equipment._fetch_data')
 def test_find_equipment_expect_fetch_call_args(mock_fetch, mock_url):
     find_params = dict(extended_filters=['integer_param1 < 10'], location_name=['Paris', 'London'])
     expected_call_args = (['integer_param1 lt 10'], [["location eq 'Paris'", "location eq 'London'"]])

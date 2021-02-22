@@ -118,7 +118,7 @@ def _compose_queries(unbreakable_filters, breakable_filters):
     return filters
 
 
-def fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
+def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
     """Retrieve data from the AssetCentral service."""
     filters = _compose_queries(unbreakable_filters, breakable_filters)
     service = OAuthFlow('asset_central')
@@ -139,7 +139,7 @@ def fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
     return result
 
 
-def add_properties(cls):
+def _add_properties(cls):
     """Add AssetCentral properties to a class based on the property mapping defined in the class."""
     property_map = cls.get_property_mapping()
     for our_name, v in property_map.items():
@@ -220,7 +220,7 @@ def _unify_filters(equality_filters, extended_filters, property_mapping):
     return unified_filters
 
 
-def parse_filter_parameters(equality_filters=None, extended_filters=(), property_mapping=None):
+def _parse_filter_parameters(equality_filters=None, extended_filters=(), property_mapping=None):
     """
     Parse equality and extended filters into breakable and unbreakable filters.
 
@@ -243,7 +243,7 @@ def parse_filter_parameters(equality_filters=None, extended_filters=(), property
     return unbreakable_filters, breakable_filters
 
 
-def apply_filters_post_request(data, equality_filters, extended_filters, property_mapping):
+def _apply_filters_post_request(data, equality_filters, extended_filters, property_mapping):
     """Allow filtering of the results returned by an AssetCentral query if the endpoint doesn't implement `filter`."""
     unified_filters = _unify_filters(equality_filters, extended_filters, property_mapping)
     result = []
@@ -269,7 +269,7 @@ def apply_filters_post_request(data, equality_filters, extended_filters, propert
     return result
 
 
-def ac_application_url():
+def _ac_application_url():
     """Return the Assetcentral application URL from the SailorConfig."""
     return SailorConfig.get('asset_central', 'application_url')
 

@@ -10,15 +10,15 @@ from typing import TYPE_CHECKING
 from .constants import EQUIPMENT_MODEL_INDICATORS, EQUIPMENT_MODEL_API, INDICATOR_CONFIGURATION
 from .indicators import Indicator, IndicatorSet
 from .equipment import find_equipment
-from .utils import fetch_data, add_properties, parse_filter_parameters, \
-    apply_filters_post_request, ac_application_url, AssetcentralEntity, ResultSet
+from .utils import _fetch_data, _add_properties, _parse_filter_parameters, \
+    _apply_filters_post_request, _ac_application_url, AssetcentralEntity, ResultSet
 from ..utils.timestamps import _string_to_timestamp_parser
 
 if TYPE_CHECKING:
     from .equipment import EquipmentSet
 
 
-@add_properties
+@_add_properties
 class EquipmentModel(AssetcentralEntity):
     """
     AssetCentral EquipmentModel object.
@@ -94,25 +94,25 @@ class EquipmentModel(AssetcentralEntity):
             models = find_equipment_models(name='myEquipmentModelName')
             model[0].find_model_indicators()
         """
-        endpoint_url = ac_application_url() + EQUIPMENT_MODEL_INDICATORS + f'({self.id})' + '/indicatorvalues'
+        endpoint_url = _ac_application_url() + EQUIPMENT_MODEL_INDICATORS + f'({self.id})' + '/indicatorvalues'
 
         # AC-BUG: this api doesn't support filters (thank you AC) so we have to fetch all of them and then filter below
-        object_list = fetch_data(endpoint_url)
-        filtered_objects = apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                      Indicator.get_property_mapping())
+        object_list = _fetch_data(endpoint_url)
+        filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
+                                                       Indicator.get_property_mapping())
 
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
     def get_header(self):
         """Retrieve header information for the EquipmentModel."""
-        endpoint_url = ac_application_url() + EQUIPMENT_MODEL_API + f'({self.id})' + '/header'
-        header = fetch_data(endpoint_url)
+        endpoint_url = _ac_application_url() + EQUIPMENT_MODEL_API + f'({self.id})' + '/header'
+        header = _fetch_data(endpoint_url)
         return header
 
     def get_indicator_configuration_of_model(self):
         """Retrieve details on an indicator attached to an equipment model."""
-        endpoint_url = ac_application_url() + INDICATOR_CONFIGURATION + f'({self.id})' + '/header'
-        header = fetch_data(endpoint_url)
+        endpoint_url = _ac_application_url() + INDICATOR_CONFIGURATION + f'({self.id})' + '/header'
+        header = _fetch_data(endpoint_url)
         return header
 
 
@@ -173,9 +173,9 @@ def find_equipment_models(extended_filters=(), **kwargs) -> EquipmentModelSet:
         find_equipment_models(extended_filters=['model_expiration_date < "2018-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        parse_filter_parameters(kwargs, extended_filters, EquipmentModel.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, EquipmentModel.get_property_mapping())
 
-    endpoint_url = ac_application_url() + EQUIPMENT_MODEL_API
-    object_list = fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    endpoint_url = _ac_application_url() + EQUIPMENT_MODEL_API
+    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return EquipmentModelSet([EquipmentModel(obj) for obj in object_list],
                              {'filters': kwargs, 'extended_filters': extended_filters})

@@ -3,8 +3,8 @@ from unittest.mock import PropertyMock, patch
 import pytest
 
 from sailor.assetcentral.equipment import Equipment
-from sailor.assetcentral.utils import AssetcentralEntity, ResultSet, _unify_filters, parse_filter_parameters, \
-    apply_filters_post_request
+from sailor.assetcentral.utils import AssetcentralEntity, ResultSet, _unify_filters, _parse_filter_parameters, \
+    _apply_filters_post_request
 
 
 class TestAssetcentralEntity:
@@ -136,7 +136,7 @@ class TestQueryParsers:
     ])
     def test_parse_filter_parameters_equality_filters(self, equality_filters, expected_unbreakable, expected_breakable,
                                                       testdescription):
-        actual_unbreakable, actual_breakable = parse_filter_parameters(equality_filters=equality_filters)
+        actual_unbreakable, actual_breakable = _parse_filter_parameters(equality_filters=equality_filters)
         assert actual_unbreakable == expected_unbreakable
         assert actual_breakable == expected_breakable
 
@@ -151,7 +151,7 @@ class TestQueryParsers:
     ])
     def test_parse_filter_parameters_extended_filters_are_unbreakable(self, extended_filters, expected_unbreakable,
                                                                       testdescription):
-        actual_unbreakable, actual_breakable = parse_filter_parameters(extended_filters=extended_filters)
+        actual_unbreakable, actual_breakable = _parse_filter_parameters(extended_filters=extended_filters)
         assert actual_unbreakable == expected_unbreakable
         assert actual_breakable == []
 
@@ -160,7 +160,7 @@ class TestQueryParsers:
         extended_filters = ["startDate > '2020-01-01'", "endDate < '2020-02-01'"]
 
         actual_unbreakable, actual_breakable = \
-            parse_filter_parameters(equality_filters=equality_filters, extended_filters=extended_filters)
+            _parse_filter_parameters(equality_filters=equality_filters, extended_filters=extended_filters)
 
         assert actual_unbreakable == ["startDate gt '2020-01-01'", "endDate lt '2020-02-01'"]
         assert actual_breakable == [["location eq 'Paris'", "location eq 'London'"]]
@@ -173,7 +173,7 @@ class TestQueryParsers:
                             'start_date': ('startDate', None, None, None)}
 
         actual_unbreakable, actual_breakable = \
-            parse_filter_parameters(equality_filters, extended_filters, property_mapping)
+            _parse_filter_parameters(equality_filters, extended_filters, property_mapping)
 
         assert actual_unbreakable == ["serialNumber eq 1234", "startDate gt '2020-01-01'"]
         assert actual_breakable == [["location eq 'Paris'", "location eq 'London'"]]
@@ -194,7 +194,7 @@ def test_apply_filters_post_request_filtering(equality_filters, extended_filters
             {'id': 'indicator_id2', 'type': 'yellow', 'dimension': 'three', 'categoryID': 'aa'},
             {'id': 'indicator_id3', 'type': 'brown', 'dimension': 'three', 'categoryID': 'aaaa'}]
 
-    actual = apply_filters_post_request(data, equality_filters, extended_filters, property_mapping=None)
+    actual = _apply_filters_post_request(data, equality_filters, extended_filters, property_mapping=None)
 
     assert [item['id'] for item in actual] == expected_ids
 
@@ -210,6 +210,6 @@ def test_apply_filters_post_request_property_mapping():
     expected_result = [{'propertyId': 'indicator_id1', 'indicatorType': 'yellow', 'categoryID': 'aa'},
                        {'propertyId': 'indicator_id2', 'indicatorType': 'yellow', 'categoryID': 'aa'}]
 
-    actual = apply_filters_post_request(data, equality_filters, extended_filters, property_mapping)
+    actual = _apply_filters_post_request(data, equality_filters, extended_filters, property_mapping)
 
     assert actual == expected_result

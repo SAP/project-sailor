@@ -8,10 +8,10 @@ is no support for unrealized 'Indicator Templates'.
 """
 import hashlib
 
-from .utils import add_properties, AssetcentralEntity, ResultSet
+from .utils import _add_properties, AssetcentralEntity, ResultSet
 
 
-@add_properties
+@_add_properties
 class Indicator(AssetcentralEntity):
     """
     AssetCentral Indicator Object.

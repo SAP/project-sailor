@@ -7,15 +7,15 @@ from typing import Union
 
 import pandas as pd
 
-from .utils import fetch_data, add_properties, parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    ac_application_url
+from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
+    _ac_application_url
 from .equipment import find_equipment, EquipmentSet
 from .indicators import IndicatorSet
 from .constants import VIEW_SYSTEM
 from ..sap_iot import get_indicator_data
 
 
-@add_properties
+@_add_properties
 class System(AssetcentralEntity):
     """
     AssetCentral System Object.
@@ -46,8 +46,8 @@ class System(AssetcentralEntity):
         }
 
     def _prepare_components(self):
-        endpoint_url = ac_application_url() + VIEW_SYSTEM + f'({self.id})' + '/components'
-        components = fetch_data(endpoint_url)[0]
+        endpoint_url = _ac_application_url() + VIEW_SYSTEM + f'({self.id})' + '/components'
+        components = _fetch_data(endpoint_url)[0]
         equipment_ids = []
 
         for child_node in components['childNodes']:
@@ -154,10 +154,10 @@ def find_systems(extended_filters=(), **kwargs) -> SystemSet:
         find_systems(extended_filters=['created_on >= "2020-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        parse_filter_parameters(kwargs, extended_filters, System.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, System.get_property_mapping())
 
-    endpoint_url = ac_application_url() + VIEW_SYSTEM
-    object_list = fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    endpoint_url = _ac_application_url() + VIEW_SYSTEM
+    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
 
     return SystemSet([System(obj) for obj in object_list],
                      {'filters': kwargs, 'extended_filters': extended_filters})

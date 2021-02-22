@@ -5,12 +5,12 @@ Classes are provided for individual Locations as well as groups of Locations (Lo
 """
 
 
-from .utils import fetch_data, add_properties, parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    ac_application_url
+from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
+    _ac_application_url
 from .constants import VIEW_LOCATION
 
 
-@add_properties
+@_add_properties
 class Location(AssetcentralEntity):
     """
     AssetCentral Location Object.
@@ -92,10 +92,10 @@ def find_locations(extended_filters=(), **kwargs) -> LocationSet:
         find_locations(extended_filters=['short_description != "Location 1"'])
     """
     unbreakable_filters, breakable_filters = \
-        parse_filter_parameters(kwargs, extended_filters, Location.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Location.get_property_mapping())
 
-    endpoint_url = ac_application_url() + VIEW_LOCATION
+    endpoint_url = _ac_application_url() + VIEW_LOCATION
 
-    object_list = fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return LocationSet([Location(obj) for obj in object_list],
                        {'filters': kwargs, 'extended_filters': extended_filters})

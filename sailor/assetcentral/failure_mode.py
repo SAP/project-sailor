@@ -5,12 +5,12 @@ Classes are provided for individual FailureModes as well as groups of FailureMod
 """
 
 
-from .utils import fetch_data, add_properties, parse_filter_parameters, ResultSet, \
-    AssetcentralEntity, ac_application_url
+from .utils import _fetch_data, _add_properties, _parse_filter_parameters, ResultSet, \
+    AssetcentralEntity, _ac_application_url
 from .constants import VIEW_FAILUREMODES
 
 
-@add_properties
+@_add_properties
 class FailureMode(AssetcentralEntity):
     """
     AssetCentral Failure Mode Object.
@@ -37,8 +37,8 @@ class FailureMode(AssetcentralEntity):
 
     def get_details(self):
         """Fetch details of this FailureMode from AssetCentral."""
-        endpoint_url = ac_application_url() + VIEW_FAILUREMODES + f'/{self.id}'
-        details = fetch_data(endpoint_url)
+        endpoint_url = _ac_application_url() + VIEW_FAILUREMODES + f'/{self.id}'
+        details = _fetch_data(endpoint_url)
         return details
 
 
@@ -101,9 +101,9 @@ def find_failure_modes(extended_filters=(), **kwargs) -> FailureModeSet:
         find_failure_modes(extended_filters=['equipments_count >= 5'])
     """
     unbreakable_filters, breakable_filters = \
-        parse_filter_parameters(kwargs, extended_filters, FailureMode.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, FailureMode.get_property_mapping())
 
-    endpoint_url = ac_application_url() + VIEW_FAILUREMODES
-    object_list = fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    endpoint_url = _ac_application_url() + VIEW_FAILUREMODES
+    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return FailureModeSet([FailureMode(obj) for obj in object_list],
                           {'filters': kwargs, 'extended_filters': extended_filters})

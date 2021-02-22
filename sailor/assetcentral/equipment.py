@@ -15,8 +15,8 @@ from .indicators import Indicator, IndicatorSet
 from .notification import find_notifications
 from .location import Location, find_locations
 from .workorder import find_workorders
-from .utils import fetch_data, add_properties, parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    ac_application_url, apply_filters_post_request
+from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
+    _ac_application_url, _apply_filters_post_request
 from ..utils.timestamps import _string_to_timestamp_parser
 from ..sap_iot import get_indicator_data
 
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from .workorder import WorkorderSet
 
 
-@add_properties
+@_add_properties
 class Equipment(AssetcentralEntity):
     """
     AssetCentral Equipment Object.
@@ -95,11 +95,11 @@ class Equipment(AssetcentralEntity):
             my_equipment.find_equipment_indicators(name='MyIndicator')
         """
         # AC-BUG: this endpoint just silently ignores filter parameters, so we can't really support them...
-        endpoint_url = ac_application_url() + VIEW_EQUIPMENT + f'({self.id})' + '/indicatorvalues'
-        object_list = fetch_data(endpoint_url)
+        endpoint_url = _ac_application_url() + VIEW_EQUIPMENT + f'({self.id})' + '/indicatorvalues'
+        object_list = _fetch_data(endpoint_url)
 
-        filtered_objects = apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                      Indicator.get_property_mapping())
+        filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
+                                                       Indicator.get_property_mapping())
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
     def find_notifications(self, extended_filters=(), **kwargs) -> NotificationSet:
@@ -149,8 +149,8 @@ class Equipment(AssetcentralEntity):
         # AC-BUG: this endpoint just silently ignores filter parameters, so we can't really support them...
         if 'id' in kwargs or 'ID' in kwargs:
             raise RuntimeError('Can not manually filter for FailureMode ID when using this method.')
-        endpoint_url = ac_application_url() + VIEW_OBJECTS + 'EQU/' + self.id + '/failuremodes'
-        object_list = fetch_data(endpoint_url)
+        endpoint_url = _ac_application_url() + VIEW_OBJECTS + 'EQU/' + self.id + '/failuremodes'
+        object_list = _fetch_data(endpoint_url)
         kwargs['id'] = [element['ID'] for element in object_list]
         return find_failure_modes(extended_filters, **kwargs)
 
@@ -379,9 +379,9 @@ def find_equipment(extended_filters=(), **kwargs) -> EquipmentSet:
                         location_name='London')
     """
     unbreakable_filters, breakable_filters = \
-        parse_filter_parameters(kwargs, extended_filters, Equipment.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Equipment.get_property_mapping())
 
-    endpoint_url = ac_application_url() + VIEW_EQUIPMENT
-    object_list = fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
+    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return EquipmentSet([Equipment(obj) for obj in object_list],
                         {'filters': kwargs, 'extended_filters': extended_filters})

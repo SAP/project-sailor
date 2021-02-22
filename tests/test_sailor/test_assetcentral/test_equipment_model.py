@@ -8,7 +8,7 @@ from sailor.assetcentral import constants
 
 @pytest.fixture
 def mock_url():
-    with patch('sailor.assetcentral.equipment_model.ac_application_url') as mock:
+    with patch('sailor.assetcentral.equipment_model._ac_application_url') as mock:
         mock.return_value = 'base_url'
         yield mock
 
@@ -34,8 +34,8 @@ class TestEquipmentModel:
                                                   equipment_model_id=equi_model.id)
             assert actual == expected
 
-    @patch('sailor.assetcentral.equipment_model.apply_filters_post_request')
-    @patch('sailor.assetcentral.equipment_model.fetch_data')
+    @patch('sailor.assetcentral.equipment_model._apply_filters_post_request')
+    @patch('sailor.assetcentral.equipment_model._fetch_data')
     def test_find_equipment_indicators_fetch_and_apply(self, mock_fetch, mock_apply, equi_model, mock_url,
                                                        make_indicator_set):
         object_list = Mock(name='raw_object_list')
@@ -52,14 +52,14 @@ class TestEquipmentModel:
         assert mock_apply.call_args.args[:-1] == (object_list, filter_kwargs, extended_filters)
         assert actual == expected_result
 
-    @patch('sailor.assetcentral.equipment_model.fetch_data')
+    @patch('sailor.assetcentral.equipment_model._fetch_data')
     def test_get_header(self, mock_fetch, mock_url, equi_model):
         mock_fetch.return_value = 'header'
         actual = equi_model.get_header()
         assert constants.EQUIPMENT_MODEL_API in mock_fetch.call_args.args[0]
         assert actual == 'header'
 
-    @patch('sailor.assetcentral.equipment_model.fetch_data')
+    @patch('sailor.assetcentral.equipment_model._fetch_data')
     def test_get_indicator_configuration_of_model(self, mock_fetch, mock_url, equi_model):
         mock_fetch.return_value = 'header'
         actual = equi_model.get_indicator_configuration_of_model()
@@ -68,7 +68,7 @@ class TestEquipmentModel:
 
 
 @pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
-@patch('sailor.assetcentral.equipment_model.fetch_data')
+@patch('sailor.assetcentral.equipment_model._fetch_data')
 def test_find_equipment_expect_fetch_call_args(mock_fetch, mock_url):
     find_params = dict(extended_filters=['integer_param1 < 10'], generation=['one', 'two'])
     expected_call_args = (['integer_param1 lt 10'], [["generation eq 'one'", "generation eq 'two'"]])

@@ -4,12 +4,12 @@ Workorder module can be used to retrieve Workorder information from AssetCentral
 Classes are provided for individual Workorders as well as groups of Workorders (WorkorderSet).
 """
 
-from .utils import fetch_data, add_properties, parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    ac_application_url
+from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
+    _ac_application_url
 from .constants import VIEW_WORKORDER
 
 
-@add_properties
+@_add_properties
 class Workorder(AssetcentralEntity):
     """
     AssetCentral Workorder Object.
@@ -105,9 +105,9 @@ def find_workorders(extended_filters=(), **kwargs) -> WorkorderSet:
         find_workorders(extended_filters=['start_date >= "2020-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        parse_filter_parameters(kwargs, extended_filters, Workorder.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Workorder.get_property_mapping())
 
-    endpoint_url = ac_application_url() + VIEW_WORKORDER
-    object_list = fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    endpoint_url = _ac_application_url() + VIEW_WORKORDER
+    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return WorkorderSet([Workorder(obj) for obj in object_list],
                         {'filters': kwargs, 'extended_filters': extended_filters})
