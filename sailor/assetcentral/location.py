@@ -35,15 +35,11 @@ class Location(AssetcentralEntity):
 class LocationSet(ResultSet):
     """Class representing a group of Locations."""
 
-    _element_name = 'Location'
-    _set_name = 'LocationSet'
+    _element_type = Location
     _method_defaults = {
         'plot_distribution': {
             'by': 'type',
         },
-        'as_df': {
-            'properties': Location.get_property_mapping().keys()
-        }
     }
 
 

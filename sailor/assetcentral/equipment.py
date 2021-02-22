@@ -212,15 +212,11 @@ class Equipment(AssetcentralEntity):
 class EquipmentSet(ResultSet):
     """Class representing a group of Equipment."""
 
-    _element_name = 'Equipment'
-    _set_name = 'EquipmentSet'
+    _element_type = Equipment
     _method_defaults = {
         'plot_distribution': {
             'by': 'location_name',
         },
-        'as_df': {
-            'properties': Equipment.get_property_mapping().keys()
-        }
     }
 
     def find_notifications(self, extended_filters=(), **kwargs) -> NotificationSet:

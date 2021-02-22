@@ -45,15 +45,11 @@ class FailureMode(AssetcentralEntity):
 class FailureModeSet(ResultSet):
     """Class representing a group of FailureModes."""
 
-    _element_name = 'FailureMode'
-    _set_name = 'FailureModeSet'
+    _element_type = FailureMode
     _method_defaults = {
         'plot_distribution': {
             'by': 'status_text',
         },
-        'as_df': {
-            'properties': FailureMode.get_property_mapping().keys()
-        }
     }
 
 

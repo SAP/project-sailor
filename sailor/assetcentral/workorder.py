@@ -47,15 +47,11 @@ class Workorder(AssetcentralEntity):
 class WorkorderSet(ResultSet):
     """Class representing a group of Workorders."""
 
-    _element_name = 'Workorder'
-    _set_name = 'WorkorderSet'
+    _element_type = Workorder
     _method_defaults = {
         'plot_distribution': {
             'by': 'equipment_name',
         },
-        'as_df': {
-            'properties': Workorder.get_property_mapping().keys()
-        }
     }
 
 

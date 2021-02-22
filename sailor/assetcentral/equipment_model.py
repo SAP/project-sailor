@@ -119,15 +119,11 @@ class EquipmentModel(AssetcentralEntity):
 class EquipmentModelSet(ResultSet):
     """Class representing a group of EquipmentModels."""
 
-    _element_name = 'EquipmentModel'
-    _set_name = 'EquipmentModelSet'
+    _element_type = EquipmentModel
     _method_defaults = {
         'plot_distribution': {
-            'by': 'model_template',
+            'by': 'model_template_id',
         },
-        'as_df': {
-            'properties': EquipmentModel.get_property_mapping().keys()
-        }
     }
 
 

@@ -298,8 +298,7 @@ class AssetcentralEntity:
 class ResultSet(Sequence):
     """Baseclass to be used in all `Set`s of AssetCentral objects."""
 
-    _element_name = None
-    _set_name = None
+    _element_type = None
     _method_defaults = {}
 
     def __init__(self, elements, generating_query_params=None):
@@ -336,7 +335,7 @@ class ResultSet(Sequence):
 
     def as_df(self, columns=None):
         """Return all information on the objects stored in the ResultSet as a pandas dataframe."""
-        columns = self._method_defaults['as_df']['properties'] if columns is None else columns
+        columns = self._element_type.get_property_mapping().keys() if columns is None else columns
         return pd.DataFrame({
             prop: [element.__getattribute__(prop) for element in self.elements] for prop in columns
         })
@@ -364,7 +363,7 @@ class ResultSet(Sequence):
         distinguish a second dimension.
         """
         by = self._method_defaults['plot_distribution']['by'] if by is None else by
-        display_name = self._element_name + 's'
+        display_name = self._element_type.__name__ + 's'
 
         columns = [by]
         aes = {'x': by}

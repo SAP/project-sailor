@@ -82,15 +82,11 @@ class System(AssetcentralEntity):
 class SystemSet(ResultSet):
     """Class representing a group of Systems."""
 
-    _element_name = 'System'
-    _set_name = 'SystemSet'
+    _element_type = System
     _method_defaults = {
         'plot_distribution': {
             'by': 'operator',
         },
-        'as_df': {
-            'properties': System.get_property_mapping().keys()
-        }
     }
 
     def get_indicator_data(self, start: Union[str, int, pd.Timestamp], end: Union[str, int, pd.Timestamp]):

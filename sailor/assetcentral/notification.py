@@ -120,15 +120,11 @@ class Notification(AssetcentralEntity):
 class NotificationSet(ResultSet):
     """Class representing a group of Notifications."""
 
-    _element_name = 'Notification'
-    _set_name = 'NotificationSet'
+    _element_type = Notification
     _method_defaults = {
         'plot_distribution': {
             'by': 'equipment_name',
         },
-        'as_df': {
-            'properties': Notification.get_property_mapping().keys()
-        }
     }
 
     def plot_overview(self):

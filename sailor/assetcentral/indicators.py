@@ -65,15 +65,11 @@ class Indicator(AssetcentralEntity):
 class IndicatorSet(ResultSet):
     """Class representing a group of Indicators."""
 
-    _element_name = 'Indicator'
-    _set_name = 'IndicatorSet'
+    _element_type = Indicator
     _method_defaults = {
         'plot_distribution': {
-            'by': 'group_name',
+            'by': 'indicator_group_name',
         },
-        'as_df': {
-            'properties': Indicator.get_property_mapping().keys()
-        }
     }
 
     def _unique_id_to_names(self):
