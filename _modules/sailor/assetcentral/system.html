@@ -161,6 +161,7 @@
 <span class="sd">Classes are provided for individual Systems as well as groups of Systems (SystemSet).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
@@ -169,7 +170,7 @@
 <span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">find_equipment</span><span class="p">,</span> <span class="n">EquipmentSet</span>
 <span class="kn">from</span> <span class="nn">.indicators</span> <span class="kn">import</span> <span class="n">IndicatorSet</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_SYSTEM</span>
-<span class="kn">from</span> <span class="nn">..sap_iot</span> <span class="kn">import</span> <span class="n">get_indicator_data</span>
+<span class="kn">from</span> <span class="nn">..sap_iot</span> <span class="kn">import</span> <span class="n">get_indicator_data</span><span class="p">,</span> <span class="n">TimeseriesDataset</span>
 
 
 <div class="viewcode-block" id="System"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.System">[docs]</a><span class="nd">@_add_properties</span>
@@ -217,9 +218,13 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="n">EquipmentSet</span><span class="p">([])</span>
 
-<div class="viewcode-block" id="System.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.System.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">],</span> <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">]):</span>
+<div class="viewcode-block" id="System.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.System.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+                           <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get timeseries data for all Equipment in the System.</span>
+
+<span class="sd">        This is a wrapper for :meth:`sailor.sap_iot.fetch.get_indicator_data` that limits the fetch query</span>
+<span class="sd">        to the equipment in this System.</span>
 
 <span class="sd">        Each component equipment will be returned as separate rows in the dataset,</span>
 <span class="sd">        potentially making the dataset very sparse.</span>
@@ -246,9 +251,13 @@
         <span class="p">},</span>
     <span class="p">}</span>
 
-<div class="viewcode-block" id="SystemSet.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.SystemSet.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">],</span> <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">]):</span>
+<div class="viewcode-block" id="SystemSet.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.SystemSet.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+                           <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetch data for a set of systems for all component equipment of each system.</span>
+
+<span class="sd">        This is a wrapper for :meth:`sailor.sap_iot.fetch.get_indicator_data` that limits the fetch query</span>
+<span class="sd">        to the equipment in this SystemSet.</span>
 
 <span class="sd">        Similar to ``System.get_indicator_data`` each component will be returned as separate rows in the dataset,</span>
 <span class="sd">        potentially making the dataset very sparse.</span>

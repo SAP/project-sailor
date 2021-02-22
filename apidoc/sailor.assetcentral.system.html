@@ -193,14 +193,19 @@ publishedOn, operator, operatorID, completeness</p>
 <dt id="sailor.assetcentral.system.System.get_indicator_data">
 <code class="sig-name descname">get_indicator_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#System.get_indicator_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.system.System.get_indicator_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get timeseries data for all Equipment in the System.</p>
+<p>This is a wrapper for <a class="reference internal" href="sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data" title="sailor.sap_iot.fetch.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch.get_indicator_data()</span></code></a> that limits the fetch query
+to the equipment in this System.</p>
 <p>Each component equipment will be returned as separate rows in the dataset,
 potentially making the dataset very sparse.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>]</em>) – Begin of time series data.</p></li>
-<li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>]</em>) – End of time series data.</p></li>
+<li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>, </em><em>None.datetime.timestamp</em><em>, </em><em>None.datetime.date</em><em>]</em>) – Begin of time series data.</p></li>
+<li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>, </em><em>None.datetime.timestamp</em><em>, </em><em>None.datetime.date</em><em>]</em>) – End of time series data.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset">sailor.sap_iot.wrappers.TimeseriesDataset</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -222,14 +227,19 @@ potentially making the dataset very sparse.</p>
 <dt id="sailor.assetcentral.system.SystemSet.get_indicator_data">
 <code class="sig-name descname">get_indicator_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">end</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#SystemSet.get_indicator_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.system.SystemSet.get_indicator_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch data for a set of systems for all component equipment of each system.</p>
+<p>This is a wrapper for <a class="reference internal" href="sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data" title="sailor.sap_iot.fetch.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch.get_indicator_data()</span></code></a> that limits the fetch query
+to the equipment in this SystemSet.</p>
 <p>Similar to <code class="docutils literal notranslate"><span class="pre">System.get_indicator_data</span></code> each component will be returned as separate rows in the dataset,
 potentially making the dataset very sparse.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>]</em>) – Begin of time series data.</p></li>
-<li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>]</em>) – End of time series data.</p></li>
+<li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>, </em><em>None.datetime.timestamp</em><em>, </em><em>None.datetime.date</em><em>]</em>) – Begin of time series data.</p></li>
+<li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pandas._libs.tslibs.timestamps.Timestamp</em><em>, </em><em>None.datetime.timestamp</em><em>, </em><em>None.datetime.date</em><em>]</em>) – End of time series data.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset">sailor.sap_iot.wrappers.TimeseriesDataset</a></p>
 </dd>
 </dl>
 </dd></dl>

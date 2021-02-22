@@ -163,6 +163,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
@@ -330,12 +331,13 @@
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
         <span class="k">return</span> <span class="n">find_workorders</span><span class="p">(</span><span class="n">extended_filters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Equipment.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">],</span> <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">],</span>
+<div class="viewcode-block" id="Equipment.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+                           <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
                            <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.</span>
 
-<span class="sd">        This is a wrapper for :meth:`sailor.sap_iot.timeseries.get_indicator_data` that limits the fetch query</span>
+<span class="sd">        This is a wrapper for :meth:`sailor.sap_iot.fetch.get_indicator_data` that limits the fetch query</span>
 <span class="sd">        to this equipment. Note that filtering for the equipment can only be done locally, so calling this function</span>
 <span class="sd">        repeatedly for different equipment with the same indicators can be very inefficient.</span>
 
@@ -467,12 +469,13 @@
 
         <span class="k">return</span> <span class="n">common_indicators</span></div>
 
-<div class="viewcode-block" id="EquipmentSet.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">],</span> <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">],</span>
+<div class="viewcode-block" id="EquipmentSet.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+                           <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
                            <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.</span>
 
-<span class="sd">        This is a wrapper for :meth:`sailor.sap_iot.timeseries.get_indicator_data` that limits the fetch query</span>
+<span class="sd">        This is a wrapper for :meth:`sailor.sap_iot.fetch.get_indicator_data` that limits the fetch query</span>
 <span class="sd">        to this equipment set.</span>
 
 <span class="sd">        Parameters</span>
