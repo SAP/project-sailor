@@ -2,7 +2,6 @@
 
 import datetime
 import warnings
-from typing import Union
 
 import pandas as pd
 
@@ -15,7 +14,7 @@ def _string_to_timestamp_parser(name, unit=None):
     return lambda self: pd.Timestamp(self.raw[name], unit=unit, tz='UTC') if self.raw[name] else None
 
 
-def any_to_timestamp(value: Union[str, pd.Timestamp, datetime.datetime], default: pd.Timestamp = None):
+def any_to_timestamp(value, default: pd.Timestamp = None):
     """Try to parse a timestamp provided in a variety of formats into a uniform representation as pd.Timestamp."""
     if value is None:
         return default
@@ -24,10 +23,12 @@ def any_to_timestamp(value: Union[str, pd.Timestamp, datetime.datetime], default
         timestamp = pd.Timestamp(value)
     elif isinstance(value, datetime.datetime):
         timestamp = pd.Timestamp(value)
+    elif isinstance(value, datetime.date):
+        timestamp = pd.Timestamp(value)
     elif isinstance(value, pd.Timestamp):
         timestamp = value
     else:
-        raise RuntimeError('Can only parse strings, pandas timestamps or python native timestamps.')
+        raise RuntimeError('Can only parse ISO 8601 strings, pandas timestamps or python native timestamps.')
 
     if timestamp.tzinfo:
         timestamp = timestamp.tz_convert('UTC')

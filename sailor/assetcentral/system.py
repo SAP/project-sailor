@@ -4,6 +4,7 @@ System module can be used to retrieve System information from AssetCentral.
 Classes are provided for individual Systems as well as groups of Systems (SystemSet).
 """
 from typing import Union
+from datetime import datetime
 
 import pandas as pd
 
@@ -12,7 +13,7 @@ from .utils import _fetch_data, _add_properties, _parse_filter_parameters, Asset
 from .equipment import find_equipment, EquipmentSet
 from .indicators import IndicatorSet
 from .constants import VIEW_SYSTEM
-from ..sap_iot import get_indicator_data
+from ..sap_iot import get_indicator_data, TimeseriesDataset
 
 
 @_add_properties
@@ -60,9 +61,13 @@ class System(AssetcentralEntity):
         else:
             self.components = EquipmentSet([])
 
-    def get_indicator_data(self, start: Union[str, int, pd.Timestamp], end: Union[str, int, pd.Timestamp]):
+    def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> TimeseriesDataset:
         """
         Get timeseries data for all Equipment in the System.
+
+        This is a wrapper for :meth:`sailor.sap_iot.fetch.get_indicator_data` that limits the fetch query
+        to the equipment in this System.
 
         Each component equipment will be returned as separate rows in the dataset,
         potentially making the dataset very sparse.
@@ -89,9 +94,13 @@ class SystemSet(ResultSet):
         },
     }
 
-    def get_indicator_data(self, start: Union[str, int, pd.Timestamp], end: Union[str, int, pd.Timestamp]):
+    def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> TimeseriesDataset:
         """
         Fetch data for a set of systems for all component equipment of each system.
+
+        This is a wrapper for :meth:`sailor.sap_iot.fetch.get_indicator_data` that limits the fetch query
+        to the equipment in this SystemSet.
 
         Similar to ``System.get_indicator_data`` each component will be returned as separate rows in the dataset,
         potentially making the dataset very sparse.

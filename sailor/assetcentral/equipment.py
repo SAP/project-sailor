@@ -6,6 +6,7 @@ Classes are provided for individual Equipment as well as groups of Equipment (Eq
 from __future__ import annotations
 
 from typing import Union, TYPE_CHECKING
+from datetime import datetime
 
 import pandas as pd
 
@@ -173,12 +174,13 @@ class Equipment(AssetcentralEntity):
         kwargs['equipment_id'] = self.id
         return find_workorders(extended_filters, **kwargs)
 
-    def get_indicator_data(self, start: Union[str, int, pd.Timestamp], end: Union[str, int, pd.Timestamp],
+    def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            indicator_set: IndicatorSet = None) -> TimeseriesDataset:
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.
 
-        This is a wrapper for :meth:`sailor.sap_iot.timeseries.get_indicator_data` that limits the fetch query
+        This is a wrapper for :meth:`sailor.sap_iot.fetch.get_indicator_data` that limits the fetch query
         to this equipment. Note that filtering for the equipment can only be done locally, so calling this function
         repeatedly for different equipment with the same indicators can be very inefficient.
 
@@ -310,12 +312,13 @@ class EquipmentSet(ResultSet):
 
         return common_indicators
 
-    def get_indicator_data(self, start: Union[str, int, pd.Timestamp], end: Union[str, int, pd.Timestamp],
+    def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            indicator_set: IndicatorSet = None) -> TimeseriesDataset:
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.
 
-        This is a wrapper for :meth:`sailor.sap_iot.timeseries.get_indicator_data` that limits the fetch query
+        This is a wrapper for :meth:`sailor.sap_iot.fetch.get_indicator_data` that limits the fetch query
         to this equipment set.
 
         Parameters
