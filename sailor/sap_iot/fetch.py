@@ -150,6 +150,13 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
         IndicatorSet for which timeseries data is returned.
     equipment_set:
         Equipment set for which the timeseries data is read.
+
+    Example
+    -------
+    Get the indicator set 'my_indicator_set' timeseries data for equipments in
+    the equipment set 'my_equipment_set' for a period from '2020-07-02' to '2021-01-10'::
+
+        get_indicator_data('2020-07-02','2021-01-10', my_indicator_set, my_equipment_set)
     """
     # some notes:
     # the bulk export api *only* works on indicator groups. No filtering for equipment_set or indicator_set.
