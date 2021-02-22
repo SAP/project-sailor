@@ -307,6 +307,13 @@
 <span class="sd">        IndicatorSet for which timeseries data is returned.</span>
 <span class="sd">    equipment_set:</span>
 <span class="sd">        Equipment set for which the timeseries data is read.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    Get the indicator set &#39;my_indicator_set&#39; timeseries data for equipments in</span>
+<span class="sd">    the equipment set &#39;my_equipment_set&#39; for a period from &#39;2020-07-02&#39; to &#39;2021-01-10&#39;::</span>
+
+<span class="sd">        get_indicator_data(&#39;2020-07-02&#39;,&#39;2021-01-10&#39;, my_indicator_set, my_equipment_set)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># some notes:</span>
     <span class="c1"># the bulk export api *only* works on indicator groups. No filtering for equipment_set or indicator_set.</span>
