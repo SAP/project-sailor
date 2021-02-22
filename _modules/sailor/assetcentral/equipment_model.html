@@ -276,15 +276,11 @@
 <div class="viewcode-block" id="EquipmentModelSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment_model.html#sailor.assetcentral.equipment_model.EquipmentModelSet">[docs]</a><span class="k">class</span> <span class="nc">EquipmentModelSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class representing a group of EquipmentModels.&quot;&quot;&quot;</span>
 
-    <span class="n">_element_name</span> <span class="o">=</span> <span class="s1">&#39;EquipmentModel&#39;</span>
-    <span class="n">_set_name</span> <span class="o">=</span> <span class="s1">&#39;EquipmentModelSet&#39;</span>
+    <span class="n">_element_type</span> <span class="o">=</span> <span class="n">EquipmentModel</span>
     <span class="n">_method_defaults</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;plot_distribution&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;by&#39;</span><span class="p">:</span> <span class="s1">&#39;model_template&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;by&#39;</span><span class="p">:</span> <span class="s1">&#39;model_template_id&#39;</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s1">&#39;as_df&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="n">EquipmentModel</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="p">}</span>
     <span class="p">}</span></div>
 
 

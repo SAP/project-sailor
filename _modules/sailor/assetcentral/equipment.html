@@ -369,15 +369,11 @@
 <div class="viewcode-block" id="EquipmentSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet">[docs]</a><span class="k">class</span> <span class="nc">EquipmentSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class representing a group of Equipment.&quot;&quot;&quot;</span>
 
-    <span class="n">_element_name</span> <span class="o">=</span> <span class="s1">&#39;Equipment&#39;</span>
-    <span class="n">_set_name</span> <span class="o">=</span> <span class="s1">&#39;EquipmentSet&#39;</span>
+    <span class="n">_element_type</span> <span class="o">=</span> <span class="n">Equipment</span>
     <span class="n">_method_defaults</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;plot_distribution&#39;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;by&#39;</span><span class="p">:</span> <span class="s1">&#39;location_name&#39;</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s1">&#39;as_df&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="n">Equipment</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="p">}</span>
     <span class="p">}</span>
 
 <div class="viewcode-block" id="EquipmentSet.find_notifications"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.find_notifications">[docs]</a>    <span class="k">def</span> <span class="nf">find_notifications</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NotificationSet</span><span class="p">:</span>

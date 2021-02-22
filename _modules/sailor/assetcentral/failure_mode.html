@@ -202,15 +202,11 @@
 <div class="viewcode-block" id="FailureModeSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.FailureModeSet">[docs]</a><span class="k">class</span> <span class="nc">FailureModeSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class representing a group of FailureModes.&quot;&quot;&quot;</span>
 
-    <span class="n">_element_name</span> <span class="o">=</span> <span class="s1">&#39;FailureMode&#39;</span>
-    <span class="n">_set_name</span> <span class="o">=</span> <span class="s1">&#39;FailureModeSet&#39;</span>
+    <span class="n">_element_type</span> <span class="o">=</span> <span class="n">FailureMode</span>
     <span class="n">_method_defaults</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;plot_distribution&#39;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;by&#39;</span><span class="p">:</span> <span class="s1">&#39;status_text&#39;</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s1">&#39;as_df&#39;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="n">FailureMode</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="p">}</span>
     <span class="p">}</span></div>
 
 

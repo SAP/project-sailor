@@ -455,8 +455,7 @@
 <div class="viewcode-block" id="ResultSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet">[docs]</a><span class="k">class</span> <span class="nc">ResultSet</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Baseclass to be used in all `Set`s of AssetCentral objects.&quot;&quot;&quot;</span>
 
-    <span class="n">_element_name</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">_set_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_element_type</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">_method_defaults</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">generating_query_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -493,7 +492,7 @@
 
 <div class="viewcode-block" id="ResultSet.as_df"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.as_df">[docs]</a>    <span class="k">def</span> <span class="nf">as_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return all information on the objects stored in the ResultSet as a pandas dataframe.&quot;&quot;&quot;</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method_defaults</span><span class="p">[</span><span class="s1">&#39;as_df&#39;</span><span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">columns</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element_type</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">columns</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
             <span class="n">prop</span><span class="p">:</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">columns</span>
         <span class="p">})</span></div>
@@ -521,7 +520,7 @@
 <span class="sd">        distinguish a second dimension.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">by</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method_defaults</span><span class="p">[</span><span class="s1">&#39;plot_distribution&#39;</span><span class="p">][</span><span class="s1">&#39;by&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">by</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">by</span>
-        <span class="n">display_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element_name</span> <span class="o">+</span> <span class="s1">&#39;s&#39;</span>
+        <span class="n">display_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element_type</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;s&#39;</span>
 
         <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">by</span><span class="p">]</span>
         <span class="n">aes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">by</span><span class="p">}</span>
