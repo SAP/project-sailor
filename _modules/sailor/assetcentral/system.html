@@ -164,15 +164,15 @@
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">fetch_data</span><span class="p">,</span> <span class="n">add_properties</span><span class="p">,</span> <span class="n">parse_filter_parameters</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> \
-    <span class="n">ac_application_url</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> \
+    <span class="n">_ac_application_url</span>
 <span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">find_equipment</span><span class="p">,</span> <span class="n">EquipmentSet</span>
 <span class="kn">from</span> <span class="nn">.indicators</span> <span class="kn">import</span> <span class="n">IndicatorSet</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_SYSTEM</span>
 <span class="kn">from</span> <span class="nn">..sap_iot</span> <span class="kn">import</span> <span class="n">get_indicator_data</span>
 
 
-<div class="viewcode-block" id="System"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.System">[docs]</a><span class="nd">@add_properties</span>
+<div class="viewcode-block" id="System"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.System">[docs]</a><span class="nd">@_add_properties</span>
 <span class="k">class</span> <span class="nc">System</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    AssetCentral System Object.</span>
@@ -203,8 +203,8 @@
         <span class="p">}</span></div>
 
     <span class="k">def</span> <span class="nf">_prepare_components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_SYSTEM</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="s1">&#39;/components&#39;</span>
-        <span class="n">components</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_SYSTEM</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="s1">&#39;/components&#39;</span>
+        <span class="n">components</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">equipment_ids</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">child_node</span> <span class="ow">in</span> <span class="n">components</span><span class="p">[</span><span class="s1">&#39;childNodes&#39;</span><span class="p">]:</span>
@@ -311,10 +311,10 @@
 <span class="sd">        find_systems(extended_filters=[&#39;created_on &gt;= &quot;2020-01-01&quot;&#39;])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \
-        <span class="n">parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">System</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
+        <span class="n">_parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">System</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
 
-    <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_SYSTEM</span>
-    <span class="n">object_list</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+    <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_SYSTEM</span>
+    <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">SystemSet</span><span class="p">([</span><span class="n">System</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">],</span>
                      <span class="p">{</span><span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;extended_filters&#39;</span><span class="p">:</span> <span class="n">extended_filters</span><span class="p">})</span></div>

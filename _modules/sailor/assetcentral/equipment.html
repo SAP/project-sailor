@@ -172,8 +172,8 @@
 <span class="kn">from</span> <span class="nn">.notification</span> <span class="kn">import</span> <span class="n">find_notifications</span>
 <span class="kn">from</span> <span class="nn">.location</span> <span class="kn">import</span> <span class="n">Location</span><span class="p">,</span> <span class="n">find_locations</span>
 <span class="kn">from</span> <span class="nn">.workorder</span> <span class="kn">import</span> <span class="n">find_workorders</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">fetch_data</span><span class="p">,</span> <span class="n">add_properties</span><span class="p">,</span> <span class="n">parse_filter_parameters</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> \
-    <span class="n">ac_application_url</span><span class="p">,</span> <span class="n">apply_filters_post_request</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> \
+    <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_apply_filters_post_request</span>
 <span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser</span>
 <span class="kn">from</span> <span class="nn">..sap_iot</span> <span class="kn">import</span> <span class="n">get_indicator_data</span>
 
@@ -184,7 +184,7 @@
     <span class="kn">from</span> <span class="nn">.workorder</span> <span class="kn">import</span> <span class="n">WorkorderSet</span>
 
 
-<div class="viewcode-block" id="Equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment">[docs]</a><span class="nd">@add_properties</span>
+<div class="viewcode-block" id="Equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment">[docs]</a><span class="nd">@_add_properties</span>
 <span class="k">class</span> <span class="nc">Equipment</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    AssetCentral Equipment Object.</span>
@@ -252,11 +252,11 @@
 <span class="sd">            my_equipment.find_equipment_indicators(name=&#39;MyIndicator&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># AC-BUG: this endpoint just silently ignores filter parameters, so we can&#39;t really support them...</span>
-        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_EQUIPMENT</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="s1">&#39;/indicatorvalues&#39;</span>
-        <span class="n">object_list</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
+        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_EQUIPMENT</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="s1">&#39;/indicatorvalues&#39;</span>
+        <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
 
-        <span class="n">filtered_objects</span> <span class="o">=</span> <span class="n">apply_filters_post_request</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span>
-                                                      <span class="n">Indicator</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
+        <span class="n">filtered_objects</span> <span class="o">=</span> <span class="n">_apply_filters_post_request</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span>
+                                                       <span class="n">Indicator</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">IndicatorSet</span><span class="p">([</span><span class="n">Indicator</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">filtered_objects</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="Equipment.find_notifications"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment.find_notifications">[docs]</a>    <span class="k">def</span> <span class="nf">find_notifications</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NotificationSet</span><span class="p">:</span>
@@ -306,8 +306,8 @@
         <span class="c1"># AC-BUG: this endpoint just silently ignores filter parameters, so we can&#39;t really support them...</span>
         <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">or</span> <span class="s1">&#39;ID&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Can not manually filter for FailureMode ID when using this method.&#39;</span><span class="p">)</span>
-        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_OBJECTS</span> <span class="o">+</span> <span class="s1">&#39;EQU/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="s1">&#39;/failuremodes&#39;</span>
-        <span class="n">object_list</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
+        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_OBJECTS</span> <span class="o">+</span> <span class="s1">&#39;EQU/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="s1">&#39;/failuremodes&#39;</span>
+        <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">element</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">find_failure_modes</span><span class="p">(</span><span class="n">extended_filters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -536,10 +536,10 @@
 <span class="sd">                        location_name=&#39;London&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \
-        <span class="n">parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Equipment</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
+        <span class="n">_parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Equipment</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
 
-    <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_EQUIPMENT</span>
-    <span class="n">object_list</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+    <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_EQUIPMENT</span>
+    <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">EquipmentSet</span><span class="p">([</span><span class="n">Equipment</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">],</span>
                         <span class="p">{</span><span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;extended_filters&#39;</span><span class="p">:</span> <span class="n">extended_filters</span><span class="p">})</span></div>
 </pre></div>
