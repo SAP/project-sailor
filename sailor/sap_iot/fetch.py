@@ -60,7 +60,7 @@ def _check_bulk_timeseries_export_status(export_id: str) -> bool:
 
     if resp['Status'] == 'The file is available for download.':
         return True
-    elif resp['Status'] == 'Request for data download is submitted.':
+    elif resp['Status'] in ['Request for data download is submitted.', 'Request for data download is initiated.']:
         return False
     else:
         raise RuntimeError(resp['Status'])
@@ -186,6 +186,8 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
     LOG.info('Data export triggered for %s indicator groups.', len(query_groups))
 
     results = pd.DataFrame(columns=['equipment_model_id', 'equipment_id', 'timestamp'])
+    results.timestamp = results.timestamp.astype(pd.DatetimeTZDtype(tz='UTC'))
+
     print('Waiting for data export', end='')
     while True:
         print('.', end='')
