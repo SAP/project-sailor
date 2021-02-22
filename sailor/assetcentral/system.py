@@ -39,8 +39,8 @@ class System(AssetcentralEntity):
             'name': ('internalId', None, None, None),
             'short_description': ('shortDescription', None, None, None),
             'class_name': ('className', None, None, None),
-            'equipment_model_id': ('modelID', None, None, None),
-            'equipment_model_name': ('model', None, None, None),
+            'system_model_id': ('modelID', None, None, None),
+            'system_model_name': ('model', None, None, None),
             'status_text': ('systemStatusDescription', None, None, None),
             'template_id': ('templateID', None, None, None),
         }
@@ -85,7 +85,7 @@ class SystemSet(ResultSet):
     _element_type = System
     _method_defaults = {
         'plot_distribution': {
-            'by': 'operator',
+            'by': 'system_model_name',
         },
     }
 

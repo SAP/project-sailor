@@ -34,16 +34,16 @@ class TestAssetcentralEntity:
 class TestResultSet:
 
     @patch('sailor.assetcentral.utils.p9')
-    def test_integration_with_subclasses(self, mock_p9):
-        for cls in ResultSet.__subclasses__():
-            result_set_obj = cls([])
-            result_set_obj.as_df()
-            result_set_obj.plot_distribution()
+    @pytest.mark.parametrize('cls', ResultSet.__subclasses__())
+    def test_integration_with_subclasses(self, mock_p9, cls):
+        result_set_obj = cls([])
+        result_set_obj.as_df()
+        result_set_obj.plot_distribution()
 
-    def test_resultset_method_defaults(self):
-        for cls in ResultSet.__subclasses__():
-            element_properties = cls._element_type.get_property_mapping()
-            assert cls._method_defaults['plot_distribution']['by'] in element_properties
+    @pytest.mark.parametrize('cls', ResultSet.__subclasses__())
+    def test_resultset_method_defaults(self, cls):
+        element_properties = cls._element_type.get_property_mapping()
+        assert cls._method_defaults['plot_distribution']['by'] in element_properties
 
     def test_magic_eq_type_not_equal(self):
         rs1 = ResultSet([1, 2, 3])
