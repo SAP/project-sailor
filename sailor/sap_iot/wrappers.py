@@ -202,7 +202,7 @@ class TimeseriesDataset(object):
         start = any_to_timestamp(start, default=self._df[time_column].min())
         end = any_to_timestamp(end, default=self._df[time_column].max())
 
-        if len(self._df) == 0:
+        if self._df.empty:
             raise RuntimeError('There is no data in this dataset.')
 
         data = self._df \
@@ -210,6 +210,9 @@ class TimeseriesDataset(object):
             .query('equipment_id in @selected_equipment_ids') \
             .filter(items=key_vars + feature_vars)
         result_equipment_ids = set(data['equipment_id'])
+
+        if data.empty:
+            raise RuntimeError('There is no data in the dataset for the selected equipments and indicators.')
 
         # find equipment_set that are dropped from the plot and log them to the user
         empty_equipment_ids = set(selected_equipment_ids) - result_equipment_ids
