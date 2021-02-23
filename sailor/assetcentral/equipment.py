@@ -170,6 +170,12 @@ class Equipment(AssetcentralEntity):
             See :ref:`filter`.
         **kwargs
             See :ref:`filter`.
+
+        Examples
+        --------
+        Find all workorders for equipment object 'my_equipment'::
+
+            my_equipment.find_workorders()
         """
         kwargs['equipment_id'] = self.id
         return find_workorders(extended_filters, **kwargs)

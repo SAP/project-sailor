@@ -92,7 +92,7 @@ class EquipmentModel(AssetcentralEntity):
         Find all indicators for Equipment Model 'myEquipmentModelName'::
 
             models = find_equipment_models(name='myEquipmentModelName')
-            model[0].find_model_indicators()
+            models[0].find_model_indicators()
         """
         endpoint_url = _ac_application_url() + EQUIPMENT_MODEL_INDICATORS + f'({self.id})' + '/indicatorvalues'
 

@@ -133,6 +133,12 @@ class NotificationSet(ResultSet):
 
         Each notification will be shown by a rectangle, on a y-scale representing the affected equipment
         and with a color representing the confirmed failure mode description.
+
+        Example
+        -------
+        Plot an overview over all notifications in the dataset "my_notifications" by time::
+
+            my_notifications.plot_overview()
         """
         data = self.as_df(columns=['malfunction_start_date', 'malfunction_end_date',
                                    'equipment_name', 'confirmed_failure_mode_description'])
