@@ -4,74 +4,245 @@
 Tutorial
 ========
 
-This is a tutorial on how to use the project sailor. You will learn how to:
+In this tutorial you will learn how to use project "Sailor" to build your own algorithms and models from data stored 
+in your SAP backends. In particular, you will learn how to:
 
-- :ref:`Load data from ... and specify the aggregation <how_to_load_data>`
-- :ref:`Explore and visualize your data <how_to_explore_data>`
-- :ref:`Predict Failures <how_to_predict_failures>` (NOT CORRECT. PUT REAL TOPIC HERE)
-- :ref:`Detect Anomalies <how_to_detect_anomalies>` (NOT CORRECT. PUT REAL TOPIC HERE)
+- :ref:`Configure project Sailor to access your SAP backend for asset master data and IoT data <how_to_configure>`
+- :ref:`Read master data from AssetCentral<how_to_read_master_data>`
+- :ref:`Explore and visualize master data <how_to_explore_data>`
+- :ref:`Read timeseries data from SAP IoT <how_to_read_timeseries>`
+- :ref:`Build custom plots on the extracted data <how_to_custom_plot>`
+- :ref:`Build a machine learning model on the extracted data <how_to_model>`
 
-You can find a notebook containing the full tutorial at .... (TODO: add a demo notebook to our repo?)
+.. _how_to_configure:
 
-.. _how_to_load_data:
+Configuration
+=============
 
-Loading Data
-============
+Before using the functions provided as part of project "Sailor" you will have to configure the package to work
+with your SAP systems. For a detailed description of the configuration please refer to the 
+:doc:`Getting started guide<../introduction>`.
 
-TODO: How to get data.
-Thisis just a placeholder to show how an example could look like.
+To start using project "Sailor" execute the following commands to load the required packages. Since the standard data 
+format that is used in project "Sailor" are pandas dataframes, we also import the pandas library. You can import the required
+packages like this:
+
+.. code-block:: python 
+
+    import pandas as pd
+    from sailor.assetcentral import find_equipment_models, find_equipment, find_notifications, find_systems
+
+.. _how_to_read_master_data:
+
+Reading Master Data
+===================
+
+To start the analysis, we first identify the equipment of interest. We use :meth:`~sailor.assetcentral.equipment.find_equipment()` to search for the equipments 
+of interest - namely those belonging to the equipment model ``my_equipment_model_name``. The function returns an :class:`~sailor.assetcentral.equipment.EquipmentSet`, 
+an object representing multiple pieces of equipment. The convenience function :meth:`~sailor.assetcentral.utils.ResultSet.as_df()` returns a representation of the 
+:class:`~sailor.assetcentral.equipment.EquipmentSet` as ``pandas`` dataframe.
 
 .. code-block:: python
 
-    # This is just a random placeholder
-    import numpy as np
-    np.arange(10)
+    equipment_set = find_equipment(equipment_model_name='my_equipment_model_name')
+    equipment_set.as_df().head()
+
+Other ways of filtering are also available, e.g for selecting the ``my_equipment_model_name`` equipment in a specific location, 
+say PaloAlto.
+
+.. code-block:: python
+
+    equipment_set2 = find_equipment(equipment_model_name='my_equipment_model_name', location_name='PaloAlto')
 
 
-.. image:: _static/custom_plot.png
-    :width: 200
-    :alt: Custom Plot
+For an overview of the syntax used for filtering, refer to the documentation of the :doc:`Filter Language<../filter_language>`.
+To get an overview of the fields that are available as filters you can use the function :meth:`~sailor.assetcentral.equipment.Equipment.get_property_mapping()`. 
+The names of the items in the resulting map can be used as filters. Similar functions also exist for the other objects.
+
+.. code-block:: python
+
+    from sailor.assetcentral.equipment import Equipment
+    Equipment.get_property_mapping()
+
+Other typical starting points for the analysis are equipment models. You can search for equipment models using
+:meth:`~sailor.assetcentral.equipment_model.find_equipment_models()`.
+
+.. code-block:: python
+
+    equi_models = find_equipment_models(name = 'my_equipment_model_name')
 
 
+You can then navigate to the equipment using :meth:`~sailor.assetcentral.equipment_model.find_equipment()`.
+
+.. code-block:: python
+
+    equi_for_model = equi_models[0].find_equipment()
+
+In case of equipment that is operated together and influences each other, the set of equipment is often modeled as System.
+You can also start the analysis and exploration from a (set of) systems using :meth:`~sailor.assetcentral.system.find_systems`.
+
+.. code-block:: python
+
+    systems = find_systems(name = 'my_system')
+
+You can analyse events that have occured on the equipment, namely notifications that were created or workorders that were performed.
+Let's select all notifications that have been reported since August 2020. The :meth:`~sailor.assetcentral.equipment.EquipmentSet.find_notifications()` function can be used to search
+for notifications that are linked to the equipment in the :class:`~sailor.assetcentral.equipment.EquipmentSet`. The function returns a 
+:class:`~sailor.assetcentral.notification.NotificationSet` 
+which represents a set of notifications, similar to the :class:`~sailor.assetcentral.equipment.EquipmentSet` for equipment. 
+Again, a ``pandas`` dataframe representation of the object can be obtained using the :meth:`~sailor.assetcentral.utils.ResultSet.as_df()` function.
+
+.. code-block:: python
+
+    notification_set = equipment_set.find_notifications(extended_filters=['malfunction_start_date > "2020-08-01"']) 
+    notification_set.as_df().head()
 
 .. _how_to_explore_data:
 
 Exploring Data
 ==============
 
-TODO: How to view data (e.g as dataframe), how to visualize data (sensor data, notifications etc.)
 
+To facilitate exploration and use of the extracted data for exploration, visualization and model building, the :meth:`~sailor.assetcentral.utils.ResultSet.as_df()` function
+is provided for all objects. The functions provide representations of the objects as ``pandas`` dataframe.
 
-.. _how_to_predict_failures:
+.. code-block:: python
 
-Failure Prediciton
-==================
+    notification_set.as_df()
+    equipment_set.as_df()
 
-TODO: Describe how to use AFP
+Convenience functions for typical plots are provided as part of the package. One of them is :meth:`~sailor.assetcentral.utils.ResultSet.plot_distribution()` for sets. 
+This function can be used to plot the value distribution of a set with respect to a specific parameter. For example, let's
+plot the distribution of notifications across equipment.
 
+.. code-block:: python
 
+    notification_set.plot_distribution('equipment_name')
 
-Inpreting the results
----------------------
+.. image:: _static/notification_by_equipment.png
 
-You can view a model summary ...
+Along the same lines, we can plot the distribution of equipment by location.
 
+.. code-block:: python
 
-The scores ....
+    equipment_set.plot_distribution('location_name')
 
+.. image:: _static/equipment_by_location.png
 
+An additional parameter can be used to determine the coloring of the bars. All fields that are returned in :meth:`~sailor.assetcentral.utils.ResultSet.as_df()` can be 
+used in the grouping or coloring.
 
-.. _how_to_detect_anomalies:
+.. code-block:: python
 
-Anomaly Detection
-=================
+    notification_set.plot_distribution(by='equipment_name', fill='confirmed_failure_mode_description')
 
-TODO: Describe how to use AAD
+.. image:: _static/failure_mode_per_equipment.png
 
-Inpreting the results
----------------------
+To visualize the distribution of notifications across equipment and time, the function :meth:`~sailor.assetcentral.notification.NotificationSet.plot_overview()` may be used. 
+This will plot one row per equipment associated with one of the notifications, the x-axis represents time. A colored block represents the time when
+a notification was active on an equipment, with the color representing the associated failure mode.
 
-You can view a model summary ...
+.. code-block:: python
 
+    notification_set.plot_overview()
 
-The alerts ....
+.. image:: _static/plot_overview.png
+
+To understand whether there is an obvious pattern in the sensor data that is associated with a specific notification, the function
+:meth:`~sailor.assetcentral.notification.Notification.plot_context()` can be used. This shows the behavior of all indicators associated with the equipment before, during and after the 
+notification. This can be useful to understand whether there are obvious differences in the sensor data prior to the notifications 
+versus afterwards. This could help understand the issue associated with the notification.
+
+.. code-block:: python
+
+    notification_set[0].plot_context() 
+
+.. image:: _static/context_plot.png
+
+Note that this filters the data for the notification locally. So if you want to plot the timeseries data for multiple notifications, it might be more efficient to create 
+a timeseries dataset locally as described in :ref:`Read timeseries data<how_to_read_timeseries>` and then pass it as parameter to plot context.
+
+.. code-block:: python
+
+    timeseries_data = equipment_set.get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00')
+    notification_set[0].plot_context(timeseries_data)
+
+.. _how_to_read_timeseries:
+
+Read timeseries data
+====================
+
+For many use cases like anomaly detection, failure prediction or remaining useful life prediction it is useful to look at the machine's
+sensor data. Sensor data is attached to equipment via indicators. An indicator is a description of measured values.
+
+To find out which indicators are defined for an equipment you can use :meth:`~sailor.assetcentral.Equipment.find_equipment_indicators()`
+
+.. code-block:: python
+
+    indicators = equipment_set[0].find_equipment_indicators(name = 'my_indicator')
+
+For a set of equipment you can identify the set of indicators they have in common using :meth:`~sailor.assetcentral.equipment.EquipmentSet.find_common_indicators()`.
+This might be useful if you want to do an analysis across multiple pieces of equipment.
+
+.. code-block:: python
+
+    indicators = equipment_set.find_common_indicators()
+
+To retrieve timeseries data from SAP IoT for the indicators of interest, you use the function `~sailor.assetcentral.equipment.Equipment.get_indicator_data()`.
+This retrieves data for a single equipment.
+
+.. code-block:: python
+
+    timeseries_data = equipment_set[0].get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00', indicators)
+
+If you leave indicator set blank, then all indicators attached to the equipment will be fetched.
+
+For retrieving timeseries data for multiple pieces of equipment it is more efficient to use the function `~sailor.assetcentral.equipment.EquipmentSet.get_indicator_data()`.
+If here the indicator set is left blank, then all indicators returned by :meth:`~sailor.assetcentral.equipment.EquipmentSet.find_common_indicators()` are queried.
+
+.. code-block:: python
+
+    timeseries_data = equipment_set.get_indicator_data('2020-10-01 00:00:00+00:00', '2021-01-01 00:00:00+00:00')
+
+.. _how_to_custom_plot:
+
+Building custom visualizations
+==============================
+
+To build your custom analysis or plot, you can use the data in any :class:`~sailor.assetcentral.utils.ResultSet` and transform
+it into a `pandas` dataframe using :meth:`~sailor.assetcentral.utils.ResultSet.as_df()`. The data frame can then form the 
+basis of your visualization.
+
+.. code-block:: python
+
+    import plotnine as p9
+    from sailor.utils.plot_helper import default_plot_theme
+    data = equipment_set[0:4].get_indicator_data('2020-09-01 00:00:00+00:00', '2020-10-05 00:00:00+00:00')
+    df = data.as_df(speaking_names=True).droplevel([0, 1], axis=1).reset_index()
+    df = df.melt(id_vars=['equipment_name', 'equipment_model_name', 'timestamp'], var_name='indicator')
+    p9.ggplot(df, p9.aes(x='indicator', y='value', fill='equipment_name')) + p9.geom_violin(alpha=0.6) + default_plot_theme()
+
+.. image:: _static/custom_plot.png
+
+.. _how_to_model:
+
+Building custom Machine Learning models
+=======================================
+
+Building machine learning models can be done using the same starting point as building custom visualizations, namely the method 
+:meth:`~sailor.assetcentral.utils.ResultSet.as_df()`.
+
+This is an example of the steps necessary to train an isolation forest for detecting anomalies in the timeseries data.
+
+.. code-block:: python
+
+    from sklearn.ensemble import IsolationForest
+    # find equipments and load data
+    equi_set = find_equipment(equipment_model_name='my_equipment_model_name')
+    data = equi_set.get_indicator_data('2020-09-01', '2020-10-05')
+    # train isolation forest 
+    iforest = IsolationForest()
+    iforest.fit(data.as_df())
+    # score isolation forest, and join back to index (equipment/timestamp info)
+    score_data = data.as_df()
+    scores = pd.Series(iforest.predict(score_data), index=score_data.index, name='score').to_frame()
