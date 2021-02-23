@@ -249,7 +249,7 @@
 <span class="sd">        Find all indicators for Equipment Model &#39;myEquipmentModelName&#39;::</span>
 
 <span class="sd">            models = find_equipment_models(name=&#39;myEquipmentModelName&#39;)</span>
-<span class="sd">            model[0].find_model_indicators()</span>
+<span class="sd">            models[0].find_model_indicators()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">EQUIPMENT_MODEL_INDICATORS</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="s1">&#39;/indicatorvalues&#39;</span>
 

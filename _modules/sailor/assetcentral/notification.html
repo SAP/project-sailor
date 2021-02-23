@@ -290,6 +290,12 @@
 
 <span class="sd">        Each notification will be shown by a rectangle, on a y-scale representing the affected equipment</span>
 <span class="sd">        and with a color representing the confirmed failure mode description.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        Plot an overview over all notifications in the dataset &quot;my_notifications&quot; by time::</span>
+
+<span class="sd">            my_notifications.plot_overview()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_df</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;malfunction_start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunction_end_date&#39;</span><span class="p">,</span>
                                    <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;confirmed_failure_mode_description&#39;</span><span class="p">])</span>
