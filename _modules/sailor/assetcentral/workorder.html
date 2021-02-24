@@ -163,7 +163,7 @@
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> \
     <span class="n">_ac_application_url</span>
-<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_WORKORDER</span>
+<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_WORKORDERS</span>
 
 
 <div class="viewcode-block" id="Workorder"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.Workorder">[docs]</a><span class="nd">@_add_properties</span>
@@ -264,7 +264,7 @@
     <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \
         <span class="n">_parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Workorder</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
 
-    <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_WORKORDER</span>
+    <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_WORKORDERS</span>
     <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">WorkorderSet</span><span class="p">([</span><span class="n">Workorder</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">],</span>
                         <span class="p">{</span><span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;extended_filters&#39;</span><span class="p">:</span> <span class="n">extended_filters</span><span class="p">})</span></div>

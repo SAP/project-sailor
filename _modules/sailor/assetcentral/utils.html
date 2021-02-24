@@ -535,10 +535,14 @@
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No </span><span class="si">{</span><span class="n">display_name</span><span class="si">}</span><span class="s1"> with non-empty &quot;</span><span class="si">{</span><span class="n">by</span><span class="si">}</span><span class="s1">&quot; found. Can not create plot.&#39;</span><span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;NA&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="n">by</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>  <span class="c1"># strings/objects, we treat these as categorical</span>
+            <span class="n">plot_function</span> <span class="o">=</span> <span class="n">p9</span><span class="o">.</span><span class="n">geom_bar</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plot_function</span> <span class="o">=</span> <span class="n">p9</span><span class="o">.</span><span class="n">geom_histogram</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># anything else, treated as continuous</span>
 
         <span class="n">plot</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">p9</span><span class="o">.</span><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">p9</span><span class="o">.</span><span class="n">aes</span><span class="p">(</span><span class="o">**</span><span class="n">aes</span><span class="p">))</span> <span class="o">+</span>
-                <span class="n">p9</span><span class="o">.</span><span class="n">geom_bar</span><span class="p">()</span> <span class="o">+</span>
+                <span class="n">plot_function</span> <span class="o">+</span>
                 <span class="n">default_plot_theme</span><span class="p">()</span> <span class="o">+</span>
                 <span class="n">p9</span><span class="o">.</span><span class="n">ggtitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Number of </span><span class="si">{</span><span class="n">display_name</span><span class="si">}</span><span class="s1"> per </span><span class="si">{</span><span class="n">by</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="p">)</span>

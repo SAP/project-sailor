@@ -93,10 +93,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../apidoc.html">API documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.constants</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.equipment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.equipment_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment_model</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.failure_mode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.failure_mode</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.indicators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.model</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.notification.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a></li>
@@ -190,7 +190,7 @@
 <code class="sig-name descname">as_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">speaking_names</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.as_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.as_df" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the data stored within this TimeseriesDataset object as a pandas dataframe.</p>
 <p>By default the data is returned with opaque column headers. If speaking_names is set to true, the data is
-converted such that equipment_id and equipment_model_id are replaced by human-readable names, and the opaque
+converted such that equipment_id and model_id are replaced by human-readable names, and the opaque
 column headers are replaced by a hierarchical index of template_id, indicator_group_name, indicator_name and
 aggregation_function.</p>
 </dd></dl>

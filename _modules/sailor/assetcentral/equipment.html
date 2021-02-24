@@ -212,8 +212,8 @@
             <span class="s1">&#39;batch_number&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;batchNumber&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;build_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;buildDate&#39;</span><span class="p">,</span> <span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="s1">&#39;buildDate&#39;</span><span class="p">,</span> <span class="s1">&#39;ms&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;criticality_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;criticalityDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;equipment_model_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;modelId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;equipment_model_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;modelName&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;model_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;modelId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s1">&#39;model_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;modelName&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;installation_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;installationDate&#39;</span><span class="p">,</span> <span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="s1">&#39;installationDate&#39;</span><span class="p">,</span> <span class="s1">&#39;ms&#39;</span><span class="p">),</span>
                                   <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;lifecycle_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;lifeCycleDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
@@ -460,7 +460,7 @@
 
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>
-<span class="sd">        If all the Equipment in the set are derived from the same EquipmentModel the overlap in</span>
+<span class="sd">        If all the Equipment in the set are derived from the same Model the overlap in</span>
 <span class="sd">        Indicators is likely very high. If you get fewer indicators than expected from this method</span>
 <span class="sd">        verify the uniformity of the Equipment included in this set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -495,9 +495,9 @@
 
 <span class="sd">        Example</span>
 <span class="sd">        -------</span>
-<span class="sd">        Get indicator data for all Equipment belonging to the EquipmentModel &#39;MyEquipmentModel&#39;</span>
+<span class="sd">        Get indicator data for all Equipment belonging to the Model &#39;MyModel&#39;</span>
 <span class="sd">        for a period from 01.06.2020 to 05.12.2020 ::</span>
-<span class="sd">            my_equipment_set = find_equipment(equipment_model_name=&#39;MyEquipmentModel&#39;)</span>
+<span class="sd">            my_equipment_set = find_equipment(model_name=&#39;MyModel&#39;)</span>
 <span class="sd">            my_equipment_set.get_indicator_data(&#39;2020-06-01&#39;, &#39;2020-12-05&#39;)</span>
 <span class="sd">        Note</span>
 <span class="sd">        ----</span>

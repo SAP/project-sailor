@@ -247,9 +247,9 @@
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Currently only Equipment is supported as base object for timeseries data.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">speaking_names</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;equipment_model_name&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;equipment_model_id&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_id&#39;</span><span class="p">]</span></div>
+            <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;model_id&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_id&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="TimeseriesDataset.get_time_column"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_time_column">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_time_column</span><span class="p">():</span>
@@ -287,7 +287,7 @@
 <span class="sd">        Return the data stored within this TimeseriesDataset object as a pandas dataframe.</span>
 
 <span class="sd">        By default the data is returned with opaque column headers. If speaking_names is set to true, the data is</span>
-<span class="sd">        converted such that equipment_id and equipment_model_id are replaced by human-readable names, and the opaque</span>
+<span class="sd">        converted such that equipment_id and model_id are replaced by human-readable names, and the opaque</span>
 <span class="sd">        column headers are replaced by a hierarchical index of template_id, indicator_group_name, indicator_name and</span>
 <span class="sd">        aggregation_function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -297,12 +297,12 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_index_columns</span><span class="p">())</span></div>
 
     <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
-        <span class="n">translator</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;equipment_model_id&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">translator</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;model_id&#39;</span><span class="p">:</span> <span class="p">{}}</span>
         <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span><span class="p">:</span>
             <span class="n">translator</span><span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">][</span><span class="n">equipment</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">equipment</span><span class="o">.</span><span class="n">name</span>
-            <span class="n">translator</span><span class="p">[</span><span class="s1">&#39;equipment_model_id&#39;</span><span class="p">][</span><span class="n">equipment</span><span class="o">.</span><span class="n">equipment_model_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">equipment</span><span class="o">.</span><span class="n">equipment_model_name</span>
+            <span class="n">translator</span><span class="p">[</span><span class="s1">&#39;model_id&#39;</span><span class="p">][</span><span class="n">equipment</span><span class="o">.</span><span class="n">model_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">equipment</span><span class="o">.</span><span class="n">model_name</span>
 
-        <span class="n">static_column_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_model_id&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_model_name&#39;</span><span class="p">}</span>
+        <span class="n">static_column_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;model_id&#39;</span><span class="p">:</span> <span class="s1">&#39;model_name&#39;</span><span class="p">}</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">df</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">translator</span><span class="p">)</span>
               <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">static_column_mapping</span><span class="p">)</span>

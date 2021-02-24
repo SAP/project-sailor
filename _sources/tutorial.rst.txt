@@ -30,7 +30,7 @@ packages like this:
 .. code-block:: python 
 
     import pandas as pd
-    from sailor.assetcentral import find_equipment_models, find_equipment, find_notifications, find_systems
+    from sailor.assetcentral import find_models, find_equipment, find_notifications, find_systems
 
 .. _how_to_read_master_data:
 
@@ -38,21 +38,21 @@ Reading Master Data
 ===================
 
 To start the analysis, we first identify the equipment of interest. We use :meth:`~sailor.assetcentral.equipment.find_equipment()` to search for the equipments 
-of interest - namely those belonging to the equipment model ``my_equipment_model_name``. The function returns an :class:`~sailor.assetcentral.equipment.EquipmentSet`, 
+of interest - namely those belonging to the model ``my_model_name``. The function returns an :class:`~sailor.assetcentral.equipment.EquipmentSet`,
 an object representing multiple pieces of equipment. The convenience function :meth:`~sailor.assetcentral.utils.ResultSet.as_df()` returns a representation of the 
 :class:`~sailor.assetcentral.equipment.EquipmentSet` as ``pandas`` dataframe.
 
 .. code-block:: python
 
-    equipment_set = find_equipment(equipment_model_name='my_equipment_model_name')
+    equipment_set = find_equipment(model_name='my_model_name')
     equipment_set.as_df().head()
 
-Other ways of filtering are also available, e.g for selecting the ``my_equipment_model_name`` equipment in a specific location, 
+Other ways of filtering are also available, e.g for selecting the ``my_model_name`` equipment in a specific location,
 say PaloAlto.
 
 .. code-block:: python
 
-    equipment_set2 = find_equipment(equipment_model_name='my_equipment_model_name', location_name='PaloAlto')
+    equipment_set2 = find_equipment(model_name='my_model_name', location_name='PaloAlto')
 
 
 For an overview of the syntax used for filtering, refer to the documentation of the :doc:`Filter Language<../filter_language>`.
@@ -64,19 +64,19 @@ The names of the items in the resulting map can be used as filters. Similar func
     from sailor.assetcentral.equipment import Equipment
     Equipment.get_property_mapping()
 
-Other typical starting points for the analysis are equipment models. You can search for equipment models using
-:meth:`~sailor.assetcentral.equipment_model.find_equipment_models()`.
+Other typical starting points for the analysis are models. You can search for models using
+:meth:`~sailor.assetcentral.model.find_models()`.
 
 .. code-block:: python
 
-    equi_models = find_equipment_models(name = 'my_equipment_model_name')
+    models = find_models(name = 'my_model_name')
 
 
-You can then navigate to the equipment using :meth:`~sailor.assetcentral.equipment_model.find_equipment()`.
+You can then navigate to the equipment using :meth:`~sailor.assetcentral.model.find_equipment()`.
 
 .. code-block:: python
 
-    equi_for_model = equi_models[0].find_equipment()
+    equi_for_model = models[0].find_equipment()
 
 In case of equipment that is operated together and influences each other, the set of equipment is often modeled as System.
 You can also start the analysis and exploration from a (set of) systems using :meth:`~sailor.assetcentral.system.find_systems`.
@@ -219,7 +219,7 @@ basis of your visualization.
     from sailor.utils.plot_helper import default_plot_theme
     data = equipment_set[0:4].get_indicator_data('2020-09-01 00:00:00+00:00', '2020-10-05 00:00:00+00:00')
     df = data.as_df(speaking_names=True).droplevel([0, 1], axis=1).reset_index()
-    df = df.melt(id_vars=['equipment_name', 'equipment_model_name', 'timestamp'], var_name='indicator')
+    df = df.melt(id_vars=['equipment_name', 'model_name', 'timestamp'], var_name='indicator')
     p9.ggplot(df, p9.aes(x='indicator', y='value', fill='equipment_name')) + p9.geom_violin(alpha=0.6) + default_plot_theme()
 
 .. image:: _static/custom_plot.png
@@ -238,7 +238,7 @@ This is an example of the steps necessary to train an isolation forest for detec
 
     from sklearn.ensemble import IsolationForest
     # find equipments and load data
-    equi_set = find_equipment(equipment_model_name='my_equipment_model_name')
+    equi_set = find_equipment(model_name='my_model_name')
     data = equi_set.get_indicator_data('2020-09-01', '2020-10-05')
     # train isolation forest 
     iforest = IsolationForest()
