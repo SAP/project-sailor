@@ -162,8 +162,11 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">DataNotFoundWarning</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
@@ -221,6 +224,13 @@
             <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;config already loaded. returning cached config&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">config</span>
 
+        <span class="n">SailorConfig</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">_load</span><span class="p">()</span>
+        <span class="n">_configure_sailor</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">config</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_load</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;Load config from ENV or YAML file.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;SAILOR_CONFIG_JSON&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;SAILOR_CONFIG_JSON not found in env. skipping config load from env.&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -244,7 +254,7 @@
             <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Successfully loaded config from YAML file.&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">config</span>
 
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;No methods left for loading the config.&#39;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;No methods left for loading the config.&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SailorConfig.from_env"><a class="viewcode-back" href="../../../apidoc/sailor.utils.config.html#sailor.utils.config.SailorConfig.from_env">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_env</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
@@ -263,6 +273,11 @@
             <span class="n">config_dict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">try_log</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="s1">&#39;Missing configuration parameter(s): </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)[</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">:]):</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">config_dict</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_configure_sailor</span><span class="p">():</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;always&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">DataNotFoundWarning</span><span class="p">,</span>
+                            <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># simpler for the user to override this setting</span>
 </pre></div>
 
            </div>

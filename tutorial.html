@@ -92,9 +92,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#reading-master-data">Reading Master Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#exploring-data">Exploring Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#read-timeseries-data">Read timeseries data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#building-custom-visualizations">Building custom visualizations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#building-custom-machine-learning-models">Building custom Machine Learning models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#read-timeseries-data">Read Timeseries Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-custom-visualizations">Building Custom Visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-custom-machine-learning-models">Building Custom Machine Learning Models</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="filter_language.html">Filter language</a></li>
@@ -170,7 +170,7 @@
             
   <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
-<p>In this tutorial you will learn how to use project “Sailor” to build your own algorithms and models from data stored
+<p>In this tutorial, you will learn how to use project “Sailor” to build your own algorithms and models from data stored
 in your SAP backends. In particular, you will learn how to:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#how-to-configure"><span class="std std-ref">Configure project Sailor to access your SAP backend for asset master data and IoT data</span></a></p></li>
@@ -182,10 +182,10 @@ in your SAP backends. In particular, you will learn how to:</p>
 </ul>
 <div class="section" id="configuration">
 <span id="how-to-configure"></span><h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
-<p>Before using the functions provided as part of project “Sailor” you will have to configure the package to work
-with your SAP systems. For a detailed description of the configuration please refer to the
+<p>Before using the functions provided as part of project “Sailor,” you will have to configure the package to work
+with your SAP systems. For a detailed description of the configuration, please refer to the
 <a class="reference internal" href="introduction.html"><span class="doc">Getting started guide</span></a>.</p>
-<p>To start using project “Sailor” execute the following commands to load the required packages. Since the standard data
+<p>To start using project “Sailor,” execute the following commands to load the required packages. Since the standard data
 format that is used in project “Sailor” are pandas dataframes, we also import the pandas library. You can import the required
 packages like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -195,21 +195,21 @@ packages like this:</p>
 </div>
 <div class="section" id="reading-master-data">
 <span id="how-to-read-master-data"></span><h2>Reading Master Data<a class="headerlink" href="#reading-master-data" title="Permalink to this headline">¶</a></h2>
-<p>To start the analysis, we first identify the equipment of interest. We use <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.find_equipment" title="sailor.assetcentral.equipment.find_equipment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_equipment()</span></code></a> to search for the equipments
-of interest - namely those belonging to the model <code class="docutils literal notranslate"><span class="pre">my_model_name</span></code>. The function returns an <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">EquipmentSet</span></code></a>,
+<p>To start the analysis, we first identify the equipment of interest. We use <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.find_equipment" title="sailor.assetcentral.equipment.find_equipment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_equipment()</span></code></a> to search for the pieces of equipment
+of interest - namely those belonging to the model <code class="docutils literal notranslate"><span class="pre">my_model_name</span></code>. The function returns a <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">EquipmentSet</span></code></a>,
 an object representing multiple pieces of equipment. The convenience function <a class="reference internal" href="apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.as_df" title="sailor.assetcentral.utils.ResultSet.as_df"><code class="xref py py-meth docutils literal notranslate"><span class="pre">as_df()</span></code></a> returns a representation of the
 <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">EquipmentSet</span></code></a> as <code class="docutils literal notranslate"><span class="pre">pandas</span></code> dataframe.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">equipment_set</span> <span class="o">=</span> <span class="n">find_equipment</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;my_model_name&#39;</span><span class="p">)</span>
 <span class="n">equipment_set</span><span class="o">.</span><span class="n">as_df</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Other ways of filtering are also available, e.g for selecting the <code class="docutils literal notranslate"><span class="pre">my_model_name</span></code> equipment in a specific location,
+<p>Other ways of filtering are also available, e.g., for selecting the <code class="docutils literal notranslate"><span class="pre">my_model_name</span></code> equipment in a specific location,
 say PaloAlto.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">equipment_set2</span> <span class="o">=</span> <span class="n">find_equipment</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;my_model_name&#39;</span><span class="p">,</span> <span class="n">location_name</span><span class="o">=</span><span class="s1">&#39;PaloAlto&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For an overview of the syntax used for filtering, refer to the documentation of the <a class="reference internal" href="filter_language.html"><span class="doc">Filter Language</span></a>.
-To get an overview of the fields that are available as filters you can use the function <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment.get_property_mapping" title="sailor.assetcentral.equipment.Equipment.get_property_mapping"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_property_mapping()</span></code></a>.
+To get an overview of the fields that are available as filters, you can use the function <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment.get_property_mapping" title="sailor.assetcentral.equipment.Equipment.get_property_mapping"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_property_mapping()</span></code></a>.
 The names of the items in the resulting map can be used as filters. Similar functions also exist for the other objects.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sailor.assetcentral.equipment</span> <span class="kn">import</span> <span class="n">Equipment</span>
 <span class="n">Equipment</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span>
@@ -225,14 +225,14 @@ The names of the items in the resulting map can be used as filters. Similar func
 </pre></div>
 </div>
 <p>In case of equipment that is operated together and influences each other, the set of equipment is often modeled as System.
-You can also start the analysis and exploration from a (set of) systems using <a class="reference internal" href="apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.find_systems" title="sailor.assetcentral.system.find_systems"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_systems()</span></code></a>.</p>
+You can also start the analysis and exploration from a (set of) system(s) using <a class="reference internal" href="apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.find_systems" title="sailor.assetcentral.system.find_systems"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_systems()</span></code></a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">systems</span> <span class="o">=</span> <span class="n">find_systems</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;my_system&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can analyse events that have occured on the equipment, namely notifications that were created or workorders that were performed.
 Let’s select all notifications that have been reported since August 2020. The <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.find_notifications" title="sailor.assetcentral.equipment.EquipmentSet.find_notifications"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_notifications()</span></code></a> function can be used to search
 for notifications that are linked to the equipment in the <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">EquipmentSet</span></code></a>. The function returns a
-<a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet" title="sailor.assetcentral.notification.NotificationSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotificationSet</span></code></a>
+<a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet" title="sailor.assetcentral.notification.NotificationSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotificationSet</span></code></a>,
 which represents a set of notifications, similar to the <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">EquipmentSet</span></code></a> for equipment.
 Again, a <code class="docutils literal notranslate"><span class="pre">pandas</span></code> dataframe representation of the object can be obtained using the <a class="reference internal" href="apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.as_df" title="sailor.assetcentral.utils.ResultSet.as_df"><code class="xref py py-meth docutils literal notranslate"><span class="pre">as_df()</span></code></a> function.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">notification_set</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="o">.</span><span class="n">find_notifications</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;malfunction_start_date &gt; &quot;2020-08-01&quot;&#39;</span><span class="p">])</span>
@@ -242,7 +242,7 @@ Again, a <code class="docutils literal notranslate"><span class="pre">pandas</sp
 </div>
 <div class="section" id="exploring-data">
 <span id="how-to-explore-data"></span><h2>Exploring Data<a class="headerlink" href="#exploring-data" title="Permalink to this headline">¶</a></h2>
-<p>To facilitate exploration and use of the extracted data for exploration, visualization and model building, the <a class="reference internal" href="apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.as_df" title="sailor.assetcentral.utils.ResultSet.as_df"><code class="xref py py-meth docutils literal notranslate"><span class="pre">as_df()</span></code></a> function
+<p>To facilitate exploration and use of the extracted data for exploration, visualization, and model building, the <a class="reference internal" href="apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.as_df" title="sailor.assetcentral.utils.ResultSet.as_df"><code class="xref py py-meth docutils literal notranslate"><span class="pre">as_df()</span></code></a> function
 is provided for all objects. The functions provide representations of the objects as <code class="docutils literal notranslate"><span class="pre">pandas</span></code> dataframe.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">notification_set</span><span class="o">.</span><span class="n">as_df</span><span class="p">()</span>
 <span class="n">equipment_set</span><span class="o">.</span><span class="n">as_df</span><span class="p">()</span>
@@ -267,14 +267,14 @@ used in the grouping or coloring.</p>
 </div>
 <img alt="_images/failure_mode_per_equipment.png" src="_images/failure_mode_per_equipment.png" />
 <p>To visualize the distribution of notifications across equipment and time, the function <a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet.plot_overview" title="sailor.assetcentral.notification.NotificationSet.plot_overview"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_overview()</span></code></a> may be used.
-This will plot one row per equipment associated with one of the notifications, the x-axis represents time. A colored block represents the time when
-a notification was active on an equipment, with the color representing the associated failure mode.</p>
+This will plot one row per piece of equipment associated with one of the notifications, the x-axis represents time. A colored block represents the time when
+a notification was active on a piece of equipment, with the color representing the associated failure mode.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">notification_set</span><span class="o">.</span><span class="n">plot_overview</span><span class="p">()</span>
 </pre></div>
 </div>
 <img alt="_images/plot_overview.png" src="_images/plot_overview.png" />
 <p>To understand whether there is an obvious pattern in the sensor data that is associated with a specific notification, the function
-<a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification.plot_context" title="sailor.assetcentral.notification.Notification.plot_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_context()</span></code></a> can be used. This shows the behavior of all indicators associated with the equipment before, during and after the
+<a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification.plot_context" title="sailor.assetcentral.notification.Notification.plot_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot_context()</span></code></a> can be used. This shows the behavior of all indicators associated with the equipment before, during, and after the
 notification. This can be useful to understand whether there are obvious differences in the sensor data prior to the notifications
 versus afterwards. This could help understand the issue associated with the notification.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">notification_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot_context</span><span class="p">()</span>
@@ -289,32 +289,32 @@ a timeseries dataset locally as described in <a class="reference internal" href=
 </div>
 </div>
 <div class="section" id="read-timeseries-data">
-<span id="how-to-read-timeseries"></span><h2>Read timeseries data<a class="headerlink" href="#read-timeseries-data" title="Permalink to this headline">¶</a></h2>
-<p>For many use cases like anomaly detection, failure prediction or remaining useful life prediction it is useful to look at the machine’s
+<span id="how-to-read-timeseries"></span><h2>Read Timeseries Data<a class="headerlink" href="#read-timeseries-data" title="Permalink to this headline">¶</a></h2>
+<p>For many use cases like anomaly detection, failure prediction, or remaining-useful-life prediction, it is useful to look at the machine’s
 sensor data. Sensor data is attached to equipment via indicators. An indicator is a description of measured values.</p>
-<p>To find out which indicators are defined for an equipment you can use <code class="xref py py-meth docutils literal notranslate"><span class="pre">find_equipment_indicators()</span></code></p>
+<p>To find out which indicators are defined for a piece of equipment, you can use <code class="xref py py-meth docutils literal notranslate"><span class="pre">find_equipment_indicators()</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">indicators</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find_equipment_indicators</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;my_indicator&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>For a set of equipment you can identify the set of indicators they have in common using <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.find_common_indicators" title="sailor.assetcentral.equipment.EquipmentSet.find_common_indicators"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_common_indicators()</span></code></a>.
+<p>For a set of equipment, you can identify the set of indicators they have in common using <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.find_common_indicators" title="sailor.assetcentral.equipment.EquipmentSet.find_common_indicators"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_common_indicators()</span></code></a>.
 This might be useful if you want to do an analysis across multiple pieces of equipment.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">indicators</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="o">.</span><span class="n">find_common_indicators</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>To retrieve timeseries data from SAP IoT for the indicators of interest, you use the function <cite>~sailor.assetcentral.equipment.Equipment.get_indicator_data()</cite>.
-This retrieves data for a single equipment.</p>
+This retrieves data for a single piece of equipment.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">timeseries_data</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="s1">&#39;2020-05-01 00:00:00+00:00&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-03-01 00:00:00+00:00&#39;</span><span class="p">,</span> <span class="n">indicators</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If you leave indicator set blank, then all indicators attached to the equipment will be fetched.</p>
-<p>For retrieving timeseries data for multiple pieces of equipment it is more efficient to use the function <cite>~sailor.assetcentral.equipment.EquipmentSet.get_indicator_data()</cite>.
+<p>If you leave indicator set blank, then all indicators attached to the piece of equipment will be fetched.</p>
+<p>For retrieving timeseries data for multiple pieces of equipment, it is more efficient to use the function <cite>~sailor.assetcentral.equipment.EquipmentSet.get_indicator_data()</cite>.
 If here the indicator set is left blank, then all indicators returned by <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.find_common_indicators" title="sailor.assetcentral.equipment.EquipmentSet.find_common_indicators"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_common_indicators()</span></code></a> are queried.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">timeseries_data</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="s1">&#39;2020-10-01 00:00:00+00:00&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-01 00:00:00+00:00&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="building-custom-visualizations">
-<span id="how-to-custom-plot"></span><h2>Building custom visualizations<a class="headerlink" href="#building-custom-visualizations" title="Permalink to this headline">¶</a></h2>
+<span id="how-to-custom-plot"></span><h2>Building Custom Visualizations<a class="headerlink" href="#building-custom-visualizations" title="Permalink to this headline">¶</a></h2>
 <p>To build your custom analysis or plot, you can use the data in any <a class="reference internal" href="apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet" title="sailor.assetcentral.utils.ResultSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResultSet</span></code></a> and transform
 it into a <cite>pandas</cite> dataframe using <a class="reference internal" href="apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.as_df" title="sailor.assetcentral.utils.ResultSet.as_df"><code class="xref py py-meth docutils literal notranslate"><span class="pre">as_df()</span></code></a>. The data frame can then form the
 basis of your visualization.</p>
@@ -329,7 +329,7 @@ basis of your visualization.</p>
 <img alt="_images/custom_plot.png" src="_images/custom_plot.png" />
 </div>
 <div class="section" id="building-custom-machine-learning-models">
-<span id="how-to-model"></span><h2>Building custom Machine Learning models<a class="headerlink" href="#building-custom-machine-learning-models" title="Permalink to this headline">¶</a></h2>
+<span id="how-to-model"></span><h2>Building Custom Machine Learning Models<a class="headerlink" href="#building-custom-machine-learning-models" title="Permalink to this headline">¶</a></h2>
 <p>Building machine learning models can be done using the same starting point as building custom visualizations, namely the method
 <a class="reference internal" href="apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.as_df" title="sailor.assetcentral.utils.ResultSet.as_df"><code class="xref py py-meth docutils literal notranslate"><span class="pre">as_df()</span></code></a>.</p>
 <p>This is an example of the steps necessary to train an isolation forest for detecting anomalies in the timeseries data.</p>
