@@ -89,7 +89,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../filter_language.html">Filter language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../filter_language.html">Filter Language</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../apidoc.html">API documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.constants</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.equipment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a></li>
@@ -214,8 +214,8 @@ then all objects matching any of the values in the iterable are returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p></li>
-<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter language</span></a>.</p></li>
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -239,7 +239,7 @@ then all objects matching any of the values in the iterable are returned.</p>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">extended_filters</span></code> parameter can be used to specify filters that can not be expressed as an equality. Each
 extended_filter needs to be provided as a string, multiple filters can be passed as a list of strings. As above,
-all filter criteria need to match. Inequality filters can be freely combined with named arguments. Here, too all
+all filter criteria need to match. Extended filters can be freely combined with named arguments. Here, too all
 filter criteria need to match for a Location to be returned.</p>
 <p class="rubric">Example</p>
 <p>Find all Locations with a short description not matching to ‘Location 1’:</p>

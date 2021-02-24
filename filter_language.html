@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Filter language &mdash; sailor 0.1 documentation</title>
+  <title>Filter Language &mdash; sailor 0.1 documentation</title>
   
 
   
@@ -89,10 +89,9 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Filter language</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#equality-filters">Equality filters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#inequality-filters">Inequality filters</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Filter Language</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#named-keyword-arguments">Named Keyword Arguments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extended-filters">Extended Filters</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc.html">API documentation</a></li>
@@ -144,7 +143,7 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Filter language</li>
+      <li>Filter Language</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -166,52 +165,73 @@
            <div itemprop="articleBody">
             
   <div class="section" id="filter-language">
-<span id="filter"></span><h1>Filter language<a class="headerlink" href="#filter-language" title="Permalink to this headline">¶</a></h1>
-<p>There is a function in each of the <cite>assetcentral</cite> modules for fetching data from AssetCentral. All of these functions support the same parameters, syntax and semantics.</p>
-<p>For example:
-<code class="docutils literal notranslate"><span class="pre">find_notifications(inequality_filters=None,</span> <span class="pre">**kwargs)</span></code></p>
-<div class="section" id="parameters">
-<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<span id="filter"></span><h1>Filter Language<a class="headerlink" href="#filter-language" title="Permalink to this headline">¶</a></h1>
+<p>Sailor supports retrieval of objects such as <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment" title="sailor.assetcentral.equipment.Equipment"><code class="xref py py-class docutils literal notranslate"><span class="pre">Equipment</span></code></a> or
+<a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification" title="sailor.assetcentral.notification.Notification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Notification</span></code></a> from AssetCentral through functions like
+<a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.find_equipment" title="sailor.assetcentral.equipment.find_equipment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_equipment()</span></code></a> or <a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.find_notifications" title="sailor.assetcentral.notification.find_notifications"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_notifications()</span></code></a>.
+All of these functions support a common filter language which is described below. The filter criteria are transformed
+into an odata query and forwarded to the server, so only matching objects are retrieved.</p>
 <dl class="simple">
-<dt><cite>inequality_filters</cite></dt><dd><p>A list of expressions that specify filters with inequality operators.</p>
-</dd>
-<dt><cite>**kwargs</cite></dt><dd><p>Any named keyword arguments are applied as equality filters.</p>
+<dt>All functions of this kind support two types of parameters:</dt><dd><ul class="simple">
+<li><p>named keyword arguments are interpreted as a simple shortcut for equality filters.</p></li>
+<li><p>an argument <cite>extended_filters</cite> allows more complex filters such as inequality constraints or filters referring to
+another field of the object.</p></li>
+</ul>
 </dd>
 </dl>
-</div>
-<div class="section" id="equality-filters">
-<h2>Equality filters<a class="headerlink" href="#equality-filters" title="Permalink to this headline">¶</a></h2>
-<p>Any <strong>named keyword arguments</strong> applied as equality filters.</p>
+<p>The names of all fields known for an object, and hence all fields which may be used for filtering can be determined
+by calling the <cite>get_property_mapping</cite> classmethod of the object, such as
+<a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification.get_property_mapping" title="sailor.assetcentral.notification.Notification.get_property_mapping"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_property_mapping()</span></code></a> etc. This method returns a dictionary, and
+the keys of this dictionary list all known and filterable fields.</p>
+<div class="section" id="named-keyword-arguments">
+<h2>Named Keyword Arguments<a class="headerlink" href="#named-keyword-arguments" title="Permalink to this headline">¶</a></h2>
+<p>Any <strong>named keyword argument</strong> is applied as an equality filter.</p>
 <ul class="simple">
-<li><p>The <strong>key</strong> of the keyword argument is checked against the value of the keyword argument in Asset Central.</p></li>
-<li><p>If the <strong>value</strong> of the keyword argument is an <code class="xref py py-obj docutils literal notranslate"><span class="pre">Iterable</span></code> (e.g. a <code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code>) then all objects matching any of the values in the iterable are returned.</p></li>
-<li><p>If multiple named arguments are provided then <em>all</em> conditions have to match.</p></li>
+<li><p>The <strong>key</strong> of the keyword argument determines the field of the object against which the filter is executed.</p></li>
+<li><p>If the <strong>value</strong> of the keyword argument is a simple object (e.g. a string, int or float), the value of the field in
+AssetCentral must be the same as the value of the argument for the filter to match. The type of the argument is
+preserved in the query.</p></li>
+<li><p>If the <strong>value</strong> of the keyword argument is an <code class="xref py py-obj docutils literal notranslate"><span class="pre">Iterable</span></code> (e.g. a <code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code>), then all objects matching <em>any</em>
+of the values in the iterable are returned.</p></li>
+<li><p>If multiple named arguments are provided, then <em>all</em> conditions have to match.</p></li>
 </ul>
 <p><strong>Examples:</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">find_notifications(short_description='MyNotification')</span></code>
 will return all notifications with description ‘MyNotification’.</p>
 <p><code class="docutils literal notranslate"><span class="pre">find_notifications(short_description=['MyNotification',</span> <span class="pre">'MyOtherNotification'])</span></code>
-will return all notifications which either have the description ‘MyNotification’ OR the description ‘MyOtherNotification’.</p>
+will return all notifications which either have the description ‘MyNotification’ or the description ‘MyOtherNotification’.</p>
 <p><code class="docutils literal notranslate"><span class="pre">find_notifications(short_description='MyNotification',</span> <span class="pre">start_date='2020-07-01')</span></code>
 will return all notifications with description ‘MyNotification’ which also have the start date ‘2020-07-01’.</p>
+<p>The following example will return all notifications with description ‘MyNotification’ and start date ‘2020-07-01’ or
+with description ‘MyOtherNotification’ and start date ‘2020-07-01’.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">(</span><span class="n">short_description</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyNotification&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherNotification&#39;</span><span class="p">],</span>
+                   <span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;2020-07-01&#39;</span><span class="p">)</span>
+</pre></div>
 </div>
-<div class="section" id="inequality-filters">
-<h2>Inequality filters<a class="headerlink" href="#inequality-filters" title="Permalink to this headline">¶</a></h2>
-<p>The <em>inequality_filters</em> parameter can be used to specify filters that can not be expressed as an equality. Inequality filters need to be provided as <code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code>.
-Each element in the list needs to be provided as a <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code> expression conforming to the following grammar: <code class="docutils literal notranslate"><span class="pre">field</span> <span class="pre">operator</span> <span class="pre">(field|literal)</span></code> where <em>literal</em> must be quoted.</p>
+</div>
+<div class="section" id="extended-filters">
+<h2>Extended Filters<a class="headerlink" href="#extended-filters" title="Permalink to this headline">¶</a></h2>
+<p>The <em>extended_filters</em> parameter can be used to specify filters that cannot be expressed as an equality or filters
+that should refer to another field of the same object.
+Extended filters need to be provided as <code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code>. Each element in the list needs to be provided as a <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>
+expression conforming to the following grammar: <code class="docutils literal notranslate"><span class="pre">field</span> <span class="pre">operator</span> <span class="pre">(field|literal)</span></code>. Here unquoted strings are interpreted
+as a field reference, while quoted strings as well as unquoted numeric values are interpreted as a literal. Both single
+and double quotes may be used for quoting.</p>
 <ul class="simple">
-<li><p>Supported operators are <code class="docutils literal notranslate"><span class="pre">&lt;</span></code> <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> <code class="docutils literal notranslate"><span class="pre">!=</span></code>.</p></li>
+<li><p>Supported operators are <code class="docutils literal notranslate"><span class="pre">&lt;</span></code> <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> <code class="docutils literal notranslate"><span class="pre">&lt;=</span></code> <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code> <code class="docutils literal notranslate"><span class="pre">!=</span></code> <code class="docutils literal notranslate"><span class="pre">==</span></code>.</p></li>
 <li><p>As with equality filters, <em>all</em> conditions need to match for a result to be returned.</p></li>
-<li><p>Inequality filters can be freely combined with named arguments. All filter criteria need to match for a result to be returned.</p></li>
+<li><p>Extended filters can be freely combined with named arguments. All filter criteria need to match for a result to be returned.</p></li>
 </ul>
 <p><strong>Examples:</strong></p>
-<p><code class="docutils literal notranslate"><span class="pre">find_notifications(inequality_filters=['short_description</span> <span class="pre">!=</span> <span class="pre">&quot;MyNotification&quot;'])</span></code>
+<p><code class="docutils literal notranslate"><span class="pre">find_notifications(extended_filters=['short_description</span> <span class="pre">!=</span> <span class="pre">&quot;MyNotification&quot;'])</span></code>
 will return all notifications with a description not matching ‘MyNotification’.</p>
-<p><code class="docutils literal notranslate"><span class="pre">find_notifications(['malfunctionStartDate</span> <span class="pre">&gt;</span> <span class="pre">&quot;2020-08-01&quot;',</span> <span class="pre">'malfunctionEndDate</span> <span class="pre">&lt;=</span> <span class="pre">&quot;2020-09-01&quot;])</span></code>
+<p><code class="docutils literal notranslate"><span class="pre">find_notifications(extended_filters=['malfunction_start_date</span> <span class="pre">&gt;</span> <span class="pre">&quot;2020-08-01&quot;',</span> <span class="pre">'malfunction_end_date</span> <span class="pre">&lt;=</span> <span class="pre">&quot;2020-09-01&quot;])</span></code>
 will return all notifications in a given timeframe.</p>
-<p>The following example will return all notifications in a given timeframe for both equipments with ‘id1’ and ‘id2’.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">([</span><span class="s1">&#39;malfunctionStartDate &gt; &quot;2020-08-01&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunctionEndDate &lt;= &quot;2020-09-01&quot;&#39;</span><span class="p">],</span>
-                  <span class="n">equipment_id</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id1&#39;</span><span class="p">,</span> <span class="s1">&#39;id2&#39;</span><span class="p">])</span>
+<p><code class="docutils literal notranslate"><span class="pre">find_notifications(extended_filters=['malfunction_start_date</span> <span class="pre">==</span> <span class="pre">malfunction_end_date'])</span></code>
+will return all notifications where the start date of the malfunction is equal to the end date of the malfunction.</p>
+<p>The following example will return all notifications in a given timeframe for both pieces of equipment with ‘id1’ and ‘id2’.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;malfunction_start_date &gt; &quot;2020-08-01&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunction_end_date &lt;= &quot;2020-09-01&quot;&#39;</span><span class="p">],</span>
+                   <span class="n">equipment_id</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id1&#39;</span><span class="p">,</span> <span class="s1">&#39;id2&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
