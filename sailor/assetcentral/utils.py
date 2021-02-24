@@ -2,6 +2,7 @@
 
 from typing import Union
 from collections.abc import Sequence, Iterable
+from collections import Counter
 from itertools import product
 import operator
 import logging
@@ -305,7 +306,9 @@ class ResultSet(Sequence):
         """Create a new ResultSet from the passed elements."""
         self.elements = list(set(elements))
         if len(self.elements) != len(elements):
-            warnings.warn(f'Duplicate elements encountered when creating {type(self).__name__}, discarding duplicates.')
+            duplicate_elements = [k for k, v in Counter(elements).items() if v > 1]
+            LOG.info(f'Duplicate elements encountered when creating {type(self).__name__}, discarding duplicates. '
+                     f'Duplicates of the following elements were discarded: %s', duplicate_elements)
 
         self.__generating_query_params = generating_query_params
 
