@@ -55,8 +55,8 @@ class Equipment(AssetcentralEntity):
             'batch_number': ('batchNumber', None, None, None),
             'build_date': ('buildDate', _string_to_timestamp_parser('buildDate', 'ms'), None, None),
             'criticality_description': ('criticalityDescription', None, None, None),
-            'equipment_model_id': ('modelId', None, None, None),
-            'equipment_model_name': ('modelName', None, None, None),
+            'model_id': ('modelId', None, None, None),
+            'model_name': ('modelName', None, None, None),
             'installation_date': ('installationDate', _string_to_timestamp_parser('installationDate', 'ms'),
                                   None, None),
             'lifecycle_description': ('lifeCycleDescription', None, None, None),
@@ -303,7 +303,7 @@ class EquipmentSet(ResultSet):
 
         Note
         ----
-        If all the Equipment in the set are derived from the same EquipmentModel the overlap in
+        If all the Equipment in the set are derived from the same Model the overlap in
         Indicators is likely very high. If you get fewer indicators than expected from this method
         verify the uniformity of the Equipment included in this set.
         """
@@ -338,9 +338,9 @@ class EquipmentSet(ResultSet):
 
         Example
         -------
-        Get indicator data for all Equipment belonging to the EquipmentModel 'MyEquipmentModel'
+        Get indicator data for all Equipment belonging to the Model 'MyModel'
         for a period from 01.06.2020 to 05.12.2020 ::
-            my_equipment_set = find_equipment(equipment_model_name='MyEquipmentModel')
+            my_equipment_set = find_equipment(model_name='MyModel')
             my_equipment_set.get_indicator_data('2020-06-01', '2020-12-05')
         Note
         ----

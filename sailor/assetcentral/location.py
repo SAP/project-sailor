@@ -7,7 +7,7 @@ Classes are provided for individual Locations as well as groups of Locations (Lo
 
 from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
     _ac_application_url
-from .constants import VIEW_LOCATION
+from .constants import VIEW_LOCATIONS
 
 
 @_add_properties
@@ -94,7 +94,7 @@ def find_locations(extended_filters=(), **kwargs) -> LocationSet:
     unbreakable_filters, breakable_filters = \
         _parse_filter_parameters(kwargs, extended_filters, Location.get_property_mapping())
 
-    endpoint_url = _ac_application_url() + VIEW_LOCATION
+    endpoint_url = _ac_application_url() + VIEW_LOCATIONS
 
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return LocationSet([Location(obj) for obj in object_list],

@@ -1,13 +1,14 @@
 """
-Retrieve EquipmentModel information from AssetCentral.
+Retrieve Model information from AssetCentral.
 
-Classes are provided for individual EquipmentModels as well as groups of EquipemtModels (EquipmentModelSet).
+Classes are provided for individual Models as well as groups of Models (ModelSet).
+Models can be of type Equipment, System or FunctionalLocation, but the type is not part of the AC response currently.
 """
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .constants import EQUIPMENT_MODEL_INDICATORS, EQUIPMENT_MODEL_API, INDICATOR_CONFIGURATION
+from .constants import VIEW_MODEL_INDICATORS, VIEW_MODELS
 from .indicators import Indicator, IndicatorSet
 from .equipment import find_equipment
 from .utils import _fetch_data, _add_properties, _parse_filter_parameters, \
@@ -19,9 +20,9 @@ if TYPE_CHECKING:
 
 
 @_add_properties
-class EquipmentModel(AssetcentralEntity):
+class Model(AssetcentralEntity):
     """
-    AssetCentral EquipmentModel object.
+    AssetCentral Model object.
 
     Properties (in AC terminology) are:  # as returned by 'models'-api, not model-details
     modelId, name, internalId, status, version, hasInRevision, templateId, modelTemplate, subclass,
@@ -56,7 +57,7 @@ class EquipmentModel(AssetcentralEntity):
 
     def find_equipment(self, extended_filters=(), **kwargs) -> EquipmentSet:
         """
-        Get a list of equipment derived from this EquipmentModel.
+        Get a list of equipment derived from this Model.
 
         Parameters
         ----------
@@ -67,18 +68,18 @@ class EquipmentModel(AssetcentralEntity):
 
         Example
         -------
-        Find all Equipment for EquipmentModel 'myEquipmentModelName'. Return an EquipmentSet::
+        Find all Equipment for Model 'myModelName'. Return an EquipmentSet::
 
-           model = find_equipment_models(name='myEquipmentModelName')
+           model = find_models(name='myModelName')
            model[0].find_equipment()
 
         The resulting Equipments can further be filter based on their properties (name, location etc).
         """
-        kwargs['equipment_model_id'] = self.id
+        kwargs['model_id'] = self.id
         return find_equipment(extended_filters, **kwargs)
 
     def find_model_indicators(self, extended_filters=(), **kwargs) -> IndicatorSet:
-        """Return all Indicators assigned to the EquipmentModel.
+        """Return all Indicators assigned to the Model.
 
         Parameters
         ----------
@@ -89,12 +90,12 @@ class EquipmentModel(AssetcentralEntity):
 
         Example
         -------
-        Find all indicators for Equipment Model 'myEquipmentModelName'::
+        Find all indicators for Model 'myModelName'::
 
-            models = find_equipment_models(name='myEquipmentModelName')
+            models = find_models(name='myModelName')
             models[0].find_model_indicators()
         """
-        endpoint_url = _ac_application_url() + EQUIPMENT_MODEL_INDICATORS + f'({self.id})' + '/indicatorvalues'
+        endpoint_url = _ac_application_url() + VIEW_MODEL_INDICATORS + f'({self.id})' + '/indicatorvalues'
 
         # AC-BUG: this api doesn't support filters (thank you AC) so we have to fetch all of them and then filter below
         object_list = _fetch_data(endpoint_url)
@@ -103,23 +104,11 @@ class EquipmentModel(AssetcentralEntity):
 
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
-    def get_header(self):
-        """Retrieve header information for the EquipmentModel."""
-        endpoint_url = _ac_application_url() + EQUIPMENT_MODEL_API + f'({self.id})' + '/header'
-        header = _fetch_data(endpoint_url)
-        return header
 
-    def get_indicator_configuration_of_model(self):
-        """Retrieve details on an indicator attached to an equipment model."""
-        endpoint_url = _ac_application_url() + INDICATOR_CONFIGURATION + f'({self.id})' + '/header'
-        header = _fetch_data(endpoint_url)
-        return header
+class ModelSet(ResultSet):
+    """Class representing a group of Models."""
 
-
-class EquipmentModelSet(ResultSet):
-    """Class representing a group of EquipmentModels."""
-
-    _element_type = EquipmentModel
+    _element_type = Model
     _method_defaults = {
         'plot_distribution': {
             'by': 'model_template_id',
@@ -127,11 +116,11 @@ class EquipmentModelSet(ResultSet):
     }
 
 
-def find_equipment_models(extended_filters=(), **kwargs) -> EquipmentModelSet:
-    """Fetch EquipmentModels from AssetCentral with the applied filters, return an EquipmentModelSet.
+def find_models(extended_filters=(), **kwargs) -> ModelSet:
+    """Fetch Models from AssetCentral with the applied filters, return an ModelSet.
 
     This method supports the usual filter criteria, i.e.
-    Any named keyword arguments applied as equality filters, i.e. the name of the EquipmentModel property is checked
+    Any named keyword arguments applied as equality filters, i.e. the name of the Model property is checked
     against the value of the keyword argument. If the value of the keyword argument is an iterable (e.g. a list)
     then all objects matching any of the values in the iterable are returned.
 
@@ -144,38 +133,38 @@ def find_equipment_models(extended_filters=(), **kwargs) -> EquipmentModelSet:
 
     Examples
     --------
-    Find all EquipmentModels with name 'MyEquipmentModel'::
+    Find all Models with name 'MyModel'::
 
-        find_equipment_models(name='MyEquipmentModel')
+        find_models(name='MyModel')
 
-    Find all EquipmentModels which either have the name 'MyEquipmentModel' or the name 'MyOtherEquipmentModel'::
+    Find all Models which either have the name 'MyModel' or the name 'MyOtherModel'::
 
-        find_equipment_models(name=['MyEquipmentModel', 'MyOtherEquipmentModel'])
+        find_models(name=['MyModel', 'MyOtherModel'])
 
 
     If multiple named arguments are provided then *all* conditions have to match.
 
     Example
     -------
-    Find all EquipmentModels with name 'MyEquipmentModel' which also have the short description 'Description'::
+    Find all Models with name 'MyModel' which also have the short description 'Description'::
 
-        find_equipment_models(name='MyEquipmentModel', short_description='Description')
+        find_models(name='MyModel', short_description='Description')
 
     The ``extended_filters`` parameter can be used to specify filters that can not be expressed as an equality. Each
     extended_filter needs to be provided as a string, multiple filters can be passed as a list of strings. As above,
     all filter criteria need to match. Inequality filters can be freely combined with named arguments. Here, too, all
-    filter criteria need to match for an EquipmentModel to be returned.
+    filter criteria need to match for an Model to be returned.
 
     Example
     -------
-    Find all EquipmentModels with an expiration date before January 1, 2018::
+    Find all Models with an expiration date before January 1, 2018::
 
-        find_equipment_models(extended_filters=['model_expiration_date < "2018-01-01"'])
+        find_models(extended_filters=['model_expiration_date < "2018-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, EquipmentModel.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Model.get_property_mapping())
 
-    endpoint_url = _ac_application_url() + EQUIPMENT_MODEL_API
+    endpoint_url = _ac_application_url() + VIEW_MODELS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return EquipmentModelSet([EquipmentModel(obj) for obj in object_list],
-                             {'filters': kwargs, 'extended_filters': extended_filters})
+    return ModelSet([Model(obj) for obj in object_list],
+                    {'filters': kwargs, 'extended_filters': extended_filters})

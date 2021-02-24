@@ -90,9 +90,9 @@ class TimeseriesDataset(object):
             raise NotImplementedError('Currently only Equipment is supported as base object for timeseries data.')
 
         if speaking_names:
-            return ['equipment_model_name', 'equipment_name']
+            return ['model_name', 'equipment_name']
         else:
-            return ['equipment_model_id', 'equipment_id']
+            return ['model_id', 'equipment_id']
 
     @staticmethod
     def get_time_column():
@@ -130,7 +130,7 @@ class TimeseriesDataset(object):
         Return the data stored within this TimeseriesDataset object as a pandas dataframe.
 
         By default the data is returned with opaque column headers. If speaking_names is set to true, the data is
-        converted such that equipment_id and equipment_model_id are replaced by human-readable names, and the opaque
+        converted such that equipment_id and model_id are replaced by human-readable names, and the opaque
         column headers are replaced by a hierarchical index of template_id, indicator_group_name, indicator_name and
         aggregation_function.
         """
@@ -140,12 +140,12 @@ class TimeseriesDataset(object):
             return self._df.set_index(self.get_index_columns())
 
     def _transform(self, df):
-        translator = {'equipment_id': {}, 'equipment_model_id': {}}
+        translator = {'equipment_id': {}, 'model_id': {}}
         for equipment in self._equipment_set:
             translator['equipment_id'][equipment.id] = equipment.name
-            translator['equipment_model_id'][equipment.equipment_model_id] = equipment.equipment_model_name
+            translator['model_id'][equipment.model_id] = equipment.model_name
 
-        static_column_mapping = {'equipment_id': 'equipment_name', 'equipment_model_id': 'equipment_model_name'}
+        static_column_mapping = {'equipment_id': 'equipment_name', 'model_id': 'model_name'}
         data = (
             df.replace(translator)
               .rename(columns=static_column_mapping)

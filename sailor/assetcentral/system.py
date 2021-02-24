@@ -12,7 +12,7 @@ from .utils import _fetch_data, _add_properties, _parse_filter_parameters, Asset
     _ac_application_url
 from .equipment import find_equipment, EquipmentSet
 from .indicators import IndicatorSet
-from .constants import VIEW_SYSTEM
+from .constants import VIEW_SYSTEMS
 from ..sap_iot import get_indicator_data, TimeseriesDataset
 
 
@@ -40,14 +40,14 @@ class System(AssetcentralEntity):
             'name': ('internalId', None, None, None),
             'short_description': ('shortDescription', None, None, None),
             'class_name': ('className', None, None, None),
-            'system_model_id': ('modelID', None, None, None),
-            'system_model_name': ('model', None, None, None),
+            'model_id': ('modelID', None, None, None),
+            'model_name': ('model', None, None, None),
             'status_text': ('systemStatusDescription', None, None, None),
             'template_id': ('templateID', None, None, None),
         }
 
     def _prepare_components(self):
-        endpoint_url = _ac_application_url() + VIEW_SYSTEM + f'({self.id})' + '/components'
+        endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
         components = _fetch_data(endpoint_url)[0]
         equipment_ids = []
 
@@ -90,7 +90,7 @@ class SystemSet(ResultSet):
     _element_type = System
     _method_defaults = {
         'plot_distribution': {
-            'by': 'system_model_name',
+            'by': 'model_name',
         },
     }
 
@@ -165,7 +165,7 @@ def find_systems(extended_filters=(), **kwargs) -> SystemSet:
     unbreakable_filters, breakable_filters = \
         _parse_filter_parameters(kwargs, extended_filters, System.get_property_mapping())
 
-    endpoint_url = _ac_application_url() + VIEW_SYSTEM
+    endpoint_url = _ac_application_url() + VIEW_SYSTEMS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
 
     return SystemSet([System(obj) for obj in object_list],

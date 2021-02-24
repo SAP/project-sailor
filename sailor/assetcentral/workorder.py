@@ -6,7 +6,7 @@ Classes are provided for individual Workorders as well as groups of Workorders (
 
 from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
     _ac_application_url
-from .constants import VIEW_WORKORDER
+from .constants import VIEW_WORKORDERS
 
 
 @_add_properties
@@ -107,7 +107,7 @@ def find_workorders(extended_filters=(), **kwargs) -> WorkorderSet:
     unbreakable_filters, breakable_filters = \
         _parse_filter_parameters(kwargs, extended_filters, Workorder.get_property_mapping())
 
-    endpoint_url = _ac_application_url() + VIEW_WORKORDER
+    endpoint_url = _ac_application_url() + VIEW_WORKORDERS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return WorkorderSet([Workorder(obj) for obj in object_list],
                         {'filters': kwargs, 'extended_filters': extended_filters})

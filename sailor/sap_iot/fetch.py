@@ -35,7 +35,7 @@ LOG.addHandler(logging.NullHandler())
 
 fixed_timeseries_columns = {
     '_TIME': 'timestamp',
-    'modelId': 'equipment_model_id',
+    'modelId': 'model_id',
     'equipmentId': 'equipment_id'
 }
 
@@ -192,7 +192,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
 
     LOG.info('Data export triggered for %s indicator groups.', len(query_groups))
 
-    results = pd.DataFrame(columns=['equipment_model_id', 'equipment_id', 'timestamp'])
+    results = pd.DataFrame(columns=['model_id', 'equipment_id', 'timestamp'])
     results.timestamp = results.timestamp.astype(pd.DatetimeTZDtype(tz='UTC'))
 
     print('Waiting for data export', end='')
@@ -202,7 +202,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
             if _check_bulk_timeseries_export_status(request_id):
                 indicator_subset = IndicatorSet(request_ids.pop(request_id))
                 data = _get_exported_bulk_timeseries_data(request_id, indicator_subset, equipment_set)
-                results = pd.merge(results, data, on=['equipment_model_id', 'equipment_id', 'timestamp'], how='outer')
+                results = pd.merge(results, data, on=['model_id', 'equipment_id', 'timestamp'], how='outer')
 
         if not request_ids:
             break
