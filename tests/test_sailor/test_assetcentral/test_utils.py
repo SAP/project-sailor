@@ -124,6 +124,18 @@ class TestQueryParsers:
 
         assert filters == [('a', 'eq', "'b'")]
 
+    def test_unify_filters_property_mapping_kwargs_key_field(self):
+        filters = _unify_filters({'my_term': 'some_value'}, None, {'my_term': ['their_term']})
+        assert filters[0][0] == 'their_term'
+
+    def test_unify_filters_property_mapping_extended_key_field(self):
+        filters = _unify_filters(None, ['my_term == "foo"'], {'my_term': ['their_term']})
+        assert filters[0][0] == 'their_term'
+
+    def test_unify_filters_property_mapping_extended_value_field(self):
+        filters = _unify_filters(None, ['some_field == my_term'], {'my_term': ['their_term']})
+        assert filters[0][2] == 'their_term'
+
     @pytest.mark.parametrize('testdescription,equality_filters,expected_unbreakable,expected_breakable', [
         ('no args returns empty', {}, [], []),
         ('single valued filters are unbreakable',

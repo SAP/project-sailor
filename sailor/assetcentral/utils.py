@@ -204,6 +204,8 @@ def _unify_filters(equality_filters, extended_filters, property_mapping):
             v = f"'{v}'"  # we always need single quotes, but want to accept double quotes as well, hence re-writing.
         elif match := unquoted_pattern.fullmatch(filter_entry):
             k, o, v = match.groups()
+            if v in property_mapping:
+                v = property_mapping[v][0]
         else:
             raise RuntimeError(f'Failed to parse filter entry {filter_entry}')
 
