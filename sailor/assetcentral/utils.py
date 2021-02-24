@@ -378,10 +378,14 @@ class ResultSet(Sequence):
                 raise RuntimeError(f'No {display_name} with non-empty "{by}" found. Can not create plot.')
 
         data = data.fillna('NA')
+        if data.dtypes[by] == 'O':  # strings/objects, we treat these as categorical
+            plot_function = p9.geom_bar()
+        else:
+            plot_function = p9.geom_histogram(color='white', bins=20)  # anything else, treated as continuous
 
         plot = (
                 p9.ggplot(data, p9.aes(**aes)) +
-                p9.geom_bar() +
+                plot_function +
                 default_plot_theme() +
                 p9.ggtitle(f'Number of {display_name} per {by}')
                 )
