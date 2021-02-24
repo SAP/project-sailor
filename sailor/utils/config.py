@@ -5,8 +5,11 @@ import os
 import logging
 import json
 import sys
+import warnings
 
 import yaml
+
+from .utils import DataNotFoundWarning
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -64,6 +67,13 @@ class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES)):
             LOG.debug('config already loaded. returning cached config')
             return SailorConfig.config
 
+        SailorConfig.config = SailorConfig._load()
+        _configure_sailor()
+        return SailorConfig.config
+
+    @staticmethod
+    def _load():
+        """Load config from ENV or YAML file."""
         if os.getenv('SAILOR_CONFIG_JSON') is None:
             LOG.debug('SAILOR_CONFIG_JSON not found in env. skipping config load from env.')
         else:
@@ -106,3 +116,8 @@ class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES)):
             config_dict = yaml.safe_load(f)
         with try_log(TypeError, lambda e: 'Missing configuration parameter(s): %s' % str(e)[str(e).find(':')+2:]):
             return cls(**config_dict)
+
+
+def _configure_sailor():
+    warnings.filterwarnings("always", category=DataNotFoundWarning,
+                            append=True)  # simpler for the user to override this setting
