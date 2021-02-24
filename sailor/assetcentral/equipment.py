@@ -340,6 +340,7 @@ class EquipmentSet(ResultSet):
         -------
         Get indicator data for all Equipment belonging to the Model 'MyModel'
         for a period from 01.06.2020 to 05.12.2020 ::
+
             my_equipment_set = find_equipment(model_name='MyModel')
             my_equipment_set.get_indicator_data('2020-06-01', '2020-12-05')
         Note

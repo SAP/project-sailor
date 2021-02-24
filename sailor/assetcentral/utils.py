@@ -299,7 +299,7 @@ class AssetcentralEntity:
 
 
 class ResultSet(Sequence):
-    """Baseclass to be used in all `Set`s of AssetCentral objects."""
+    """Baseclass to be used in all Sets of AssetCentral objects."""
 
     _element_type = None
     _method_defaults = {}

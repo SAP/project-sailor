@@ -82,7 +82,7 @@ def find_locations(extended_filters=(), **kwargs) -> LocationSet:
 
     The ``extended_filters`` parameter can be used to specify filters that can not be expressed as an equality. Each
     extended_filter needs to be provided as a string, multiple filters can be passed as a list of strings. As above,
-    all filter criteria need to match. Inequality filters can be freely combined with named arguments. Here, too all
+    all filter criteria need to match. Extended filters can be freely combined with named arguments. Here, too all
     filter criteria need to match for a Location to be returned.
 
     Example
