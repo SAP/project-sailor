@@ -4,7 +4,7 @@
 Tutorial
 ========
 
-In this tutorial you will learn how to use project "Sailor" to build your own algorithms and models from data stored 
+In this tutorial, you will learn how to use project "Sailor" to build your own algorithms and models from data stored 
 in your SAP backends. In particular, you will learn how to:
 
 - :ref:`Configure project Sailor to access your SAP backend for asset master data and IoT data <how_to_configure>`
@@ -19,11 +19,11 @@ in your SAP backends. In particular, you will learn how to:
 Configuration
 =============
 
-Before using the functions provided as part of project "Sailor" you will have to configure the package to work
-with your SAP systems. For a detailed description of the configuration please refer to the 
+Before using the functions provided as part of project "Sailor," you will have to configure the package to work
+with your SAP systems. For a detailed description of the configuration, please refer to the 
 :doc:`Getting started guide<../introduction>`.
 
-To start using project "Sailor" execute the following commands to load the required packages. Since the standard data 
+To start using project "Sailor," execute the following commands to load the required packages. Since the standard data 
 format that is used in project "Sailor" are pandas dataframes, we also import the pandas library. You can import the required
 packages like this:
 
@@ -37,8 +37,8 @@ packages like this:
 Reading Master Data
 ===================
 
-To start the analysis, we first identify the equipment of interest. We use :meth:`~sailor.assetcentral.equipment.find_equipment()` to search for the equipments 
-of interest - namely those belonging to the model ``my_model_name``. The function returns an :class:`~sailor.assetcentral.equipment.EquipmentSet`,
+To start the analysis, we first identify the equipment of interest. We use :meth:`~sailor.assetcentral.equipment.find_equipment()` to search for the pieces of equipment 
+of interest - namely those belonging to the model ``my_model_name``. The function returns a :class:`~sailor.assetcentral.equipment.EquipmentSet`,
 an object representing multiple pieces of equipment. The convenience function :meth:`~sailor.assetcentral.utils.ResultSet.as_df()` returns a representation of the 
 :class:`~sailor.assetcentral.equipment.EquipmentSet` as ``pandas`` dataframe.
 
@@ -47,7 +47,7 @@ an object representing multiple pieces of equipment. The convenience function :m
     equipment_set = find_equipment(model_name='my_model_name')
     equipment_set.as_df().head()
 
-Other ways of filtering are also available, e.g for selecting the ``my_model_name`` equipment in a specific location,
+Other ways of filtering are also available, e.g., for selecting the ``my_model_name`` equipment in a specific location,
 say PaloAlto.
 
 .. code-block:: python
@@ -56,7 +56,7 @@ say PaloAlto.
 
 
 For an overview of the syntax used for filtering, refer to the documentation of the :doc:`Filter Language<../filter_language>`.
-To get an overview of the fields that are available as filters you can use the function :meth:`~sailor.assetcentral.equipment.Equipment.get_property_mapping()`. 
+To get an overview of the fields that are available as filters, you can use the function :meth:`~sailor.assetcentral.equipment.Equipment.get_property_mapping()`. 
 The names of the items in the resulting map can be used as filters. Similar functions also exist for the other objects.
 
 .. code-block:: python
@@ -79,7 +79,7 @@ You can then navigate to the equipment using :meth:`~sailor.assetcentral.model.f
     equi_for_model = models[0].find_equipment()
 
 In case of equipment that is operated together and influences each other, the set of equipment is often modeled as System.
-You can also start the analysis and exploration from a (set of) systems using :meth:`~sailor.assetcentral.system.find_systems`.
+You can also start the analysis and exploration from a (set of) system(s) using :meth:`~sailor.assetcentral.system.find_systems`.
 
 .. code-block:: python
 
@@ -88,7 +88,7 @@ You can also start the analysis and exploration from a (set of) systems using :m
 You can analyse events that have occured on the equipment, namely notifications that were created or workorders that were performed.
 Let's select all notifications that have been reported since August 2020. The :meth:`~sailor.assetcentral.equipment.EquipmentSet.find_notifications()` function can be used to search
 for notifications that are linked to the equipment in the :class:`~sailor.assetcentral.equipment.EquipmentSet`. The function returns a 
-:class:`~sailor.assetcentral.notification.NotificationSet` 
+:class:`~sailor.assetcentral.notification.NotificationSet`,
 which represents a set of notifications, similar to the :class:`~sailor.assetcentral.equipment.EquipmentSet` for equipment. 
 Again, a ``pandas`` dataframe representation of the object can be obtained using the :meth:`~sailor.assetcentral.utils.ResultSet.as_df()` function.
 
@@ -103,7 +103,7 @@ Exploring Data
 ==============
 
 
-To facilitate exploration and use of the extracted data for exploration, visualization and model building, the :meth:`~sailor.assetcentral.utils.ResultSet.as_df()` function
+To facilitate exploration and use of the extracted data for exploration, visualization, and model building, the :meth:`~sailor.assetcentral.utils.ResultSet.as_df()` function
 is provided for all objects. The functions provide representations of the objects as ``pandas`` dataframe.
 
 .. code-block:: python
@@ -139,8 +139,8 @@ used in the grouping or coloring.
 .. image:: _static/failure_mode_per_equipment.png
 
 To visualize the distribution of notifications across equipment and time, the function :meth:`~sailor.assetcentral.notification.NotificationSet.plot_overview()` may be used. 
-This will plot one row per equipment associated with one of the notifications, the x-axis represents time. A colored block represents the time when
-a notification was active on an equipment, with the color representing the associated failure mode.
+This will plot one row per piece of equipment associated with one of the notifications, the x-axis represents time. A colored block represents the time when
+a notification was active on a piece of equipment, with the color representing the associated failure mode.
 
 .. code-block:: python
 
@@ -149,7 +149,7 @@ a notification was active on an equipment, with the color representing the assoc
 .. image:: _static/plot_overview.png
 
 To understand whether there is an obvious pattern in the sensor data that is associated with a specific notification, the function
-:meth:`~sailor.assetcentral.notification.Notification.plot_context()` can be used. This shows the behavior of all indicators associated with the equipment before, during and after the 
+:meth:`~sailor.assetcentral.notification.Notification.plot_context()` can be used. This shows the behavior of all indicators associated with the equipment before, during, and after the 
 notification. This can be useful to understand whether there are obvious differences in the sensor data prior to the notifications 
 versus afterwards. This could help understand the issue associated with the notification.
 
@@ -169,19 +169,19 @@ a timeseries dataset locally as described in :ref:`Read timeseries data<how_to_r
 
 .. _how_to_read_timeseries:
 
-Read timeseries data
+Read Timeseries Data
 ====================
 
-For many use cases like anomaly detection, failure prediction or remaining useful life prediction it is useful to look at the machine's
+For many use cases like anomaly detection, failure prediction, or remaining-useful-life prediction, it is useful to look at the machine's
 sensor data. Sensor data is attached to equipment via indicators. An indicator is a description of measured values.
 
-To find out which indicators are defined for an equipment you can use :meth:`~sailor.assetcentral.Equipment.find_equipment_indicators()`
+To find out which indicators are defined for a piece of equipment, you can use :meth:`~sailor.assetcentral.Equipment.find_equipment_indicators()`
 
 .. code-block:: python
 
     indicators = equipment_set[0].find_equipment_indicators(name = 'my_indicator')
 
-For a set of equipment you can identify the set of indicators they have in common using :meth:`~sailor.assetcentral.equipment.EquipmentSet.find_common_indicators()`.
+For a set of equipment, you can identify the set of indicators they have in common using :meth:`~sailor.assetcentral.equipment.EquipmentSet.find_common_indicators()`.
 This might be useful if you want to do an analysis across multiple pieces of equipment.
 
 .. code-block:: python
@@ -189,15 +189,15 @@ This might be useful if you want to do an analysis across multiple pieces of equ
     indicators = equipment_set.find_common_indicators()
 
 To retrieve timeseries data from SAP IoT for the indicators of interest, you use the function `~sailor.assetcentral.equipment.Equipment.get_indicator_data()`.
-This retrieves data for a single equipment.
+This retrieves data for a single piece of equipment.
 
 .. code-block:: python
 
     timeseries_data = equipment_set[0].get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00', indicators)
 
-If you leave indicator set blank, then all indicators attached to the equipment will be fetched.
+If you leave indicator set blank, then all indicators attached to the piece of equipment will be fetched.
 
-For retrieving timeseries data for multiple pieces of equipment it is more efficient to use the function `~sailor.assetcentral.equipment.EquipmentSet.get_indicator_data()`.
+For retrieving timeseries data for multiple pieces of equipment, it is more efficient to use the function `~sailor.assetcentral.equipment.EquipmentSet.get_indicator_data()`.
 If here the indicator set is left blank, then all indicators returned by :meth:`~sailor.assetcentral.equipment.EquipmentSet.find_common_indicators()` are queried.
 
 .. code-block:: python
@@ -206,7 +206,7 @@ If here the indicator set is left blank, then all indicators returned by :meth:`
 
 .. _how_to_custom_plot:
 
-Building custom visualizations
+Building Custom Visualizations
 ==============================
 
 To build your custom analysis or plot, you can use the data in any :class:`~sailor.assetcentral.utils.ResultSet` and transform
@@ -226,7 +226,7 @@ basis of your visualization.
 
 .. _how_to_model:
 
-Building custom Machine Learning models
+Building Custom Machine Learning Models
 =======================================
 
 Building machine learning models can be done using the same starting point as building custom visualizations, namely the method 
