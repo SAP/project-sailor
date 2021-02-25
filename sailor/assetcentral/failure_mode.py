@@ -35,12 +35,6 @@ class FailureMode(AssetcentralEntity):
             'status_text': ('StatusText', None, None, None),
         }
 
-    def get_details(self):
-        """Fetch details of this FailureMode from AssetCentral."""
-        endpoint_url = _ac_application_url() + VIEW_FAILUREMODES + f'/{self.id}'
-        details = _fetch_data(endpoint_url)
-        return details
-
 
 class FailureModeSet(ResultSet):
     """Class representing a group of FailureModes."""
