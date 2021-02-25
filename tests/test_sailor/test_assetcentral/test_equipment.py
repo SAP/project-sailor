@@ -3,7 +3,7 @@ from unittest.mock import patch, Mock, call
 import pytest
 
 from sailor.assetcentral.location import Location, LocationSet
-from sailor.assetcentral.equipment import Equipment, EquipmentSet, find_equipment
+from sailor.assetcentral.equipment import Equipment, EquipmentSet
 from sailor.assetcentral import constants
 
 
@@ -130,18 +130,3 @@ class TestEquipmentSet:
         actual_result = equipment_set.find_common_indicators()
 
         assert expected_result == actual_result
-
-
-@pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
-@patch('sailor.assetcentral.equipment._fetch_data')
-def test_find_equipment_expect_fetch_call_args(mock_fetch, mock_url):
-    find_params = dict(extended_filters=['integer_param1 < 10'], location_name=['Paris', 'London'])
-    expected_call_args = (['integer_param1 lt 10'], [["location eq 'Paris'", "location eq 'London'"]])
-    mock_fetch.return_value = [{'equipmentId': 'eq_id1'}, {'equipmentId': 'eq_id2'}]
-    expected_result = EquipmentSet([Equipment({'equipmentId': 'eq_id1'}), Equipment({'equipmentId': 'eq_id2'})])
-
-    actual_result = find_equipment(**find_params)
-
-    assert constants.VIEW_EQUIPMENT in mock_fetch.call_args.args[0]
-    assert mock_fetch.call_args.args[1:] == expected_call_args
-    assert actual_result == expected_result

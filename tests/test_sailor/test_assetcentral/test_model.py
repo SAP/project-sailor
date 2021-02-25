@@ -2,7 +2,7 @@ from unittest.mock import patch, Mock
 
 import pytest
 
-from sailor.assetcentral.model import Model, ModelSet, find_models
+from sailor.assetcentral.model import Model
 from sailor.assetcentral import constants
 
 
@@ -51,19 +51,3 @@ class TestModel:
         assert constants.VIEW_MODEL_INDICATORS in mock_fetch.call_args.args[0]
         assert mock_apply.call_args.args[:-1] == (object_list, filter_kwargs, extended_filters)
         assert actual == expected_result
-
-
-@pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
-@patch('sailor.assetcentral.model._fetch_data')
-def test_find_equipment_expect_fetch_call_args(mock_fetch, mock_url):
-    find_params = dict(extended_filters=['integer_param1 < 10'], generation=['one', 'two'])
-    expected_call_args = (['integer_param1 lt 10'], [["generation eq 'one'", "generation eq 'two'"]])
-    mock_fetch.return_value = [{'modelId': 'm_id1'}, {'modelId': 'm_id2'}]
-    expected_result = ModelSet([Model({'modelId': 'm_id1'}),
-                                Model({'modelId': 'm_id2'})])
-
-    actual_result = find_models(**find_params)
-
-    assert constants.VIEW_MODELS in mock_fetch.call_args.args[0]
-    assert mock_fetch.call_args.args[1:] == expected_call_args
-    assert actual_result == expected_result
