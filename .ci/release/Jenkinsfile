@@ -1,0 +1,93 @@
+@Library('piper-lib-os') _
+
+node {
+    cleanWs()
+    scmInfo = checkout(scm)
+    setupCommonPipelineEnvironment(script: this, scmInfo: scmInfo)
+
+    githubOrg = commonPipelineEnvironment.githubOrg
+    githubRepo = commonPipelineEnvironment.githubRepo
+
+    withCredentials([string(credentialsId: 'github-sailor-token', variable: 'GITHUB_TOKEN')]) {
+        dockerExecute(script: this) {
+            stage('prepare') {
+                checkout(scm)  // need to do this again from within the container because the .git directory does not carry over
+                sh "apt update && apt install -y jq && apt install -y curl && apt install -y bzip2"
+
+                withCredentials([usernamePassword(credentialsId: 'github-sailor-user-token', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]){
+                    sh '''git config --global credential.helper "!f() { echo username=\$GIT_USERNAME; echo password=\$GIT_PASSWORD; }; f"
+                        git config --global user.name "\${GIT_USERNAME}"
+                        git config --global user.email "78745571+sailor-ci@users.noreply.github.com" '''
+                }
+                sh """curl -L -o github-release.bz2 https://github.com/github-release/github-release/releases/download/v0.10.0/linux-amd64-github-release.bz2
+                    bunzip2 github-release.bz2
+                    mv github-release /usr/local/bin/github-release
+                    chmod +x /usr/local/bin/github-release
+                """
+                sh "pip install -r .ci/release/requirements_release.txt"
+            }
+            stage ('version') {
+                sh "git checkout ${BRANCH}"
+                script {
+                    if (env.VERSION == '') {  // bump version if current version already has a release
+                        VERSION = sh(script: """
+                            version="\$(cat version.txt)"
+                            if github-release -q info --user ${githubOrg} --repo ${githubRepo} --tag \$version >/dev/null; then
+                                version=\$(pysemver bump minor \$version)
+                            fi
+                            echo \$version
+                            """, returnStdout: true).trim()
+                    }
+                }
+                sh """
+                    echo ${VERSION} > version.txt
+                    git add version.txt
+                    git commit -m 'bump version to ${VERSION}' || true
+                    git push origin ${BRANCH}
+                """
+            }
+            stage('tests') {
+                sh "pip install -r requirements.txt"
+                sh "pytest"
+            }
+            stage('build release') {
+                sh "python -m build"
+                sourceDistFilepath = sh(script: "ls dist/*.tar.gz", returnStdout: true).trim()
+                wheelFilepath = sh(script: "ls dist/*.whl", returnStdout: true).trim()
+            }
+            stage('additional checks') {
+                sh "twine check dist/*"
+            }
+            stage('confirm') {
+                githubPublishRelease(script: this, releaseBodyHeader: RELEASE_TEXT, preRelease: true, commitish: BRANCH, version: VERSION,
+                                     addDeltaToLastRelease: true, addClosedIssues: true)
+                try {
+                    sh "github-release upload --user ${githubOrg} --repo ${githubRepo} --tag ${VERSION} -f ${sourceDistFilepath} -n \$(basename ${sourceDistFilepath})"
+                    sh "github-release upload --user ${githubOrg} --repo ${githubRepo} --tag ${VERSION} -f ${wheelFilepath} -n \$(basename ${wheelFilepath})"
+
+                    releaseBody = sh(script: "github-release info --user ${githubOrg} --repo ${githubRepo} --tag ${VERSION} --json | jq -r .Releases[0].body", returnStdout: true)
+                    releaseUrl = sh(script: "github-release info --user ${githubOrg} --repo ${githubRepo} --tag ${VERSION} --json | jq -r .Releases[0].html_url", returnStdout: true)
+
+                    input(message: "Should we continue? Please check the pre-release \n\n${releaseUrl}", ok: "Yes, we should.")
+                } catch (err) {
+                    sh "github-release delete --user ${githubOrg} --repo ${githubRepo} --tag ${VERSION}"
+                    sh "git push --delete origin ${VERSION}"
+                    throw err
+                }
+            }
+            stage('release') {
+                try {
+                    withCredentials([usernamePassword(credentialsId: 'PyPI_credentials', usernameVariable: 'TWINE_USERNAME', passwordVariable: 'TWINE_PASSWORD')]){
+                        sh 'twine upload dist/*'
+                    }
+                } catch (err) {
+                    sh "github-release delete --user ${githubOrg} --repo ${githubRepo} --tag ${VERSION}"
+                    sh "git push --delete origin ${VERSION}"
+                    throw err
+                }
+                // switch from pre-release to release (should this fail, you can simply edit it via the Github UI)
+                sh "github-release edit --user ${githubOrg} --repo ${githubRepo} --tag ${VERSION} --description '${releaseBody}'"
+            }
+        }
+    }
+}

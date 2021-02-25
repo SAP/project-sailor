@@ -11,7 +11,5 @@ RUN set -ex; \
     apt autoremove -y --purge; apt clean -y
 COPY .ci/requirements_pr.txt /tmp/requirements_pr.txt
 RUN pip install --no-cache-dir -r /tmp/requirements_pr.txt
-COPY .ci/requirements_ci.txt /tmp/requirements_ci.txt
-RUN pip install --no-cache-dir -r /tmp/requirements_ci.txt
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt

@@ -7,9 +7,12 @@ with open('requirements.in', 'r') as req_file:
 with open('README.rst', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
 
+with open('version.txt', 'r', encoding='utf-8') as fh:
+    version = fh.read().rstrip()
+
 setup(
     name='sailor',
-    version='0.0.1',
+    version=version,
     author='DSC Data Science Team',
     author_email='project.sailor@sap.com',
     url='https://github.com/SAP/project-sailor',

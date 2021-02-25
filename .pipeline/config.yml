@@ -1,0 +1,10 @@
+general:
+  githubTokenCredentialsId: 'github-sailor-token'
+  gitHttpsCredentialsId: 'github-sailor-user-token'
+
+
+steps:
+  dockerExecute:
+    dockerImage: 'dscdatascience.common.repositories.cloud.sap/pr_validation:2102a'
+    additionalPodProperties: 
+      imagePullSecrets: ['dscdatascience-jenkins']
