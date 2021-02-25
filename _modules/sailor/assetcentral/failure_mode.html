@@ -186,13 +186,7 @@
             <span class="s1">&#39;short_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ShortDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;long_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;LongDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;status_text&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;StatusText&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="p">}</span></div>
-
-<div class="viewcode-block" id="FailureMode.get_details"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.FailureMode.get_details">[docs]</a>    <span class="k">def</span> <span class="nf">get_details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fetch details of this FailureMode from AssetCentral.&quot;&quot;&quot;</span>
-        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_FAILUREMODES</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="n">details</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">details</span></div></div>
+        <span class="p">}</span></div></div>
 
 
 <div class="viewcode-block" id="FailureModeSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.FailureModeSet">[docs]</a><span class="k">class</span> <span class="nc">FailureModeSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
