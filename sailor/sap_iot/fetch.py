@@ -20,7 +20,7 @@ from io import BytesIO
 
 import pandas as pd
 
-from ..utils.timestamps import any_to_timestamp, timestamp_to_date_string
+from ..utils.timestamps import _any_to_timestamp, _timestamp_to_date_string
 from ..utils.oauth_wrapper import OAuthFlow, RequestError
 from ..utils.config import SailorConfig
 from ..assetcentral.indicators import IndicatorSet
@@ -162,8 +162,8 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
     # the bulk export api *only* works on indicator groups. No filtering for equipment_set or indicator_set.
     # so we always need to download data for the whole group. We filter on individual indicator-template combinations
     # as well as individual equipment in `_process_one_file`.
-    start_date = any_to_timestamp(start_date)
-    end_date = any_to_timestamp(end_date)
+    start_date = _any_to_timestamp(start_date)
+    end_date = _any_to_timestamp(end_date)
 
     query_groups = defaultdict(list)
     for indicator in indicator_set:
@@ -171,8 +171,8 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
 
     request_ids = {}
     for indicator_group, indicator_subset in sorted(query_groups.items()):  # sorted to make query order reproducable
-        formatted_start_date = timestamp_to_date_string(start_date)
-        formatted_end_date = timestamp_to_date_string(end_date)
+        formatted_start_date = _timestamp_to_date_string(start_date)
+        formatted_end_date = _timestamp_to_date_string(end_date)
         try:
             request_id = _start_bulk_timeseries_data_export(formatted_start_date, formatted_end_date, indicator_group)
             request_ids[request_id] = indicator_subset

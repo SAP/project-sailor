@@ -11,7 +11,7 @@ from .constants import VIEW_NOTIFICATIONS
 from .utils import _fetch_data, _add_properties, ResultSet, _parse_filter_parameters,\
     AssetcentralEntity, _ac_application_url
 from ..utils.timestamps import _string_to_timestamp_parser
-from ..utils.plot_helper import default_plot_theme
+from ..utils.plot_helper import _default_plot_theme
 
 
 @_add_properties
@@ -151,7 +151,7 @@ class NotificationSet(ResultSet):
 
         plot = p9.ggplot(data, p9.aes(**aes))
         plot += p9.geom_segment(size=6, alpha=0.7)
-        plot += default_plot_theme()
+        plot += _default_plot_theme()
 
         return plot
 

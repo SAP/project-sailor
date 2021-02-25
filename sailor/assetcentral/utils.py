@@ -13,7 +13,7 @@ import pandas as pd
 import plotnine as p9
 
 from ..utils.oauth_wrapper import OAuthFlow
-from ..utils.plot_helper import default_plot_theme
+from ..utils.plot_helper import _default_plot_theme
 from ..utils.config import SailorConfig
 from ..utils.utils import DataNotFoundWarning
 
@@ -391,7 +391,7 @@ class ResultSet(Sequence):
         plot = (
                 p9.ggplot(data, p9.aes(**aes)) +
                 plot_function +
-                default_plot_theme() +
+                _default_plot_theme() +
                 p9.ggtitle(f'Number of {display_name} per {by}')
                 )
         return plot

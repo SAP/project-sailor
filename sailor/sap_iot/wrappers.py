@@ -19,8 +19,8 @@ from plotnine.themes import theme
 from plotnine.scales import scale_x_datetime
 from sklearn.preprocessing import StandardScaler
 
-from ..utils.plot_helper import default_plot_theme
-from ..utils.timestamps import any_to_timestamp
+from ..utils.plot_helper import _default_plot_theme
+from ..utils.timestamps import _any_to_timestamp
 
 if TYPE_CHECKING:
     from ..assetcentral.indicators import IndicatorSet
@@ -199,8 +199,8 @@ class TimeseriesDataset(object):
         equipment_mapping = {equipment.id: equipment.name for equipment in equipment_set}
         selected_equipment_ids = equipment_mapping.keys()
 
-        start = any_to_timestamp(start, default=self._df[time_column].min())
-        end = any_to_timestamp(end, default=self._df[time_column].max())
+        start = _any_to_timestamp(start, default=self._df[time_column].min())
+        end = _any_to_timestamp(end, default=self._df[time_column].max())
 
         if self._df.empty:
             raise RuntimeError('There is no data in this dataset.')
@@ -276,7 +276,7 @@ class TimeseriesDataset(object):
                 ggplot(molten_data, aes(x=self.get_time_column(), y='value', color='equipment')) +
                 geom_point() + geom_line() +
                 facet_grid('indicator + template + indicator_group ~ .', scales='free') +
-                default_plot_theme() +
+                _default_plot_theme() +
                 theme(figure_size=(10 * facet_column_count, 3 * facet_row_count)) +
                 scale_x_datetime(**scale_x_datetime_kwargs)
         )
@@ -352,8 +352,8 @@ class TimeseriesDataset(object):
 
         if equipment_ids is None:
             equipment_ids = [equipment.id for equipment in self._equipment_set]
-        start_time = any_to_timestamp(start, default=self.nominal_data_start)
-        end_time = any_to_timestamp(end, default=self.nominal_data_end)
+        start_time = _any_to_timestamp(start, default=self.nominal_data_start)
+        end_time = _any_to_timestamp(end, default=self.nominal_data_end)
         selected_equi_set = self._equipment_set.filter(id=equipment_ids)
 
         selected_df = self._df.query('(equipment_id in @equipment_ids) &'

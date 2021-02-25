@@ -14,7 +14,7 @@ def _string_to_timestamp_parser(name, unit=None):
     return lambda self: pd.Timestamp(self.raw[name], unit=unit, tz='UTC') if self.raw[name] else None
 
 
-def any_to_timestamp(value, default: pd.Timestamp = None):
+def _any_to_timestamp(value, default: pd.Timestamp = None):
     """Try to parse a timestamp provided in a variety of formats into a uniform representation as pd.Timestamp."""
     if value is None:
         return default
@@ -39,14 +39,14 @@ def any_to_timestamp(value, default: pd.Timestamp = None):
     return timestamp
 
 
-def timestamp_to_isoformat(timestamp: pd.Timestamp):
+def _timestamp_to_isoformat(timestamp: pd.Timestamp):
     """Return an iso-format string of a timestamp after conversion to UTC and without the timezone information."""
     if timestamp.tzinfo:
         timestamp = timestamp.tz_convert('UTC')
     return timestamp.tz_localize(None).isoformat()
 
 
-def timestamp_to_date_string(timestamp: pd.Timestamp):
+def _timestamp_to_date_string(timestamp: pd.Timestamp):
     """Return a date-string (YYYY-MM-DD) from a pandas Timestamp."""
     if timestamp.tzinfo:
         timestamp = timestamp.tz_convert('UTC')

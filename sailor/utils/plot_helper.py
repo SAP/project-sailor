@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 import plotnine as p9
 
 
-def p9_to_svg(plotnine_plot):
+def _p9_to_svg(plotnine_plot):
     """Convert a plotnine plot to an svg string (for inclusion in html output)."""
     matplotlib_plot = plotnine_plot.draw()
     buffer = BytesIO()
@@ -15,7 +15,7 @@ def p9_to_svg(plotnine_plot):
     return buffer.getvalue().decode()
 
 
-def default_plot_theme():
+def _default_plot_theme():
     """Provide a default plot theme for out plots."""
     return p9.theme(axis_text_x=p9.element_text(rotation=45, ha='right'),
                     axis_title_x=p9.element_text(margin={'t': 20}),

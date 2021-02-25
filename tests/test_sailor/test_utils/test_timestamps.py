@@ -3,7 +3,7 @@ import datetime
 import pytest
 import pandas as pd
 
-from sailor.utils.timestamps import any_to_timestamp
+from sailor.utils.timestamps import _any_to_timestamp
 
 
 @pytest.mark.parametrize('testdescription,input,expected', [
@@ -22,5 +22,5 @@ from sailor.utils.timestamps import any_to_timestamp
 ])
 @pytest.mark.filterwarnings('ignore:Trying to parse non-timezone-aware timestamp, assuming UTC.')
 def test_any_to_timestamp_types(input, expected, testdescription):
-    actual = any_to_timestamp(input)
+    actual = _any_to_timestamp(input)
     assert actual == expected
