@@ -3,10 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-sailor
+"Sailor"
 ===================================
 
-Welcome to the documentation for sailor.
+Welcome to the documentation for project "Sailor".
 
 .. toctree::
    :maxdepth: 1
@@ -15,6 +15,7 @@ Welcome to the documentation for sailor.
    tutorial
    filter_language
    apidoc
+   contributing
 
 Indices and tables
 ==================
