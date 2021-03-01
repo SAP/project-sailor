@@ -309,7 +309,7 @@
         <span class="k">return</span> <span class="n">plot</span></div></div>
 
 
-<div class="viewcode-block" id="find_notifications"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.find_notifications">[docs]</a><span class="k">def</span> <span class="nf">find_notifications</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NotificationSet</span><span class="p">:</span>
+<div class="viewcode-block" id="find_notifications"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.find_notifications">[docs]</a><span class="k">def</span> <span class="nf">find_notifications</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NotificationSet</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch Notifications from AssetCentral with the applied filters, return a NotificationSet.</span>
 
 <span class="sd">    This method supports the common filter language explained at :ref:`filter`.</span>
@@ -353,7 +353,8 @@
 
 <span class="sd">    Find all notifications in a given timeframe for specific equipment::</span>
 
-<span class="sd">        find_notifications([&#39;malfunctionStartDate &gt; &quot;2020-08-01&quot;&#39;, &#39;malfunctionEndDate &lt;= &quot;2020-09-01&quot;&#39;],</span>
+<span class="sd">        find_notifications(extended_filters=[&#39;malfunctionStartDate &gt; &quot;2020-08-01&quot;&#39;,</span>
+<span class="sd">                                             &#39;malfunctionEndDate &lt;= &quot;2020-09-01&quot;&#39;],</span>
 <span class="sd">                           equipment_id=[&#39;id1&#39;, &#39;id2&#39;])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \

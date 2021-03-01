@@ -238,7 +238,7 @@ and with a color representing the confirmed failure mode description.</p>
 
 <dl class="py function">
 <dt id="sailor.assetcentral.notification.find_notifications">
-<code class="sig-prename descclassname">sailor.assetcentral.notification.</code><code class="sig-name descname">find_notifications</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#find_notifications"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.notification.find_notifications" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sailor.assetcentral.notification.</code><code class="sig-name descname">find_notifications</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">extended_filters</span><span class="o">=</span><span class="default_value">()</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#find_notifications"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.assetcentral.notification.find_notifications" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch Notifications from AssetCentral with the applied filters, return a NotificationSet.</p>
 <p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p>
 <p><strong>Allowed entries for filter terms</strong></p>
@@ -282,7 +282,8 @@ and with a color representing the confirmed failure mode description.</p>
 </pre></div>
 </div>
 <p>Find all notifications in a given timeframe for specific equipment:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">([</span><span class="s1">&#39;malfunctionStartDate &gt; &quot;2020-08-01&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunctionEndDate &lt;= &quot;2020-09-01&quot;&#39;</span><span class="p">],</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;malfunctionStartDate &gt; &quot;2020-08-01&quot;&#39;</span><span class="p">,</span>
+                                     <span class="s1">&#39;malfunctionEndDate &lt;= &quot;2020-09-01&quot;&#39;</span><span class="p">],</span>
                    <span class="n">equipment_id</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id1&#39;</span><span class="p">,</span> <span class="s1">&#39;id2&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
