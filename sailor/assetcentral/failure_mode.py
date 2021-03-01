@@ -47,7 +47,7 @@ class FailureModeSet(ResultSet):
     }
 
 
-def find_failure_modes(extended_filters=(), **kwargs) -> FailureModeSet:
+def find_failure_modes(*, extended_filters=(), **kwargs) -> FailureModeSet:
     """Fetch FailureModes from AssetCentral with the applied filters, return an FailureModeSet.
 
     This method supports the usual filter criteria, i.e.

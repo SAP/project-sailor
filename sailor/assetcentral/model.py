@@ -55,7 +55,7 @@ class Model(AssetcentralEntity):
             'template_id': ('templateId', None, None, None),
         }
 
-    def find_equipment(self, extended_filters=(), **kwargs) -> EquipmentSet:
+    def find_equipment(self, *, extended_filters=(), **kwargs) -> EquipmentSet:
         """
         Get a list of equipment derived from this Model.
 
@@ -76,9 +76,9 @@ class Model(AssetcentralEntity):
         The resulting Equipments can further be filter based on their properties (name, location etc).
         """
         kwargs['model_id'] = self.id
-        return find_equipment(extended_filters, **kwargs)
+        return find_equipment(extended_filters=extended_filters, **kwargs)
 
-    def find_model_indicators(self, extended_filters=(), **kwargs) -> IndicatorSet:
+    def find_model_indicators(self, *, extended_filters=(), **kwargs) -> IndicatorSet:
         """Return all Indicators assigned to the Model.
 
         Parameters
@@ -116,7 +116,7 @@ class ModelSet(ResultSet):
     }
 
 
-def find_models(extended_filters=(), **kwargs) -> ModelSet:
+def find_models(*, extended_filters=(), **kwargs) -> ModelSet:
     """Fetch Models from AssetCentral with the applied filters, return an ModelSet.
 
     This method supports the usual filter criteria, i.e.

@@ -43,7 +43,7 @@ class LocationSet(ResultSet):
     }
 
 
-def find_locations(extended_filters=(), **kwargs) -> LocationSet:
+def find_locations(*, extended_filters=(), **kwargs) -> LocationSet:
     """Fetch Locations from AssetCentral with the applied filters, return a LocationSet.
 
     This method supports the usual filter criteria, i.e.

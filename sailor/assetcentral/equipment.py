@@ -77,7 +77,7 @@ class Equipment(AssetcentralEntity):
             self._location = locations[0]
         return self._location
 
-    def find_equipment_indicators(self, extended_filters=(), **kwargs) -> IndicatorSet:
+    def find_equipment_indicators(self, *, extended_filters=(), **kwargs) -> IndicatorSet:
         """Find all Indicators assigned to this Equipment.
 
         This method supports the common filter language explained at :ref:`filter`.
@@ -103,7 +103,7 @@ class Equipment(AssetcentralEntity):
                                                        Indicator.get_property_mapping())
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
-    def find_notifications(self, extended_filters=(), **kwargs) -> NotificationSet:
+    def find_notifications(self, *, extended_filters=(), **kwargs) -> NotificationSet:
         """
         Fetch notifications objects associated with this equipment.
 
@@ -126,9 +126,9 @@ class Equipment(AssetcentralEntity):
             my_equipment.find_notifications()
         """
         kwargs['equipment_id'] = self.id
-        return find_notifications(extended_filters, **kwargs)
+        return find_notifications(extended_filters=extended_filters, **kwargs)
 
-    def find_failure_modes(self, extended_filters=(), **kwargs) -> FailureModeSet:
+    def find_failure_modes(self, *, extended_filters=(), **kwargs) -> FailureModeSet:
         """
         Fetch the failure modes configured for the given equipment.
 
@@ -153,9 +153,9 @@ class Equipment(AssetcentralEntity):
         endpoint_url = _ac_application_url() + VIEW_OBJECTS + 'EQU/' + self.id + '/failuremodes'
         object_list = _fetch_data(endpoint_url)
         kwargs['id'] = [element['ID'] for element in object_list]
-        return find_failure_modes(extended_filters, **kwargs)
+        return find_failure_modes(extended_filters=extended_filters, **kwargs)
 
-    def find_workorders(self, extended_filters=(), **kwargs) -> WorkorderSet:
+    def find_workorders(self, *, extended_filters=(), **kwargs) -> WorkorderSet:
         """
         Fetch workorder objects associated with this equipment.
 
@@ -178,7 +178,7 @@ class Equipment(AssetcentralEntity):
             my_equipment.find_workorders()
         """
         kwargs['equipment_id'] = self.id
-        return find_workorders(extended_filters, **kwargs)
+        return find_workorders(extended_filters=extended_filters, **kwargs)
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
@@ -228,7 +228,7 @@ class EquipmentSet(ResultSet):
         },
     }
 
-    def find_notifications(self, extended_filters=(), **kwargs) -> NotificationSet:
+    def find_notifications(self, *, extended_filters=(), **kwargs) -> NotificationSet:
         """Find all Notifications for any of the equipment in this EquipmentSet.
 
         Parameters
@@ -254,9 +254,9 @@ class EquipmentSet(ResultSet):
             raise RuntimeError('This EquipmentSet is empty, can not find notifications.')
 
         kwargs['equipment_id'] = [equipment.id for equipment in self.elements]
-        return find_notifications(extended_filters, **kwargs)
+        return find_notifications(extended_filters=extended_filters, **kwargs)
 
-    def find_workorders(self, extended_filters=(), **kwargs) -> WorkorderSet:
+    def find_workorders(self, *, extended_filters=(), **kwargs) -> WorkorderSet:
         """
         Find all Workorders for any of the equipment in this EquipmentSet.
 
@@ -279,9 +279,9 @@ class EquipmentSet(ResultSet):
             raise RuntimeError('This EquipmentSet is empty, can not find workorders.')
 
         kwargs['equipment_id'] = [equipment.id for equipment in self.elements]
-        return find_workorders(extended_filters, **kwargs)
+        return find_workorders(extended_filters=extended_filters, **kwargs)
 
-    def find_common_indicators(self, extended_filters=(), **kwargs) -> IndicatorSet:
+    def find_common_indicators(self, *, extended_filters=(), **kwargs) -> IndicatorSet:
         """
         Find all Indicators common to all Equipment in this EquipmentSet.
 
@@ -310,9 +310,9 @@ class EquipmentSet(ResultSet):
         if len(self) == 0:
             raise RuntimeError('This EquipmentSet is empty, can not find common indicators.')
 
-        common_indicators = self.elements[0].find_equipment_indicators(extended_filters, **kwargs)
+        common_indicators = self.elements[0].find_equipment_indicators(extended_filters=extended_filters, **kwargs)
         for equipment in self.elements[1:]:
-            equipment_indicators = equipment.find_equipment_indicators(extended_filters, **kwargs)
+            equipment_indicators = equipment.find_equipment_indicators(extended_filters=extended_filters, **kwargs)
             common_indicators = IndicatorSet([indicator for indicator in common_indicators
                                               if indicator in equipment_indicators])
 
@@ -356,7 +356,7 @@ class EquipmentSet(ResultSet):
         return get_indicator_data(start, end, indicator_set, self)
 
 
-def find_equipment(extended_filters=(), **kwargs) -> EquipmentSet:
+def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
     """
     Fetch Equipments from AssetCentral with the applied filters, return an EquipmentSet.
 

@@ -47,7 +47,8 @@ class TestEquipment:
         with patch('sailor.assetcentral.equipment.find_failure_modes', return_value=expected) as mock_delegate:
             actual = eq_obj.find_failure_modes(extended_filters=['some_param > some_value'], param='123')
 
-            mock_delegate.assert_called_once_with(['some_param > some_value'], id=['fm_id1', 'fm_id2'], param='123')
+            mock_delegate.assert_called_once_with(extended_filters=['some_param > some_value'],
+                                                  id=['fm_id1', 'fm_id2'], param='123')
             assert actual == expected
 
     @pytest.mark.parametrize('function_name', [
@@ -60,7 +61,8 @@ class TestEquipment:
         with patch(f'sailor.assetcentral.equipment.{function_name}', return_value=expected) as mock_delegate:
             actual = function_under_test(extended_filters=['some_param > some_value'], param='123')
 
-            mock_delegate.assert_called_once_with(['some_param > some_value'], param='123', equipment_id=eq_obj.id)
+            mock_delegate.assert_called_once_with(extended_filters=['some_param > some_value'], param='123',
+                                                  equipment_id=eq_obj.id)
             assert actual == expected
 
     @patch('sailor.assetcentral.location._fetch_data')
@@ -113,7 +115,7 @@ class TestEquipmentSet:
         with patch(f'sailor.assetcentral.equipment.{function_name}', return_value=expected) as mock_delegate:
             actual = function_under_test(extended_filters=['some_param > some_value'], param='123')
 
-            mock_delegate.assert_called_once_with(['some_param > some_value'], param='123',
+            mock_delegate.assert_called_once_with(extended_filters=['some_param > some_value'], param='123',
                                                   equipment_id=[equipment.id for equipment in eq_set])
             assert actual == expected
 

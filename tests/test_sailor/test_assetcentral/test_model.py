@@ -30,7 +30,7 @@ class TestModel:
         with patch(f'sailor.assetcentral.model.{function_name}', return_value=expected) as mock_delegate:
             actual = function_under_test(param='123', extended_filters=['some_param > some_value'])
 
-            mock_delegate.assert_called_once_with(['some_param > some_value'], param='123',
+            mock_delegate.assert_called_once_with(extended_filters=['some_param > some_value'], param='123',
                                                   model_id=model.id)
             assert actual == expected
 

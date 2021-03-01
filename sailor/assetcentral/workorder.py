@@ -55,7 +55,7 @@ class WorkorderSet(ResultSet):
     }
 
 
-def find_workorders(extended_filters=(), **kwargs) -> WorkorderSet:
+def find_workorders(*, extended_filters=(), **kwargs) -> WorkorderSet:
     """Fetch Workorders from AssetCentral with the applied filters, return a WorkorderSet.
 
     This method supports the usual filter criteria, i.e.

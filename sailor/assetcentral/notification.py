@@ -156,7 +156,7 @@ class NotificationSet(ResultSet):
         return plot
 
 
-def find_notifications(extended_filters=(), **kwargs) -> NotificationSet:
+def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
     """Fetch Notifications from AssetCentral with the applied filters, return a NotificationSet.
 
     This method supports the common filter language explained at :ref:`filter`.
@@ -200,7 +200,8 @@ def find_notifications(extended_filters=(), **kwargs) -> NotificationSet:
 
     Find all notifications in a given timeframe for specific equipment::
 
-        find_notifications(['malfunctionStartDate > "2020-08-01"', 'malfunctionEndDate <= "2020-09-01"'],
+        find_notifications(extended_filters=['malfunctionStartDate > "2020-08-01"',
+                                             'malfunctionEndDate <= "2020-09-01"'],
                            equipment_id=['id1', 'id2'])
     """
     unbreakable_filters, breakable_filters = \

@@ -118,7 +118,7 @@ class SystemSet(ResultSet):
         return get_indicator_data(start, end, all_indicators, all_equipment)
 
 
-def find_systems(extended_filters=(), **kwargs) -> SystemSet:
+def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
     """Fetch Systems from AssetCentral with the applied filters, return an SystemSet.
 
     This method supports the usual filter criteria, i.e.
