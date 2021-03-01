@@ -1,4 +1,4 @@
-.. _tutorial::
+.. _tutorial:
 
 ========
 Tutorial
@@ -175,7 +175,7 @@ Read Timeseries Data
 For many use cases like anomaly detection, failure prediction, or remaining-useful-life prediction, it is useful to look at the machine's
 sensor data. Sensor data is attached to equipment via indicators. An indicator is a description of measured values.
 
-To find out which indicators are defined for a piece of equipment, you can use :meth:`~sailor.assetcentral.Equipment.find_equipment_indicators()`
+To find out which indicators are defined for a piece of equipment, you can use :meth:`~sailor.assetcentral.equipment.Equipment.find_equipment_indicators()`
 
 .. code-block:: python
 
@@ -188,7 +188,7 @@ This might be useful if you want to do an analysis across multiple pieces of equ
 
     indicators = equipment_set.find_common_indicators()
 
-To retrieve timeseries data from SAP IoT for the indicators of interest, you use the function `~sailor.assetcentral.equipment.Equipment.get_indicator_data()`.
+To retrieve timeseries data from SAP IoT for the indicators of interest, you use the function :meth:`~sailor.assetcentral.equipment.Equipment.get_indicator_data()`.
 This retrieves data for a single piece of equipment.
 
 .. code-block:: python
@@ -197,7 +197,7 @@ This retrieves data for a single piece of equipment.
 
 If you leave indicator set blank, then all indicators attached to the piece of equipment will be fetched.
 
-For retrieving timeseries data for multiple pieces of equipment, it is more efficient to use the function `~sailor.assetcentral.equipment.EquipmentSet.get_indicator_data()`.
+For retrieving timeseries data for multiple pieces of equipment, it is more efficient to use the function :meth:`~sailor.assetcentral.equipment.EquipmentSet.get_indicator_data()`.
 If here the indicator set is left blank, then all indicators returned by :meth:`~sailor.assetcentral.equipment.EquipmentSet.find_common_indicators()` are queried.
 
 .. code-block:: python

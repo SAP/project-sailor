@@ -165,7 +165,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="tutorial">
-<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
 <p>In this tutorial, you will learn how to use project “Sailor” to build your own algorithms and models from data stored
 in your SAP backends. In particular, you will learn how to:</p>
 <ul class="simple">
@@ -288,7 +288,7 @@ a timeseries dataset locally as described in <a class="reference internal" href=
 <span id="how-to-read-timeseries"></span><h2>Read Timeseries Data<a class="headerlink" href="#read-timeseries-data" title="Permalink to this headline">¶</a></h2>
 <p>For many use cases like anomaly detection, failure prediction, or remaining-useful-life prediction, it is useful to look at the machine’s
 sensor data. Sensor data is attached to equipment via indicators. An indicator is a description of measured values.</p>
-<p>To find out which indicators are defined for a piece of equipment, you can use <code class="xref py py-meth docutils literal notranslate"><span class="pre">find_equipment_indicators()</span></code></p>
+<p>To find out which indicators are defined for a piece of equipment, you can use <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment.find_equipment_indicators" title="sailor.assetcentral.equipment.Equipment.find_equipment_indicators"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_equipment_indicators()</span></code></a></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">indicators</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find_equipment_indicators</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;my_indicator&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -297,13 +297,13 @@ This might be useful if you want to do an analysis across multiple pieces of equ
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">indicators</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="o">.</span><span class="n">find_common_indicators</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>To retrieve timeseries data from SAP IoT for the indicators of interest, you use the function <cite>~sailor.assetcentral.equipment.Equipment.get_indicator_data()</cite>.
+<p>To retrieve timeseries data from SAP IoT for the indicators of interest, you use the function <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment.get_indicator_data" title="sailor.assetcentral.equipment.Equipment.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_indicator_data()</span></code></a>.
 This retrieves data for a single piece of equipment.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">timeseries_data</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="s1">&#39;2020-05-01 00:00:00+00:00&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-03-01 00:00:00+00:00&#39;</span><span class="p">,</span> <span class="n">indicators</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If you leave indicator set blank, then all indicators attached to the piece of equipment will be fetched.</p>
-<p>For retrieving timeseries data for multiple pieces of equipment, it is more efficient to use the function <cite>~sailor.assetcentral.equipment.EquipmentSet.get_indicator_data()</cite>.
+<p>For retrieving timeseries data for multiple pieces of equipment, it is more efficient to use the function <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.get_indicator_data" title="sailor.assetcentral.equipment.EquipmentSet.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_indicator_data()</span></code></a>.
 If here the indicator set is left blank, then all indicators returned by <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet.find_common_indicators" title="sailor.assetcentral.equipment.EquipmentSet.find_common_indicators"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_common_indicators()</span></code></a> are queried.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">timeseries_data</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="s1">&#39;2020-10-01 00:00:00+00:00&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-01 00:00:00+00:00&#39;</span><span class="p">)</span>
 </pre></div>
