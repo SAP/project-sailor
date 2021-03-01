@@ -16,8 +16,8 @@ setup(
     author='DSC Data Science Team',
     author_email='project.sailor@sap.com',
     url='https://github.com/SAP/project-sailor',
-    description=('Easily access data from your SAP Digital Supply Chain products for datascience projects like '
-                 'predictive maintenance, master data analysis or anything else.'),
+    description=('Easily access data from your SAP Digital Supply Chain software products for data science projects'
+                 'like predictive maintenance or master data analysis.'),
     long_description=long_description,
     long_description_content_type='text/x-rst',
     keywords='',
