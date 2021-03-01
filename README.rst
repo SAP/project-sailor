@@ -4,7 +4,7 @@ Project "Sailor"
 
 .. inclusion-marker-do-not-remove
 
-Project "Sailor" allows you to easily access data from your SAP Digital Supply Chain software products for data science projects like
+**Project "Sailor"** allows you to easily access data from your SAP Digital Supply Chain software products for data science projects like
 predictive maintenance or master data analysis.
 
 Once your data is available, it is your choice how to work with it. Project "Sailor" comes with several predefined functions to support you

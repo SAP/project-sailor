@@ -54,7 +54,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'sailor'
+project = u'Project "Sailor"'
 copyright = u'2021, SAP SE and project "Sailor" contributors'
 author = u'DSC Data Science Team'
 
@@ -152,7 +152,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'sailor.tex', u'sailor Documentation',
+    (master_doc, 'sailor.tex', u'Project "Sailor" Documentation',
      u'DSC Data Science Team', 'manual'),
 ]
 
@@ -162,7 +162,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'sailor', u'sailor Documentation',
+    (master_doc, 'sailor', u'Project "Sailor" Documentation',
      [author], 1)
 ]
 
@@ -173,7 +173,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'sailor', u'sailor Documentation',
+    (master_doc, 'sailor', u'Project "Sailor" Documentation',
      author, 'sailor', 'One line description of project.',
      'Miscellaneous'),
 ]
