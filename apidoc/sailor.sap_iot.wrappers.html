@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>sailor.sap_iot.wrappers &mdash; Project &#34;Sailor&#34;  documentation</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,7 +32,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -51,7 +53,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Project "Sailor"
+            <a href="../index.html" class="icon icon-home"> Project "Sailor"
           
 
           
@@ -142,6 +144,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -155,7 +159,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             
               <a href="https://github.com/SAP/project-sailor/blob/master/docs/apidoc/sailor.sap_iot.wrappers.rst" class="fa fa-github"> Edit on GitHub</a>
             
@@ -177,12 +181,12 @@
 <p>Here we define some convenience wrappers for timeseries data.</p>
 <dl class="py class">
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset">
-<em class="property">class </em><code class="sig-prename descclassname">sailor.sap_iot.wrappers.</code><code class="sig-name descname">TimeseriesDataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">indicator_set</span></em>, <em class="sig-param"><span class="n">equipment_set</span></em>, <em class="sig-param"><span class="n">nominal_data_start</span></em>, <em class="sig-param"><span class="n">nominal_data_end</span></em>, <em class="sig-param"><span class="n">is_normalized</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.sap_iot.wrappers.</span></code><code class="sig-name descname"><span class="pre">TimeseriesDataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equipment_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nominal_data_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nominal_data_end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_normalized</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A Wrapper class to make accessing timeseries data from SAP iot more convenient.</p>
 <dl class="py method">
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset.as_df">
-<code class="sig-name descname">as_df</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">speaking_names</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.as_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.as_df" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">as_df</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">speaking_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.as_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.as_df" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the data stored within this TimeseriesDataset object as a pandas dataframe.</p>
 <p>By default the data is returned with opaque column headers. If speaking_names is set to true, the data is
 converted such that equipment_id and model_id are replaced by human-readable names, and the opaque
@@ -192,7 +196,7 @@ aggregation_function.</p>
 
 <dl class="py method">
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset.filter">
-<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">equipment_ids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.filter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">filter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">equipment_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new TimeseriesDataset extracted from an original data with filter parameters.</p>
 <p>Only indicator data specified in filters are returned.</p>
 <dl class="field-list simple">
@@ -216,7 +220,7 @@ aggregation_function.</p>
 
 <dl class="py method">
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset.get_feature_columns">
-<code class="sig-name descname">get_feature_columns</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">speaking_names</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.get_feature_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.get_feature_columns" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_feature_columns</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">speaking_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.get_feature_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.get_feature_columns" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the names of all feature columns.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -234,13 +238,13 @@ data set ‘my_indicator_data’:</p>
 
 <dl class="py method">
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset.get_index_columns">
-<code class="sig-name descname">get_index_columns</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">speaking_names</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.get_index_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.get_index_columns" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_index_columns</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">speaking_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.get_index_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.get_index_columns" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the names of all index columns (key columns and time column).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset.get_key_columns">
-<code class="sig-name descname">get_key_columns</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">speaking_names</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.get_key_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.get_key_columns" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_key_columns</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">speaking_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.get_key_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.get_key_columns" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return those columns of the data that identify the asset.</p>
 <p>Currently we only support asset type ‘Equipment’ so this will always return columns based on the equipment.
 In the future other types (like System) will be supported here.</p>
@@ -259,13 +263,13 @@ True, return corresponding names of key columns</p>
 
 <dl class="py method">
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset.get_time_column">
-<em class="property">static </em><code class="sig-name descname">get_time_column</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.get_time_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.get_time_column" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_time_column</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.get_time_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.get_time_column" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the name of the column containing the time information.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset.normalize">
-<code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fitted_scaler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">scaler</span><span class="o">=</span><span class="default_value">StandardScaler()</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.normalize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">normalize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fitted_scaler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">StandardScaler()</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.normalize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize a data frame using scaler in normalization_factors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -295,7 +299,7 @@ Properties are computed along the columns.</p></li>
 
 <dl class="py method">
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">end</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">indicator_set</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">equipment_set</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">plot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equipment_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot the timeseries data stored within this wrapper.</p>
 <p>The plot will create different panels for each indicator_group_name and template in the data, as well as each
 indicator. Data from different equipment_set will be represented by different colors. The plotnine object
@@ -332,37 +336,29 @@ returned by this method will be rendered in jupyter notebooks, but can also be f
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="sailor.sap_iot.fetch.html" class="btn btn-neutral float-left" title="sailor.sap_iot.fetch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sailor.sap_iot.fetch.html" class="btn btn-neutral float-left" title="sailor.sap_iot.fetch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2021, SAP SE and project &#34;Sailor&#34; contributors
+        &#169; Copyright 2021, SAP SE and project &#34;Sailor&#34; contributors.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
