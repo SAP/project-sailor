@@ -3,7 +3,7 @@
 Filter Language
 ===============
 
-Sailor supports retrieval of objects such as :class:`~sailor.assetcentral.equipment.Equipment` or
+Project "Sailor" supports retrieval of objects such as :class:`~sailor.assetcentral.equipment.Equipment` or
 :class:`~sailor.assetcentral.notification.Notification` from AssetCentral through functions like
 :meth:`~sailor.assetcentral.equipment.find_equipment` or :meth:`~sailor.assetcentral.notification.find_notifications`.
 All of these functions support a common filter language which is described below. The filter criteria are transformed

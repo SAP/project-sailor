@@ -7,7 +7,7 @@ Tutorial
 In this tutorial, you will learn how to use project "Sailor" to build your own algorithms and models from data stored 
 in your SAP backends. In particular, you will learn how to:
 
-- :ref:`Configure project Sailor to access your SAP backend for asset master data and IoT data <how_to_configure>`
+- :ref:`Configure project "Sailor" to access your SAP backend for asset master data and IoT data <how_to_configure>`
 - :ref:`Read master data from AssetCentral<how_to_read_master_data>`
 - :ref:`Explore and visualize master data <how_to_explore_data>`
 - :ref:`Read timeseries data from SAP IoT <how_to_read_timeseries>`

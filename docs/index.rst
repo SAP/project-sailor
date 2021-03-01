@@ -15,8 +15,6 @@ Welcome to the documentation for sailor.
    tutorial
    filter_language
    apidoc
-   examples
-   faq
 
 Indices and tables
 ==================
