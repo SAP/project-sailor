@@ -1,3 +1,6 @@
+.. image:: https://api.reuse.software/badge/github.com/SAP/project-sailor
+    :target: https://api.reuse.software/badge/github.com/SAP/project-sailor
+
 ================
 Project "Sailor"
 ================
