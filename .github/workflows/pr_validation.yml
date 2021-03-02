@@ -1,0 +1,47 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  Tests:
+    runs-on: ubuntu-latest
+    container:
+      image: dscdatascience.docker.repositories.sapcdn.io/pr_validation:2102a
+      credentials:
+          username: ${{ secrets.ARTIFACTORY_USR }}
+          password: ${{ secrets.ARTIFACTORY_PWD }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: prepare
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: pytest
+        run: pytest -q tests
+
+
+  Linting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - uses: actions/checkout@v2
+
+      - name: prepare
+        run: | 
+          pip install -r .ci/requirements_pr.txt
+          git fetch --depth 1 origin main
+
+      - name: bandit
+        run: ./.ci/run_lint.sh bandit "--silent --ini setup.cfg"
+      - name: flake8
+        run: ./.ci/run_lint.sh flake8
+      - name: pydocstyle
+        run: ./.ci/run_lint.sh pydocstyle
