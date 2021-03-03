@@ -174,14 +174,12 @@
 
 <div class="viewcode-block" id="System"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.System">[docs]</a><span class="nd">@_add_properties</span>
 <span class="k">class</span> <span class="nc">System</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    AssetCentral System Object.</span>
+    <span class="sd">&quot;&quot;&quot;AssetCentral System Object.&quot;&quot;&quot;</span>
 
-<span class="sd">    Properties (in AC terminology) are: systemId, internalId, status, systemStatusDescription, modelID, modelVersion,</span>
-<span class="sd">    model, shortDescription, templateID, systemProvider, systemVersion, createdOn, changedOn, source, imageURL,</span>
-<span class="sd">    className, classID, subclass, subclassID, systemProviderID, sourceSearchTerms, systemProviderSearchTerms,</span>
-<span class="sd">    publishedOn, operator, operatorID, completeness</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Properties (in AC terminology) are: systemId, internalId, status, systemStatusDescription, modelID, modelVersion,</span>
+    <span class="c1"># model, shortDescription, templateID, systemProvider, systemVersion, createdOn, changedOn, source, imageURL,</span>
+    <span class="c1"># className, classID, subclass, subclassID, systemProviderID, sourceSearchTerms, systemProviderSearchTerms,</span>
+    <span class="c1"># publishedOn, operator, operatorID, completeness</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ac_json</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new System object and fetch all components.&quot;&quot;&quot;</span>

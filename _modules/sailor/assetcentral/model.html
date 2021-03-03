@@ -177,21 +177,19 @@
 
 <div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.model.Model">[docs]</a><span class="nd">@_add_properties</span>
 <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    AssetCentral Model object.</span>
+    <span class="sd">&quot;&quot;&quot;AssetCentral Model object.&quot;&quot;&quot;</span>
 
-<span class="sd">    Properties (in AC terminology) are:  # as returned by &#39;models&#39;-api, not model-details</span>
-<span class="sd">    modelId, name, internalId, status, version, hasInRevision, templateId, modelTemplate, subclass,</span>
-<span class="sd">    generation, manufacturer, shortDescription, longDescription, completeness, createdOn, changedOn,</span>
-<span class="sd">    imageURL, publishedOn, source, equipmentTracking, serviceExpirationDate, modelExpirationDate,</span>
-<span class="sd">    releaseDate, isManufacturerValid, image, isClientValid, consume, primaryExternalId, modelSearchTerms,</span>
-<span class="sd">    sourceSearchTerms, manufacturerSearchTerms, class</span>
+    <span class="c1"># Properties (in AC terminology) are:  # as returned by &#39;models&#39;-api, not model-details</span>
+    <span class="c1"># modelId, name, internalId, status, version, hasInRevision, templateId, modelTemplate, subclass,</span>
+    <span class="c1"># generation, manufacturer, shortDescription, longDescription, completeness, createdOn, changedOn,</span>
+    <span class="c1"># imageURL, publishedOn, source, equipmentTracking, serviceExpirationDate, modelExpirationDate,</span>
+    <span class="c1"># releaseDate, isManufacturerValid, image, isClientValid, consume, primaryExternalId, modelSearchTerms,</span>
+    <span class="c1"># sourceSearchTerms, manufacturerSearchTerms, class</span>
 
-<span class="sd">    Additional properties returned in model-details (again ac terminology, some have sub-structure):</span>
-<span class="sd">    organizationID, calibrationDate, orderStopDate, noSparePartsDate, globalId, keywords, safetyRiskCode,</span>
-<span class="sd">    description, descriptions[], gtin, brand, isFirmwareCompatible, templates[], classId, subclassId, adminData{},</span>
-<span class="sd">    sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Additional properties returned in model-details (again ac terminology, some have sub-structure):</span>
+    <span class="c1"># organizationID, calibrationDate, orderStopDate, noSparePartsDate, globalId, keywords, safetyRiskCode,</span>
+    <span class="c1"># description, descriptions[], gtin, brand, isFirmwareCompatible, templates[], classId, subclassId, adminData{},</span>
+    <span class="c1"># sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]</span>
 
 <div class="viewcode-block" id="Model.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.model.Model.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>

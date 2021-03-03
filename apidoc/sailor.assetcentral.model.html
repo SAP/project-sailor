@@ -185,16 +185,6 @@ Models can be of type Equipment, System or FunctionalLocation, but the type is n
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.model.</span></code><code class="sig-name descname"><span class="pre">Model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/model.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.model.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity" title="sailor.assetcentral.utils.AssetcentralEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.AssetcentralEntity</span></code></a></p>
 <p>AssetCentral Model object.</p>
-<p>Properties (in AC terminology) are:  # as returned by ‘models’-api, not model-details
-modelId, name, internalId, status, version, hasInRevision, templateId, modelTemplate, subclass,
-generation, manufacturer, shortDescription, longDescription, completeness, createdOn, changedOn,
-imageURL, publishedOn, source, equipmentTracking, serviceExpirationDate, modelExpirationDate,
-releaseDate, isManufacturerValid, image, isClientValid, consume, primaryExternalId, modelSearchTerms,
-sourceSearchTerms, manufacturerSearchTerms, class</p>
-<p>Additional properties returned in model-details (again ac terminology, some have sub-structure):
-organizationID, calibrationDate, orderStopDate, noSparePartsDate, globalId, keywords, safetyRiskCode,
-description, descriptions[], gtin, brand, isFirmwareCompatible, templates[], classId, subclassId, adminData{},
-sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]</p>
 <dl class="py method">
 <dt id="sailor.assetcentral.model.Model.find_equipment">
 <code class="sig-name descname"><span class="pre">find_equipment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/model.html#Model.find_equipment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.model.Model.find_equipment" title="Permalink to this definition">¶</a></dt>
