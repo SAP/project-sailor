@@ -210,15 +210,17 @@ You have two options of specifying the configuration:</p>
     <span class="s1">&#39;asset_central&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s1">&#39;client_id&#39;</span><span class="p">:</span> <span class="s1">&#39;ACexampleId&#39;</span><span class="p">,</span>
         <span class="s1">&#39;client_secret&#39;</span><span class="p">:</span> <span class="s1">&#39;ACexampleSecret&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;application_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://&lt;system&gt;.cfapps.sap.hana.ondemand.com&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;application_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://&lt;system&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;access_token_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://authentication.&lt;landscape&gt;.hana.ondemand.com/oauth/token&#39;</span><span class="p">,</span>
         <span class="s1">&#39;subdomain&#39;</span><span class="p">:</span> <span class="s1">&#39;account-name&#39;</span>
     <span class="p">},</span>
     <span class="s1">&#39;sap_iot&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s1">&#39;client_id&#39;</span><span class="p">:</span> <span class="s1">&#39;IoTexampleId&#39;</span><span class="p">,</span>
         <span class="s1">&#39;client_secret&#39;</span><span class="p">:</span> <span class="s1">&#39;IoTexampleSecret&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;application_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://iot-ts-access-sap-&lt;space&gt;.cfapps.sap.hana.ondemand.com&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;export_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://coldstore-export-sap-&lt;space&gt;.cfapps.sap.hana.ondemand.com&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;download_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://coldstore-downloader-sap-&lt;space&gt;.cfapps.sap.hana.ondemand.com&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;application_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://iot-ts-access-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;export_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://coldstore-export-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;download_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://coldstore-downloader-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;access_token_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://authentication.&lt;landscape&gt;.hana.ondemand.com/oauth/token&#39;</span><span class="p">,</span>
         <span class="s1">&#39;subdomain&#39;</span><span class="p">:</span> <span class="s1">&#39;account-name&#39;</span>
     <span class="p">},</span>
 <span class="p">})</span>
@@ -231,14 +233,16 @@ You have two options of specifying the configuration:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">asset_central</span><span class="p">:</span>
   <span class="nt">client_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ACexampleId</span>
   <span class="nt">client_secret</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ACexampleSecret</span>
-  <span class="nt">application_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://&lt;system&gt;.cfapps.sap.hana.ondemand.com</span>
+  <span class="nt">application_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://&lt;system&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com</span>
+  <span class="nt">access_token_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://authentication.&lt;landscape&gt;.hana.ondemand.com/oauth/token</span>
   <span class="nt">subdomain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">account-name</span>
 <span class="nt">sap_iot</span><span class="p">:</span>
   <span class="nt">client_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">IoTexampleId</span>
   <span class="nt">client_secret</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">IoTexampleSecret</span>
-  <span class="nt">application_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://iot-ts-access-sap-&lt;space&gt;.cfapps.sap.hana.ondemand.com</span>
-  <span class="nt">export_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://coldstore-export-sap-&lt;space&gt;.cfapps.sap.hana.ondemand.com</span>
-  <span class="nt">download_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://coldstore-downloader-sap-&lt;space&gt;.cfapps.sap.hana.ondemand.com</span>
+  <span class="nt">application_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://iot-ts-access-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com</span>
+  <span class="nt">export_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://coldstore-export-sap-&lt;space&gt;.cfapps.sap.&lt;landscape&gt;.ondemand.com</span>
+  <span class="nt">download_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://coldstore-downloader-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com</span>
+  <span class="nt">access_token_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://authentication.&lt;landscape&gt;.hana.ondemand.com/oauth/token</span>
   <span class="nt">subdomain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">account-name</span>
 </pre></div>
 </div>

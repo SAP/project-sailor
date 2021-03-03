@@ -164,7 +164,6 @@
 <span class="kn">from</span> <span class="nn">rauth</span> <span class="kn">import</span> <span class="n">OAuth2Service</span>
 
 <span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
-<span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">ACCESS_TOKEN_URL</span>
 <span class="kn">from</span> <span class="nn">.scope_config</span> <span class="kn">import</span> <span class="n">SCOPE_CONFIG</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -188,7 +187,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;client_id&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;client_secret&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="o">=</span> <span class="n">ACCESS_TOKEN_URL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;access_token_url&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">subdomain</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;subdomain&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="s1">&#39;https://&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oauth_url</span> <span class="o">=</span> <span class="s1">&#39;https://&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdomain</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;https://&#39;</span><span class="p">):]</span>
