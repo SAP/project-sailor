@@ -8,7 +8,6 @@ from furl import furl
 from rauth import OAuth2Service
 
 from ..config import SailorConfig
-from .constants import ACCESS_TOKEN_URL
 from .scope_config import SCOPE_CONFIG
 
 LOG = logging.getLogger(__name__)
@@ -32,7 +31,7 @@ class OAuthFlow:
         self.name = name
         self.client_id = SailorConfig.get(name, 'client_id')
         self.client_secret = SailorConfig.get(name, 'client_secret')
-        self.access_token_url = ACCESS_TOKEN_URL
+        self.access_token_url = SailorConfig.get(name, 'access_token_url')
         self.subdomain = SailorConfig.get(name, 'subdomain')
         if 'https://' in self.access_token_url:
             self.oauth_url = 'https://' + self.subdomain + '.' + self.access_token_url[len('https://'):]
