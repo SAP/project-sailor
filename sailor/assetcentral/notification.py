@@ -16,19 +16,17 @@ from ..utils.plot_helper import _default_plot_theme
 
 @_add_properties
 class Notification(AssetcentralEntity):
-    """
-    AssetCentral Notification Object.
+    """AssetCentral Notification Object."""
 
-    Properties (in AC terminology) are: notificationId, shortDescription, status, statusDescription, notificationType,
-    notificationTypeDescription, priority, priorityDescription, isInternal, createdBy, creationDateTime,
-    lastChangedBy, lastChangeDateTime, longDescription, startDate, endDate, malfunctionStartDate, malfunctionEndDate,
-    progressStatus, progressStatusDescription, equipmentId, equipmentName, rootEquipmentId, rootEquipmentName,
-    locationId, breakdown, coordinates, source, operatorId, location, assetCoreEquipmentId, operator, internalId,
-    modelId, proposedFailureModeID, proposedFailureModeDisplayID, proposedFailureModeDesc, confirmedFailureModeID,
-    confirmedFailureModeDesc, confirmedFailureModeDisplayIDs, systemProposedFailureModeID,
-    systemProposedFailureModeDesc, systemProposedFailureModeDisplayID, effectID, effectDisplayID, effectDesc,
-    causeID, causeDisplayID, causeDesc, instructionID, instructionTitle
-    """
+    # Properties (in AC terminology) are: notificationId, shortDescription, status, statusDescription, notificationType,
+    # notificationTypeDescription, priority, priorityDescription, isInternal, createdBy, creationDateTime,
+    # lastChangedBy, lastChangeDateTime, longDescription, startDate, endDate, malfunctionStartDate, malfunctionEndDate,
+    # progressStatus, progressStatusDescription, equipmentId, equipmentName, rootEquipmentId, rootEquipmentName,
+    # locationId, breakdown, coordinates, source, operatorId, location, assetCoreEquipmentId, operator, internalId,
+    # modelId, proposedFailureModeID, proposedFailureModeDisplayID, proposedFailureModeDesc, confirmedFailureModeID,
+    # confirmedFailureModeDesc, confirmedFailureModeDisplayIDs, systemProposedFailureModeID,
+    # systemProposedFailureModeDesc, systemProposedFailureModeDisplayID, effectID, effectDisplayID, effectDesc,
+    # causeID, causeDisplayID, causeDesc, instructionID, instructionTitle
 
     @classmethod
     def get_property_mapping(cls):

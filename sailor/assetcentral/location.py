@@ -12,13 +12,11 @@ from .constants import VIEW_LOCATIONS
 
 @_add_properties
 class Location(AssetcentralEntity):
-    """
-    AssetCentral Location Object.
+    """AssetCentral Location Object."""
 
-    Properties (in AC terminology) are:
-    locationId, name, status, version, hasInRevision, shortDescription, location, completeness, createdOn,
-    changedOn, publishedOn, source, imageURL, locationStatus, locationTypeDescription, locationType
-    """
+    # Properties (in AC terminology) are:
+    # locationId, name, status, version, hasInRevision, shortDescription, location, completeness, createdOn,
+    # changedOn, publishedOn, source, imageURL, locationStatus, locationTypeDescription, locationType
 
     @classmethod
     def get_property_mapping(cls):

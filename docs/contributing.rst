@@ -44,7 +44,7 @@ Prerequisites
 ~~~~~~~~~~~~~
 You have cloned the Github project. Every instruction assumes that you are currently in the project folder on your development machine. 
 
-Ideally you have created a dedicated python environment for development with "Sailor". Please check ``python_requires`` in ``setup.py`` for the currently supported python versions and use the most recent eligible version.
+Ideally you have created a dedicated python environment for development with "Sailor". Please check the classifiers in ``setup.py`` for the currently supported python versions and use the most recent eligible version.
 
 
 Installation

@@ -12,17 +12,15 @@ from .constants import VIEW_FAILUREMODES
 
 @_add_properties
 class FailureMode(AssetcentralEntity):
-    """
-    AssetCentral Failure Mode Object.
+    """AssetCentral Failure Mode Object."""
 
-    Properties (in AC terminology) are:
-    Client, ID, SubClass, StatusText, SubClassDescription, Type, EquipmentsCount, ModelsCount, SparepartsCount,
-    LocationsCount, GroupsCount, SystemsCount, ObjectCount, DisplayID, Source, SourceID, Version, Consume,
-    CategoryCode, CategoryDescription, Causes, ShortDescription, LongDescription, Status, LastChange, MyFailureMode,
-    Owner, ObjectID, PatternID, PatternConfidence, MTTFValue, MTTFUnit, MTTFConfidence, MTTRValue, MTTRUnit,
-    MTTRConfidence, MTBFValue, MTBFUnit, MTBFConfidence, PatternName, PatternImage, ImageID, PrimaryExternalID,
-    FailureModesSearchTerms, TypeCode, DetectionMethod
-    """
+    # Properties (in AC terminology) are:
+    # Client, ID, SubClass, StatusText, SubClassDescription, Type, EquipmentsCount, ModelsCount, SparepartsCount,
+    # LocationsCount, GroupsCount, SystemsCount, ObjectCount, DisplayID, Source, SourceID, Version, Consume,
+    # CategoryCode, CategoryDescription, Causes, ShortDescription, LongDescription, Status, LastChange, MyFailureMode,
+    # Owner, ObjectID, PatternID, PatternConfidence, MTTFValue, MTTFUnit, MTTFConfidence, MTTRValue, MTTRUnit,
+    # MTTRConfidence, MTBFValue, MTBFUnit, MTBFConfidence, PatternName, PatternImage, ImageID, PrimaryExternalID,
+    # FailureModesSearchTerms, TypeCode, DetectionMethod
 
     @classmethod
     def get_property_mapping(cls):

@@ -18,14 +18,12 @@ from ..sap_iot import get_indicator_data, TimeseriesDataset
 
 @_add_properties
 class System(AssetcentralEntity):
-    """
-    AssetCentral System Object.
+    """AssetCentral System Object."""
 
-    Properties (in AC terminology) are: systemId, internalId, status, systemStatusDescription, modelID, modelVersion,
-    model, shortDescription, templateID, systemProvider, systemVersion, createdOn, changedOn, source, imageURL,
-    className, classID, subclass, subclassID, systemProviderID, sourceSearchTerms, systemProviderSearchTerms,
-    publishedOn, operator, operatorID, completeness
-    """
+    # Properties (in AC terminology) are: systemId, internalId, status, systemStatusDescription, modelID, modelVersion,
+    # model, shortDescription, templateID, systemProvider, systemVersion, createdOn, changedOn, source, imageURL,
+    # className, classID, subclass, subclassID, systemProviderID, sourceSearchTerms, systemProviderSearchTerms,
+    # publishedOn, operator, operatorID, completeness
 
     def __init__(self, ac_json):
         """Create a new System object and fetch all components."""
