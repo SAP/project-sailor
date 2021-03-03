@@ -11,17 +11,15 @@ from .constants import VIEW_WORKORDERS
 
 @_add_properties
 class Workorder(AssetcentralEntity):
-    """
-    AssetCentral Workorder Object.
+    """AssetCentral Workorder Object."""
 
-    Properties (in AC terminology) are:
-    workOrderID, shortDescription, status, statusDescription, workOrderType, workOrderTypeDescription, priority,
-    priorityDescription, isInternal, createdBy, creationDateTime, lastChangedBy, lastChangeDateTime, longDescription,
-    startDate, endDate, progressStatus, progressStatusDescription, equipmentId, equipmentName, rootEquipmentId,
-    rootEquipmentName, locationId, coordinates, source, sourceId, operatorId, location, isSourceActive,
-    assetCoreEquipmentId, operator, internalId, modelId, plant, workCenter, basicStartDate, basicEndDate,
-    actualStartDate, actualEndDate, personResponsible
-    """
+    # Properties (in AC terminology) are:
+    # workOrderID, shortDescription, status, statusDescription, workOrderType, workOrderTypeDescription, priority,
+    # priorityDescription, isInternal, createdBy, creationDateTime, lastChangedBy, lastChangeDateTime, longDescription,
+    # startDate, endDate, progressStatus, progressStatusDescription, equipmentId, equipmentName, rootEquipmentId,
+    # rootEquipmentName, locationId, coordinates, source, sourceId, operatorId, location, isSourceActive,
+    # assetCoreEquipmentId, operator, internalId, modelId, plant, workCenter, basicStartDate, basicEndDate,
+    # actualStartDate, actualEndDate, personResponsible
 
     @classmethod
     def get_property_mapping(cls):

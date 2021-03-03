@@ -21,21 +21,19 @@ if TYPE_CHECKING:
 
 @_add_properties
 class Model(AssetcentralEntity):
-    """
-    AssetCentral Model object.
+    """AssetCentral Model object."""
 
-    Properties (in AC terminology) are:  # as returned by 'models'-api, not model-details
-    modelId, name, internalId, status, version, hasInRevision, templateId, modelTemplate, subclass,
-    generation, manufacturer, shortDescription, longDescription, completeness, createdOn, changedOn,
-    imageURL, publishedOn, source, equipmentTracking, serviceExpirationDate, modelExpirationDate,
-    releaseDate, isManufacturerValid, image, isClientValid, consume, primaryExternalId, modelSearchTerms,
-    sourceSearchTerms, manufacturerSearchTerms, class
+    # Properties (in AC terminology) are:  # as returned by 'models'-api, not model-details
+    # modelId, name, internalId, status, version, hasInRevision, templateId, modelTemplate, subclass,
+    # generation, manufacturer, shortDescription, longDescription, completeness, createdOn, changedOn,
+    # imageURL, publishedOn, source, equipmentTracking, serviceExpirationDate, modelExpirationDate,
+    # releaseDate, isManufacturerValid, image, isClientValid, consume, primaryExternalId, modelSearchTerms,
+    # sourceSearchTerms, manufacturerSearchTerms, class
 
-    Additional properties returned in model-details (again ac terminology, some have sub-structure):
-    organizationID, calibrationDate, orderStopDate, noSparePartsDate, globalId, keywords, safetyRiskCode,
-    description, descriptions[], gtin, brand, isFirmwareCompatible, templates[], classId, subclassId, adminData{},
-    sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]
-    """
+    # Additional properties returned in model-details (again ac terminology, some have sub-structure):
+    # organizationID, calibrationDate, orderStopDate, noSparePartsDate, globalId, keywords, safetyRiskCode,
+    # description, descriptions[], gtin, brand, isFirmwareCompatible, templates[], classId, subclassId, adminData{},
+    # sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]
 
     @classmethod
     def get_property_mapping(cls):

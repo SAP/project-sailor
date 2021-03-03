@@ -13,15 +13,14 @@ from .utils import _add_properties, AssetcentralEntity, ResultSet
 
 @_add_properties
 class Indicator(AssetcentralEntity):
-    """
-    AssetCentral Indicator Object.
+    """AssetCentral Indicator Object."""
 
-    Properties (in AC terminology) are: categoryID, propertyId, indicatorGroupName, indicatorName,
-    indicatorGroupDesc, objectId, indicatorSource, aggUpdatedTimestamp, indicatorCategory, colorCode,
-    thresholdDescription, convertedAggregatedValue, trend, dataType, indicatorType, convertedUOMDesc,
-    UOM, convertedUOM, indicatorDesc, indicatorColorCode, isFavorite, UOMDescription, Dimension, DimensionDesc,
-    uomdescription, dimension, dimensionDesc, pstid, uom
-    """  # TODO update field list - I think e.g. template id is also part of hte API response
+    # Properties (in AC terminology) are: categoryID, propertyId, indicatorGroupName, indicatorName,
+    # indicatorGroupDesc, objectId, indicatorSource, aggUpdatedTimestamp, indicatorCategory, colorCode,
+    # thresholdDescription, convertedAggregatedValue, trend, dataType, indicatorType, convertedUOMDesc,
+    # UOM, convertedUOM, indicatorDesc, indicatorColorCode, isFavorite, UOMDescription, Dimension, DimensionDesc,
+    # uomdescription, dimension, dimensionDesc, pstid, uom
+    # TODO update field list - I think e.g. template id is also part of hte API response
 
     @classmethod
     def get_property_mapping(cls):

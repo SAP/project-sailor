@@ -30,18 +30,16 @@ if TYPE_CHECKING:
 
 @_add_properties
 class Equipment(AssetcentralEntity):
-    """
-    AssetCentral Equipment Object.
+    """AssetCentral Equipment Object."""
 
-    Properties (in AC terminology) are:
-    equipmentId, name, internalId, status, statusDescription, version, hasInRevision,
-    modelId, modelName, shortDescription, templateId, subclass, modelTemplate,
-    location, criticalityCode, criticalityDescription, manufacturer, completeness, createdOn,
-    changedOn, publishedOn, serialNumber, batchNumber, tagNumber, lifeCycle, lifeCycleDescription,
-    source, imageURL, operator, coordinates, installationDate, equipmentStatus, buildDate,
-    isOperatorValid, modelVersion, soldTo, image, consume, dealer, serviceProvider, primaryExternalId,
-    equipmentSearchTerms, sourceSearchTerms, manufacturerSearchTerms, operatorSearchTerms, class
-    """
+    # Properties (in AC terminology) are:
+    # equipmentId, name, internalId, status, statusDescription, version, hasInRevision,
+    # modelId, modelName, shortDescription, templateId, subclass, modelTemplate,
+    # location, criticalityCode, criticalityDescription, manufacturer, completeness, createdOn,
+    # changedOn, publishedOn, serialNumber, batchNumber, tagNumber, lifeCycle, lifeCycleDescription,
+    # source, imageURL, operator, coordinates, installationDate, equipmentStatus, buildDate,
+    # isOperatorValid, modelVersion, soldTo, image, consume, dealer, serviceProvider, primaryExternalId,
+    # equipmentSearchTerms, sourceSearchTerms, manufacturerSearchTerms, operatorSearchTerms, class
 
     _location = None
 
