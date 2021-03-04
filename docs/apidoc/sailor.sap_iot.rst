@@ -1,5 +1,5 @@
-sailor.sap\_iot package
-=======================
+:mod:`sailor.sap\_iot`
+======================
 
 Submodules
 ----------

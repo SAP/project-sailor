@@ -1,5 +1,5 @@
-sailor.utils package
-====================
+:mod:`sailor.utils`
+===================
 
 Subpackages
 -----------

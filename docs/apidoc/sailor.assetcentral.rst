@@ -1,5 +1,5 @@
-sailor.assetcentral package
-===========================
+:mod:`sailor.assetcentral`
+==========================
 
 Submodules
 ----------
