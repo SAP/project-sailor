@@ -1,23 +1,77 @@
 class TestIndicatorSet:
     def test_get_name_mapping(self, make_indicator_set):
-        indicator_set = make_indicator_set(categoryID=['id1', 'id2', 'id3'],
-                                           indicatorGroupName=['group1', 'group2', 'group3'],
-                                           indicatorName=['name1', 'name2', 'name3'])
-        expected = {'b1803e128a8f9acf95ecb9089ca06a2bd92502b6b2a665207a51fe07b3e49f15': ('id1', 'group1', 'name1'),
-                    '7922bba7c892bae3bc1da05df2754f01d4d347ee76fefff5e45a5ab5f8ec2a89': ('id2', 'group2', 'name2'),
-                    '5318462fee71c0179a0c34d38ef23c21c89c1d35121848a2f4a2c3c700033752': ('id3', 'group3', 'name3')}
+        indicator_set = make_indicator_set(categoryID=['template_id1', 'template_id2', 'template_id3'],
+                                           indicatorGroupName=['group_name1', 'group_name2', 'group_name3'],
+                                           indicatorName=['name1', 'name2', 'name3'],
+                                           pstid=['group_id1', 'group_id2', 'group_id3'],
+                                           propertyId=['id1', 'id2', 'id3'])
+        expected = {
+            '28167b628f42ab17d4e5c3b24aad45dc32591d7f47504a24fb3f728861849441':
+                ('template_id1', 'group_name1', 'name1'),
+            'dc2e887dbd74b179bc91e5d4bcd09ee9e438071c9b1258a44cbfce6060c2795f':
+                ('template_id2', 'group_name2', 'name2'),
+            '46039714247942c841944bbb6b0c528a415461567b0898c736c35e74917ba1d2':
+                ('template_id3', 'group_name3', 'name3')
+        }
 
         actual = indicator_set._unique_id_to_names()
 
         assert actual == expected
 
     def test_get_id_mapping(self, make_indicator_set):
-        indicator_set = make_indicator_set(categoryID=['id1', 'id2', 'id3'],
-                                           pstid=['group1', 'group2', 'group3'],
-                                           propertyId=['name1', 'name2', 'name3'])
-        expected = {'1bbf466caa2c11f861f2341841f6113316964ae608f3d01848869706c40a3830': ('id1', 'group1', 'name1'),
-                    '4781e1c76ae58a33fd3a049871bc8d2808d30eef5300c7e5b0fcd182476393c1': ('id2', 'group2', 'name2'),
-                    '0bffa941a7a24ee72a23d294eba056cdd18ce731a68e0701856cc042aa449649': ('id3', 'group3', 'name3')}
+        indicator_set = make_indicator_set(categoryID=['template_id1', 'template_id2', 'template_id3'],
+                                           indicatorGroupName=['group_name1', 'group_name2', 'group_name3'],
+                                           indicatorName=['name1', 'name2', 'name3'],
+                                           pstid=['group_id1', 'group_id2', 'group_id3'],
+                                           propertyId=['id1', 'id2', 'id3'])
+        expected = {
+            '28167b628f42ab17d4e5c3b24aad45dc32591d7f47504a24fb3f728861849441':
+                ('template_id1', 'group_id1', 'id1'),
+            'dc2e887dbd74b179bc91e5d4bcd09ee9e438071c9b1258a44cbfce6060c2795f':
+                ('template_id2', 'group_id2', 'id2'),
+            '46039714247942c841944bbb6b0c528a415461567b0898c736c35e74917ba1d2':
+                ('template_id3', 'group_id3', 'id3')
+        }
+
+        actual = indicator_set._unique_id_to_constituent_ids()
+
+        assert actual == expected
+
+
+class TestAggregatedIndicatorSet:
+    def test_get_name_mapping(self, make_aggregated_indicator_set):
+        indicator_set = make_aggregated_indicator_set(categoryID=['template_id1', 'template_id2', 'template_id3'],
+                                                      indicatorGroupName=['group_name1', 'group_name2', 'group_name3'],
+                                                      indicatorName=['name1', 'name2', 'name3'],
+                                                      pstid=['group_id1', 'group_id2', 'group_id3'],
+                                                      propertyId=['id1', 'id2', 'id3'])
+        expected = {
+            'cd820aff501856801b804c76212e72e6f57d53e952ba6b54b36945278d94ed7a':
+                ('template_id1', 'group_name1', 'name1', 'mean'),
+            'c9e1c62ef7f6047e0b031ed9afa916d2c2e5642163d05d51cdddc0d2ff4fe98b':
+                ('template_id2', 'group_name2', 'name2', 'mean'),
+            '948b55399afb5675d367ac36154616bf081a3c5fb9c2cb5e1812fd01386a0633':
+                ('template_id3', 'group_name3', 'name3', 'mean')
+        }
+
+        actual = indicator_set._unique_id_to_names()
+
+        assert actual == expected
+
+    def test_get_id_mapping(self, make_aggregated_indicator_set):
+        indicator_set = make_aggregated_indicator_set(categoryID=['template_id1', 'template_id2', 'template_id3'],
+                                                      indicatorGroupName=['group_name1', 'group_name2', 'group_name3'],
+                                                      indicatorName=['name1', 'name2', 'name3'],
+                                                      pstid=['group_id1', 'group_id2', 'group_id3'],
+                                                      propertyId=['id1', 'id2', 'id3'])
+        expected = {
+            'cd820aff501856801b804c76212e72e6f57d53e952ba6b54b36945278d94ed7a':
+                ('template_id1', 'group_id1', 'id1', 'mean'),
+            'c9e1c62ef7f6047e0b031ed9afa916d2c2e5642163d05d51cdddc0d2ff4fe98b':
+                ('template_id2', 'group_id2', 'id2', 'mean'),
+            '948b55399afb5675d367ac36154616bf081a3c5fb9c2cb5e1812fd01386a0633':
+                ('template_id3', 'group_id3', 'id3', 'mean')
+        }
 
         actual = indicator_set._unique_id_to_constituent_ids()
 

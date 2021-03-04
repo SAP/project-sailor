@@ -61,6 +61,21 @@ class Indicator(AssetcentralEntity):
         return self._unique_id.__hash__()
 
 
+class AggregatedIndicator(Indicator):
+    """An extension of the AssetCentral Indicator object that additionally holds aggregation information."""
+
+    def __init__(self, ac_json, aggregation_function):
+        super(AggregatedIndicator, self).__init__(ac_json)
+        self.aggregation_function = aggregation_function
+
+    @property
+    def _unique_id(self):
+        m = hashlib.sha256()
+        unique_string = self.id + self.indicator_group_id + self.template_id + self.aggregation_function
+        m.update(unique_string.encode())
+        return m.hexdigest()
+
+
 class IndicatorSet(ResultSet):
     """Class representing a group of Indicators."""
 
@@ -83,7 +98,7 @@ class IndicatorSet(ResultSet):
         return mapping
 
     def _unique_id_to_constituent_ids(self):
-        """Get details on an opaque column_id in terms of AssetCentral names."""
+        """Get details on an opaque column_id in terms of AssetCentral IDs."""
         mapping = {}
         for indicator in self:
             mapping[indicator._unique_id] = (
@@ -93,6 +108,33 @@ class IndicatorSet(ResultSet):
             )
         return mapping
 
+
+class AggregatedIndicatorSet(IndicatorSet):
+    """Class representing a group of AggregatedIndicators."""
+
+    def _unique_id_to_names(self):
+        """Get details on an opaque column_id in terms of AssetCentral names and aggregation_function."""
+        mapping = {}
+        for indicator in self:
+            mapping[indicator._unique_id] = (
+                indicator.template_id,  # apparently fetching the template name would need a remote call
+                indicator.indicator_group_name,
+                indicator.name,
+                indicator.aggregation_function,
+            )
+        return mapping
+
+    def _unique_id_to_constituent_ids(self):
+        """Get details on an opaque column_id in terms of AssetCentral IDs and aggregation_function."""
+        mapping = {}
+        for indicator in self:
+            mapping[indicator._unique_id] = (
+                indicator.template_id,
+                indicator.indicator_group_id,
+                indicator.id,
+                indicator.aggregation_function,
+            )
+        return mapping
 
 # while there is a generic '/services/api/v1/indicators' endpoint that allows to find indicators,
 # that endpoint returns a very different object from the one that you can find via the equipment.
