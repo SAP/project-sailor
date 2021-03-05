@@ -146,3 +146,8 @@ Contributing
 ============
 
 We welcome all contributions either in form of issues, code contributions, questions or any other formats. For details please refer to the `Contributing Page <https://sap.github.io/project-sailor/contributing.html>`__ in the documentation.
+
+
+Licensing
+=========
+Please see our `LICENSE <https://github.com/SAP/project-sailor/blob/main/LICENSE>`__ for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available via the `REUSE tool <https://api.reuse.software/info/github.com/SAP/project-sailor>`__.
