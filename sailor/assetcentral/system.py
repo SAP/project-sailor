@@ -44,20 +44,85 @@ class System(AssetcentralEntity):
             'template_id': ('templateID', None, None, None),
         }
 
+    @staticmethod
+    def _sort_components(comps):
+        """Sort components by order attribute.
+
+        Dictionary comps is not sorted by order number
+        Hence, we have to sort - we do this in a data frame
+        First, we sort by [model, order] to get order within model into column 'model_order'
+        Second, we sort by order to have the correct order in the component dictionary
+        """
+        name, order, id, model, row = [], [], [], [], []
+        r = 0
+        for c in comps['childNodes']:
+            name.append(c['name'])
+            order.append(c['order'])
+            id.append(c['id'])
+            model.append(c['model'])
+            row.append(r)
+            r += 1
+        compdf = pd.DataFrame(list(zip(name, id, order, model, row)), columns=['name', 'id', 'order', 'model', 'row'])
+        compdf['one'] = 1
+        compdf.sort_values(by=['model', 'order'], inplace=True)
+        compdf['model_order'] = compdf.groupby(['model']).agg(rank=('one', 'cumsum'))
+        compdf.sort_values(by='order', inplace=True)
+        return compdf
+
+    @staticmethod
+    def _traverse_components(comps, model_order, equipment_ids, system_ids):
+        """Traverse component structure recursively."""
+        compd = {}
+        compd['id'] = comps['id']
+        compd['name'] = comps['name']
+        if comps['order'] is not None:
+            if comps['objectType'] == 'EQU':
+                equipment_ids.append(compd['id'])
+            else:
+                system_ids.append(compd['id'])
+        compd['key'] = (comps['model'], model_order)
+        compd['object_type'] = comps['objectType']
+        compdf = System._sort_components(comps)
+        if len(compdf) > 0:
+            compd['child_nodes'] = []
+            for c in range(len(compdf)):
+                row = compdf.iloc[c]['row']
+                model_order = compdf.iloc[c]['model_order']
+                compd0, equipment_ids, system_ids = System._traverse_components(comps['childNodes'][row], model_order,
+                                                                                equipment_ids, system_ids)
+                compd['child_nodes'].append(compd0)
+        return compd, equipment_ids, system_ids
+
+    def _update_dictionary(self, comps):
+        if comps['object_type'] == 'EQU':
+            obj = self.equipments.filter(id=comps['id'])[0]
+            comps['indicators'] = self.indicators[comps['id']]
+        else:
+            if comps['id'] == self.id:
+                obj = self
+            else:
+                obj = self.systems.filter(id=comps['id'])[0]
+        comps['key'] = (obj.model_id, comps['key'][1])
+        if 'child_nodes' in comps.keys():
+            for c in comps['child_nodes']:
+                self._update_dictionary(c)
+
     def _prepare_components(self):
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
         components = _fetch_data(endpoint_url)[0]
-        equipment_ids = []
-
-        for child_node in components['childNodes']:
-            if child_node['objectType'] != 'EQU':  # SYS or EQU are currently possible
-                raise RuntimeError('Only single-level system hierarchies are currently supported.')
-            equipment_ids.append(child_node['id'])
-
-        if equipment_ids:
-            self.components = find_equipment(id=equipment_ids)
+        self.components, equipment_ids, system_ids = System._traverse_components(components, 1, [], [])
+        if system_ids:
+            self.systems = find_systems(id=system_ids)
         else:
-            self.components = EquipmentSet([])
+            self.systems = SystemSet([])
+        self.indicators = {}
+        if equipment_ids:
+            self.equipments = find_equipment(id=equipment_ids)
+            for equi in self.equipments:
+                self.indicators[equi.id] = equi.find_equipment_indicators(type='Measured')
+        else:
+            self.equipments = EquipmentSet([])
+        self._update_dictionary(self.components)
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> TimeseriesDataset:
