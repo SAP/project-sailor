@@ -11,8 +11,8 @@ def simple_dataset(make_indicator, make_equipment_set):
     indicator_2 = make_indicator(propertyId='indicator_id_2', indicatorName='row_id_per_equipment')
     indicator_set = IndicatorSet([indicator_1, indicator_2])
     equipment_set = make_equipment_set(equipmentId=('equipment_id_1', 'equipment_id_2'))
-    nominal_start_date = pd.Timestamp('2021-01-01')
-    nominal_end_date = pd.Timestamp('2021-01-03')
+    nominal_start_date = pd.Timestamp('2021-01-01', tz='Etc/UTC')
+    nominal_end_date = pd.Timestamp('2021-01-03', tz='Etc/UTC')
     rows_per_equipment = 100
     data = pd.DataFrame({
         'equipment_id': ['equipment_id_1'] * rows_per_equipment + ['equipment_id_2'] * rows_per_equipment,

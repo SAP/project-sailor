@@ -358,7 +358,7 @@ class TimeseriesDataset(object):
                                  start_time, end_time, self.is_normalized)
 
     def aggregate(self,
-                  aggregation_interval: str,
+                  aggregation_interval: Union[str, pd.Timedelta],
                   aggregation_functions: Union[Iterable[Union[str, Callable]], str, Callable] = 'mean')\
             -> TimeseriesDataset:
         """
@@ -380,6 +380,7 @@ class TimeseriesDataset(object):
             Aggregation function or iterable of aggregation functions to use.
             Each aggregation_function can be a string (e.g. 'mean', 'min' etc) or a function (e.g. np.max etc).
         """
+        aggregation_interval = pd.Timedelta(aggregation_interval)
         if isinstance(aggregation_functions, str) or isinstance(aggregation_functions, Callable):
             aggregation_functions = (aggregation_functions, )
 
@@ -397,4 +398,54 @@ class TimeseriesDataset(object):
         df = self._df.groupby(grouper).agg(**aggregation_definition)
 
         return TimeseriesDataset(df.reset_index(), new_indicator_set, self._equipment_set,
+                                 self.nominal_data_start, self.nominal_data_end, self.is_normalized)
+
+    def interpolate(self, interval: Union[str, pd.Timedelta], **kwargs) -> TimeseriesDataset:
+        """
+        Interpolate the TimeseriesDataset to a fixed interval, returning a new TimeseriesDataset.
+
+        Additional arguments for the interpolation function can be passed and are forwarded to the pandas `interpolate`
+        function. The resulting TimeseriesDataset will always be equidistant with timestamps between
+        `self.nominal_data_start` and `self.nominal_data_end`. However, values at these timestamps may be NA depending
+        on the interpolation parameters.
+        By default values will be forward-filled, with no limit to the number of interpolated points between two
+        given values, and no extrapolation before the first known point. The following keyword arguments can be used to
+        achieve some common behaviour:
+          - method='slinear' will use linear interpolation between any two known points
+          - method='index' will use a pondas interpolation method instead of the scipy-based method, which
+          automatically forward-fills the last known value to the end of the time-series
+          - fill_value='extrapolate' will extrapolate beyond the last known value (but not backwards before the first
+          known value, only applicable to scipy-based interpolation methods.)
+          - limit=`N` will limit the number of interpolated points between known points to N.
+        Further details on this behaviour can be found in
+        https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.interpolate.html
+        """
+        def _fill_group(grp):
+            target_times = pd.date_range(self.nominal_data_start, self.nominal_data_end, freq=interval,
+                                         closed='left')
+
+            new_index = pd.DatetimeIndex(target_times.union(grp.timestamp))
+            with_all_timestamps = grp.set_index(self.get_time_column()).reindex(new_index).sort_index()
+
+            if len(grp) <= kwargs.get('order', 1):
+                group_identifier = [grp[key].iloc[0] for key in self.get_key_columns()]
+                LOG.warning(f'Not enough datapoints for interpolation in group {group_identifier}!')
+                return with_all_timestamps.loc[target_times]
+            tmp = with_all_timestamps.interpolate(**kwargs).loc[target_times]
+            tmp.index = tmp.index.set_names('timestamp')  # loc loses index name...
+            return tmp
+
+        interval = pd.Timedelta(interval)
+        if interval > (self.nominal_data_end - self.nominal_data_start):
+            raise RuntimeError('Can not interpolate to an interval larger than the data range.')
+
+        kwargs.setdefault('method', 'pad')
+        df = (
+            self._df
+                .groupby(self.get_key_columns())
+                .apply(_fill_group)
+                .drop(columns=self.get_key_columns())
+                .reset_index()
+        )
+        return TimeseriesDataset(df, self._indicator_set, self._equipment_set,
                                  self.nominal_data_start, self.nominal_data_end, self.is_normalized)
