@@ -53,8 +53,7 @@ class Indicator(AssetcentralEntity):
 
     def __eq__(self, other):
         """Determine whether two (materialized) indicator instances are equal."""
-        return (super().__eq__(other) and
-                other.indicator_group_id == self.indicator_group_id and other.template_id == self.template_id)
+        return isinstance(other, self.__class__) and other._unique_id == self._unique_id
 
     def __hash__(self):
         """Hash of an indicator object is the hash of it's unique id."""
