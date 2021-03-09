@@ -1,5 +1,5 @@
-sailor package
-==============
+:mod:`sailor`
+=============
 
 Subpackages
 -----------

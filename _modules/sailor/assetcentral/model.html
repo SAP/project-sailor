@@ -175,7 +175,7 @@
     <span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">EquipmentSet</span>
 
 
-<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.model.Model">[docs]</a><span class="nd">@_add_properties</span>
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.Model">[docs]</a><span class="nd">@_add_properties</span>
 <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral Model object.&quot;&quot;&quot;</span>
 
@@ -191,7 +191,7 @@
     <span class="c1"># description, descriptions[], gtin, brand, isFirmwareCompatible, templates[], classId, subclassId, adminData{},</span>
     <span class="c1"># sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]</span>
 
-<div class="viewcode-block" id="Model.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.model.Model.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Model.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.Model.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -209,7 +209,7 @@
             <span class="s1">&#39;template_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;templateId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Model.find_equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.model.Model.find_equipment">[docs]</a>    <span class="k">def</span> <span class="nf">find_equipment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EquipmentSet</span><span class="p">:</span>
+<div class="viewcode-block" id="Model.find_equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.Model.find_equipment">[docs]</a>    <span class="k">def</span> <span class="nf">find_equipment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EquipmentSet</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of equipment derived from this Model.</span>
 
@@ -232,7 +232,7 @@
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;model_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
         <span class="k">return</span> <span class="n">find_equipment</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="n">extended_filters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Model.find_model_indicators"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.model.Model.find_model_indicators">[docs]</a>    <span class="k">def</span> <span class="nf">find_model_indicators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndicatorSet</span><span class="p">:</span>
+<div class="viewcode-block" id="Model.find_model_indicators"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.Model.find_model_indicators">[docs]</a>    <span class="k">def</span> <span class="nf">find_model_indicators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndicatorSet</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return all Indicators assigned to the Model.</span>
 
 <span class="sd">        Parameters</span>
@@ -259,7 +259,7 @@
         <span class="k">return</span> <span class="n">IndicatorSet</span><span class="p">([</span><span class="n">Indicator</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">filtered_objects</span><span class="p">])</span></div></div>
 
 
-<div class="viewcode-block" id="ModelSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.model.ModelSet">[docs]</a><span class="k">class</span> <span class="nc">ModelSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.ModelSet">[docs]</a><span class="k">class</span> <span class="nc">ModelSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class representing a group of Models.&quot;&quot;&quot;</span>
 
     <span class="n">_element_type</span> <span class="o">=</span> <span class="n">Model</span>
@@ -270,7 +270,7 @@
     <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="find_models"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.model.find_models">[docs]</a><span class="k">def</span> <span class="nf">find_models</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelSet</span><span class="p">:</span>
+<div class="viewcode-block" id="find_models"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.find_models">[docs]</a><span class="k">def</span> <span class="nf">find_models</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelSet</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch Models from AssetCentral with the applied filters, return an ModelSet.</span>
 
 <span class="sd">    This method supports the usual filter criteria, i.e.</span>

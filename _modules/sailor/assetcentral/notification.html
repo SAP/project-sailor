@@ -170,7 +170,7 @@
 <span class="kn">from</span> <span class="nn">..utils.plot_helper</span> <span class="kn">import</span> <span class="n">_default_plot_theme</span>
 
 
-<div class="viewcode-block" id="Notification"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification">[docs]</a><span class="nd">@_add_properties</span>
+<div class="viewcode-block" id="Notification"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.Notification">[docs]</a><span class="nd">@_add_properties</span>
 <span class="k">class</span> <span class="nc">Notification</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral Notification Object.&quot;&quot;&quot;</span>
 
@@ -184,7 +184,7 @@
     <span class="c1"># systemProposedFailureModeDesc, systemProposedFailureModeDisplayID, effectID, effectDisplayID, effectDesc,</span>
     <span class="c1"># causeID, causeDisplayID, causeDesc, instructionID, instructionTitle</span>
 
-<div class="viewcode-block" id="Notification.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Notification.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.Notification.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -219,7 +219,7 @@
             <span class="s1">&#39;user_failure_mode_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;proposedFailureModeDisplayID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="Notification.plot_context"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification.plot_context">[docs]</a>    <span class="k">def</span> <span class="nf">plot_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">window_before</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span> <span class="n">window_after</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)):</span>
+<div class="viewcode-block" id="Notification.plot_context"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.Notification.plot_context">[docs]</a>    <span class="k">def</span> <span class="nf">plot_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">window_before</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span> <span class="n">window_after</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot a notification in the context of the timeseries data around the time of the notification.</span>
 
@@ -271,7 +271,7 @@
         <span class="k">return</span> <span class="n">plot</span></div></div>
 
 
-<div class="viewcode-block" id="NotificationSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet">[docs]</a><span class="k">class</span> <span class="nc">NotificationSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+<div class="viewcode-block" id="NotificationSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.NotificationSet">[docs]</a><span class="k">class</span> <span class="nc">NotificationSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class representing a group of Notifications.&quot;&quot;&quot;</span>
 
     <span class="n">_element_type</span> <span class="o">=</span> <span class="n">Notification</span>
@@ -281,7 +281,7 @@
         <span class="p">},</span>
     <span class="p">}</span>
 
-<div class="viewcode-block" id="NotificationSet.plot_overview"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet.plot_overview">[docs]</a>    <span class="k">def</span> <span class="nf">plot_overview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="NotificationSet.plot_overview"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.NotificationSet.plot_overview">[docs]</a>    <span class="k">def</span> <span class="nf">plot_overview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plot an overview over all notifications in the set as a function of time.</span>
 
@@ -310,7 +310,7 @@
         <span class="k">return</span> <span class="n">plot</span></div></div>
 
 
-<div class="viewcode-block" id="find_notifications"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.find_notifications">[docs]</a><span class="k">def</span> <span class="nf">find_notifications</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NotificationSet</span><span class="p">:</span>
+<div class="viewcode-block" id="find_notifications"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.find_notifications">[docs]</a><span class="k">def</span> <span class="nf">find_notifications</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NotificationSet</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch Notifications from AssetCentral with the applied filters, return a NotificationSet.</span>
 
 <span class="sd">    This method supports the common filter language explained at :ref:`filter`.</span>

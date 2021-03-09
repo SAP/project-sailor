@@ -166,7 +166,7 @@
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_FAILUREMODES</span>
 
 
-<div class="viewcode-block" id="FailureMode"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.FailureMode">[docs]</a><span class="nd">@_add_properties</span>
+<div class="viewcode-block" id="FailureMode"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.FailureMode">[docs]</a><span class="nd">@_add_properties</span>
 <span class="k">class</span> <span class="nc">FailureMode</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral Failure Mode Object.&quot;&quot;&quot;</span>
 
@@ -178,7 +178,7 @@
     <span class="c1"># MTTRConfidence, MTBFValue, MTBFUnit, MTBFConfidence, PatternName, PatternImage, ImageID, PrimaryExternalID,</span>
     <span class="c1"># FailureModesSearchTerms, TypeCode, DetectionMethod</span>
 
-<div class="viewcode-block" id="FailureMode.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.FailureMode.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="FailureMode.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.FailureMode.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -190,7 +190,7 @@
         <span class="p">}</span></div></div>
 
 
-<div class="viewcode-block" id="FailureModeSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.FailureModeSet">[docs]</a><span class="k">class</span> <span class="nc">FailureModeSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+<div class="viewcode-block" id="FailureModeSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.FailureModeSet">[docs]</a><span class="k">class</span> <span class="nc">FailureModeSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class representing a group of FailureModes.&quot;&quot;&quot;</span>
 
     <span class="n">_element_type</span> <span class="o">=</span> <span class="n">FailureMode</span>
@@ -201,7 +201,7 @@
     <span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="find_failure_modes"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.find_failure_modes">[docs]</a><span class="k">def</span> <span class="nf">find_failure_modes</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FailureModeSet</span><span class="p">:</span>
+<div class="viewcode-block" id="find_failure_modes"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.find_failure_modes">[docs]</a><span class="k">def</span> <span class="nf">find_failure_modes</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FailureModeSet</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch FailureModes from AssetCentral with the applied filters, return an FailureModeSet.</span>
 
 <span class="sd">    This method supports the usual filter criteria, i.e.</span>

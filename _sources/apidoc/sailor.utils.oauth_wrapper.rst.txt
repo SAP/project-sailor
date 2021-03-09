@@ -1,5 +1,5 @@
-sailor.utils.oauth\_wrapper package
-===================================
+:mod:`sailor.utils.oauth\_wrapper`
+==================================
 
 Submodules
 ----------
@@ -8,7 +8,6 @@ Submodules
    :maxdepth: 4
 
    sailor.utils.oauth_wrapper.OAuthServiceImpl
-   sailor.utils.oauth_wrapper.constants
    sailor.utils.oauth_wrapper.scope_config
 
 Module contents

@@ -172,7 +172,7 @@
 <span class="kn">from</span> <span class="nn">..sap_iot</span> <span class="kn">import</span> <span class="n">get_indicator_data</span><span class="p">,</span> <span class="n">TimeseriesDataset</span>
 
 
-<div class="viewcode-block" id="System"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.System">[docs]</a><span class="nd">@_add_properties</span>
+<div class="viewcode-block" id="System"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.System">[docs]</a><span class="nd">@_add_properties</span>
 <span class="k">class</span> <span class="nc">System</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral System Object.&quot;&quot;&quot;</span>
 
@@ -186,7 +186,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">ac_json</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_components</span><span class="p">()</span>
 
-<div class="viewcode-block" id="System.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.System.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="System.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.System.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -215,7 +215,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="n">EquipmentSet</span><span class="p">([])</span>
 
-<div class="viewcode-block" id="System.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.System.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+<div class="viewcode-block" id="System.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.System.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
                            <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get timeseries data for all Equipment in the System.</span>
@@ -238,7 +238,7 @@
         <span class="k">return</span> <span class="n">get_indicator_data</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">all_indicators</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="SystemSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.SystemSet">[docs]</a><span class="k">class</span> <span class="nc">SystemSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+<div class="viewcode-block" id="SystemSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.SystemSet">[docs]</a><span class="k">class</span> <span class="nc">SystemSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class representing a group of Systems.&quot;&quot;&quot;</span>
 
     <span class="n">_element_type</span> <span class="o">=</span> <span class="n">System</span>
@@ -248,7 +248,7 @@
         <span class="p">},</span>
     <span class="p">}</span>
 
-<div class="viewcode-block" id="SystemSet.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.SystemSet.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+<div class="viewcode-block" id="SystemSet.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.SystemSet.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
                            <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetch data for a set of systems for all component equipment of each system.</span>
@@ -272,7 +272,7 @@
         <span class="k">return</span> <span class="n">get_indicator_data</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">all_indicators</span><span class="p">,</span> <span class="n">all_equipment</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="find_systems"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.system.find_systems">[docs]</a><span class="k">def</span> <span class="nf">find_systems</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SystemSet</span><span class="p">:</span>
+<div class="viewcode-block" id="find_systems"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.find_systems">[docs]</a><span class="k">def</span> <span class="nf">find_systems</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SystemSet</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Fetch Systems from AssetCentral with the applied filters, return an SystemSet.</span>
 
 <span class="sd">    This method supports the usual filter criteria, i.e.</span>

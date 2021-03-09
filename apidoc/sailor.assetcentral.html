@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>sailor.assetcentral package &mdash; Project &#34;Sailor&#34;  documentation</title>
+  <title>sailor.assetcentral &mdash; Project &#34;Sailor&#34;  documentation</title>
   
 
   
@@ -37,7 +37,9 @@
 
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="sailor.assetcentral.constants" href="sailor.assetcentral.constants.html" />
+    <link rel="prev" title="API documentation" href="../apidoc.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,11 +84,31 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../filter_language.html">Filter Language</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../apidoc.html">API documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apidoc.html">API documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.constants</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.equipment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.failure_mode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.failure_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.indicators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.notification.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.workorder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-sailor.assetcentral">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 </ul>
 
@@ -136,7 +158,9 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>sailor.assetcentral package</li>
+          <li><a href="../apidoc.html">API documentation</a> &raquo;</li>
+        
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral</span></code></li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -157,8 +181,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="sailor-assetcentral-package">
-<h1>sailor.assetcentral package<a class="headerlink" href="#sailor-assetcentral-package" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="sailor-assetcentral">
+<h1><a class="reference internal" href="#module-sailor.assetcentral" title="sailor.assetcentral"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral</span></code></a><a class="headerlink" href="#sailor-assetcentral" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -178,6 +202,324 @@
 </div>
 <div class="section" id="module-sailor.assetcentral">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sailor.assetcentral" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="sailor.assetcentral.find_equipment">
+<code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.</span></code><code class="sig-name descname"><span class="pre">find_equipment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#find_equipment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.find_equipment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch Equipments from AssetCentral with the applied filters, return an EquipmentSet.</p>
+<p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet">sailor.assetcentral.equipment.EquipmentSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Find all Equipment with the name ‘MyEquipment’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyEquipment&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all Equipment which either have the name ‘MyEquipment’ or the name ‘MyOtherEquipment’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyEquipment&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherEquipment&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Find all Equipment with the name ‘MyEquipment’ which are also located in ‘London’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyEquipment&#39;</span><span class="p">,</span> <span class="n">location_name</span><span class="o">=</span><span class="s1">&#39;London&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all Equipment installed between January 1, 2018 and January 1, 2019 in ‘London’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_equipment</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;installationDate &gt;= &quot;2018-01-01&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;installationDate &lt; &quot;2019-01-01&quot;&#39;</span><span class="p">],</span>
+                <span class="n">location_name</span><span class="o">=</span><span class="s1">&#39;London&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.find_failure_modes">
+<code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.</span></code><code class="sig-name descname"><span class="pre">find_failure_modes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/failure_mode.html#find_failure_modes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.find_failure_modes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch FailureModes from AssetCentral with the applied filters, return an FailureModeSet.</p>
+<p>This method supports the usual filter criteria, i.e.
+- Any named keyword arguments applied as equality filters, i.e. the name of the FailureMode property is checked
+against the value of the keyword argument. If the value of the keyword argument is an iterable (e.g. a list)
+then all objects matching any of the values in the iterable are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.FailureModeSet" title="sailor.assetcentral.failure_mode.FailureModeSet">sailor.assetcentral.failure_mode.FailureModeSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Find all FailureModes with name ‘MyFailureMode’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_failure_modes</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyFailureMode&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all FailureModes which either have the name ‘MyFailureMode’ or the name ‘MyOtherFailureMode’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_failure_modes</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyFailureMode&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherFailureMode&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>If multiple named arguments are provided then <em>all</em> conditions have to match.</p>
+<p class="rubric">Example</p>
+<p>Find all FailureModes with name ‘MyFailureMode’ which also have the short description ‘Description’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_failure_modes</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyFailureMode&#39;</span><span class="p">,</span> <span class="n">short_description</span><span class="o">=</span><span class="s1">&#39;Description&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">extended_filters</span></code> parameter can be used to specify filters that can not be expressed as an equality. Each
+extended_filter needs to be provided as a string, multiple filters can be passed as a list of strings. As above,
+all filter criteria need to match. Extended filters can be freely combined with named arguments. Here, too, all
+filter criteria need to match for a FailureMode to be returned.</p>
+<p class="rubric">Example</p>
+<p>Find all FailureModes where equipment count higher or equal to 5:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_failure_modes</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;equipments_count &gt;= 5&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.find_locations">
+<code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.</span></code><code class="sig-name descname"><span class="pre">find_locations</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/location.html#find_locations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.find_locations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch Locations from AssetCentral with the applied filters, return a LocationSet.</p>
+<p>This method supports the usual filter criteria, i.e.
+- Any named keyword arguments applied as equality filters, i.e. the name of the Location property is checked
+against the value of the keyword argument. If the value of the keyword argument is an iterable (e.g. a list)
+then all objects matching any of the values in the iterable are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.location.html#sailor.assetcentral.location.LocationSet" title="sailor.assetcentral.location.LocationSet">sailor.assetcentral.location.LocationSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Find all Location with name ‘MyLocation’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_locations</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyLocation&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all Locations which either have the name ‘MyLocation’ or the name ‘MyOtherLocation’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_locations</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyLocation&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherLocation&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>If multiple named arguments are provided then <em>all</em> conditions have to match.</p>
+<p class="rubric">Example</p>
+<p>Find all Locations with name ‘MyLocation’ which also have the location type description ‘Functional Location’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_locations</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyLocation&#39;</span><span class="p">,</span> <span class="n">type_description</span><span class="o">=</span><span class="s1">&#39;Functional Location&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">extended_filters</span></code> parameter can be used to specify filters that can not be expressed as an equality. Each
+extended_filter needs to be provided as a string, multiple filters can be passed as a list of strings. As above,
+all filter criteria need to match. Extended filters can be freely combined with named arguments. Here, too all
+filter criteria need to match for a Location to be returned.</p>
+<p class="rubric">Example</p>
+<p>Find all Locations with a short description not matching to ‘Location 1’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_locations</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;short_description != &quot;Location 1&quot;&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.find_models">
+<code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.</span></code><code class="sig-name descname"><span class="pre">find_models</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/model.html#find_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.find_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch Models from AssetCentral with the applied filters, return an ModelSet.</p>
+<p>This method supports the usual filter criteria, i.e.
+Any named keyword arguments applied as equality filters, i.e. the name of the Model property is checked
+against the value of the keyword argument. If the value of the keyword argument is an iterable (e.g. a list)
+then all objects matching any of the values in the iterable are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.model.html#sailor.assetcentral.model.ModelSet" title="sailor.assetcentral.model.ModelSet">sailor.assetcentral.model.ModelSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Find all Models with name ‘MyModel’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_models</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyModel&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all Models which either have the name ‘MyModel’ or the name ‘MyOtherModel’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_models</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyModel&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherModel&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>If multiple named arguments are provided then <em>all</em> conditions have to match.</p>
+<p class="rubric">Example</p>
+<p>Find all Models with name ‘MyModel’ which also have the short description ‘Description’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_models</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyModel&#39;</span><span class="p">,</span> <span class="n">short_description</span><span class="o">=</span><span class="s1">&#39;Description&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">extended_filters</span></code> parameter can be used to specify filters that can not be expressed as an equality. Each
+extended_filter needs to be provided as a string, multiple filters can be passed as a list of strings. As above,
+all filter criteria need to match. Extended filters can be freely combined with named arguments. Here, too, all
+filter criteria need to match for an Model to be returned.</p>
+<p class="rubric">Example</p>
+<p>Find all Models with an expiration date before January 1, 2018:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_models</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;model_expiration_date &lt; &quot;2018-01-01&quot;&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.find_notifications">
+<code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.</span></code><code class="sig-name descname"><span class="pre">find_notifications</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#find_notifications"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.find_notifications" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch Notifications from AssetCentral with the applied filters, return a NotificationSet.</p>
+<p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p>
+<p><strong>Allowed entries for filter terms</strong></p>
+<blockquote>
+<div><dl class="simple">
+<dt>Type of notifications and its meanings</dt><dd><p>M1: Maintenance Request, M2: BreakDown</p>
+</dd>
+<dt>Priorities and its meanings</dt><dd><p>5: Low, 10: Medium, 15: High, 20:  Very High, 25: Emergency</p>
+</dd>
+<dt>Status types and its meanings</dt><dd><p>NEW: New, PBD: Published, CPT: Completed, IPR: InProcess</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet" title="sailor.assetcentral.notification.NotificationSet">sailor.assetcentral.notification.NotificationSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Find all notifications with short_description ‘MyNotification’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">(</span><span class="n">short_description</span><span class="o">=</span><span class="s1">&#39;MyNotification&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all notifications which either have the short_description ‘MyNotification’ or the short_description
+‘MyOtherNotification’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">(</span><span class="n">short_description</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyNotification&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherNotification&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Find all notifications with short_description ‘MyNotification’ which also have the start date ‘2020-07-01’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">(</span><span class="n">short_description</span><span class="o">=</span><span class="s1">&#39;MyNotification&#39;</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;2020-07-01&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all notifications with a confirmed failure mode description is not empty:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;confirmed_failure_mode_description != &quot;None&quot;&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Find all notifications in a given timeframe for specific equipment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_notifications</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;malfunctionStartDate &gt; &quot;2020-08-01&quot;&#39;</span><span class="p">,</span>
+                                     <span class="s1">&#39;malfunctionEndDate &lt;= &quot;2020-09-01&quot;&#39;</span><span class="p">],</span>
+                   <span class="n">equipment_id</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id1&#39;</span><span class="p">,</span> <span class="s1">&#39;id2&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.find_systems">
+<code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.</span></code><code class="sig-name descname"><span class="pre">find_systems</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#find_systems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.find_systems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch Systems from AssetCentral with the applied filters, return an SystemSet.</p>
+<p>This method supports the usual filter criteria, i.e.
+- Any named keyword arguments applied as equality filters, i.e. the name of the System property is checked
+against the value of the keyword argument. If the value of the keyword argument is an iterable (e.g. a list)
+then all objects matching any of the values in the iterable are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.system.html#sailor.assetcentral.system.SystemSet" title="sailor.assetcentral.system.SystemSet">sailor.assetcentral.system.SystemSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Find all Systems with name ‘MySystem’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_systems</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MySystem&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all Systems which either have the name ‘MySystem’ or the name ‘MyOtherSystem’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_systems</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MySystem&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherSystem&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>If multiple named arguments are provided then <em>all</em> conditions have to match.</p>
+<p class="rubric">Example</p>
+<p>Find all Systems with name ‘MySystem’ which also is published (status_text = ‘Published’):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_systems</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MySystem&#39;</span><span class="p">,</span> <span class="n">status_text</span><span class="o">=</span><span class="s1">&#39;Published&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">extended_filters</span></code> parameter can be used to specify filters that can not be expressed as an equality. Each
+extended_filter needs to be provided as a string, multiple filters can be passed as a list of strings. As above,
+all filter criteria need to match. Extended filters can be freely combined with named arguments. Here, too all
+filter criteria need to match for a System to be returned.</p>
+<p class="rubric">Example</p>
+<p>Find all Systems with creation date higher or equal to 01.01.2020:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_systems</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;created_on &gt;= &quot;2020-01-01&quot;&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="sailor.assetcentral.find_workorders">
+<code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.</span></code><code class="sig-name descname"><span class="pre">find_workorders</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/workorder.html#find_workorders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.find_workorders" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch Workorders from AssetCentral with the applied filters, return a WorkorderSet.</p>
+<p>This method supports the usual filter criteria, i.e.
+- Any named keyword arguments applied as equality filters, i.e. the name of the Workorder property is checked
+against the value of the keyword argument. If the value of the keyword argument is an iterable (e.g. a list)
+then all objects matching any of the values in the iterable are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.WorkorderSet" title="sailor.assetcentral.workorder.WorkorderSet">sailor.assetcentral.workorder.WorkorderSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Find all Workorders with name ‘MyWorkorder’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_workorders</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyWorkorder&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all Workorders which either have the name ‘MyWorkorder’ or the name ‘MyOtherWorkorder’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_workorders</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyWorkorder&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherWorkorder&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Find all workorders with very high priority:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_workorders</span><span class="p">(</span><span class="n">priority</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If multiple named arguments are provided then <em>all</em> conditions have to match.</p>
+<p class="rubric">Example</p>
+<p>Find all workorders with very high priority (20) and has progress status ‘pending’(15)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_workorders</span><span class="p">(</span><span class="n">priority</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">progressStatus</span> <span class="o">=</span> <span class="mi">15</span><span class="p">)</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">extended_filters</span></code> parameter can be used to specify filters that can not be expressed as an equality. Each
+extended_filter needs to be provided as a string, multiple filters can be passed as a list of strings. As above,
+all filter criteria need to match. Extended filters can be freely combined with named arguments. Here, too all
+filter criteria need to match for a Workorder to be returned.</p>
+<p class="rubric">Example</p>
+<p>Find all Workorders with start date higher than 2020-01-01:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_workorders</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;start_date &gt;= &quot;2020-01-01&quot;&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </div>
 </div>
 
@@ -186,6 +528,10 @@
            
           </div>
           <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sailor.assetcentral.constants.html" class="btn btn-neutral float-right" title="sailor.assetcentral.constants" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../apidoc.html" class="btn btn-neutral float-left" title="API documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 
