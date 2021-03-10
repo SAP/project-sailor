@@ -163,6 +163,7 @@
 <span class="sd">is no support for unrealized &#39;Indicator Templates&#39;.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_add_properties</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span>
 
@@ -200,7 +201,7 @@
             <span class="s1">&#39;_liot_group_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;pstid&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="s1">&#39;IG_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pstid&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="p">}</span></div>
 
-    <span class="nd">@property</span>
+    <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">_unique_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
         <span class="n">unique_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indicator_group_id</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_id</span>
@@ -209,12 +210,26 @@
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Determine whether two (materialized) indicator instances are equal.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">and</span>
-                <span class="n">other</span><span class="o">.</span><span class="n">indicator_group_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">indicator_group_id</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">template_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">_unique_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unique_id</span>
 
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Hash of an indicator object is the hash of it&#39;s unique id.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unique_id</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="AggregatedIndicator"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.AggregatedIndicator">[docs]</a><span class="k">class</span> <span class="nc">AggregatedIndicator</span><span class="p">(</span><span class="n">Indicator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An extension of the AssetCentral Indicator object that additionally holds aggregation information.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ac_json</span><span class="p">,</span> <span class="n">aggregation_function</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AggregatedIndicator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ac_json</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_function</span> <span class="o">=</span> <span class="n">aggregation_function</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_unique_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
+        <span class="n">unique_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indicator_group_id</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_id</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_function</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">unique_string</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="IndicatorSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.IndicatorSet">[docs]</a><span class="k">class</span> <span class="nc">IndicatorSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
@@ -239,7 +254,7 @@
         <span class="k">return</span> <span class="n">mapping</span>
 
     <span class="k">def</span> <span class="nf">_unique_id_to_constituent_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get details on an opaque column_id in terms of AssetCentral names.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get details on an opaque column_id in terms of AssetCentral IDs.&quot;&quot;&quot;</span>
         <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">mapping</span><span class="p">[</span><span class="n">indicator</span><span class="o">.</span><span class="n">_unique_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
@@ -249,6 +264,33 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">mapping</span></div>
 
+
+<div class="viewcode-block" id="AggregatedIndicatorSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.AggregatedIndicatorSet">[docs]</a><span class="k">class</span> <span class="nc">AggregatedIndicatorSet</span><span class="p">(</span><span class="n">IndicatorSet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class representing a group of AggregatedIndicators.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_unique_id_to_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get details on an opaque column_id in terms of AssetCentral names and aggregation_function.&quot;&quot;&quot;</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">mapping</span><span class="p">[</span><span class="n">indicator</span><span class="o">.</span><span class="n">_unique_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">indicator</span><span class="o">.</span><span class="n">template_id</span><span class="p">,</span>  <span class="c1"># apparently fetching the template name would need a remote call</span>
+                <span class="n">indicator</span><span class="o">.</span><span class="n">indicator_group_name</span><span class="p">,</span>
+                <span class="n">indicator</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">indicator</span><span class="o">.</span><span class="n">aggregation_function</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">mapping</span>
+
+    <span class="k">def</span> <span class="nf">_unique_id_to_constituent_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get details on an opaque column_id in terms of AssetCentral IDs and aggregation_function.&quot;&quot;&quot;</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">mapping</span><span class="p">[</span><span class="n">indicator</span><span class="o">.</span><span class="n">_unique_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">indicator</span><span class="o">.</span><span class="n">template_id</span><span class="p">,</span>
+                <span class="n">indicator</span><span class="o">.</span><span class="n">indicator_group_id</span><span class="p">,</span>
+                <span class="n">indicator</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">indicator</span><span class="o">.</span><span class="n">aggregation_function</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">mapping</span></div>
 
 <span class="c1"># while there is a generic &#39;/services/api/v1/indicators&#39; endpoint that allows to find indicators,</span>
 <span class="c1"># that endpoint returns a very different object from the one that you can find via the equipment.</span>
