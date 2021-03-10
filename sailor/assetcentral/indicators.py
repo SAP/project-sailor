@@ -7,6 +7,7 @@ Hence they contain information on indicator_group and template used to attach it
 is no support for unrealized 'Indicator Templates'.
 """
 import hashlib
+from functools import cached_property
 
 from .utils import _add_properties, AssetcentralEntity, ResultSet
 
@@ -44,7 +45,7 @@ class Indicator(AssetcentralEntity):
             '_liot_group_id': ('pstid', lambda self: 'IG_' + self.raw.get('pstid', None), None, None),
         }
 
-    @property
+    @cached_property
     def _unique_id(self):
         m = hashlib.sha256()
         unique_string = self.id + self.indicator_group_id + self.template_id
