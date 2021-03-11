@@ -10,7 +10,7 @@ from collections.abc import Iterable
 from math import ceil
 import warnings
 from datetime import datetime
-from typing import TYPE_CHECKING, Union, Any
+from typing import TYPE_CHECKING, Union, Any, Callable
 import logging
 
 import pandas as pd
@@ -21,6 +21,8 @@ from sklearn.preprocessing import StandardScaler
 
 from ..utils.plot_helper import _default_plot_theme
 from ..utils.timestamps import _any_to_timestamp
+from ..assetcentral.utils import _is_non_string_iterable
+from ..assetcentral.indicators import AggregatedIndicator, AggregatedIndicatorSet
 
 if TYPE_CHECKING:
     from ..assetcentral.indicators import IndicatorSet
@@ -235,17 +237,25 @@ class TimeseriesDataset(object):
             aggregation_interval = '1h'
         else:
             aggregation_interval = '12h'
-        groupers = [pd.Grouper(key=time_column, freq=aggregation_interval), *self.get_key_columns()]
 
+        facet_grid_definition = 'indicator + template + indicator_group ~ .'
+        facet_assignment = dict(
+            template=lambda x: x.Feature.apply(lambda row: name_mapping[row][0]),
+            indicator_group=lambda x: x.Feature.apply(lambda row: name_mapping[row][1]),
+            indicator=lambda x: x.Feature.apply(lambda row: name_mapping[row][2])
+        )
+        if isinstance(self._indicator_set, AggregatedIndicatorSet):
+            facet_grid_definition = 'aggregation + indicator + template + indicator_group ~ .'
+            facet_assignment['aggregation'] = lambda x: x.Feature.apply(lambda row: name_mapping[row][3])
+
+        groupers = [*self.get_key_columns(), pd.Grouper(key=time_column, freq=aggregation_interval)]
         molten_data = (
             data.groupby(groupers)
                 .agg('mean')
                 .reset_index()
                 .dropna(1, 'all')
                 .melt(id_vars=key_vars, value_vars=feature_vars, var_name='Feature')
-                .assign(template=lambda x: x.Feature.apply(lambda row: name_mapping[row][0]))
-                .assign(indicator_group=lambda x: x.Feature.apply(lambda row: name_mapping[row][1]))
-                .assign(indicator=lambda x: x.Feature.apply(lambda row: name_mapping[row][2]))
+                .assign(**facet_assignment)
                 .replace({'equipment_id': equipment_mapping})
                 .rename(columns={'equipment_id': 'equipment'})
         )
@@ -275,7 +285,7 @@ class TimeseriesDataset(object):
         plot = (
                 ggplot(molten_data, aes(x=self.get_time_column(), y='value', color='equipment')) +
                 geom_point() + geom_line() +
-                facet_grid('indicator + template + indicator_group ~ .', scales='free') +
+                facet_grid(facet_grid_definition, scales='free') +
                 _default_plot_theme() +
                 theme(figure_size=(10 * facet_column_count, 3 * facet_row_count)) +
                 scale_x_datetime(**scale_x_datetime_kwargs)
@@ -365,3 +375,45 @@ class TimeseriesDataset(object):
 
         return TimeseriesDataset(selected_df, self._indicator_set, selected_equi_set,
                                  start_time, end_time, self.is_normalized)
+
+    def aggregate(self,
+                  aggregation_interval: str,
+                  aggregation_functions: Union[Iterable[Union[str, Callable]], str, Callable] = 'mean')\
+            -> TimeseriesDataset:
+        """
+        Aggregate the TimeseriesDataset to a fixed interval, returning a new TimeseriesDataset.
+
+        This operation will change the unique feature IDs, as the new IDs need to encode the additional information on
+        the aggregation function. Accordingly there will also be an additional column index level for the
+        aggregation function on the DataFrame returned by :meth:`sailor.timeseries.wrappers.TimeseriesDataset.as_df`
+        when using ``speaking_names=True``.
+        Note that the resulting timeseries is not equidistant if gaps larger than the aggregation interval are
+        present in the original timeseries.
+
+        Parameters
+        ----------
+        aggregation_interval
+            String specifying the aggregation interval, e.g. '1h' or '30min'. Follows the same rules as the ``freq``
+            parameter in a ``pandas.Grouper`` object.
+        aggregation_functions
+            Aggregation function or iterable of aggregation functions to use.
+            Each aggregation_function can be a string (e.g. 'mean', 'min' etc) or a function (e.g. np.max etc).
+        """
+        if not _is_non_string_iterable(aggregation_functions):
+            aggregation_functions = (aggregation_functions, )
+
+        new_indicators = []
+        aggregation_definition = {}
+        for indicator in self._indicator_set:
+            for aggregation_function in aggregation_functions:
+                new_indicator = AggregatedIndicator(indicator.raw, str(aggregation_function))
+                new_indicators.append(new_indicator)
+                aggregation_definition[new_indicator._unique_id] = (indicator._unique_id, aggregation_function)
+        new_indicator_set = AggregatedIndicatorSet(new_indicators)
+
+        grouper = [*self.get_key_columns(),
+                   pd.Grouper(key=self.get_time_column(), closed='left', freq=aggregation_interval)]
+        df = self._df.groupby(grouper).agg(**aggregation_definition)
+
+        return TimeseriesDataset(df.reset_index(), new_indicator_set, self._equipment_set,
+                                 self.nominal_data_start, self.nominal_data_end, self.is_normalized)
