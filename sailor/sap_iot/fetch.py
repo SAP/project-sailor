@@ -77,8 +77,6 @@ def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_se
 
     selected_equipment_ids = [equipment.id for equipment in equipment_set]  # noqa: F841
     df = pd.read_csv(ifile)
-    if 'equipmentId' not in df.columns:
-        return pd.DataFrame()
 
     df['_TIME'] = pd.to_datetime(df['_TIME'], utc=True, unit='ms', errors='coerce')
     df = df.pivot(index=['_TIME', 'equipmentId', 'modelId'], columns=['indicatorGroupId', 'templateId'])
