@@ -11,5 +11,5 @@
 # }
 #
 SCOPE_CONFIG = {
-    'sap_iot': ['t1.am.ts.r', 't1.am.ts.cud', 't1.r', 't1.am.map.r', 't1.export.r']
+    'sap_iot': ['.am.ts.r', '.am.ts.cud', '.r', '.am.map.r', '.export.r']
 }
