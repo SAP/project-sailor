@@ -1,10 +1,12 @@
-from unittest.mock import PropertyMock, patch
+from typing import Iterable
+from unittest.mock import PropertyMock, patch, Mock
 
 import pytest
 
 from sailor.assetcentral.equipment import Equipment
 from sailor.assetcentral.utils import AssetcentralEntity, ResultSet, _unify_filters, _parse_filter_parameters, \
-    _apply_filters_post_request
+    _apply_filters_post_request, _compose_queries, _fetch_data
+from sailor.utils.oauth_wrapper import OAuthFlow
 
 
 class TestAssetcentralEntity:
@@ -225,3 +227,70 @@ def test_apply_filters_post_request_property_mapping():
     actual = _apply_filters_post_request(data, equality_filters, extended_filters, property_mapping)
 
     assert actual == expected_result
+
+
+@pytest.mark.parametrize('testdescription,unbreakable_filters,breakable_filters,expected', [
+    ('empty input returns empty filters',
+        [], [], []),
+    ('unbreakable filters are combined with "and"',
+        ["name eq 'test'", "location eq 'Paris'"], [],
+        ["name eq 'test' and location eq 'Paris'"]),
+    ('breakable filters are combined with "or"',
+        [], [["location eq 'Paris'", "location eq 'London'"]],
+        ["(location eq 'Paris' or location eq 'London')"]),
+    ('multiple breakable filters are connected with "and"',
+        [], [["testFac eq 'abcCorp'", "testFac eq '123pumps'"], ["location eq 'Paris'", "location eq 'London'"]],
+        ["(testFac eq 'abcCorp' or testFac eq '123pumps') and (location eq 'Paris' or location eq 'London')"]),
+    ('un- and breakable filters are connected with "and"',
+        ["name eq 'test'"], [["location eq 'Paris'", "location eq 'London'"]],
+        ["name eq 'test' and (location eq 'Paris' or location eq 'London')"])
+])
+def test_compose_queries(unbreakable_filters, breakable_filters, expected, testdescription):
+    actual = _compose_queries(unbreakable_filters, breakable_filters)
+    assert actual == expected
+
+
+def test_compose_queries_too_many_filters_are_split():
+    # the correctness of the test depends on what is configured as the max_filter_length in _compose_queries
+    unbreakable_filters = []
+    breakable_filters = [["manufacturer eq 'abcCorp'", "manufacturer eq '123pumps'"] * 50,
+                         ["location eq 'Paris'", "location eq 'London'"]]
+    expected_start_of_each_filter = "(location eq 'Paris' or location eq 'London') and (manufacturer eq 'abcCorp' or"
+
+    actual = _compose_queries(unbreakable_filters, breakable_filters)
+
+    assert len(actual) == 2
+    assert actual[0].startswith(expected_start_of_each_filter)
+    assert actual[1].startswith(expected_start_of_each_filter)
+
+
+class TestFetchData:
+    @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
+    def test_fetch_data_returns_iterable(self, auth_mock):
+        actual = _fetch_data("")
+        assert not issubclass(actual.__class__, str)
+        assert isinstance(actual, Iterable)
+
+    @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
+    def test_fetch_adds_filter_parameter_on_call(self, auth_mock):
+        fetch_mock = auth_mock.return_value.fetch_endpoint_data
+        unbreakable_filters = ["location eq 'Walldorf'"]
+        breakable_filters = [["manufacturer eq 'abcCorp'"]]
+        expected_parameters = {'$filter': "location eq 'Walldorf' and (manufacturer eq 'abcCorp')"}
+
+        _fetch_data("", unbreakable_filters, breakable_filters)
+
+        fetch_mock.assert_called_once_with("", method="GET", parameters=expected_parameters)
+
+    @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
+    def test_fetch_data_multiple_calls_result(self, auth_mock):
+        unbreakable_filters = ["location eq 'Walldorf'"]
+        # causes _compose_queries to generate two filter strings
+        breakable_filters = [["manufacturer eq 'abcCorp'"] * 100]
+        fetch_mock = auth_mock.return_value.fetch_endpoint_data
+        fetch_mock.side_effect = [["result1-1", "result1-2"], ["result2-1"]]
+        expected_result = ["result1-1", "result1-2", "result2-1"]
+
+        actual = _fetch_data("", unbreakable_filters, breakable_filters)
+
+        assert actual == expected_result
