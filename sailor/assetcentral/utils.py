@@ -54,7 +54,7 @@ def _compose_queries(unbreakable_filters, breakable_filters):
     remaining_cartesian_length_max = max(len(' and '.join(p)) for p in cartesian_product)
 
     if max_filter_length < current_fixed_length + remaining_cartesian_length_max + len(' and '):
-        raise RuntimeError('Filter too long even in cartesian product')
+        raise RuntimeError('Your filter conditions are too complex. Please split your query into multiple calls.')
 
     breakable_filters = sorted(breakable_filters, key=len)
 
