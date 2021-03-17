@@ -266,6 +266,7 @@ def test_compose_queries_too_many_filters_are_split():
 
 class TestFetchData:
     @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
+    @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
     def test_fetch_data_returns_iterable(self, auth_mock):
         actual = _fetch_data("")
         assert not issubclass(actual.__class__, str)

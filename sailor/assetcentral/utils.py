@@ -42,6 +42,9 @@ def _compose_queries(unbreakable_filters, breakable_filters):
     # So my compromise is to include all the (OR) groups that can fit as a whole in the query,
     # and to break the remaining part up into cartesian products.
 
+    if not (unbreakable_filters or breakable_filters):
+        return []
+
     max_filter_length = 2000
 
     filter_string = ' and '.join(unbreakable_filters)
