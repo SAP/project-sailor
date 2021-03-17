@@ -7,11 +7,9 @@ Here we define some convenience wrappers for timeseries data.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from math import ceil
 import warnings
 from datetime import datetime
 from typing import TYPE_CHECKING, Union, Any, Callable
-from functools import partial
 import logging
 
 import pandas as pd
