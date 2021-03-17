@@ -256,13 +256,15 @@ def test_compose_queries_too_many_filters_are_split():
     breakable_filters = [[f"manufacturer eq '{'abcCorp' if i % 2 == 0 else '123pumps'}_{i}'" for i in range(100)],
                          ["location eq 'Paris'", "location eq 'London'"]]
     expected_start_of_1st_filter = "(location eq 'Paris' or location eq 'London') and (manufacturer eq 'abcCorp_0' or"
-    expected_start_of_2nd_filter = "(location eq 'Paris' or location eq 'London') and (manufacturer eq 'abcCorp_60' or"
+    expected_start_of_2nd_filter = "(location eq 'Paris' or location eq 'London') and (manufacturer eq "
+    expected_end_of_2nd_filter = "manufacturer eq '123pumps_99')"
 
     actual = _compose_queries(unbreakable_filters, breakable_filters)
 
     assert len(actual) == 2
     assert actual[0].startswith(expected_start_of_1st_filter)
     assert actual[1].startswith(expected_start_of_2nd_filter)
+    assert actual[1].endswith(expected_end_of_2nd_filter)
 
 
 class TestFetchData:
