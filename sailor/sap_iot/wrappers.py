@@ -19,7 +19,7 @@ from plotnine.scales import scale_x_datetime
 from sklearn.preprocessing import StandardScaler
 
 from ..utils.plot_helper import _default_plot_theme
-from ..utils.timestamps import _any_to_timestamp
+from ..utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals
 from ..assetcentral.indicators import AggregatedIndicator, AggregatedIndicatorSet
 
 if TYPE_CHECKING:
@@ -156,19 +156,6 @@ class TimeseriesDataset(object):
 
         return data
 
-    @classmethod
-    def _calculate_nice_freq(cls, interval, n_breaks):
-        # we're ignoring the limits passed by plotnine and calculating breaks purely based on the data.
-        # it would be nice to have weeks/months rather than the 7d/30d but that seems tricky --
-        # see eg https://github.com/pandas-dev/pandas/issues/15303
-        good_intervals = ['1s', '5s', '15s', '1min', '5min', '15min', '1h', '4h', '12h', '1d', '3d', '7d', '30d']
-        good_intervals = [pd.Timedelta(x) for x in good_intervals]
-
-        target_break_interval = interval / n_breaks
-        target_break_interval = max(target_break_interval, min(good_intervals))
-        freq = max(filter(lambda x: x <= target_break_interval, good_intervals))
-        return freq
-
     def plot(self, start=None, end=None, indicator_set=None, equipment_set=None):
         """
         Plot the timeseries data stored within this wrapper.
@@ -240,16 +227,15 @@ class TimeseriesDataset(object):
             feature_vars = set(feature_vars) - set(empty_indicators)
 
         query_timedelta = end - start
-        break_interval = self._calculate_nice_freq(query_timedelta, 5)  # at least 5 axis breaks
-        aggregation_interval = self._calculate_nice_freq(query_timedelta, 100)  # at leat 100 data points
-
+        break_interval = _calculate_nice_sub_intervals(query_timedelta, 5)  # at least 5 axis breaks
         first_break = start.floor(break_interval, ambiguous=False, nonexistent='shift_backward')
         last_break = end.ceil(break_interval, ambiguous=False, nonexistent='shift_forward')
+        x_breaks = pd.date_range(first_break, last_break, freq=break_interval)
+
         if break_interval < pd.Timedelta('1 day'):
             date_labels = '%Y-%m-%d %H:%M:%S'
         else:
             date_labels = '%Y-%m-%d'
-        x_breaks = pd.date_range(first_break, last_break, freq=break_interval)
 
         facet_grid_definition = 'indicator + template + indicator_group ~ .'
         facet_assignment = dict(
@@ -262,6 +248,7 @@ class TimeseriesDataset(object):
             facet_grid_definition = 'aggregation + indicator + template + indicator_group ~ .'
             facet_assignment['aggregation'] = lambda x: x.Feature.apply(lambda row: name_mapping[row][3])
 
+        aggregation_interval = _calculate_nice_sub_intervals(query_timedelta, 100)  # at leat 100 data points
         groupers = [*self.get_key_columns(), pd.Grouper(key=time_column, freq=aggregation_interval)]
         molten_data = (
             data.groupby(groupers)
