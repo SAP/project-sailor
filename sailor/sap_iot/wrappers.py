@@ -11,6 +11,7 @@ from math import ceil
 import warnings
 from datetime import datetime
 from typing import TYPE_CHECKING, Union, Any, Callable
+from functools import partial
 import logging
 
 import pandas as pd
@@ -21,7 +22,6 @@ from sklearn.preprocessing import StandardScaler
 
 from ..utils.plot_helper import _default_plot_theme
 from ..utils.timestamps import _any_to_timestamp
-from ..assetcentral.utils import _is_non_string_iterable
 from ..assetcentral.indicators import AggregatedIndicator, AggregatedIndicatorSet
 
 if TYPE_CHECKING:
@@ -158,6 +158,19 @@ class TimeseriesDataset(object):
 
         return data
 
+    @classmethod
+    def _calculate_nice_freq(cls, interval, n_breaks):
+        # we're ignoring the limits passed by plotnine and calculating breaks purely based on the data.
+        # it would be nice to have weeks/months rather than the 7d/30d but that seems tricky --
+        # see eg https://github.com/pandas-dev/pandas/issues/15303
+        good_intervals = ['1s', '5s', '15s', '1min', '5min', '15min', '1h', '4h', '12h', '1d', '3d', '7d', '30d']
+        good_intervals = [pd.Timedelta(x) for x in good_intervals]
+
+        target_break_interval = interval / n_breaks
+        target_break_interval = max(target_break_interval, min(good_intervals))
+        freq = max(filter(lambda x: x <= target_break_interval, good_intervals))
+        return freq
+
     def plot(self, start=None, end=None, indicator_set=None, equipment_set=None):
         """
         Plot the timeseries data stored within this wrapper.
@@ -229,14 +242,16 @@ class TimeseriesDataset(object):
             feature_vars = set(feature_vars) - set(empty_indicators)
 
         query_timedelta = end - start
-        if query_timedelta < pd.Timedelta(hours=1):
-            aggregation_interval = '1s'
-        elif query_timedelta < pd.Timedelta(days=1):
-            aggregation_interval = '1min'
-        elif query_timedelta < pd.Timedelta(days=30):
-            aggregation_interval = '1h'
+        break_interval = self._calculate_nice_freq(query_timedelta, 5)  # at least 5 axis breaks
+        aggregation_interval = self._calculate_nice_freq(query_timedelta, 100)  # at leat 100 data points
+
+        first_break = start.floor(break_interval, ambiguous=False, nonexistent='shift_backward')
+        last_break = end.ceil(break_interval, ambiguous=False, nonexistent='shift_forward')
+        if break_interval < pd.Timedelta('1 day'):
+            date_labels = '%Y-%m-%d %H:%M:%S'
         else:
-            aggregation_interval = '12h'
+            date_labels = '%Y-%m-%d'
+        x_breaks = pd.date_range(first_break, last_break, freq=break_interval)
 
         facet_grid_definition = 'indicator + template + indicator_group ~ .'
         facet_assignment = dict(
@@ -244,6 +259,7 @@ class TimeseriesDataset(object):
             indicator_group=lambda x: x.Feature.apply(lambda row: name_mapping[row][1]),
             indicator=lambda x: x.Feature.apply(lambda row: name_mapping[row][2])
         )
+
         if isinstance(self._indicator_set, AggregatedIndicatorSet):
             facet_grid_definition = 'aggregation + indicator + template + indicator_group ~ .'
             facet_assignment['aggregation'] = lambda x: x.Feature.apply(lambda row: name_mapping[row][3])
@@ -260,35 +276,15 @@ class TimeseriesDataset(object):
                 .rename(columns={'equipment_id': 'equipment'})
         )
 
-        facet_column_count = 1
         facet_row_count = len(feature_vars) + len(molten_data.groupby(['template', 'indicator_group']))
-
-        scale_x_datetime_kwargs = {
-            'limits': (start, end)
-        }
-
-        if query_timedelta <= pd.Timedelta(days=2):
-            LOG.debug('Using short-time logic for calculating time-axis breaks in plot.')
-            # max 24 labels
-            step_size_hours = (2 if query_timedelta.total_seconds() > 24 * 3600 else 1) * facet_column_count
-            scale_x_datetime_kwargs['date_breaks'] = '%d hours' % step_size_hours
-            scale_x_datetime_kwargs['labels'] = lambda breaks: [b.strftime("%Y-%m-%d %H:%M:%S") if b.hour == 0 else
-                                                                b.strftime("%H:%M:%S") for b in breaks]
-        else:
-            LOG.debug('Using long-time logic for calculating time-axis breaks in plot.')
-            max_stepsize_days = ceil(query_timedelta.days / 4)
-            step_size_days = min(max(2, int(query_timedelta.days / 30) * 2) * facet_column_count,
-                                 max_stepsize_days)  # at least 4, max 20 labels
-            scale_x_datetime_kwargs['date_breaks'] = '%d days' % step_size_days
-            scale_x_datetime_kwargs['labels'] = lambda breaks: [b.strftime("%Y-%m-%d") for b in breaks]
 
         plot = (
                 ggplot(molten_data, aes(x=self.get_time_column(), y='value', color='equipment')) +
                 geom_point() + geom_line() +
                 facet_grid(facet_grid_definition, scales='free') +
                 _default_plot_theme() +
-                theme(figure_size=(10 * facet_column_count, 3 * facet_row_count)) +
-                scale_x_datetime(**scale_x_datetime_kwargs)
+                theme(figure_size=(10, 3 * facet_row_count)) +
+                scale_x_datetime(limits=(start, end), date_labels=date_labels, breaks=x_breaks)
         )
 
         return plot
@@ -399,7 +395,7 @@ class TimeseriesDataset(object):
             Aggregation function or iterable of aggregation functions to use.
             Each aggregation_function can be a string (e.g. 'mean', 'min' etc) or a function (e.g. np.max etc).
         """
-        if not _is_non_string_iterable(aggregation_functions):
+        if isinstance(aggregation_functions, str) or isinstance(aggregation_functions, Callable):
             aggregation_functions = (aggregation_functions, )
 
         new_indicators = []
