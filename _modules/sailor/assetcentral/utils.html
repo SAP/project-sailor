@@ -198,6 +198,9 @@
     <span class="c1"># So my compromise is to include all the (OR) groups that can fit as a whole in the query,</span>
     <span class="c1"># and to break the remaining part up into cartesian products.</span>
 
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">unbreakable_filters</span> <span class="ow">or</span> <span class="n">breakable_filters</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
     <span class="n">max_filter_length</span> <span class="o">=</span> <span class="mi">2000</span>
 
     <span class="n">filter_string</span> <span class="o">=</span> <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unbreakable_filters</span><span class="p">)</span>
@@ -207,7 +210,7 @@
     <span class="n">remaining_cartesian_length_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cartesian_product</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">max_filter_length</span> <span class="o">&lt;</span> <span class="n">current_fixed_length</span> <span class="o">+</span> <span class="n">remaining_cartesian_length_max</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="s1">&#39; and &#39;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Filter too long even in cartesian product&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Your filter conditions are too complex. Please split your query into multiple calls.&#39;</span><span class="p">)</span>
 
     <span class="n">breakable_filters</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">breakable_filters</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span>
 
