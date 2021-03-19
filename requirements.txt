@@ -52,7 +52,7 @@ patsy==0.5.1
     # via
     #   plotnine
     #   statsmodels
-pillow==8.1.0
+pillow==8.1.1
     # via matplotlib
 plotnine==0.7.1
     # via -r requirements.in
