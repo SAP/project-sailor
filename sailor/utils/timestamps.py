@@ -54,3 +54,16 @@ def _timestamp_to_date_string(timestamp: pd.Timestamp):
     if timestamp.date() != timestamp:
         warnings.warn('Casting timestamp to date, this operation will loose time-of-day information.')
     return str(timestamp.date())
+
+
+def _calculate_nice_sub_intervals(interval, n_breaks):
+    # helper to calculate 'nice' intervals breaking a given interval into *at least* n_breaks sub-intervals.
+    # it would be nice to have weeks/months rather than the 7d/30d but that seems tricky --
+    # see eg https://github.com/pandas-dev/pandas/issues/15303
+    good_intervals = ['1s', '5s', '15s', '1min', '5min', '15min', '1h', '4h', '12h', '1d', '3d', '7d', '30d']
+    good_intervals = [pd.Timedelta(x) for x in good_intervals]
+
+    target_break_interval = interval / n_breaks
+    target_break_interval = max(target_break_interval, min(good_intervals))
+    freq = max(filter(lambda x: x <= target_break_interval, good_intervals))
+    return freq

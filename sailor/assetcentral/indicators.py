@@ -68,7 +68,7 @@ class AggregatedIndicator(Indicator):
         super(AggregatedIndicator, self).__init__(ac_json)
         self.aggregation_function = aggregation_function
 
-    @property
+    @cached_property
     def _unique_id(self):
         m = hashlib.sha256()
         unique_string = self.id + self.indicator_group_id + self.template_id + self.aggregation_function

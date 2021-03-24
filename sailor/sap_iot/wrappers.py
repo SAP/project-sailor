@@ -7,10 +7,9 @@ Here we define some convenience wrappers for timeseries data.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from math import ceil
 import warnings
 from datetime import datetime
-from typing import TYPE_CHECKING, Union, Any
+from typing import TYPE_CHECKING, Union, Any, Callable
 import logging
 
 import pandas as pd
@@ -20,7 +19,8 @@ from plotnine.scales import scale_x_datetime
 from sklearn.preprocessing import StandardScaler
 
 from ..utils.plot_helper import _default_plot_theme
-from ..utils.timestamps import _any_to_timestamp
+from ..utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals
+from ..assetcentral.indicators import AggregatedIndicator, AggregatedIndicatorSet
 
 if TYPE_CHECKING:
     from ..assetcentral.indicators import IndicatorSet
@@ -227,58 +227,49 @@ class TimeseriesDataset(object):
             feature_vars = set(feature_vars) - set(empty_indicators)
 
         query_timedelta = end - start
-        if query_timedelta < pd.Timedelta(hours=1):
-            aggregation_interval = '1s'
-        elif query_timedelta < pd.Timedelta(days=1):
-            aggregation_interval = '1min'
-        elif query_timedelta < pd.Timedelta(days=30):
-            aggregation_interval = '1h'
-        else:
-            aggregation_interval = '12h'
-        groupers = [pd.Grouper(key=time_column, freq=aggregation_interval), *self.get_key_columns()]
+        break_interval = _calculate_nice_sub_intervals(query_timedelta, 5)  # at least 5 axis breaks
+        first_break = start.floor(break_interval, ambiguous=False, nonexistent='shift_backward')
+        last_break = end.ceil(break_interval, ambiguous=False, nonexistent='shift_forward')
+        x_breaks = pd.date_range(first_break, last_break, freq=break_interval)
 
+        if break_interval < pd.Timedelta('1 day'):
+            date_labels = '%Y-%m-%d %H:%M:%S'
+        else:
+            date_labels = '%Y-%m-%d'
+
+        facet_grid_definition = 'indicator + template + indicator_group ~ .'
+        facet_assignment = dict(
+            template=lambda x: x.Feature.apply(lambda row: name_mapping[row][0]),
+            indicator_group=lambda x: x.Feature.apply(lambda row: name_mapping[row][1]),
+            indicator=lambda x: x.Feature.apply(lambda row: name_mapping[row][2])
+        )
+
+        if isinstance(self._indicator_set, AggregatedIndicatorSet):
+            facet_grid_definition = 'aggregation + indicator + template + indicator_group ~ .'
+            facet_assignment['aggregation'] = lambda x: x.Feature.apply(lambda row: name_mapping[row][3])
+
+        aggregation_interval = _calculate_nice_sub_intervals(query_timedelta, 100)  # at leat 100 data points
+        groupers = [*self.get_key_columns(), pd.Grouper(key=time_column, freq=aggregation_interval)]
         molten_data = (
             data.groupby(groupers)
                 .agg('mean')
                 .reset_index()
                 .dropna(1, 'all')
                 .melt(id_vars=key_vars, value_vars=feature_vars, var_name='Feature')
-                .assign(template=lambda x: x.Feature.apply(lambda row: name_mapping[row][0]))
-                .assign(indicator_group=lambda x: x.Feature.apply(lambda row: name_mapping[row][1]))
-                .assign(indicator=lambda x: x.Feature.apply(lambda row: name_mapping[row][2]))
+                .assign(**facet_assignment)
                 .replace({'equipment_id': equipment_mapping})
                 .rename(columns={'equipment_id': 'equipment'})
         )
 
-        facet_column_count = 1
         facet_row_count = len(feature_vars) + len(molten_data.groupby(['template', 'indicator_group']))
-
-        scale_x_datetime_kwargs = {
-            'limits': (start, end)
-        }
-
-        if query_timedelta <= pd.Timedelta(days=2):
-            LOG.debug('Using short-time logic for calculating time-axis breaks in plot.')
-            # max 24 labels
-            step_size_hours = (2 if query_timedelta.total_seconds() > 24 * 3600 else 1) * facet_column_count
-            scale_x_datetime_kwargs['date_breaks'] = '%d hours' % step_size_hours
-            scale_x_datetime_kwargs['labels'] = lambda breaks: [b.strftime("%Y-%m-%d %H:%M:%S") if b.hour == 0 else
-                                                                b.strftime("%H:%M:%S") for b in breaks]
-        else:
-            LOG.debug('Using long-time logic for calculating time-axis breaks in plot.')
-            max_stepsize_days = ceil(query_timedelta.days / 4)
-            step_size_days = min(max(2, int(query_timedelta.days / 30) * 2) * facet_column_count,
-                                 max_stepsize_days)  # at least 4, max 20 labels
-            scale_x_datetime_kwargs['date_breaks'] = '%d days' % step_size_days
-            scale_x_datetime_kwargs['labels'] = lambda breaks: [b.strftime("%Y-%m-%d") for b in breaks]
 
         plot = (
                 ggplot(molten_data, aes(x=self.get_time_column(), y='value', color='equipment')) +
                 geom_point() + geom_line() +
-                facet_grid('indicator + template + indicator_group ~ .', scales='free') +
+                facet_grid(facet_grid_definition, scales='free') +
                 _default_plot_theme() +
-                theme(figure_size=(10 * facet_column_count, 3 * facet_row_count)) +
-                scale_x_datetime(**scale_x_datetime_kwargs)
+                theme(figure_size=(10, 3 * facet_row_count)) +
+                scale_x_datetime(limits=(start, end), date_labels=date_labels, breaks=x_breaks)
         )
 
         return plot
@@ -365,3 +356,45 @@ class TimeseriesDataset(object):
 
         return TimeseriesDataset(selected_df, self._indicator_set, selected_equi_set,
                                  start_time, end_time, self.is_normalized)
+
+    def aggregate(self,
+                  aggregation_interval: str,
+                  aggregation_functions: Union[Iterable[Union[str, Callable]], str, Callable] = 'mean')\
+            -> TimeseriesDataset:
+        """
+        Aggregate the TimeseriesDataset to a fixed interval, returning a new TimeseriesDataset.
+
+        This operation will change the unique feature IDs, as the new IDs need to encode the additional information on
+        the aggregation function. Accordingly there will also be an additional column index level for the
+        aggregation function on the DataFrame returned by :meth:`sailor.timeseries.wrappers.TimeseriesDataset.as_df`
+        when using ``speaking_names=True``.
+        Note that the resulting timeseries is not equidistant if gaps larger than the aggregation interval are
+        present in the original timeseries.
+
+        Parameters
+        ----------
+        aggregation_interval
+            String specifying the aggregation interval, e.g. '1h' or '30min'. Follows the same rules as the ``freq``
+            parameter in a ``pandas.Grouper`` object.
+        aggregation_functions
+            Aggregation function or iterable of aggregation functions to use.
+            Each aggregation_function can be a string (e.g. 'mean', 'min' etc) or a function (e.g. np.max etc).
+        """
+        if isinstance(aggregation_functions, str) or isinstance(aggregation_functions, Callable):
+            aggregation_functions = (aggregation_functions, )
+
+        new_indicators = []
+        aggregation_definition = {}
+        for indicator in self._indicator_set:
+            for aggregation_function in aggregation_functions:
+                new_indicator = AggregatedIndicator(indicator.raw, str(aggregation_function))
+                new_indicators.append(new_indicator)
+                aggregation_definition[new_indicator._unique_id] = (indicator._unique_id, aggregation_function)
+        new_indicator_set = AggregatedIndicatorSet(new_indicators)
+
+        grouper = [*self.get_key_columns(),
+                   pd.Grouper(key=self.get_time_column(), closed='left', freq=aggregation_interval)]
+        df = self._df.groupby(grouper).agg(**aggregation_definition)
+
+        return TimeseriesDataset(df.reset_index(), new_indicator_set, self._equipment_set,
+                                 self.nominal_data_start, self.nominal_data_end, self.is_normalized)

@@ -3,7 +3,7 @@ import datetime
 import pytest
 import pandas as pd
 
-from sailor.utils.timestamps import _any_to_timestamp
+from sailor.utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals
 
 
 @pytest.mark.parametrize('testdescription,input,expected', [
@@ -24,3 +24,11 @@ from sailor.utils.timestamps import _any_to_timestamp
 def test_any_to_timestamp_types(input, expected, testdescription):
     actual = _any_to_timestamp(input)
     assert actual == expected
+
+
+def test_calculate_nice_sub_intervals_short_interval_does_not_raise():
+    _calculate_nice_sub_intervals(pd.Timedelta('500ms'), 10)
+
+
+def test_calculate_nice_sub_intervals_single_break_does_not_raise():
+    _calculate_nice_sub_intervals(pd.Timedelta('1Y'), 1)
