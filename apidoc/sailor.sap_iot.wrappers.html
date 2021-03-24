@@ -185,6 +185,31 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A Wrapper class to make accessing timeseries data from SAP iot more convenient.</p>
 <dl class="py method">
+<dt id="sailor.sap_iot.wrappers.TimeseriesDataset.aggregate">
+<code class="sig-name descname"><span class="pre">aggregate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aggregation_interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_functions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.aggregate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.aggregate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate the TimeseriesDataset to a fixed interval, returning a new TimeseriesDataset.</p>
+<p>This operation will change the unique feature IDs, as the new IDs need to encode the additional information on
+the aggregation function. Accordingly there will also be an additional column index level for the
+aggregation function on the DataFrame returned by <code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.timeseries.wrappers.TimeseriesDataset.as_df()</span></code>
+when using <code class="docutils literal notranslate"><span class="pre">speaking_names=True</span></code>.
+Note that the resulting timeseries is not equidistant if gaps larger than the aggregation interval are
+present in the original timeseries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aggregation_interval</strong> (<em>str</em>) – String specifying the aggregation interval, e.g. ‘1h’ or ‘30min’. Follows the same rules as the <code class="docutils literal notranslate"><span class="pre">freq</span></code>
+parameter in a <code class="docutils literal notranslate"><span class="pre">pandas.Grouper</span></code> object.</p></li>
+<li><p><strong>aggregation_functions</strong> (<em>Union</em><em>[</em><em>Iterable</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Callable</em><em>]</em><em>]</em><em>, </em><em>str</em><em>, </em><em>Callable</em><em>]</em>) – Aggregation function or iterable of aggregation functions to use.
+Each aggregation_function can be a string (e.g. ‘mean’, ‘min’ etc) or a function (e.g. np.max etc).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset">TimeseriesDataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset.as_df">
 <code class="sig-name descname"><span class="pre">as_df</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">speaking_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.as_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.as_df" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the data stored within this TimeseriesDataset object as a pandas dataframe.</p>
