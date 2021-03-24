@@ -5,6 +5,7 @@ Classes are provided for individual Systems as well as groups of Systems (System
 """
 from typing import Union
 from datetime import datetime
+from functools import cached_property
 
 import pandas as pd
 
@@ -26,9 +27,8 @@ class System(AssetcentralEntity):
     # publishedOn, operator, operatorID, completeness
 
     def __init__(self, ac_json):
-        """Create a new System object and fetch all components."""
+        """Create a new System object."""
         self.raw = ac_json
-        self._prepare_components()
 
     @classmethod
     def get_property_mapping(cls):
@@ -73,56 +73,62 @@ class System(AssetcentralEntity):
     def _traverse_components(comps, model_order, equipment_ids, system_ids):
         """Traverse component structure recursively."""
         compd = {}
+        compd['key'] = (comps['model'], model_order)
         compd['id'] = comps['id']
         compd['name'] = comps['name']
+        compd['order'] = comps['order']
         if comps['order'] is not None:
             if comps['objectType'] == 'EQU':
-                equipment_ids.append(compd['id'])
+                equipment_ids.append(comps['id'])
             else:
-                system_ids.append(compd['id'])
-        compd['key'] = (comps['model'], model_order)
+                system_ids.append(comps['id'])
         compd['object_type'] = comps['objectType']
         compdf = System._sort_components(comps)
         if len(compdf) > 0:
-            compd['child_nodes'] = []
+            compd['child_list'] = []
             for c in range(len(compdf)):
                 row = compdf.iloc[c]['row']
                 model_order = compdf.iloc[c]['model_order']
                 compd0, equipment_ids, system_ids = System._traverse_components(comps['childNodes'][row], model_order,
                                                                                 equipment_ids, system_ids)
-                compd['child_nodes'].append(compd0)
+                compd['child_list'].append(compd0)
         return compd, equipment_ids, system_ids
 
     def _update_dictionary(self, comps):
         if comps['object_type'] == 'EQU':
-            obj = self.equipments.filter(id=comps['id'])[0]
-            comps['indicators'] = self.indicators[comps['id']]
+            obj = self._equipments.filter(id=comps['id'])[0]
+            comps['indicators'] = self._indicators[comps['id']]
         else:
             if comps['id'] == self.id:
                 obj = self
             else:
-                obj = self.systems.filter(id=comps['id'])[0]
+                obj = self._systems.filter(id=comps['id'])[0]
         comps['key'] = (obj.model_id, comps['key'][1])
-        if 'child_nodes' in comps.keys():
-            for c in comps['child_nodes']:
+        if 'child_list' in comps.keys():
+            comps['child_nodes'] = {}
+            for c in comps['child_list']:
                 self._update_dictionary(c)
+                comps['child_nodes'][c['key']] = c
+            del comps['child_list']
 
-    def _prepare_components(self):
+    @cached_property
+    def components(self):
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
-        components = _fetch_data(endpoint_url)[0]
-        self.components, equipment_ids, system_ids = System._traverse_components(components, 1, [], [])
+        comps = _fetch_data(endpoint_url)[0]
+        self._components, equipment_ids, system_ids = System._traverse_components(comps, 1, [], [])
         if system_ids:
-            self.systems = find_systems(id=system_ids)
+            self._systems = find_systems(id=system_ids)
         else:
-            self.systems = SystemSet([])
-        self.indicators = {}
+            self._systems = SystemSet([])
+        self._indicators = {}
         if equipment_ids:
-            self.equipments = find_equipment(id=equipment_ids)
-            for equi in self.equipments:
-                self.indicators[equi.id] = equi.find_equipment_indicators(type='Measured')
+            self._equipments = find_equipment(id=equipment_ids)
+            for equi in self._equipments:
+                self._indicators[equi.id] = equi.find_equipment_indicators(type='Measured')
         else:
-            self.equipments = EquipmentSet([])
-        self._update_dictionary(self.components)
+            self._equipments = EquipmentSet([])
+        self._update_dictionary(self._components)
+        return self._components
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> TimeseriesDataset:
@@ -179,6 +185,27 @@ class SystemSet(ResultSet):
         all_indicators = sum((equipment.find_equipment_indicators() for equipment in all_equipment), IndicatorSet([]))
 
         return get_indicator_data(start, end, all_indicators, all_equipment)
+
+    @staticmethod
+    def _map_comp_info(sel_nodes, sys_nodes, indicator_list):
+        for node in sel_nodes:
+            if node['object_type'] == 'EQU':
+                for i in node['indicators']:
+                    if i in sys_nodes[node['key']]['indicators']:
+                        indicator_list.append((sys_nodes[node['key']]['id'], i))
+                    else:
+                        indicator_list.append(None)
+            if 'child_nodes' in node.keys():
+                SystemSet._map_comp_info(node['child_nodes'], sys_nodes[node['key']]['child_nodes'], indicator_list)
+
+    def map_component_information(self, selection):
+        """Map selection dictionary against component dictionary of systems in a system set."""
+        system_indicators = {}
+        for system in self:
+            indicator_list = []
+            SystemSet._map_comp_info(selection['child_nodes'], system.components['child_nodes'], indicator_list)
+            system_indicators[system.id] = indicator_list
+        return system_indicators
 
 
 def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
