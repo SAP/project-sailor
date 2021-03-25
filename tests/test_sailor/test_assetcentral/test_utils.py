@@ -309,7 +309,7 @@ class TestFetchData:
         assert isinstance(actual, Iterable)
 
     @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
-    def test_no_filters_makes_remote_call(self, auth_mock):
+    def test_no_filters_makes_remote_call_with_no_params(self, auth_mock):
         fetch_mock = auth_mock.return_value.fetch_endpoint_data
         fetch_mock.return_value = ['result']
         unbreakable_filters = []
@@ -317,7 +317,7 @@ class TestFetchData:
 
         actual = _fetch_data('', unbreakable_filters, breakable_filters)
 
-        fetch_mock.assert_called_once_with('', method='GET')
+        fetch_mock.assert_called_once_with('', method='GET', parameters=None)
         assert actual == ['result']
 
     @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))

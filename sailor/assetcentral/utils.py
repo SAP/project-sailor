@@ -128,17 +128,17 @@ def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
     service = OAuthFlow('asset_central')
 
     if not filters:
-        result = service.fetch_endpoint_data(endpoint_url, method='GET')
-    else:
-        result = []
-        for filter_string in filters:
-            parameters = {'$filter': filter_string} if filter_string else None
-            endpoint_data = service.fetch_endpoint_data(endpoint_url, method='GET', parameters=parameters)
+        filters = ['']
 
-            if isinstance(endpoint_data, list):
-                result.extend(endpoint_data)
-            else:
-                result.append(endpoint_data)
+    result = []
+    for filter_string in filters:
+        parameters = {'$filter': filter_string} if filter_string else None
+        endpoint_data = service.fetch_endpoint_data(endpoint_url, method='GET', parameters=parameters)
+
+        if isinstance(endpoint_data, list):
+            result.extend(endpoint_data)
+        else:
+            result.append(endpoint_data)
 
     if len(result) == 0:
         warnings.warn(DataNotFoundWarning(), stacklevel=2)
