@@ -45,21 +45,21 @@ class System(AssetcentralEntity):
         }
 
     @staticmethod
-    def _sort_components(comps):
-        """Sort components by order attribute.
+    def _sort_children(component):
+        """Sort child_nodes of `component` by order attribute.
 
-        Dictionary comps is not sorted by order number
+        Dictionary component is not sorted by order number
         Hence, we have to sort - we do this in a data frame
         First, we sort by [model, order] to get order within model into column 'model_order'
         Second, we sort by order to have the correct order in the component dictionary
         """
         name, order, id, model, row = [], [], [], [], []
         r = 0
-        for c in comps['childNodes']:
-            name.append(c['name'])
-            order.append(c['order'])
-            id.append(c['id'])
-            model.append(c['model'])
+        for child in component['childNodes']:
+            name.append(child['name'])
+            order.append(child['order'])
+            id.append(child['id'])
+            model.append(child['model'])
             row.append(r)
             r += 1
         compdf = pd.DataFrame(list(zip(name, id, order, model, row)), columns=['name', 'id', 'order', 'model', 'row'])
@@ -70,46 +70,46 @@ class System(AssetcentralEntity):
         return compdf
 
     @staticmethod
-    def _traverse_components(comps, model_order, equipment_ids, system_ids):
-        """Traverse component structure recursively."""
+    def _traverse_components(component, model_order, equipment_ids, system_ids):
+        """Traverse component structure recursively, starting from `component`."""
         compd = {}
-        compd['key'] = (comps['model'], model_order)
-        compd['id'] = comps['id']
-        compd['name'] = comps['name']
-        compd['order'] = comps['order']
-        if comps['order'] is not None:
-            if comps['objectType'] == 'EQU':
-                equipment_ids.append(comps['id'])
+        compd['key'] = (component['model'], model_order)
+        compd['id'] = component['id']
+        compd['name'] = component['name']
+        compd['order'] = component['order']
+        if component['order'] is not None:
+            if component['objectType'] == 'EQU':
+                equipment_ids.append(component['id'])
             else:
-                system_ids.append(comps['id'])
-        compd['object_type'] = comps['objectType']
-        compdf = System._sort_components(comps)
+                system_ids.append(component['id'])
+        compd['object_type'] = component['objectType']
+        compdf = System._sort_children(component)
         if len(compdf) > 0:
             compd['child_list'] = []
             for c in range(len(compdf)):
                 row = compdf.iloc[c]['row']
                 model_order = compdf.iloc[c]['model_order']
-                compd0, equipment_ids, system_ids = System._traverse_components(comps['childNodes'][row], model_order,
-                                                                                equipment_ids, system_ids)
+                compd0, equipment_ids, system_ids = System._traverse_components(component['childNodes'][row],
+                                                                                model_order, equipment_ids, system_ids)
                 compd['child_list'].append(compd0)
         return compd, equipment_ids, system_ids
 
-    def _update_dictionary(self, comps):
-        if comps['object_type'] == 'EQU':
-            obj = self._equipments.filter(id=comps['id'])[0]
-            comps['indicators'] = self._indicators[comps['id']]
+    def _update_components(self, component):
+        if component['object_type'] == 'EQU':
+            obj = self._equipments.filter(id=component['id'])[0]
+            component['indicators'] = self._indicators[component['id']]
         else:
-            if comps['id'] == self.id:
+            if component['id'] == self.id:
                 obj = self
             else:
-                obj = self._systems.filter(id=comps['id'])[0]
-        comps['key'] = (obj.model_id, comps['key'][1])
-        if 'child_list' in comps.keys():
-            comps['child_nodes'] = {}
-            for c in comps['child_list']:
-                self._update_dictionary(c)
-                comps['child_nodes'][c['key']] = c
-            del comps['child_list']
+                obj = self._systems.filter(id=component['id'])[0]
+        component['key'] = (obj.model_id, component['key'][1])
+        if 'child_list' in component.keys():
+            component['child_nodes'] = {}
+            for child in component['child_list']:
+                self._update_components(child)
+                component['child_nodes'][child['key']] = child
+            del component['child_list']
 
     @cached_property
     def components(self):
@@ -127,7 +127,7 @@ class System(AssetcentralEntity):
                 self._indicators[equi.id] = equi.find_equipment_indicators(type='Measured')
         else:
             self._equipments = EquipmentSet([])
-        self._update_dictionary(self._components)
+        self._update_components(self._components)
         return self._components
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
