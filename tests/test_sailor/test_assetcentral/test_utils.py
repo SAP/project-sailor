@@ -298,12 +298,14 @@ class TestComposeQueries:
 class TestFetchData:
     @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
     @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
-    @pytest.mark.parametrize('testdesc,unbreakable_filters,breakable_filters', [
-        ('no filters', [], []),
-        ('filters', ['a gt b'], [['c eq 1']])
+    @pytest.mark.parametrize('testdesc,unbreakable_filters,breakable_filters,remote_return', [
+        ('no filters - single return', [], [], {'a': 'dict'}),
+        ('filters - single return', ['a gt b'], [['c eq 1']], {'a': 'dict'}),
+        ('no filters - list return', [], [], ['result']),
+        ('filters - list return', ['a gt b'], [['c eq 1']], ['result']),
     ])
-    def test_returns_iterable(self, auth_mock, unbreakable_filters, breakable_filters, testdesc):
-        auth_mock.return_value.fetch_endpoint_data.return_value = []
+    def test_returns_iterable(self, auth_mock, unbreakable_filters, breakable_filters, remote_return, testdesc):
+        auth_mock.return_value.fetch_endpoint_data.return_value = remote_return
         actual = _fetch_data('', unbreakable_filters, breakable_filters)
         assert not issubclass(actual.__class__, str)
         assert isinstance(actual, Iterable)
