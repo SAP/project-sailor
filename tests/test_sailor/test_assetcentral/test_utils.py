@@ -298,10 +298,29 @@ class TestComposeQueries:
 class TestFetchData:
     @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
     @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
-    def test_returns_iterable(self, auth_mock):
-        actual = _fetch_data('')
+    @pytest.mark.parametrize('testdesc,unbreakable_filters,breakable_filters,remote_return', [
+        ('no filters - single return', [], [], {'a': 'dict'}),
+        ('filters - single return', ['a gt b'], [['c eq 1']], {'a': 'dict'}),
+        ('no filters - list return', [], [], ['result']),
+        ('filters - list return', ['a gt b'], [['c eq 1']], ['result']),
+    ])
+    def test_returns_iterable(self, auth_mock, unbreakable_filters, breakable_filters, remote_return, testdesc):
+        auth_mock.return_value.fetch_endpoint_data.return_value = remote_return
+        actual = _fetch_data('', unbreakable_filters, breakable_filters)
         assert not issubclass(actual.__class__, str)
         assert isinstance(actual, Iterable)
+
+    @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
+    def test_no_filters_makes_remote_call_with_no_params(self, auth_mock):
+        fetch_mock = auth_mock.return_value.fetch_endpoint_data
+        fetch_mock.return_value = ['result']
+        unbreakable_filters = []
+        breakable_filters = []
+
+        actual = _fetch_data('', unbreakable_filters, breakable_filters)
+
+        fetch_mock.assert_called_once_with('', method='GET', parameters=None)
+        assert actual == ['result']
 
     @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
     def test_adds_filter_parameter_on_call(self, auth_mock):

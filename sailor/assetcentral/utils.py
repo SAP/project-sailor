@@ -127,6 +127,9 @@ def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
     filters = _compose_queries(unbreakable_filters, breakable_filters)
     service = OAuthFlow('asset_central')
 
+    if not filters:
+        filters = ['']
+
     result = []
     for filter_string in filters:
         parameters = {'$filter': filter_string} if filter_string else None
