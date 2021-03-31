@@ -113,6 +113,7 @@ class System(AssetcentralEntity):
 
     @cached_property
     def components(self):
+        """Prepare components and cache them."""
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
         comps = _fetch_data(endpoint_url)[0]
         self._components, equipment_ids, system_ids = System._traverse_components(comps, 1, [], [])
@@ -187,29 +188,44 @@ class SystemSet(ResultSet):
         return get_indicator_data(start, end, all_indicators, all_equipment)
 
     @staticmethod
-    def _map_comp_info(sel_nodes, sys_nodes, indicator_list):
+    def _fill_nones(sel_nodes, indicator_list):
+        """Fill None for indicators of missing subtrees recursively."""
         for node in sel_nodes:
             if node['object_type'] == 'EQU':
                 for i in node['indicators']:
-                    if i in sys_nodes[node['key']]['indicators']:
+                    indicator_list.append(None)
+            if 'child_nodes' in node.keys():
+                SystemSet._fill_nones(node['child_nodes'], indicator_list)
+
+    @staticmethod
+    def _map_comp_info(sel_nodes, sys_nodes, indicator_list):
+        """Map selection dictionary against component dictionary recursively."""
+        for node in sel_nodes:
+            if node['object_type'] == 'EQU':
+                for i in node['indicators']:
+                    if (node['key'] in sys_nodes.keys()) and (i in sys_nodes[node['key']]['indicators']):
                         indicator_list.append((sys_nodes[node['key']]['id'], i))
                     else:
                         indicator_list.append(None)
             if 'child_nodes' in node.keys():
-                SystemSet._map_comp_info(node['child_nodes'], sys_nodes[node['key']]['child_nodes'], indicator_list)
+                if node['key'] in sys_nodes.keys():
+                    SystemSet._map_comp_info(node['child_nodes'], sys_nodes[node['key']]['child_nodes'], indicator_list)
+                else:
+                    SystemSet._fill_nones(node['child_nodes'], indicator_list)
 
     def map_component_information(self, selection):
         """Map selection dictionary against component dictionary of systems in a system set."""
         system_indicators = {}
         for system in self:
             indicator_list = []
+            print(system.name)
             SystemSet._map_comp_info(selection['child_nodes'], system.components['child_nodes'], indicator_list)
             system_indicators[system.id] = indicator_list
         return system_indicators
 
 
 def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
-    """Fetch Systems from AssetCentral with the applied filters, return an SystemSet.
+    """Fetch Systems from AssetCentral with the applied filters, return a SystemSet.
 
     This method supports the usual filter criteria, i.e.
     - Any named keyword arguments applied as equality filters, i.e. the name of the System property is checked
