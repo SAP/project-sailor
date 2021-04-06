@@ -106,9 +106,12 @@ class System(AssetcentralEntity):
         component['key'] = (obj.model_id, component['key'][1])
         if 'child_list' in component.keys():
             component['child_nodes'] = {}
+            component['child_order'] = []
             for child in component['child_list']:
                 self._update_components(child)
                 component['child_nodes'][child['key']] = child
+                component['child_order'].append(component['child_nodes'][child['key']]['key'])
+                del component['child_nodes'][child['key']]['key']
             del component['child_list']
 
     @cached_property
@@ -128,8 +131,24 @@ class System(AssetcentralEntity):
                 self._indicators[equi.id] = equi.find_equipment_indicators(type='Measured')
         else:
             self._equipments = EquipmentSet([])
+        # print(self._components)
         self._update_components(self._components)
+        del self._components['key']
         return self._components
+
+    @staticmethod
+    def _create_selection_dictionary(comps, key):
+        selection = {}
+        selection['key'] = key
+        selection['object_type'] = comps['object_type']
+        if comps['object_type'] == 'EQU':
+            selection['indicators'] = comps['indicators']
+        if 'child_order' in comps.keys():
+            selection['child_nodes'] = []
+            for child in comps['child_order']:
+                sel = System._create_selection_dictionary(comps['child_nodes'][child], child)
+                selection['child_nodes'].append(sel)
+        return selection
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> TimeseriesDataset:
@@ -188,17 +207,18 @@ class SystemSet(ResultSet):
         return get_indicator_data(start, end, all_indicators, all_equipment)
 
     @staticmethod
-    def _fill_nones(sel_nodes, indicator_list):
+    def _fill_nones(sel_nodes, indicator_list, none_positions):
         """Fill None for indicators of missing subtrees recursively."""
         for node in sel_nodes:
             if node['object_type'] == 'EQU':
                 for i in node['indicators']:
+                    none_positions.add(len(indicator_list))
                     indicator_list.append(None)
             if 'child_nodes' in node.keys():
-                SystemSet._fill_nones(node['child_nodes'], indicator_list)
+                SystemSet._fill_nones(node['child_nodes'], indicator_list, none_positions)
 
     @staticmethod
-    def _map_comp_info(sel_nodes, sys_nodes, indicator_list):
+    def _map_comp_info(sel_nodes, sys_nodes, indicator_list, none_positions):
         """Map selection dictionary against component dictionary recursively."""
         for node in sel_nodes:
             if node['object_type'] == 'EQU':
@@ -206,21 +226,35 @@ class SystemSet(ResultSet):
                     if (node['key'] in sys_nodes.keys()) and (i in sys_nodes[node['key']]['indicators']):
                         indicator_list.append((sys_nodes[node['key']]['id'], i))
                     else:
+                        none_positions.add(len(indicator_list))
                         indicator_list.append(None)
             if 'child_nodes' in node.keys():
                 if node['key'] in sys_nodes.keys():
-                    SystemSet._map_comp_info(node['child_nodes'], sys_nodes[node['key']]['child_nodes'], indicator_list)
+                    SystemSet._map_comp_info(node['child_nodes'], sys_nodes[node['key']]['child_nodes'],
+                                             indicator_list, none_positions)
                 else:
-                    SystemSet._fill_nones(node['child_nodes'], indicator_list)
+                    SystemSet._fill_nones(node['child_nodes'], indicator_list, none_positions)
 
     def map_component_information(self, selection):
         """Map selection dictionary against component dictionary of systems in a system set."""
         system_indicators = {}
+        none_positions = set()
+        intersection = False
+        if len(selection) == 0:
+            # build selection dictionary from one of the systems
+            intersection = True
+            selection = System._create_selection_dictionary(self[0].components, (self[0].model_id, 1))
         for system in self:
             indicator_list = []
-            print(system.name)
-            SystemSet._map_comp_info(selection['child_nodes'], system.components['child_nodes'], indicator_list)
+            SystemSet._map_comp_info(selection['child_nodes'], system.components['child_nodes'],
+                                     indicator_list, none_positions)
             system_indicators[system.id] = indicator_list
+        if intersection:
+            # keep only indicator that appear for all systems
+            none_positions = list(none_positions)[::-1]
+            for system in self:
+                for p in none_positions:
+                    del system_indicators[system.id][p]
         return system_indicators
 
 
