@@ -294,7 +294,7 @@
             <span class="k">return</span>
 
         <span class="n">encoded_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_access_token</span><span class="p">()</span>
-        <span class="n">decoded_token</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoded_token</span><span class="p">,</span> <span class="n">verify</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">decoded_token</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoded_token</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;verify_signature&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
         <span class="n">all_scopes</span> <span class="o">=</span> <span class="n">decoded_token</span><span class="p">[</span><span class="s1">&#39;scope&#39;</span><span class="p">]</span>
 
         <span class="n">resolved_scopes</span> <span class="o">=</span> <span class="p">[]</span>
