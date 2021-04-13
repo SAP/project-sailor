@@ -23,12 +23,13 @@ setup(
     keywords='',
     license='',
     packages=find_packages(include=('sailor', 'sailor.*')),
-    python_requires='~=3.8',
+    python_requires='>=3.8',
     install_requires=install_requires,
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
     project_urls={  # Optional
         'Documentation': 'https://sap.github.io/project-sailor',
