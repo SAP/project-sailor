@@ -21,7 +21,7 @@ Requirements
 
 You need access to SAP Asset Central and the SAP IoT services in order to use "Sailor".
 
-Since the project "Sailor" is implemented in Python you need to have Python installed. Currently we support Python 3.8.
+Since the project "Sailor" is implemented in Python you need to have Python installed. Currently we support Python >=3.8.
 The required python packages are automatically installed while installing "Sailor".
 
 
