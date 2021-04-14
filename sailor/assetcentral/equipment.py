@@ -10,6 +10,7 @@ from datetime import datetime
 
 import pandas as pd
 
+from sailor import sap_iot
 from .constants import VIEW_EQUIPMENT, VIEW_OBJECTS
 from .failure_mode import find_failure_modes
 from .indicators import Indicator, IndicatorSet
@@ -19,7 +20,6 @@ from .workorder import find_workorders
 from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
     _ac_application_url, _apply_filters_post_request
 from ..utils.timestamps import _string_to_timestamp_parser
-from ..sap_iot import get_indicator_data
 
 if TYPE_CHECKING:
     from ..sap_iot import TimeseriesDataset
@@ -180,7 +180,7 @@ class Equipment(AssetcentralEntity):
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           indicator_set: IndicatorSet = None) -> TimeseriesDataset:
+                           indicator_set: IndicatorSet = None) -> 'TimeseriesDataset':
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.
 
@@ -213,7 +213,7 @@ class Equipment(AssetcentralEntity):
         if indicator_set is None:
             indicator_set = self.find_equipment_indicators()
 
-        return get_indicator_data(start, end, indicator_set, EquipmentSet([self]))
+        return sap_iot.get_indicator_data(start, end, indicator_set, EquipmentSet([self]))
 
 
 class EquipmentSet(ResultSet):
@@ -318,7 +318,7 @@ class EquipmentSet(ResultSet):
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           indicator_set: IndicatorSet = None) -> TimeseriesDataset:
+                           indicator_set: IndicatorSet = None) -> 'TimeseriesDataset':
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.
 
@@ -351,7 +351,7 @@ class EquipmentSet(ResultSet):
         if indicator_set is None:
             indicator_set = self.find_common_indicators()
 
-        return get_indicator_data(start, end, indicator_set, self)
+        return sap_iot.get_indicator_data(start, end, indicator_set, self)
 
 
 def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:

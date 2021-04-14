@@ -7,6 +7,7 @@ Classes are provided for individual Notifications as well as groups of Notificat
 import pandas as pd
 import plotnine as p9
 
+import sailor.assetcentral.equipment
 from .constants import VIEW_NOTIFICATIONS
 from .utils import _fetch_data, _add_properties, ResultSet, _parse_filter_parameters,\
     AssetcentralEntity, _ac_application_url
@@ -80,10 +81,7 @@ class Notification(AssetcentralEntity):
         window_after
             Time interval plotted after a notification. Default value is 2 days after a notification
         """
-        # required to avoid circular imports. which is aweful. not sure about the best way to approach this though
-        from .equipment import find_equipment
-
-        equipment_set = find_equipment(id=self.equipment_id)
+        equipment_set = sailor.assetcentral.equipment.find_equipment(id=self.equipment_id)
 
         if self.start_date and self.end_date:
             data_start = self.start_date - window_before

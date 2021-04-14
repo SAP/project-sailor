@@ -20,14 +20,15 @@ from io import BytesIO
 
 import pandas as pd
 
+import sailor.assetcentral.indicators as ac_indicators
 from ..utils.timestamps import _any_to_timestamp, _timestamp_to_date_string
 from ..utils.oauth_wrapper import OAuthFlow, RequestError
 from ..utils.config import SailorConfig
-from ..assetcentral.indicators import IndicatorSet
 from .wrappers import TimeseriesDataset
 from ..utils.utils import DataNotFoundWarning
 
 if TYPE_CHECKING:
+    from ..assetcentral.indicators import IndicatorSet
     from ..assetcentral.equipment import EquipmentSet
 
 LOG = logging.getLogger(__name__)
@@ -66,7 +67,8 @@ def _check_bulk_timeseries_export_status(export_id: str) -> bool:
         raise RuntimeError(resp['Status'])
 
 
-def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_set: EquipmentSet) -> pd.DataFrame:
+def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_set: EquipmentSet) \
+                      -> pd.DataFrame:
     # each processed file contains data for some time range (one day it seems), one indicator group and all
     # equipment_set holding any data for that group in that time period.
     # Since the user might not have requested all indicators in the group we'll filter out any results that were not
@@ -136,7 +138,7 @@ def _get_exported_bulk_timeseries_data(export_id: str,
 
 def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                        end_date: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                       indicator_set: IndicatorSet, equipment_set: EquipmentSet):
+                       indicator_set: IndicatorSet, equipment_set: EquipmentSet) -> TimeseriesDataset:
     """
     Read indicator data for a certain time period, a set of equipments and a set of indicators.
 
@@ -200,7 +202,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
         print('.', end='')
         for request_id in list(request_ids):
             if _check_bulk_timeseries_export_status(request_id):
-                indicator_subset = IndicatorSet(request_ids.pop(request_id))
+                indicator_subset = ac_indicators.IndicatorSet(request_ids.pop(request_id))
                 data = _get_exported_bulk_timeseries_data(request_id, indicator_subset, equipment_set)
                 results = pd.merge(results, data, on=['model_id', 'equipment_id', 'timestamp'], how='outer')
 
