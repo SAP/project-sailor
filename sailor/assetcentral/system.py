@@ -3,9 +3,11 @@ System module can be used to retrieve System information from AssetCentral.
 
 Classes are provided for individual Systems as well as groups of Systems (SystemSet).
 """
+import itertools
 from typing import Union
 from datetime import datetime
 from functools import cached_property
+from operator import itemgetter
 
 import pandas as pd
 
@@ -45,31 +47,6 @@ class System(AssetcentralEntity):
         }
 
     @staticmethod
-    def _sort_children(component):
-        """Sort child_nodes of `component` by order attribute.
-
-        Dictionary component is not sorted by order number
-        Hence, we have to sort - we do this in a data frame
-        First, we sort by [model, order] to get order within model into column 'model_order'
-        Second, we sort by order to have the correct order in the component dictionary
-        """
-        name, order, id, model, row = [], [], [], [], []
-        r = 0
-        for child in component['childNodes']:
-            name.append(child['name'])
-            order.append(child['order'])
-            id.append(child['id'])
-            model.append(child['model'])
-            row.append(r)
-            r += 1
-        compdf = pd.DataFrame(list(zip(name, id, order, model, row)), columns=['name', 'id', 'order', 'model', 'row'])
-        compdf['one'] = 1
-        compdf.sort_values(by=['model', 'order'], inplace=True)
-        compdf['model_order'] = compdf.groupby(['model']).agg(rank=('one', 'cumsum'))
-        compdf.sort_values(by='order', inplace=True)
-        return compdf
-
-    @staticmethod
     def _traverse_components(component, model_order, equipment_ids, system_ids):
         """Traverse component structure recursively, starting from `component`."""
         compd = {}
@@ -83,18 +60,19 @@ class System(AssetcentralEntity):
             else:
                 system_ids.append(component['id'])
         compd['object_type'] = component['objectType']
-        compdf = System._sort_children(component)
-        if len(compdf) > 0:
+        if 'childNodes' in component.keys():
+            component['childNodes'] = sorted(component['childNodes'], key=itemgetter('model', 'order'))
             compd['child_list'] = []
-            for c in range(len(compdf)):
-                row = compdf.iloc[c]['row']
-                model_order = compdf.iloc[c]['model_order']
-                compd0, equipment_ids, system_ids = System._traverse_components(component['childNodes'][row],
-                                                                                model_order, equipment_ids, system_ids)
-                compd['child_list'].append(compd0)
+            for _, model in itertools.groupby(component['childNodes'], itemgetter('model')):
+                for model_order, c in enumerate(model):
+                    compd0, equipment_ids, system_ids = System._traverse_components(c, model_order,
+                                                                                    equipment_ids, system_ids)
+                    compd['child_list'].append(compd0)
+            compd['child_list'] = sorted(compd['child_list'], key=itemgetter('order'))
         return compd, equipment_ids, system_ids
 
     def _update_components(self, component):
+        """Add indicators and replace id with model_id in the key."""
         if component['object_type'] == 'EQU':
             obj = self._equipments.filter(id=component['id'])[0]
             component['indicators'] = self._indicators[component['id']]
@@ -106,17 +84,15 @@ class System(AssetcentralEntity):
         component['key'] = (obj.model_id, component['key'][1])
         if 'child_list' in component.keys():
             component['child_nodes'] = {}
-            component['child_order'] = []
             for child in component['child_list']:
                 self._update_components(child)
                 component['child_nodes'][child['key']] = child
-                component['child_order'].append(component['child_nodes'][child['key']]['key'])
                 del component['child_nodes'][child['key']]['key']
             del component['child_list']
 
     @cached_property
-    def components(self):
-        """Prepare components and cache them."""
+    def _component_tree(self):
+        """Prepare component tree and cache it."""
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
         comps = _fetch_data(endpoint_url)[0]
         self._components, equipment_ids, system_ids = System._traverse_components(comps, 1, [], [])
@@ -131,7 +107,6 @@ class System(AssetcentralEntity):
                 self._indicators[equi.id] = equi.find_equipment_indicators(type='Measured')
         else:
             self._equipments = EquipmentSet([])
-        # print(self._components)
         self._update_components(self._components)
         del self._components['key']
         return self._components
@@ -143,9 +118,9 @@ class System(AssetcentralEntity):
         selection['object_type'] = comps['object_type']
         if comps['object_type'] == 'EQU':
             selection['indicators'] = comps['indicators']
-        if 'child_order' in comps.keys():
+        if 'child_nodes' in comps.keys():
             selection['child_nodes'] = []
-            for child in comps['child_order']:
+            for child in comps['child_nodes']:
                 sel = System._create_selection_dictionary(comps['child_nodes'][child], child)
                 selection['child_nodes'].append(sel)
         return selection
@@ -243,14 +218,14 @@ class SystemSet(ResultSet):
         if len(selection) == 0:
             # build selection dictionary from one of the systems
             intersection = True
-            selection = System._create_selection_dictionary(self[0].components, (self[0].model_id, 1))
+            selection = System._create_selection_dictionary(self[0]._component_tree, (self[0].model_id, 0))
         for system in self:
             indicator_list = []
-            SystemSet._map_comp_info(selection['child_nodes'], system.components['child_nodes'],
+            SystemSet._map_comp_info(selection['child_nodes'], system._component_tree['child_nodes'],
                                      indicator_list, none_positions)
             system_indicators[system.id] = indicator_list
         if intersection:
-            # keep only indicator that appear for all systems
+            # keep only indicators that appear for all systems
             none_positions = list(none_positions)[::-1]
             for system in self:
                 for p in none_positions:
