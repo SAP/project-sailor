@@ -42,6 +42,9 @@ def _compose_queries(unbreakable_filters, breakable_filters):
     # So my compromise is to include all the (OR) groups that can fit as a whole in the query,
     # and to break the remaining part up into cartesian products.
 
+    if not (unbreakable_filters or breakable_filters):
+        return []
+
     max_filter_length = 2000
 
     filter_string = ' and '.join(unbreakable_filters)
@@ -51,7 +54,7 @@ def _compose_queries(unbreakable_filters, breakable_filters):
     remaining_cartesian_length_max = max(len(' and '.join(p)) for p in cartesian_product)
 
     if max_filter_length < current_fixed_length + remaining_cartesian_length_max + len(' and '):
-        raise RuntimeError('Filter too long even in cartesian product')
+        raise RuntimeError('Your filter conditions are too complex. Please split your query into multiple calls.')
 
     breakable_filters = sorted(breakable_filters, key=len)
 
@@ -123,6 +126,9 @@ def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
     """Retrieve data from the AssetCentral service."""
     filters = _compose_queries(unbreakable_filters, breakable_filters)
     service = OAuthFlow('asset_central')
+
+    if not filters:
+        filters = ['']
 
     result = []
     for filter_string in filters:

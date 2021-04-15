@@ -138,7 +138,7 @@ class OAuthFlow:
             return
 
         encoded_token = self.get_access_token()
-        decoded_token = jwt.decode(encoded_token, verify=False)
+        decoded_token = jwt.decode(encoded_token, options={"verify_signature": False})
         all_scopes = decoded_token['scope']
 
         resolved_scopes = []

@@ -52,11 +52,11 @@ patsy==0.5.1
     # via
     #   plotnine
     #   statsmodels
-pillow==8.1.0
+pillow==8.1.1
     # via matplotlib
 plotnine==0.7.1
     # via -r requirements.in
-pyjwt==1.7.1
+pyjwt==2.0.1
     # via -r requirements.in
 pyparsing==2.4.7
     # via matplotlib
@@ -92,5 +92,5 @@ statsmodels==0.12.2
     # via plotnine
 threadpoolctl==2.1.0
     # via scikit-learn
-urllib3==1.26.3
+urllib3==1.26.4
     # via requests
