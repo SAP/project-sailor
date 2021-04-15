@@ -3,6 +3,8 @@ System module can be used to retrieve System information from AssetCentral.
 
 Classes are provided for individual Systems as well as groups of Systems (SystemSet).
 """
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Union
 from datetime import datetime
 
@@ -63,7 +65,7 @@ class System(AssetcentralEntity):
             self.components = EquipmentSet([])
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> 'TimeseriesDataset':
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> TimeseriesDataset:
         """
         Get timeseries data for all Equipment in the System.
 
@@ -96,7 +98,7 @@ class SystemSet(ResultSet):
     }
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> 'TimeseriesDataset':
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> TimeseriesDataset:
         """
         Fetch data for a set of systems for all component equipment of each system.
 

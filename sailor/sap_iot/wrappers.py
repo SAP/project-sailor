@@ -23,7 +23,7 @@ from ..utils.plot_helper import _default_plot_theme
 from ..utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals
 
 if TYPE_CHECKING:
-    from ..assetcentral.indicators import IndicatorSet, AggregatedIndicatorSet
+    from ..assetcentral.indicators import IndicatorSet
     from ..assetcentral.equipment import EquipmentSet
 
 LOG = logging.getLogger(__name__)
@@ -244,7 +244,7 @@ class TimeseriesDataset(object):
             indicator=lambda x: x.Feature.apply(lambda row: name_mapping[row][2])
         )
 
-        if isinstance(self._indicator_set, AggregatedIndicatorSet):
+        if isinstance(self._indicator_set, ac_indicators.AggregatedIndicatorSet):
             facet_grid_definition = 'aggregation + indicator + template + indicator_group ~ .'
             facet_assignment['aggregation'] = lambda x: x.Feature.apply(lambda row: name_mapping[row][3])
 

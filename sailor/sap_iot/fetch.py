@@ -67,8 +67,7 @@ def _check_bulk_timeseries_export_status(export_id: str) -> bool:
         raise RuntimeError(resp['Status'])
 
 
-def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_set: EquipmentSet) \
-                      -> pd.DataFrame:
+def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_set: EquipmentSet) -> pd.DataFrame:
     # each processed file contains data for some time range (one day it seems), one indicator group and all
     # equipment_set holding any data for that group in that time period.
     # Since the user might not have requested all indicators in the group we'll filter out any results that were not

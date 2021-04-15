@@ -180,7 +180,7 @@ class Equipment(AssetcentralEntity):
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           indicator_set: IndicatorSet = None) -> 'TimeseriesDataset':
+                           indicator_set: IndicatorSet = None) -> TimeseriesDataset:
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.
 
@@ -318,7 +318,7 @@ class EquipmentSet(ResultSet):
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           indicator_set: IndicatorSet = None) -> 'TimeseriesDataset':
+                           indicator_set: IndicatorSet = None) -> TimeseriesDataset:
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.
 
