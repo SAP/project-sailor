@@ -63,8 +63,8 @@ class System(AssetcentralEntity):
         if 'childNodes' in component.keys():
             component['childNodes'] = sorted(component['childNodes'], key=itemgetter('model', 'order'))
             compd['child_list'] = []
-            for _, model in itertools.groupby(component['childNodes'], itemgetter('model')):
-                for model_order, c in enumerate(model):
+            for _, comps_by_model in itertools.groupby(component['childNodes'], itemgetter('model')):
+                for model_order, c in enumerate(comps_by_model):
                     compd0, equipment_ids, system_ids = System._traverse_components(c, model_order,
                                                                                     equipment_ids, system_ids)
                     compd['child_list'].append(compd0)
@@ -95,7 +95,7 @@ class System(AssetcentralEntity):
         """Prepare component tree and cache it."""
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
         comps = _fetch_data(endpoint_url)[0]
-        self._components, equipment_ids, system_ids = System._traverse_components(comps, 1, [], [])
+        self._components, equipment_ids, system_ids = System._traverse_components(comps, 0, [], [])
         if system_ids:
             self._systems = find_systems(id=system_ids)
         else:
