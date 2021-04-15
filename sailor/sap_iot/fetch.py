@@ -80,6 +80,7 @@ def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_se
     df = pd.read_csv(ifile)
 
     df['_TIME'] = pd.to_datetime(df['_TIME'], utc=True, unit='ms', errors='coerce')
+    df = df.astype({'equipmentId': str, 'modelId': str, 'indicatorGroupId': str, 'templateId': str})
     df = df.pivot(index=['_TIME', 'equipmentId', 'modelId'], columns=['indicatorGroupId', 'templateId'])
 
     columns_to_keep = {}

@@ -16,18 +16,18 @@ from sailor.utils.utils import DataNotFoundWarning
 
 @pytest.fixture()
 def make_csv_bytes():
-    def maker(group_id=1):
+    def maker(group_id=1, model_id='model_id'):
         data = '''
-        _TIME,I_indicator_id_1,I_indicator_id_2,indicatorGroupId,modelId,templateId,equipmentId
-        1601683140000,3.4,1.78,IG_indicator_group_id_{},model_id,template_id_1,equipment_id_1
-        1601683140000,4.5,2.4,IG_indicator_group_id_{},model_id,template_id_1,equipment_id_2
-        1601683180000,4.3,78.1,IG_indicator_group_id_{},model_id,template_id_1,equipment_id_1
-        1601683180000,5.4,4.2,IG_indicator_group_id_{},model_id,template_id_1,equipment_id_2
-        1601683140000,13.4,11.78,IG_indicator_group_id_{},model_id,template_id_2,equipment_id_1
-        1601683140000,14.5,12.4,IG_indicator_group_id_{},model_id,template_id_2,equipment_id_2
-        1601683180000,14.3,178.1,IG_indicator_group_id_{},model_id,template_id_2,equipment_id_1
-        1601683180000,15.4,14.2,IG_indicator_group_id_{},model_id,template_id_2,equipment_id_2
-        '''.format(*[group_id]*8)
+        "_TIME","I_indicator_id_1","I_indicator_id_2","indicatorGroupId","modelId","templateId","equipmentId"
+        "1601683140000","3.4","1.78","IG_indicator_group_id_{gid}","{mid}","template_id_1","equipment_id_1"
+        "1601683140000","4.5","2.4","IG_indicator_group_id_{gid}","{mid}","template_id_1","equipment_id_2"
+        "1601683180000","4.3","78.1","IG_indicator_group_id_{gid}","{mid}","template_id_1","equipment_id_1"
+        "1601683180000","5.4","4.2","IG_indicator_group_id_{gid}","{mid}","template_id_1","equipment_id_2"
+        "1601683140000","13.4","11.78","IG_indicator_group_id_{gid}","{mid}","template_id_2","equipment_id_1"
+        "1601683140000","14.5","12.4","IG_indicator_group_id_{gid}","{mid}","template_id_2","equipment_id_2"
+        "1601683180000","14.3","178.1","IG_indicator_group_id_{gid}","{mid}","template_id_2","equipment_id_1"
+        "1601683180000","15.4","14.2","IG_indicator_group_id_{gid}","{mid}","template_id_2","equipment_id_2"
+        '''.format(gid=group_id, mid=model_id)
 
         return ''.join(data.split(' ')).encode()
     return maker
@@ -207,6 +207,41 @@ class TestRawDataWrapperFunction:
         assert set(wrapper._df.columns) == set(expected_columns)
         assert len(wrapper._df) == 4
         assert set(wrapper._df['equipment_id'].unique()) == {'equipment_id_1', 'equipment_id_2'}
+
+    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
+    @patch('sailor.sap_iot.fetch.zipfile')
+    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
+    @pytest.mark.parametrize('description,equipment_id', [
+        ('equipment_id matches', 'equipment_id_1'),
+        ('equipment_id does not match', 'equipment_id_4'),
+    ])
+    def test_get_indicator_data_empty_csv_column_merge(self, mock_fetch, mock_zipfile, mock_gzip, mock_config,
+                                                       make_indicator_set, make_equipment_set, make_csv_bytes,
+                                                       description, equipment_id):
+        # When columns in the csv returned are empty (as 'modelId' is in this test) the data type of those
+        # columns is set to float64 by the pandas csv parser.
+        # If in addition the resulting Dataframe is filtered empty (eg because no equipment match the equipment
+        # selector passed to get_indicator_data) the pd.merge call in get_indicator_data fails with
+        # ` ValueError: You are trying to merge on object and float64 columns.`.
+        # It's not clear why this error does not occur when the csv file is not filtered to be empty, even though
+        # the dtypes are still float64.
+        # This test will ascertain that the pd.merge in get_indicator_data works successfully when the csv `modelId`
+        # column is empty for both cases -- resulting DataFrame filtered empty, and resulting DataFrame with content.
+
+        mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_URL', download_url='DOWNLOAD_URL')
+
+        indicator_set = make_indicator_set(propertyId=['indicator_id_1'])
+        equipment_set = make_equipment_set(equipmentId=[equipment_id])
+
+        mock_fetch.side_effect = [
+            {'RequestId': 'test_request_id_1'},
+            {'Status': 'The file is available for download.'}, b'mock_zip_content',
+        ]
+        mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1']
+        mock_zipfile.ZipFile.return_value.read.return_value = b'mock_gzip_content'
+        mock_gzip.side_effect = [BytesIO(make_csv_bytes(1, ''))]
+
+        get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set)
 
     @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
     def test_get_indicator_data_requesterror_handled(self, mock_fetch, mock_config, make_indicator_set):
