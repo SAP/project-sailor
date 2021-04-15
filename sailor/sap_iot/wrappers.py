@@ -18,9 +18,9 @@ from plotnine.themes import theme
 from plotnine.scales import scale_x_datetime
 from sklearn.preprocessing import StandardScaler
 
+import sailor.assetcentral.indicators as ac_indicators
 from ..utils.plot_helper import _default_plot_theme
 from ..utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals
-from ..assetcentral.indicators import AggregatedIndicator, AggregatedIndicatorSet
 
 if TYPE_CHECKING:
     from ..assetcentral.indicators import IndicatorSet
@@ -244,7 +244,7 @@ class TimeseriesDataset(object):
             indicator=lambda x: x.Feature.apply(lambda row: name_mapping[row][2])
         )
 
-        if isinstance(self._indicator_set, AggregatedIndicatorSet):
+        if isinstance(self._indicator_set, ac_indicators.AggregatedIndicatorSet):
             facet_grid_definition = 'aggregation + indicator + template + indicator_group ~ .'
             facet_assignment['aggregation'] = lambda x: x.Feature.apply(lambda row: name_mapping[row][3])
 
@@ -387,10 +387,10 @@ class TimeseriesDataset(object):
         aggregation_definition = {}
         for indicator in self._indicator_set:
             for aggregation_function in aggregation_functions:
-                new_indicator = AggregatedIndicator(indicator.raw, str(aggregation_function))
+                new_indicator = ac_indicators.AggregatedIndicator(indicator.raw, str(aggregation_function))
                 new_indicators.append(new_indicator)
                 aggregation_definition[new_indicator._unique_id] = (indicator._unique_id, aggregation_function)
-        new_indicator_set = AggregatedIndicatorSet(new_indicators)
+        new_indicator_set = ac_indicators.AggregatedIndicatorSet(new_indicators)
 
         grouper = [*self.get_key_columns(),
                    pd.Grouper(key=self.get_time_column(), closed='left', freq=aggregation_interval)]

@@ -3,17 +3,22 @@ System module can be used to retrieve System information from AssetCentral.
 
 Classes are provided for individual Systems as well as groups of Systems (SystemSet).
 """
-from typing import Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Union
 from datetime import datetime
 
 import pandas as pd
 
+from sailor import sap_iot
 from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
     _ac_application_url
 from .equipment import find_equipment, EquipmentSet
 from .indicators import IndicatorSet
 from .constants import VIEW_SYSTEMS
-from ..sap_iot import get_indicator_data, TimeseriesDataset
+
+if TYPE_CHECKING:
+    from ..sap_iot import TimeseriesDataset
 
 
 @_add_properties
@@ -79,7 +84,7 @@ class System(AssetcentralEntity):
             End of time series data.
         """
         all_indicators = sum((equipment.find_equipment_indicators() for equipment in self.components), IndicatorSet([]))
-        return get_indicator_data(start, end, all_indicators, self.components)
+        return sap_iot.get_indicator_data(start, end, all_indicators, self.components)
 
 
 class SystemSet(ResultSet):
@@ -113,7 +118,7 @@ class SystemSet(ResultSet):
         all_equipment = sum((system.components for system in self), EquipmentSet([]))
         all_indicators = sum((equipment.find_equipment_indicators() for equipment in all_equipment), IndicatorSet([]))
 
-        return get_indicator_data(start, end, all_indicators, all_equipment)
+        return sap_iot.get_indicator_data(start, end, all_indicators, all_equipment)
 
 
 def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
