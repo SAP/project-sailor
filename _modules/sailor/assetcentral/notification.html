@@ -163,6 +163,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">plotnine</span> <span class="k">as</span> <span class="nn">p9</span>
 
+<span class="kn">import</span> <span class="nn">sailor.assetcentral.equipment</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_NOTIFICATIONS</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span>\
     <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_ac_application_url</span>
@@ -236,10 +237,7 @@
 <span class="sd">        window_after</span>
 <span class="sd">            Time interval plotted after a notification. Default value is 2 days after a notification</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># required to avoid circular imports. which is aweful. not sure about the best way to approach this though</span>
-        <span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">find_equipment</span>
-
-        <span class="n">equipment_set</span> <span class="o">=</span> <span class="n">find_equipment</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">equipment_id</span><span class="p">)</span>
+        <span class="n">equipment_set</span> <span class="o">=</span> <span class="n">sailor</span><span class="o">.</span><span class="n">assetcentral</span><span class="o">.</span><span class="n">equipment</span><span class="o">.</span><span class="n">find_equipment</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">equipment_id</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">:</span>
             <span class="n">data_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">-</span> <span class="n">window_before</span>
