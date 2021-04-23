@@ -6,6 +6,7 @@ Classes are provided for individual Systems as well as groups of Systems (System
 from __future__ import annotations
 
 import itertools
+import warnings
 from typing import TYPE_CHECKING, Union
 from datetime import datetime
 from functools import cached_property
@@ -116,17 +117,33 @@ class System(AssetcentralEntity):
         del self._components['key']
         return self._components
 
+    @cached_property
+    def components(self):
+        """Pieces of equipment that are children of the system.
+
+        Only top level, lower levels are ignored
+        """
+        warnings.warn("deprecated: attribute will be removed as soon as multilevel system hierarchies are supported",
+                      FutureWarning)
+        equipment_ids = set()
+        comp_tree = self._component_tree
+        for c in comp_tree['child_nodes']:
+            if comp_tree['child_nodes'][c]['object_type'] == 'EQU':
+                equipment_ids.add(comp_tree['child_nodes'][c]['id'])
+        return self._equipments.filter(id=equipment_ids)
+
     @staticmethod
-    def _create_selection_dictionary(comps, key):
+    def _create_selection_dictionary(comp_tree):
+        """Create a selection dictionary recursively based on 'comp_tree.'"""
         selection = {}
-        selection['key'] = key
-        selection['object_type'] = comps['object_type']
-        if comps['object_type'] == 'EQU':
-            selection['indicators'] = comps['indicators']
-        if 'child_nodes' in comps.keys():
+        selection['object_type'] = comp_tree['object_type']
+        if comp_tree['object_type'] == 'EQU':
+            selection['indicators'] = comp_tree['indicators']
+        if 'child_nodes' in comp_tree.keys():
             selection['child_nodes'] = []
-            for child in comps['child_nodes']:
-                sel = System._create_selection_dictionary(comps['child_nodes'][child], child)
+            for child in comp_tree['child_nodes']:
+                sel = System._create_selection_dictionary(comp_tree['child_nodes'][child])
+                sel['key'] = child
                 selection['child_nodes'].append(sel)
         return selection
 
@@ -215,7 +232,7 @@ class SystemSet(ResultSet):
                 else:
                     SystemSet._fill_nones(node['child_nodes'], indicator_list, none_positions)
 
-    def map_component_information(self, selection):
+    def _map_component_information(self, selection):
         """Map selection dictionary against component dictionary of systems in a system set."""
         system_indicators = {}
         none_positions = set()
@@ -223,7 +240,7 @@ class SystemSet(ResultSet):
         if len(selection) == 0:
             # build selection dictionary from one of the systems
             intersection = True
-            selection = System._create_selection_dictionary(self[0]._component_tree, (self[0].model_id, 0))
+            selection = System._create_selection_dictionary(self[0]._component_tree)
         for system in self:
             indicator_list = []
             SystemSet._map_comp_info(selection['child_nodes'], system._component_tree['child_nodes'],
