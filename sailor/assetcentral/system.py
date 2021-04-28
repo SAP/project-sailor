@@ -101,6 +101,7 @@ class System(AssetcentralEntity):
         """Prepare component tree and cache it."""
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
         comps = _fetch_data(endpoint_url)[0]
+        print(comps)
         self._components, equipment_ids, system_ids = System._traverse_components(comps, 0, [], [])
         if system_ids:
             self._systems = find_systems(id=system_ids)
@@ -208,7 +209,7 @@ class SystemSet(ResultSet):
         """Fill None for indicators of missing subtrees recursively."""
         for node in sel_nodes:
             if node['object_type'] == 'EQU':
-                for i in node['indicators']:
+                for indicator in node['indicators']:
                     none_positions.add(len(indicator_list))
                     indicator_list.append(None)
             if 'child_nodes' in node.keys():
@@ -219,9 +220,9 @@ class SystemSet(ResultSet):
         """Map selection dictionary against component dictionary recursively."""
         for node in sel_nodes:
             if node['object_type'] == 'EQU':
-                for i in node['indicators']:
-                    if (node['key'] in sys_nodes.keys()) and (i in sys_nodes[node['key']]['indicators']):
-                        indicator_list.append((sys_nodes[node['key']]['id'], i))
+                for indicator in node['indicators']:
+                    if (node['key'] in sys_nodes.keys()) and (indicator in sys_nodes[node['key']]['indicators']):
+                        indicator_list.append((sys_nodes[node['key']]['id'], indicator))
                     else:
                         none_positions.add(len(indicator_list))
                         indicator_list.append(None)
