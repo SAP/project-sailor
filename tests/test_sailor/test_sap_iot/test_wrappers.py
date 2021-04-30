@@ -19,6 +19,7 @@ def simple_dataset(make_indicator, make_equipment_set):
     rows_per_equipment = 100
 
     generator = default_rng(seed=42)
+    
     def make_random_timestamps():
         start_u = nominal_start_date.value // 10 ** 9
         end_u = nominal_end_date.value // 10 ** 9
