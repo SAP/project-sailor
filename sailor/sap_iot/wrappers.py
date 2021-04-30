@@ -43,7 +43,7 @@ class TimeseriesDataset(object):
         dataframe, and equipment_set must be an EquipmentSet containing all equipments occuring in the equipment_id
         column of the data.
         """
-        self._df = df
+        self._df = df.query('(timestamp >= @nominal_data_start) & (timestamp < @nominal_data_end)')
         self.is_normalized = is_normalized
         self._equipment_set = equipment_set
         self._indicator_set = indicator_set
