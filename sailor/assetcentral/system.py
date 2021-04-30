@@ -6,7 +6,7 @@ Classes are provided for individual Systems as well as groups of Systems (System
 from __future__ import annotations
 
 import itertools
-import warnings
+# import warnings
 from typing import TYPE_CHECKING, Union
 from datetime import datetime
 from functools import cached_property
@@ -54,7 +54,7 @@ class System(AssetcentralEntity):
 
     @staticmethod
     def _traverse_components(component, model_order, equipment_ids, system_ids):
-        """Traverse component structure recursively, starting from `component`."""
+        """Traverse component structure recursively, starting from `component`. Pydocstyle does not know punctuation."""
         compd = {}
         compd['key'] = (component['model'], model_order)
         compd['id'] = component['id']
@@ -101,7 +101,6 @@ class System(AssetcentralEntity):
         """Prepare component tree and cache it."""
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
         comps = _fetch_data(endpoint_url)[0]
-        print(comps)
         self._components, equipment_ids, system_ids = System._traverse_components(comps, 0, [], [])
         if system_ids:
             self._systems = find_systems(id=system_ids)
@@ -124,8 +123,8 @@ class System(AssetcentralEntity):
 
         Only top level, lower levels are ignored
         """
-        warnings.warn("deprecated: attribute will be removed as soon as multilevel system hierarchies are supported",
-                      FutureWarning)
+        # warnings.warn("deprecated: attribute will be removed as soon as multilevel system hierarchies are supported",
+        #              FutureWarning)
         equipment_ids = set()
         comp_tree = self._component_tree
         for c in comp_tree['child_nodes']:
@@ -135,7 +134,7 @@ class System(AssetcentralEntity):
 
     @staticmethod
     def _create_selection_dictionary(comp_tree):
-        """Create a selection dictionary recursively based on 'comp_tree.'"""
+        """Create a selection dictionary recursively based on 'comp_tree.' Pydocstyle does not know punctuation."""
         selection = {}
         selection['object_type'] = comp_tree['object_type']
         if comp_tree['object_type'] == 'EQU':
@@ -208,6 +207,8 @@ class SystemSet(ResultSet):
     def _fill_nones(sel_nodes, indicator_list, none_positions):
         """Fill None for indicators of missing subtrees recursively."""
         for node in sel_nodes:
+            print('###')
+            print(node)
             if node['object_type'] == 'EQU':
                 for indicator in node['indicators']:
                     none_positions.add(len(indicator_list))
