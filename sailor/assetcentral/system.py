@@ -207,8 +207,6 @@ class SystemSet(ResultSet):
     def _fill_nones(sel_nodes, indicator_list, none_positions):
         """Fill None for indicators of missing subtrees recursively."""
         for node in sel_nodes:
-            print('###')
-            print(node)
             if node['object_type'] == 'EQU':
                 for indicator in node['indicators']:
                     none_positions.add(len(indicator_list))
