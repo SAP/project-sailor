@@ -199,7 +199,7 @@
 <span class="sd">        dataframe, and equipment_set must be an EquipmentSet containing all equipments occuring in the equipment_id</span>
 <span class="sd">        column of the data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;(timestamp &gt;= @nominal_data_start) &amp; (timestamp &lt; @nominal_data_end)&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_normalized</span> <span class="o">=</span> <span class="n">is_normalized</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span> <span class="o">=</span> <span class="n">equipment_set</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span> <span class="o">=</span> <span class="n">indicator_set</span>
@@ -514,7 +514,7 @@
                                  <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_normalized</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TimeseriesDataset.aggregate"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                  <span class="n">aggregation_interval</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                  <span class="n">aggregation_interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">],</span>
                   <span class="n">aggregation_functions</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]],</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">)</span>\
             <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -536,6 +536,7 @@
 <span class="sd">            Aggregation function or iterable of aggregation functions to use.</span>
 <span class="sd">            Each aggregation_function can be a string (e.g. &#39;mean&#39;, &#39;min&#39; etc) or a function (e.g. np.max etc).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">aggregation_interval</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">aggregation_interval</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aggregation_functions</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aggregation_functions</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
             <span class="n">aggregation_functions</span> <span class="o">=</span> <span class="p">(</span><span class="n">aggregation_functions</span><span class="p">,</span> <span class="p">)</span>
 
@@ -553,6 +554,55 @@
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">grouper</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="o">**</span><span class="n">aggregation_definition</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">TimeseriesDataset</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span> <span class="n">new_indicator_set</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span><span class="p">,</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_normalized</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TimeseriesDataset.interpolate"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.interpolate">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;pad&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Interpolate the TimeseriesDataset to a fixed interval, returning a new TimeseriesDataset.</span>
+
+<span class="sd">        Additional arguments for the interpolation function can be passed and are forwarded to the pandas `interpolate`</span>
+<span class="sd">        function. The resulting TimeseriesDataset will always be equidistant with timestamps between</span>
+<span class="sd">        `self.nominal_data_start` and `self.nominal_data_end`. However, values at these timestamps may be NA depending</span>
+<span class="sd">        on the interpolation parameters.</span>
+<span class="sd">        By default values will be forward-filled, with no limit to the number of interpolated points between two</span>
+<span class="sd">        given values, and no extrapolation before the first known point. The following keyword arguments can be used to</span>
+<span class="sd">        achieve some common behaviour:</span>
+<span class="sd">          - method=&#39;slinear&#39; will use linear interpolation between any two known points</span>
+<span class="sd">          - method=&#39;index&#39; will use a pandas interpolation method instead of the scipy-based method, which</span>
+<span class="sd">          automatically forward-fills the last known value to the end of the time-series</span>
+<span class="sd">          - fill_value=&#39;extrapolate&#39; will extrapolate beyond the last known value (but not backwards before the first</span>
+<span class="sd">          known value, only applicable to scipy-based interpolation methods.)</span>
+<span class="sd">          - limit=`N` will limit the number of interpolated points between known points to N.</span>
+<span class="sd">        Further details on this behaviour can be found in</span>
+<span class="sd">        https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.interpolate.html</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">_fill_group</span><span class="p">(</span><span class="n">grp</span><span class="p">):</span>
+            <span class="n">target_times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_end</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+                                         <span class="n">closed</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+
+            <span class="n">new_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">target_times</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">grp</span><span class="o">.</span><span class="n">timestamp</span><span class="p">))</span>
+            <span class="n">with_all_timestamps</span> <span class="o">=</span> <span class="n">grp</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_time_column</span><span class="p">())</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">new_index</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">grp</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">group_identifier</span> <span class="o">=</span> <span class="p">[</span><span class="n">grp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_key_columns</span><span class="p">()]</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Not enough datapoints for interpolation in group </span><span class="si">{</span><span class="n">group_identifier</span><span class="si">}</span><span class="s1">!&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">with_all_timestamps</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">target_times</span><span class="p">]</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">with_all_timestamps</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">target_times</span><span class="p">]</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_names</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">)</span>  <span class="c1"># loc loses index name...</span>
+            <span class="k">return</span> <span class="n">tmp</span>
+
+        <span class="n">interval</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">interval</span> <span class="o">&gt;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_start</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Can not interpolate to an interval larger than the data range.&#39;</span><span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_df</span>
+                <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_key_columns</span><span class="p">())</span>
+                <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_fill_group</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_key_columns</span><span class="p">())</span>
+                <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">TimeseriesDataset</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span><span class="p">,</span>
                                  <span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_normalized</span><span class="p">)</span></div></div>
 </pre></div>
 

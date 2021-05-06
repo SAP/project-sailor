@@ -197,7 +197,7 @@ present in the original timeseries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>aggregation_interval</strong> (<em>str</em>) – String specifying the aggregation interval, e.g. ‘1h’ or ‘30min’. Follows the same rules as the <code class="docutils literal notranslate"><span class="pre">freq</span></code>
+<li><p><strong>aggregation_interval</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timedelta</em><em>]</em>) – String specifying the aggregation interval, e.g. ‘1h’ or ‘30min’. Follows the same rules as the <code class="docutils literal notranslate"><span class="pre">freq</span></code>
 parameter in a <code class="docutils literal notranslate"><span class="pre">pandas.Grouper</span></code> object.</p></li>
 <li><p><strong>aggregation_functions</strong> (<em>Union</em><em>[</em><em>Iterable</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>Callable</em><em>]</em><em>]</em><em>, </em><em>str</em><em>, </em><em>Callable</em><em>]</em>) – Aggregation function or iterable of aggregation functions to use.
 Each aggregation_function can be a string (e.g. ‘mean’, ‘min’ etc) or a function (e.g. np.max etc).</p></li>
@@ -290,6 +290,39 @@ True, return corresponding names of key columns</p>
 <dt id="sailor.sap_iot.wrappers.TimeseriesDataset.get_time_column">
 <em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_time_column</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.get_time_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.get_time_column" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the name of the column containing the time information.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="sailor.sap_iot.wrappers.TimeseriesDataset.interpolate">
+<code class="sig-name descname"><span class="pre">interpolate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pad'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.interpolate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.interpolate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolate the TimeseriesDataset to a fixed interval, returning a new TimeseriesDataset.</p>
+<p>Additional arguments for the interpolation function can be passed and are forwarded to the pandas <cite>interpolate</cite>
+function. The resulting TimeseriesDataset will always be equidistant with timestamps between
+<cite>self.nominal_data_start</cite> and <cite>self.nominal_data_end</cite>. However, values at these timestamps may be NA depending
+on the interpolation parameters.
+By default values will be forward-filled, with no limit to the number of interpolated points between two
+given values, and no extrapolation before the first known point. The following keyword arguments can be used to
+achieve some common behaviour:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>method=’slinear’ will use linear interpolation between any two known points</p></li>
+<li><p>method=’index’ will use a pandas interpolation method instead of the scipy-based method, which</p></li>
+</ul>
+<p>automatically forward-fills the last known value to the end of the time-series
+- fill_value=’extrapolate’ will extrapolate beyond the last known value (but not backwards before the first
+known value, only applicable to scipy-based interpolation methods.)
+- limit=`N` will limit the number of interpolated points between known points to N.</p>
+</div></blockquote>
+<p>Further details on this behaviour can be found in
+<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.interpolate.html">https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.interpolate.html</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>interval</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pandas._libs.tslibs.timedeltas.Timedelta</em><em>]</em>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset">sailor.sap_iot.wrappers.TimeseriesDataset</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
