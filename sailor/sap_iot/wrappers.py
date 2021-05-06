@@ -400,7 +400,7 @@ class TimeseriesDataset(object):
         return TimeseriesDataset(df.reset_index(), new_indicator_set, self._equipment_set,
                                  self.nominal_data_start, self.nominal_data_end, self.is_normalized)
 
-    def interpolate(self, interval: Union[str, pd.Timedelta], **kwargs) -> TimeseriesDataset:
+    def interpolate(self, interval: Union[str, pd.Timedelta], method='pad', **kwargs) -> TimeseriesDataset:
         """
         Interpolate the TimeseriesDataset to a fixed interval, returning a new TimeseriesDataset.
 
@@ -412,7 +412,7 @@ class TimeseriesDataset(object):
         given values, and no extrapolation before the first known point. The following keyword arguments can be used to
         achieve some common behaviour:
           - method='slinear' will use linear interpolation between any two known points
-          - method='index' will use a pondas interpolation method instead of the scipy-based method, which
+          - method='index' will use a pandas interpolation method instead of the scipy-based method, which
           automatically forward-fills the last known value to the end of the time-series
           - fill_value='extrapolate' will extrapolate beyond the last known value (but not backwards before the first
           known value, only applicable to scipy-based interpolation methods.)
@@ -431,7 +431,7 @@ class TimeseriesDataset(object):
                 group_identifier = [grp[key].iloc[0] for key in self.get_key_columns()]
                 LOG.warning(f'Not enough datapoints for interpolation in group {group_identifier}!')
                 return with_all_timestamps.loc[target_times]
-            tmp = with_all_timestamps.interpolate(**kwargs).loc[target_times]
+            tmp = with_all_timestamps.interpolate(method=method, **kwargs).loc[target_times]
             tmp.index = tmp.index.set_names('timestamp')  # loc loses index name...
             return tmp
 
@@ -439,7 +439,6 @@ class TimeseriesDataset(object):
         if interval > (self.nominal_data_end - self.nominal_data_start):
             raise RuntimeError('Can not interpolate to an interval larger than the data range.')
 
-        kwargs.setdefault('method', 'pad')
         df = (
             self._df
                 .groupby(self.get_key_columns())

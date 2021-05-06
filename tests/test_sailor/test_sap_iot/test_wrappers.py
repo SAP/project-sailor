@@ -79,7 +79,7 @@ def test_interpolate_missing_data(simple_dataset, method, expect_ffill, expect_b
 
     test_dataset.nominal_data_start = (actual_start - pd.Timedelta('1h')).round('1h')
     test_dataset.nominal_data_end = actual_end + pd.Timedelta('1h')
-    remove_times = ((test_dataset._df.timestamp > actual_start + pd.Timedelta('1h')) &
+    remove_times = ((test_dataset._df.timestamp >= actual_start + pd.Timedelta('1h')) &
                     (test_dataset._df.timestamp < actual_start + pd.Timedelta('3h')))
     for indicator in test_dataset._indicator_set:
         test_dataset._df.loc[remove_times, indicator._unique_id] = float('NaN')
@@ -91,7 +91,7 @@ def test_interpolate_missing_data(simple_dataset, method, expect_ffill, expect_b
 
     assert interpolated_dataset._df.timestamp.min() == test_dataset.nominal_data_start
     assert interpolated_dataset._df.timestamp.max() < test_dataset.nominal_data_end
-    remove_times = ((interpolated_dataset._df.timestamp > actual_start + pd.Timedelta('1h')) &
+    remove_times = ((interpolated_dataset._df.timestamp >= actual_start + pd.Timedelta('1h')) &
                     (interpolated_dataset._df.timestamp < actual_start + pd.Timedelta('3h')))
     assert not interpolated_dataset._df.loc[remove_times].isnull().any().any()
 

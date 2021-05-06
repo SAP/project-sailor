@@ -215,9 +215,7 @@ class TestRawDataWrapperFunction:
         ('equipment_id matches', 'equipment_id_1'),
         ('equipment_id does not match', 'equipment_id_4'),
     ])
-    @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
-    @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators')
-    @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the equipments')
+    @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
     def test_get_indicator_data_empty_csv_column_merge(self, mock_fetch, mock_zipfile, mock_gzip, mock_config,
                                                        make_indicator_set, make_equipment_set, make_csv_bytes,
                                                        description, equipment_id):
