@@ -189,8 +189,8 @@ class TestRawDataWrapperFunction:
         mock_gzip.side_effect = [BytesIO(make_csv_bytes(1)), BytesIO(make_csv_bytes(2))]
 
         expected_calls = [
-            call('EXPORT_URL/v1/InitiateDataExport/IG_indicator_group_id_1?timerange=2020-01-01-2020-02-01', 'POST'),
-            call('EXPORT_URL/v1/InitiateDataExport/IG_indicator_group_id_2?timerange=2020-01-01-2020-02-01', 'POST'),
+            call('EXPORT_URL/v1/InitiateDataExport/IG_indicator_group_id_1?timerange=2020-10-01-2020-11-01', 'POST'),
+            call('EXPORT_URL/v1/InitiateDataExport/IG_indicator_group_id_2?timerange=2020-10-01-2020-11-01', 'POST'),
             call('EXPORT_URL/v1/DataExportStatus?requestId=test_request_id_1', 'GET'),
             call("DOWNLOAD_URL/v1/DownloadData('test_request_id_1')", 'GET'),
             call('EXPORT_URL/v1/DataExportStatus?requestId=test_request_id_2', 'GET'),
@@ -200,7 +200,7 @@ class TestRawDataWrapperFunction:
         expected_columns = ['timestamp', 'equipment_id', 'model_id']
         expected_columns += [indicator._unique_id for indicator in indicator_set]
 
-        wrapper = get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set)
+        wrapper = get_indicator_data('2020-10-01T00:00:00Z', '2020-11-01T00:00:00Z', indicator_set, equipment_set)
 
         mock_fetch.assert_has_calls(expected_calls)
         assert isinstance(wrapper, TimeseriesDataset)
@@ -215,6 +215,9 @@ class TestRawDataWrapperFunction:
         ('equipment_id matches', 'equipment_id_1'),
         ('equipment_id does not match', 'equipment_id_4'),
     ])
+    @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
+    @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators')
+    @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the equipments')
     def test_get_indicator_data_empty_csv_column_merge(self, mock_fetch, mock_zipfile, mock_gzip, mock_config,
                                                        make_indicator_set, make_equipment_set, make_csv_bytes,
                                                        description, equipment_id):
