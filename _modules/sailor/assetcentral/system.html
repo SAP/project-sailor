@@ -161,8 +161,12 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="c1"># import warnings</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">itemgetter</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
@@ -187,9 +191,8 @@
     <span class="c1"># publishedOn, operator, operatorID, completeness</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ac_json</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a new System object and fetch all components.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Create a new System object.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">ac_json</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_components</span><span class="p">()</span>
 
 <div class="viewcode-block" id="System.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.System.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
@@ -205,20 +208,100 @@
             <span class="s1">&#39;template_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;templateID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="p">}</span></div>
 
-    <span class="k">def</span> <span class="nf">_prepare_components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_SYSTEMS</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="s1">&#39;/components&#39;</span>
-        <span class="n">components</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">equipment_ids</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_traverse_components</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">model_order</span><span class="p">,</span> <span class="n">equipment_ids</span><span class="p">,</span> <span class="n">system_ids</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Traverse component structure recursively, starting from `component`. Pydocstyle does not know punctuation.&quot;&quot;&quot;</span>
+        <span class="n">compd</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">compd</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">],</span> <span class="n">model_order</span><span class="p">)</span>
+        <span class="n">compd</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+        <span class="n">compd</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="n">compd</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;objectType&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;EQU&#39;</span><span class="p">:</span>
+                <span class="n">equipment_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">system_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+        <span class="n">compd</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;objectType&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;childNodes&#39;</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">component</span><span class="p">[</span><span class="s1">&#39;childNodes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="s1">&#39;childNodes&#39;</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;order&#39;</span><span class="p">))</span>
+            <span class="n">compd</span><span class="p">[</span><span class="s1">&#39;child_list&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">comps_by_model</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="s1">&#39;childNodes&#39;</span><span class="p">],</span> <span class="n">itemgetter</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">)):</span>
+                <span class="k">for</span> <span class="n">model_order</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">comps_by_model</span><span class="p">):</span>
+                    <span class="n">compd0</span><span class="p">,</span> <span class="n">equipment_ids</span><span class="p">,</span> <span class="n">system_ids</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">_traverse_components</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">model_order</span><span class="p">,</span>
+                                                                                    <span class="n">equipment_ids</span><span class="p">,</span> <span class="n">system_ids</span><span class="p">)</span>
+                    <span class="n">compd</span><span class="p">[</span><span class="s1">&#39;child_list&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">compd0</span><span class="p">)</span>
+            <span class="n">compd</span><span class="p">[</span><span class="s1">&#39;child_list&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">compd</span><span class="p">[</span><span class="s1">&#39;child_list&#39;</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">compd</span><span class="p">,</span> <span class="n">equipment_ids</span><span class="p">,</span> <span class="n">system_ids</span>
 
-        <span class="k">for</span> <span class="n">child_node</span> <span class="ow">in</span> <span class="n">components</span><span class="p">[</span><span class="s1">&#39;childNodes&#39;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">child_node</span><span class="p">[</span><span class="s1">&#39;objectType&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;EQU&#39;</span><span class="p">:</span>  <span class="c1"># SYS or EQU are currently possible</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Only single-level system hierarchies are currently supported.&#39;</span><span class="p">)</span>
-            <span class="n">equipment_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child_node</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
-
-        <span class="k">if</span> <span class="n">equipment_ids</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="n">find_equipment</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">equipment_ids</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_update_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add indicators and replace id with model_id in the key.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;EQU&#39;</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipments</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">component</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">component</span><span class="p">[</span><span class="s1">&#39;indicators&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indicators</span><span class="p">[</span><span class="n">component</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="n">EquipmentSet</span><span class="p">([])</span>
+            <span class="k">if</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_systems</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">component</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">component</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">&#39;child_list&#39;</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">component</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;child_list&#39;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_components</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+                <span class="n">component</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">][</span><span class="n">child</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">child</span>
+                <span class="k">del</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">][</span><span class="n">child</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]][</span><span class="s1">&#39;key&#39;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;child_list&#39;</span><span class="p">]</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">_component_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prepare component tree and cache it.&quot;&quot;&quot;</span>
+        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_SYSTEMS</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="o">+</span> <span class="s1">&#39;/components&#39;</span>
+        <span class="n">comps</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">,</span> <span class="n">equipment_ids</span><span class="p">,</span> <span class="n">system_ids</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">_traverse_components</span><span class="p">(</span><span class="n">comps</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="n">system_ids</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_systems</span> <span class="o">=</span> <span class="n">find_systems</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">system_ids</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_systems</span> <span class="o">=</span> <span class="n">SystemSet</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indicators</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">equipment_ids</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_equipments</span> <span class="o">=</span> <span class="n">find_equipment</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">equipment_ids</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">equi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipments</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_indicators</span><span class="p">[</span><span class="n">equi</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">equi</span><span class="o">.</span><span class="n">find_equipment_indicators</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;Measured&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_equipments</span> <span class="o">=</span> <span class="n">EquipmentSet</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_components</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">)</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_components</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pieces of equipment that are children of the system.</span>
+
+<span class="sd">        Only top level, lower levels are ignored</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># warnings.warn(&quot;deprecated: attribute will be removed as soon as multilevel system hierarchies are supported&quot;,</span>
+        <span class="c1">#              FutureWarning)</span>
+        <span class="n">equipment_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">comp_tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_component_tree</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">comp_tree</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">comp_tree</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">][</span><span class="n">c</span><span class="p">][</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;EQU&#39;</span><span class="p">:</span>
+                <span class="n">equipment_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">comp_tree</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">][</span><span class="n">c</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipments</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">equipment_ids</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_create_selection_dictionary</span><span class="p">(</span><span class="n">comp_tree</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a selection dictionary recursively based on &#39;comp_tree.&#39; Pydocstyle does not know punctuation.&quot;&quot;&quot;</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">selection</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp_tree</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">comp_tree</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;EQU&#39;</span><span class="p">:</span>
+            <span class="n">selection</span><span class="p">[</span><span class="s1">&#39;indicators&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp_tree</span><span class="p">[</span><span class="s1">&#39;indicators&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;child_nodes&#39;</span> <span class="ow">in</span> <span class="n">comp_tree</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">selection</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">comp_tree</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">]:</span>
+                <span class="n">sel</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">_create_selection_dictionary</span><span class="p">(</span><span class="n">comp_tree</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">][</span><span class="n">child</span><span class="p">])</span>
+                <span class="n">sel</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">child</span>
+                <span class="n">selection</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">selection</span>
 
 <div class="viewcode-block" id="System.get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.System.get_indicator_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
                            <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
@@ -274,11 +357,62 @@
         <span class="n">all_equipment</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">system</span><span class="o">.</span><span class="n">components</span> <span class="k">for</span> <span class="n">system</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">),</span> <span class="n">EquipmentSet</span><span class="p">([]))</span>
         <span class="n">all_indicators</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">equipment</span><span class="o">.</span><span class="n">find_equipment_indicators</span><span class="p">()</span> <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="n">all_equipment</span><span class="p">),</span> <span class="n">IndicatorSet</span><span class="p">([]))</span>
 
-        <span class="k">return</span> <span class="n">sap_iot</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">all_indicators</span><span class="p">,</span> <span class="n">all_equipment</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">sap_iot</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">all_indicators</span><span class="p">,</span> <span class="n">all_equipment</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_fill_nones</span><span class="p">(</span><span class="n">sel_nodes</span><span class="p">,</span> <span class="n">indicator_list</span><span class="p">,</span> <span class="n">none_positions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fill None for indicators of missing subtrees recursively.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">sel_nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;EQU&#39;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">node</span><span class="p">[</span><span class="s1">&#39;indicators&#39;</span><span class="p">]:</span>
+                    <span class="n">none_positions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indicator_list</span><span class="p">))</span>
+                    <span class="n">indicator_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;child_nodes&#39;</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">SystemSet</span><span class="o">.</span><span class="n">_fill_nones</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">],</span> <span class="n">indicator_list</span><span class="p">,</span> <span class="n">none_positions</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_map_comp_info</span><span class="p">(</span><span class="n">sel_nodes</span><span class="p">,</span> <span class="n">sys_nodes</span><span class="p">,</span> <span class="n">indicator_list</span><span class="p">,</span> <span class="n">none_positions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Map selection dictionary against component dictionary recursively.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">sel_nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;EQU&#39;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">node</span><span class="p">[</span><span class="s1">&#39;indicators&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">sys_nodes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span><span class="n">indicator</span> <span class="ow">in</span> <span class="n">sys_nodes</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]][</span><span class="s1">&#39;indicators&#39;</span><span class="p">]):</span>
+                        <span class="n">indicator_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sys_nodes</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]][</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">indicator</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">none_positions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indicator_list</span><span class="p">))</span>
+                        <span class="n">indicator_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;child_nodes&#39;</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">sys_nodes</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">SystemSet</span><span class="o">.</span><span class="n">_map_comp_info</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">],</span> <span class="n">sys_nodes</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]][</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">],</span>
+                                             <span class="n">indicator_list</span><span class="p">,</span> <span class="n">none_positions</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">SystemSet</span><span class="o">.</span><span class="n">_fill_nones</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">],</span> <span class="n">indicator_list</span><span class="p">,</span> <span class="n">none_positions</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_map_component_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Map selection dictionary against component dictionary of systems in a system set.&quot;&quot;&quot;</span>
+        <span class="n">system_indicators</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">none_positions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">intersection</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">selection</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># build selection dictionary from one of the systems</span>
+            <span class="n">intersection</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">selection</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">_create_selection_dictionary</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_component_tree</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">system</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">indicator_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">SystemSet</span><span class="o">.</span><span class="n">_map_comp_info</span><span class="p">(</span><span class="n">selection</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">],</span> <span class="n">system</span><span class="o">.</span><span class="n">_component_tree</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">],</span>
+                                     <span class="n">indicator_list</span><span class="p">,</span> <span class="n">none_positions</span><span class="p">)</span>
+            <span class="n">system_indicators</span><span class="p">[</span><span class="n">system</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">indicator_list</span>
+        <span class="k">if</span> <span class="n">intersection</span><span class="p">:</span>
+            <span class="c1"># keep only indicators that appear for all systems</span>
+            <span class="n">none_positions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">none_positions</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">system</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">none_positions</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">system_indicators</span><span class="p">[</span><span class="n">system</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">p</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">system_indicators</span></div>
 
 
 <div class="viewcode-block" id="find_systems"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.find_systems">[docs]</a><span class="k">def</span> <span class="nf">find_systems</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SystemSet</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Fetch Systems from AssetCentral with the applied filters, return an SystemSet.</span>
+    <span class="sd">&quot;&quot;&quot;Fetch Systems from AssetCentral with the applied filters, return a SystemSet.</span>
 
 <span class="sd">    This method supports the usual filter criteria, i.e.</span>
 <span class="sd">    - Any named keyword arguments applied as equality filters, i.e. the name of the System property is checked</span>

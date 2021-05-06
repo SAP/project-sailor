@@ -219,6 +219,13 @@ potentially making the dataset very sparse.</p>
 <dd><p>Return a mapping from assetcentral terminology to our terminology.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt id="sailor.assetcentral.system.System.components">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">components</span></code><a class="headerlink" href="#sailor.assetcentral.system.System.components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pieces of equipment that are children of the system.</p>
+<p>Only top level, lower levels are ignored</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -252,7 +259,7 @@ potentially making the dataset very sparse.</p>
 <dl class="py function">
 <dt id="sailor.assetcentral.system.find_systems">
 <code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.system.</span></code><code class="sig-name descname"><span class="pre">find_systems</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#find_systems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.find_systems" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fetch Systems from AssetCentral with the applied filters, return an SystemSet.</p>
+<dd><p>Fetch Systems from AssetCentral with the applied filters, return a SystemSet.</p>
 <p>This method supports the usual filter criteria, i.e.
 - Any named keyword arguments applied as equality filters, i.e. the name of the System property is checked
 against the value of the keyword argument. If the value of the keyword argument is an iterable (e.g. a list)
