@@ -137,6 +137,7 @@ def component_tree(make_indicator_set):
                                       'child_nodes': {}}}}
     return expected_tree
 
+
 # expected result of _create_selection_dictionary and input for _map_component_information
 @pytest.fixture
 def selection_dictionary(make_indicator_set):
