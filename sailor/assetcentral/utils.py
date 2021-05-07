@@ -12,7 +12,7 @@ import re
 import pandas as pd
 import plotnine as p9
 
-from ..utils.oauth_wrapper import OAuthFlow
+from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.plot_helper import _default_plot_theme
 from ..utils.config import SailorConfig
 from ..utils.utils import DataNotFoundWarning
@@ -125,7 +125,7 @@ def _compose_queries(unbreakable_filters, breakable_filters):
 def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
     """Retrieve data from the AssetCentral service."""
     filters = _compose_queries(unbreakable_filters, breakable_filters)
-    service = OAuthFlow('asset_central')
+    service = get_oauth_client('asset_central')
 
     if not filters:
         filters = ['']
