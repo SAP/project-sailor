@@ -63,7 +63,7 @@ def test_scopes_config_not_available():
 
     oauth_flow = OAuthFlow('test_service', scope_config)
     oauth_flow._resolve_configured_scopes()
-    assert oauth_flow.resolved_scopes == [], "OAuthFlow must not have scopes"
+    assert oauth_flow.resolved_scopes == [], 'OAuthFlow must not have scopes'
 
 
 def test_scopes_config_available_token_available():
@@ -82,7 +82,7 @@ def test_scopes_config_available_token_available():
         oauth_flow._resolve_configured_scopes()
 
     assert oauth_flow.resolved_scopes == ['foo!scope1', 'bar!scope2', 'foobar!scope3'], (
-        "Scopes have been resolved incorrectly")
+        'Scopes have been resolved incorrectly')
     mock_method.assert_called_once()
 
 
@@ -97,7 +97,7 @@ def test_scopes_config_available_getting_token_fails():
         with pytest.raises(Exception):
             oauth_flow._resolve_configured_scopes()
 
-    assert oauth_flow.resolved_scopes == [], "Scopes must be empty"
+    assert oauth_flow.resolved_scopes == [], 'Scopes must be empty'
     mock_method.assert_called_once()
 
 
@@ -114,5 +114,5 @@ def test_scopes_config_available_decoding_token_fails(jwt_decode_mock):
         with pytest.warns(UserWarning, match=r'Could not resolve all scopes'):
             oauth_flow._resolve_configured_scopes()
 
-    assert oauth_flow.resolved_scopes == [], "Scopes must be empty"
+    assert oauth_flow.resolved_scopes == [], 'Scopes must be empty'
     mock_method.assert_called_once()
