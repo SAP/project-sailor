@@ -33,8 +33,13 @@ def make_csv_bytes():
     return maker
 
 
+@pytest.fixture
+def mock_fetch(mock_config):
+    with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuthFlow.fetch_endpoint_data') as mock:
+        yield mock
+
+
 class TestRawDataAsyncFunctions:
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
     def test_export_start_request_delegate_call(self, mock_fetch, mock_config):
         mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_BASE_URL')
         expected_url = 'EXPORT_BASE_URL/v1/InitiateDataExport/indicator_group_id?timerange=start_date-end_date'
@@ -43,7 +48,6 @@ class TestRawDataAsyncFunctions:
 
         mock_fetch.assert_called_once_with(expected_url, 'POST')
 
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
     def test_export_status_request_delegate_call(self, mock_fetch, mock_config):
         mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_BASE_URL')
         mock_fetch.return_value = dict(Status='The file is available for download.')
@@ -53,7 +57,6 @@ class TestRawDataAsyncFunctions:
 
         mock_fetch.assert_called_once_with(expected_url, 'GET')
 
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
     @patch('sailor.sap_iot.fetch.zipfile.ZipFile')
     def test_export_get_data_request_delegate_call(self, mock_zipfile, mock_fetch, mock_config):
         mock_config.config.sap_iot = defaultdict(str, download_url='DOWNLOAD_BASE_URL')
@@ -65,8 +68,7 @@ class TestRawDataAsyncFunctions:
 
         mock_fetch.assert_called_once_with(expected_url, 'GET')
 
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
-    def test_export_get_data_request_invalid_zipfile_response(self, mock_fetch, mock_config):
+    def test_export_get_data_request_invalid_zipfile_response(self, mock_fetch):
         mock_fetch.return_value = b''
 
         with pytest.raises(RuntimeError) as exception_info:
@@ -74,8 +76,7 @@ class TestRawDataAsyncFunctions:
 
         assert str(exception_info.value) == 'Downloaded file is corrupted, can not process contents.'
 
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
-    def test_export_get_data_request_empty_zipfile_response(self, mock_fetch, mock_config):
+    def test_export_get_data_request_empty_zipfile_response(self, mock_fetch):
         mock_fetch.return_value = bytes.fromhex('504B050600000000000000000000000000000000000000000000')  # minimal zip
 
         with pytest.raises(RuntimeError) as exception_info:
@@ -84,8 +85,7 @@ class TestRawDataAsyncFunctions:
         assert str(exception_info.value) == 'Downloaded File did not have any content.'
 
     @patch('sailor.sap_iot.fetch.zipfile')
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
-    def test_export_get_data_request_empty_gzip_content(self, mock_fetch, mock_zipfile, mock_config):
+    def test_export_get_data_request_empty_gzip_content(self, mock_zipfile, mock_fetch):
         mock_fetch.return_value = b''
         mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1', 'inner_file_2']
         mock_zipfile.ZipFile.return_value.read.return_value = b''
@@ -96,8 +96,7 @@ class TestRawDataAsyncFunctions:
         assert str(exception_info.value) == 'Downloaded File did not have any content.'
 
     @patch('sailor.sap_iot.fetch.zipfile')
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
-    def test_export_get_data_request_invalid_gzip_content(self, mock_fetch, mock_zipfile, mock_config):
+    def test_export_get_data_request_invalid_gzip_content(self, mock_zipfile, mock_fetch):
         mock_fetch.return_value = b''
         mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1', 'inner_file_2']
         mock_zipfile.ZipFile.return_value.read.return_value = b'INVALID'
@@ -107,23 +106,21 @@ class TestRawDataAsyncFunctions:
 
         assert str(exception_info.value) == 'Downloaded file is corrupted, can not process contents.'
 
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
     @pytest.mark.parametrize('description,response,expected', [
         ('available status', 'The file is available for download.', True),
         ('unavailable status', 'Request for data download is submitted.', False),
     ])
-    def test_export_status_request_good_response(self, mock_fetch, mock_config, response, expected, description):
+    def test_export_status_request_good_response(self, mock_fetch, response, expected, description):
         mock_fetch.return_value = dict(Status=response)
 
         assert _check_bulk_timeseries_export_status('export_id') == expected
 
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
     @pytest.mark.parametrize('description,response', [
         ('empty status', ''),
         ('None status', None),
         ('Failed status', 'File download has failed. Re-initiate the request for data export.')
     ])
-    def test_export_status_request_bad_response(self, mock_fetch, mock_config, response, description):
+    def test_export_status_request_bad_response(self, mock_fetch, response, description):
         mock_fetch.return_value = dict(Status=response)
 
         with pytest.raises(RuntimeError) as exception_info:
@@ -169,8 +166,7 @@ class TestRawDataAsyncFunctions:
 class TestRawDataWrapperFunction:
     @patch('sailor.sap_iot.fetch.gzip.GzipFile')
     @patch('sailor.sap_iot.fetch.zipfile')
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
-    def test_get_indicator_data_two_indicator_groups(self, mock_fetch, mock_zipfile, mock_gzip, mock_config,
+    def test_get_indicator_data_two_indicator_groups(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
                                                      make_indicator_set, make_equipment_set, make_csv_bytes):
         mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_URL', download_url='DOWNLOAD_URL')
 
@@ -210,7 +206,6 @@ class TestRawDataWrapperFunction:
 
     @patch('sailor.sap_iot.fetch.gzip.GzipFile')
     @patch('sailor.sap_iot.fetch.zipfile')
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
     @pytest.mark.parametrize('description,equipment_id', [
         ('equipment_id matches', 'equipment_id_1'),
         ('equipment_id does not match', 'equipment_id_4'),
@@ -218,7 +213,7 @@ class TestRawDataWrapperFunction:
     @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
     @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators')
     @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the equipments')
-    def test_get_indicator_data_empty_csv_column_merge(self, mock_fetch, mock_zipfile, mock_gzip, mock_config,
+    def test_get_indicator_data_empty_csv_column_merge(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
                                                        make_indicator_set, make_equipment_set, make_csv_bytes,
                                                        description, equipment_id):
         # When columns in the csv returned are empty (as 'modelId' is in this test) the data type of those
@@ -246,8 +241,7 @@ class TestRawDataWrapperFunction:
 
         get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set)
 
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
-    def test_get_indicator_data_requesterror_handled(self, mock_fetch, mock_config, make_indicator_set):
+    def test_get_indicator_data_requesterror_handled(self, mock_fetch, make_indicator_set):
         mock_fetch.side_effect = RequestError('msg', '400', 'reason',
                                               '{"message": "Data not found for the requested date range"}')
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'])
@@ -255,14 +249,13 @@ class TestRawDataWrapperFunction:
         with pytest.warns(DataNotFoundWarning, match='No data for indicator group IG_group_id.*'):
             get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, EquipmentSet([]))
 
-    @patch('sailor.sap_iot.fetch.OAuthFlow.fetch_endpoint_data')
     @pytest.mark.parametrize('description,content', [
         ('not json', 'foo'),
         ('empty', ''),
         ('wrong content', '{"message": "Test Content"}'),
         ('no field', '{"some_other_field": "Test Content"}')
     ])
-    def test_get_indicator_data_requesterror_unhandled(self, mock_fetch, mock_config, make_indicator_set,
+    def test_get_indicator_data_requesterror_unhandled(self, mock_fetch, make_indicator_set,
                                                        content, description):
         mock_fetch.side_effect = RequestError(content, '400', 'reason', content)
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'])
