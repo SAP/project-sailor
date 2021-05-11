@@ -2,7 +2,8 @@
 import json
 import logging
 import warnings
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
+import time
 
 import jwt
 from furl import furl
@@ -58,8 +59,6 @@ class OAuthFlow:
         :param parameters: Set of parameters that needs to be send along with the request.
         :type parameters: dict
         """
-        oauth_params = {'grant_type': 'client_credentials'}  # for specifying the grant_type
-
         if self.configured_scopes and not self.resolved_scopes:
             try:
                 self._resolve_configured_scopes()
@@ -67,9 +66,7 @@ class OAuthFlow:
                 warnings.warn('Could not resolve the configured scopes. Trying to continue without scopes...')
                 LOG.debug(exc, exc_info=True)
 
-        if self.resolved_scopes:
-            oauth_params['scope'] = ' '.join(self.resolved_scopes)
-
+        oauth_params = {'scope': ' '.join(self.resolved_scopes)} if self.resolved_scopes else None
         session = self._get_session(oauth_params)
 
         if not parameters:
@@ -97,33 +94,43 @@ class OAuthFlow:
         Return the current active session or create a new one.
 
         If a session exists, check if the session is valid and return that session.
-        Otherwise create a new session.
+        Otherwise create a new session with client_credentials grant by default.
         """
         if self._active_session:
             use_active_session = True
             decoded_token = jwt.decode(self._active_session.access_token_response.json()['access_token'],
                                        options={'verify_signature': False})
-            expiration_time = datetime.fromtimestamp(decoded_token['exp'])
-            if expiration_time - datetime.utcnow() < timedelta(minutes=5):
-                LOG.debug('OAuth session expires at %s', expiration_time)
+            expiration_time = decoded_token['exp']
+            if expiration_time - time.time() < 5*60:
+                LOG.debug('OAuth session expires at %s', datetime.fromtimestamp(expiration_time, tz=timezone.utc))
                 use_active_session = False
             elif params is not None and 'scope' in params:
                 if sorted(decoded_token['scope']) != sorted(params['scope'].split(' ')):
                     use_active_session = False
                     LOG.debug('Scopes are not identical.')
+            elif params is not None and 'grant_type' in params:
+                if params['grant_type'] != decoded_token['grant_type']:
+                    use_active_session = False
+                    LOG.debug('grant_types are not identical.')
             if use_active_session:
                 return self._active_session
 
         LOG.debug('Creating new OAuth session for "%s"', self.name)
         if not params:
-            params = {'grant_type': 'client_credentials'}
+            params = {}
+        params.setdefault('grant_type', 'client_credentials')
         service = OAuth2Service(name=self.name, client_id=self.client_id, client_secret=self.client_secret,
                                 access_token_url=self.oauth_url)
+        self._active_session = service.get_auth_session('POST', data=params, decoder=json.loads)
+
         # the get_auth_session method of rauth does not check whether the response was 200 or not
         # and therefore does not log a proper error message
-        self._active_session = service.get_auth_session('POST', data=params, decoder=json.loads)
-        self._active_session.headers = {'Accept': 'application/json'}
-        return self._active_session
+        if self._active_session.access_token_response.ok:
+            self._active_session.headers = {'Accept': 'application/json'}
+            return self._active_session
+        else:
+            self._active_session = None
+            raise RuntimeError('get_auth_session call did not receive a successful token response.')
 
     def _resolve_configured_scopes(self):
         """

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, MagicMock
+from datetime import datetime
 
 import jwt
 import pytest
@@ -116,3 +117,48 @@ def test_scopes_config_available_decoding_token_fails(jwt_decode_mock):
 
     assert oauth_flow.resolved_scopes == [], 'Scopes must be empty'
     mock_method.assert_called_once()
+
+
+@patch('jwt.decode', return_value={'exp': datetime(9999, 12, 31).timestamp()})
+@patch('rauth.OAuth2Service.get_auth_session')
+def test_get_session_returns_active_session_on_repeated_calls(get_auth_mock, decode_mock):
+    expected_session = MagicMock()
+    get_auth_mock.return_value = expected_session
+    oauth_flow = OAuthFlow('test_service')
+
+    oauth_flow._get_session()
+    actual = oauth_flow._get_session()
+
+    get_auth_mock.assert_called_once()
+    assert actual == expected_session
+
+
+@patch('jwt.decode', return_value={'exp': datetime(9999, 12, 31).timestamp(),
+                                   'scope': ['test']})
+@patch('rauth.OAuth2Service.get_auth_session')
+def test_get_session_returns_new_session_if_scopes_are_different(get_auth_mock, decode_mock):
+    params = {'scope': 'abc def'}
+    expected_session = MagicMock()
+    get_auth_mock.return_value = expected_session
+    oauth_flow = OAuthFlow('test_service')
+    oauth_flow._active_session = MagicMock()
+
+    actual = oauth_flow._get_session(params)
+
+    get_auth_mock.assert_called_once()
+    assert actual == expected_session
+
+
+@patch('time.time', return_value=6*60)
+@patch('jwt.decode', return_value={'exp': 10*60})
+@patch('rauth.OAuth2Service.get_auth_session')
+def test_get_session_returns_new_session_if_about_to_expire(get_auth_mock, decode_mock, time_mock):
+    expected_session = MagicMock()
+    get_auth_mock.return_value = expected_session
+    oauth_flow = OAuthFlow('test_service')
+    oauth_flow._active_session = MagicMock()
+
+    actual = oauth_flow._get_session()
+
+    get_auth_mock.assert_called_once()
+    assert actual == expected_session
