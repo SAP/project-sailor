@@ -177,8 +177,8 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">import</span> <span class="nn">sailor.assetcentral.indicators</span> <span class="k">as</span> <span class="nn">ac_indicators</span>
+<span class="kn">from</span> <span class="nn">..utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span><span class="p">,</span> <span class="n">RequestError</span>
 <span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_any_to_timestamp</span><span class="p">,</span> <span class="n">_timestamp_to_date_string</span>
-<span class="kn">from</span> <span class="nn">..utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">OAuthFlow</span><span class="p">,</span> <span class="n">RequestError</span>
 <span class="kn">from</span> <span class="nn">..utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
 <span class="kn">from</span> <span class="nn">.wrappers</span> <span class="kn">import</span> <span class="n">TimeseriesDataset</span>
 <span class="kn">from</span> <span class="nn">..utils.utils</span> <span class="kn">import</span> <span class="n">DataNotFoundWarning</span>
@@ -199,7 +199,7 @@
 
 <span class="k">def</span> <span class="nf">_start_bulk_timeseries_data_export</span><span class="p">(</span><span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">liot_indicator_group</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Triggering raw indicator data export for indicator group: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">liot_indicator_group</span><span class="p">)</span>
-    <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">OAuthFlow</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
+    <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">get_oauth_client</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
     <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;export_url&#39;</span><span class="p">)</span>  <span class="c1"># todo: figure out what to do about these urls</span>
     <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/v1/InitiateDataExport/</span><span class="si">{</span><span class="n">liot_indicator_group</span><span class="si">}</span><span class="s1">?timerange=</span><span class="si">{</span><span class="n">start_date</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">end_date</span><span class="si">}</span><span class="s1">&#39;</span>
 
@@ -209,7 +209,7 @@
 
 <span class="k">def</span> <span class="nf">_check_bulk_timeseries_export_status</span><span class="p">(</span><span class="n">export_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking export status for export id: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">export_id</span><span class="p">)</span>
-    <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">OAuthFlow</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
+    <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">get_oauth_client</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
     <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;export_url&#39;</span><span class="p">)</span>  <span class="c1"># todo: figure out what to do about these urls</span>
     <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/v1/DataExportStatus?requestId=</span><span class="si">{</span><span class="n">export_id</span><span class="si">}</span><span class="s1">&#39;</span>
 
@@ -262,7 +262,7 @@
 <span class="k">def</span> <span class="nf">_get_exported_bulk_timeseries_data</span><span class="p">(</span><span class="n">export_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                                        <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span><span class="p">,</span>
                                        <span class="n">equipment_set</span><span class="p">:</span> <span class="n">EquipmentSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-    <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">OAuthFlow</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
+    <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">get_oauth_client</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
     <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;download_url&#39;</span><span class="p">)</span>  <span class="c1"># todo: figure out what to do about these urls</span>
     <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/v1/DownloadData(&#39;</span><span class="si">{</span><span class="n">export_id</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
 
