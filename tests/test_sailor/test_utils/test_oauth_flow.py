@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from unittest import TestCase
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, MagicMock
+from datetime import datetime
 
 import jwt
 import pytest
@@ -9,127 +9,157 @@ import pytest
 from sailor.utils.oauth_wrapper.OAuthServiceImpl import OAuthFlow
 
 
-class TestOAuthFlow(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # mock the whole SailorConfig for all tests
-        cls.config_mock = patch('sailor.utils.config.SailorConfig')
-        cls.config_mock.start()
+@pytest.fixture(autouse=True, scope='module')
+def mock_config():
+    with patch('sailor.utils.config.SailorConfig') as mock:
+        yield mock
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.config_mock.stop()
 
-    def test_fetch_endpoint_data_url_parameters(self):
-        mock_session = Mock()
-        mock_session.request.return_value = Mock(headers={'Content-Type': 'application/json'})
-        oauth_flow = OAuthFlow('test_service', {})
+def test_fetch_endpoint_data_url_parameters():
+    mock_session = Mock()
+    mock_session.request.return_value = Mock(headers={'Content-Type': 'application/json'})
+    oauth_flow = OAuthFlow('test_service', {})
 
-        current_url = 'https://some-service-url.to/api/resource?hello=world&old=true'
-        parameters = {'old': 'false', 'new': 'true'}
+    current_url = 'https://some-service-url.to/api/resource?hello=world&old=true'
+    parameters = {'old': 'false', 'new': 'true'}
 
-        expected_url = 'https://some-service-url.to/api/resource?hello=world&old=false&new=true&%24format=json'
+    expected_url = 'https://some-service-url.to/api/resource?hello=world&old=false&new=true&%24format=json'
 
-        with patch.object(oauth_flow, '_get_session', return_value=mock_session):
-            oauth_flow.fetch_endpoint_data(current_url, 'GET', parameters)
-        mock_session.request.assert_called_once_with('GET', expected_url)
+    with patch.object(oauth_flow, '_get_session', return_value=mock_session):
+        oauth_flow.fetch_endpoint_data(current_url, 'GET', parameters)
+    mock_session.request.assert_called_once_with('GET', expected_url)
 
-    def test_fetch_endpoint_data(self):
-        expected_data = {'a': 1, 'b': True, 'c': '42'}
 
-        class MockResponse:
-            ok = True
-            headers = {'Content-Type': 'application/json'}
+def test_fetch_endpoint_data():
+    expected_data = {'a': 1, 'b': True, 'c': '42'}
 
-            def json(self):
-                return expected_data
+    class MockResponse:
+        ok = True
+        headers = {'Content-Type': 'application/json'}
 
-        class MockSession:
-            headers = None
+        def json(self):
+            return expected_data
 
-            def request(self, method, endpoint_url):
-                return MockResponse()
+    scope_config = {
+        'test_service': ['scope1', 'scope2', 'scope3']
+    }
 
-        scope_config = {
-            'test_service': ['scope1', 'scope2', 'scope3']
-        }
+    full_scopes = ['foo!scope1', 'bar!scope2', 'foobar!scope3']
+    encoded_token = jwt.encode({'scope': full_scopes}, 'some_secret')
 
-        full_scopes = ['foo!scope1', 'bar!scope2', 'foobar!scope3']
-        encoded_token = jwt.encode({'scope': full_scopes}, 'some_secret')
+    oauth_flow = OAuthFlow('test_service', scope_config)
 
-        oauth_flow = OAuthFlow('test_service', scope_config)
+    with patch.object(oauth_flow, '_get_session') as get_session_mock:
+        get_session_mock.return_value.access_token_response.json.return_value = {'access_token': encoded_token}
+        get_session_mock.return_value.request.return_value = MockResponse()
+        result_data = oauth_flow.fetch_endpoint_data('https://some-service-url.to/api/resource', 'GET')
 
-        with patch.object(oauth_flow, 'get_access_token', return_value=encoded_token) as get_token_mock:
-            with patch.object(oauth_flow, '_get_session', return_value=MockSession()) as get_session_mock:
-                result_data = oauth_flow.fetch_endpoint_data('https://some-service-url.to/api/resource', 'GET')
+    assert expected_data == result_data
+    assert 'scope' in get_session_mock.call_args[-1]
+    actual_scope = get_session_mock.call_args[-1]['scope']
+    assert actual_scope == ' '.join(full_scopes), 'Wrong scopes provided to oauth session'
 
-                self.assertEqual(
-                    result_data,
-                    expected_data,
-                    'Invalid result data')
 
-            get_token_mock.assert_called_once()
-            get_session_mock.assert_called_once()
+def test_scopes_config_not_available():
+    scope_config = {}
 
-            method, data = list(get_session_mock.call_args)[0]
+    oauth_flow = OAuthFlow('test_service', scope_config)
+    oauth_flow._resolve_configured_scopes()
+    assert oauth_flow.resolved_scopes == [], 'OAuthFlow must not have scopes'
 
-            self.assertEqual(
-                data['scope'],
-                ' '.join(full_scopes),
-                'Wrong scopes provided to oauth session')
 
-    def test_scopes_config_not_available(self):
-        scope_config = {}
+def test_scopes_config_available_token_available():
+    scope_config = {
+        'test_service': ['scope1', 'scope2', 'scope3']
+    }
 
-        oauth_flow = OAuthFlow('test_service', scope_config)
+    encoded_token = jwt.encode({
+        'scope': ['foo!scope1', 'bar!scope2', 'foobar!scope3']
+    }, 'some_secret')
+
+    oauth_flow = OAuthFlow('test_service', scope_config)
+
+    with patch('rauth.OAuth2Service.get_auth_session') as mock_method:
+        mock_method.return_value.access_token_response.json.return_value = {'access_token': encoded_token}
         oauth_flow._resolve_configured_scopes()
-        self.assertEqual(oauth_flow.resolved_scopes, [], "OAuthFlow must not have scopes")
 
-    def test_scopes_config_available_token_available(self):
-        scope_config = {
-            'test_service': ['scope1', 'scope2', 'scope3']
-        }
+    assert oauth_flow.resolved_scopes == ['foo!scope1', 'bar!scope2', 'foobar!scope3'], (
+        'Scopes have been resolved incorrectly')
+    mock_method.assert_called_once()
 
-        encoded_token = jwt.encode({
-            'scope': ['foo!scope1', 'bar!scope2', 'foobar!scope3']
-        }, 'some_secret')
 
-        oauth_flow = OAuthFlow('test_service', scope_config)
+def test_scopes_config_available_getting_token_fails():
+    scope_config = {
+        'test_service': ['scope1', 'scope2', 'scope3']
+    }
 
-        with patch.object(oauth_flow, 'get_access_token', return_value=encoded_token) as mock_method:
+    oauth_flow = OAuthFlow('test_service', scope_config)
+
+    with patch.object(oauth_flow, '_get_session', side_effect=Exception) as mock_method:
+        with pytest.raises(Exception):
             oauth_flow._resolve_configured_scopes()
-            self.assertEqual(oauth_flow.resolved_scopes, ['foo!scope1', 'bar!scope2', 'foobar!scope3'],
-                             "Scopes have been resolved incorrectly")
 
-        mock_method.assert_called_once()
+    assert oauth_flow.resolved_scopes == [], 'Scopes must be empty'
+    mock_method.assert_called_once()
 
-    def test_scopes_config_available_getting_token_fails(self):
-        scope_config = {
-            'test_service': ['scope1', 'scope2', 'scope3']
-        }
 
-        oauth_flow = OAuthFlow('test_service', scope_config)
+@patch('jwt.decode', return_value={'scope': []})
+def test_scopes_config_available_decoding_token_fails(jwt_decode_mock):
+    scope_config = {
+        'test_service': ['scope1', 'scope2', 'scope3']
+    }
+    invalid_encoded_token = 'xxxxxxxxxx'  # nosec
+    oauth_flow = OAuthFlow('test_service', scope_config)
 
-        with patch.object(oauth_flow, 'get_access_token', side_effect=Exception) as mock_method:
-            with pytest.raises(Exception):
-                oauth_flow._resolve_configured_scopes()
-            self.assertEqual(oauth_flow.resolved_scopes, [], "Scopes must be empty")
+    with patch('rauth.OAuth2Service.get_auth_session') as mock_method:
+        mock_method.return_value.access_token_response.json.return_value = {'access_token': invalid_encoded_token}
+        with pytest.warns(UserWarning, match=r'Could not resolve all scopes'):
+            oauth_flow._resolve_configured_scopes()
 
-        mock_method.assert_called_once()
+    assert oauth_flow.resolved_scopes == [], 'Scopes must be empty'
+    mock_method.assert_called_once()
 
-    @patch('jwt.decode', return_value={'scope': []})
-    def test_scopes_config_available_decoding_token_fails(self, jwt_decode_mock):
-        scope_config = {
-            'test_service': ['scope1', 'scope2', 'scope3']
-        }
 
-        invalid_encoded_token = 'xxxxxxxxxx'  # nosec
+@patch('jwt.decode', return_value={'exp': datetime(9999, 12, 31).timestamp()})
+@patch('rauth.OAuth2Service.get_auth_session')
+def test_get_session_returns_active_session_on_repeated_calls(get_auth_mock, decode_mock):
+    expected_session = MagicMock()
+    get_auth_mock.return_value = expected_session
+    oauth_flow = OAuthFlow('test_service')
 
-        oauth_flow = OAuthFlow('test_service', scope_config)
+    oauth_flow._get_session()
+    actual = oauth_flow._get_session()
 
-        with patch.object(oauth_flow, 'get_access_token', return_value=invalid_encoded_token) as mock_method:
-            with pytest.warns(UserWarning, match=r'Could not resolve all scopes'):
-                oauth_flow._resolve_configured_scopes()
-            self.assertEqual(oauth_flow.resolved_scopes, [], "Scopes must be empty")
+    get_auth_mock.assert_called_once()
+    assert actual == expected_session
 
-        mock_method.assert_called_once()
+
+@patch('jwt.decode', return_value={'exp': datetime(9999, 12, 31).timestamp(),
+                                   'scope': ['test']})
+@patch('rauth.OAuth2Service.get_auth_session')
+def test_get_session_returns_new_session_if_scopes_are_different(get_auth_mock, decode_mock):
+    new_scopes_requested = 'abc def'
+    expected_session = MagicMock()
+    get_auth_mock.return_value = expected_session
+    oauth_flow = OAuthFlow('test_service')
+    oauth_flow._active_session = MagicMock()
+
+    actual = oauth_flow._get_session(scope=new_scopes_requested)
+
+    get_auth_mock.assert_called_once()
+    assert actual == expected_session
+
+
+@patch('time.time', return_value=6*60)
+@patch('jwt.decode', return_value={'exp': 10*60})
+@patch('rauth.OAuth2Service.get_auth_session')
+def test_get_session_returns_new_session_if_about_to_expire(get_auth_mock, decode_mock, time_mock):
+    expected_session = MagicMock()
+    get_auth_mock.return_value = expected_session
+    oauth_flow = OAuthFlow('test_service')
+    oauth_flow._active_session = MagicMock()
+
+    actual = oauth_flow._get_session()
+
+    get_auth_mock.assert_called_once()
+    assert actual == expected_session

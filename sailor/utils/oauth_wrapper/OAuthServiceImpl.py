@@ -2,6 +2,8 @@
 import json
 import logging
 import warnings
+from datetime import datetime, timezone
+import time
 
 import jwt
 from furl import furl
@@ -15,10 +17,10 @@ LOG.addHandler(logging.NullHandler())
 
 
 class OAuthFlow:
-    """Provides methods for client_credential, user_token, refresh_token grant flows.
+    """Provides methods for client_credential grant flows.
 
-    This class acts as a wrapper for OAuth2 class. On creating an object of this class, an instance of the
-    OAuth2 service is created with the values provided.
+    This class acts as a wrapper for OAuth2Service class. On creating an object of this class, an instance of the
+    OAuth2Service is created with the values provided.
     """
 
     def __init__(self, name, scope_config=SCOPE_CONFIG):
@@ -40,6 +42,7 @@ class OAuthFlow:
 
         self.configured_scopes = scope_config.get(self.name, [])
         self.resolved_scopes = []
+        self._active_session = None
 
     def fetch_endpoint_data(self, endpoint_url, method, parameters=None):
         """
@@ -56,20 +59,15 @@ class OAuthFlow:
         :param parameters: Set of parameters that needs to be send along with the request.
         :type parameters: dict
         """
-        data = {'grant_type': 'client_credentials'}  # for specifying the grant_type
-
         if self.configured_scopes and not self.resolved_scopes:
             try:
                 self._resolve_configured_scopes()
             except Exception as exc:
-                warnings.warn("Could not resolve the configured scopes. Trying to continue without scopes...")
-                LOG.debug(exc)
+                warnings.warn('Could not resolve the configured scopes. Trying to continue without scopes...')
+                LOG.debug(exc, exc_info=True)
 
-        if self.resolved_scopes:
-            data['scope'] = ' '.join(self.resolved_scopes)
-
-        session = self._get_session('POST', data)
-        session.headers = {"Accept": "application/json"}
+        scope = ' '.join(self.resolved_scopes) if self.resolved_scopes else None
+        session = self._get_session(scope=scope)
 
         if not parameters:
             parameters = {}
@@ -79,7 +77,7 @@ class OAuthFlow:
         endpoint_url.args = {**endpoint_url.args, **parameters}
         endpoint_url = endpoint_url.tostr(query_quote_plus=False)
 
-        LOG.debug("Calling %s", endpoint_url)
+        LOG.debug('Calling %s', endpoint_url)
         response = session.request(method, endpoint_url)
         if response.ok:
             if response.headers['Content-Type'] == 'application/json':
@@ -91,38 +89,42 @@ class OAuthFlow:
             LOG.error(msg)
             raise RequestError(msg, response.status_code, response.reason, response.text)
 
-    def get_access_token(self):
+    def _get_session(self, scope=None):
         """
-        Return an access token.
+        Return the current active session or create a new one.
 
-        This method fetches the access_token using the client credentials used to create an instance.
-        :return: An access_token in string format
+        If a session exists, check if the session is valid and return that session.
+        Otherwise create a new session.
         """
-        service = self._get_service()
-        access_token = service.get_access_token(method='POST', decoder=json.loads, key='access_token',
-                                                data={'grant_type': 'client_credentials'})
-        return access_token
+        if self._active_session:
+            use_active_session = True
+            decoded_token = jwt.decode(self._active_session.access_token_response.json()['access_token'],
+                                       options={'verify_signature': False})
+            expiration_time = decoded_token['exp']
+            if expiration_time - time.time() < 5*60:
+                LOG.debug('OAuth session expires at %s', datetime.fromtimestamp(expiration_time, tz=timezone.utc))
+                use_active_session = False
+            elif scope is not None:
+                if sorted(decoded_token['scope']) != sorted(scope.split(' ')):
+                    use_active_session = False
+                    LOG.debug('Scopes are not identical.')
+            if use_active_session:
+                return self._active_session
 
-    def _get_session(self, method, data):
-        """
-        Return the session object based on the client credentials.
-
-        :param method: Specifies the method type. Supported method types are 'POST', 'PUT', 'PATCH'
-        :type method: str
-        :param data: A dictionary containing the value for the
-        :type data: dict
-        """
-        service = self._get_service()
-        # the get_auth_session method of rauth does not check whether the response was 200 or not
-        # and therefore does not log a proper error message
-        session = service.get_auth_session(method=method, data=data, decoder=json.loads)
-        session.headers = {"Accept": "application/json"}
-        return session
-
-    def _get_service(self):
+        LOG.debug('Creating new OAuth session for "%s"', self.name)
+        params = {'grant_type': 'client_credentials', 'scope': scope}
         service = OAuth2Service(name=self.name, client_id=self.client_id, client_secret=self.client_secret,
                                 access_token_url=self.oauth_url)
-        return service
+        self._active_session = service.get_auth_session('POST', data=params, decoder=json.loads)
+
+        # the get_auth_session method of rauth does not check whether the response was 200 or not
+        # and therefore does not log a proper error message
+        if self._active_session.access_token_response.ok:
+            self._active_session.headers = {'Accept': 'application/json'}
+            return self._active_session
+        else:
+            self._active_session = None
+            raise RuntimeError('get_auth_session call did not receive a successful token response.')
 
     def _resolve_configured_scopes(self):
         """
@@ -137,8 +139,8 @@ class OAuthFlow:
         if not self.configured_scopes:
             return
 
-        encoded_token = self.get_access_token()
-        decoded_token = jwt.decode(encoded_token, options={"verify_signature": False})
+        encoded_token = self._get_session().access_token_response.json()['access_token']
+        decoded_token = jwt.decode(encoded_token, options={'verify_signature': False})
         all_scopes = decoded_token['scope']
 
         resolved_scopes = []
@@ -159,8 +161,8 @@ class OAuthFlow:
         # we consider the scope configuration invalid when at least one
         # corresponding prefixed scope from auth token is absent
         if missing_corresponding_scopes:
-            warnings.warn("Could not resolve all scopes. Scope configuration considered invalid. " +
-                          f"Continuing without resolved scopes. Missing scopes: {missing_corresponding_scopes}.")
+            warnings.warn('Could not resolve all scopes. Scope configuration considered invalid. ' +
+                          f'Continuing without resolved scopes. Missing scopes: {missing_corresponding_scopes}.')
             self.resolved_scopes = []
         else:
             self.resolved_scopes = resolved_scopes

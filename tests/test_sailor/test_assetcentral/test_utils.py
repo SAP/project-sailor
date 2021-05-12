@@ -1,12 +1,11 @@
 from typing import Iterable
-from unittest.mock import PropertyMock, patch, Mock
+from unittest.mock import PropertyMock, patch
 
 import pytest
 
 from sailor.assetcentral.equipment import Equipment
 from sailor.assetcentral.utils import AssetcentralEntity, ResultSet, _unify_filters, _parse_filter_parameters, \
     _apply_filters_post_request, _compose_queries, _fetch_data
-from sailor.utils.oauth_wrapper import OAuthFlow
 
 
 class TestAssetcentralEntity:
@@ -296,7 +295,11 @@ class TestComposeQueries:
 
 
 class TestFetchData:
-    @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
+    @pytest.fixture
+    def fetch_mock(self, mock_config):
+        with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuthFlow.fetch_endpoint_data') as mock:
+            yield mock
+
     @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
     @pytest.mark.parametrize('testdesc,unbreakable_filters,breakable_filters,remote_return', [
         ('no filters - single return', [], [], {'a': 'dict'}),
@@ -304,15 +307,13 @@ class TestFetchData:
         ('no filters - list return', [], [], ['result']),
         ('filters - list return', ['a gt b'], [['c eq 1']], ['result']),
     ])
-    def test_returns_iterable(self, auth_mock, unbreakable_filters, breakable_filters, remote_return, testdesc):
-        auth_mock.return_value.fetch_endpoint_data.return_value = remote_return
+    def test_returns_iterable(self, fetch_mock, unbreakable_filters, breakable_filters, remote_return, testdesc):
+        fetch_mock.return_value = remote_return
         actual = _fetch_data('', unbreakable_filters, breakable_filters)
         assert not issubclass(actual.__class__, str)
         assert isinstance(actual, Iterable)
 
-    @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
-    def test_no_filters_makes_remote_call_with_no_params(self, auth_mock):
-        fetch_mock = auth_mock.return_value.fetch_endpoint_data
+    def test_no_filters_makes_remote_call_with_no_params(self, fetch_mock):
         fetch_mock.return_value = ['result']
         unbreakable_filters = []
         breakable_filters = []
@@ -322,9 +323,7 @@ class TestFetchData:
         fetch_mock.assert_called_once_with('', method='GET', parameters=None)
         assert actual == ['result']
 
-    @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
-    def test_adds_filter_parameter_on_call(self, auth_mock):
-        fetch_mock = auth_mock.return_value.fetch_endpoint_data
+    def test_adds_filter_parameter_on_call(self, fetch_mock):
         unbreakable_filters = ["location eq 'Walldorf'"]
         breakable_filters = [["manufacturer eq 'abcCorp'"]]
         expected_parameters = {'$filter': "location eq 'Walldorf' and (manufacturer eq 'abcCorp')"}
@@ -333,12 +332,10 @@ class TestFetchData:
 
         fetch_mock.assert_called_once_with("", method="GET", parameters=expected_parameters)
 
-    @patch('sailor.assetcentral.utils.OAuthFlow', return_value=Mock(OAuthFlow))
-    def test_multiple_calls_aggregated_result(self, auth_mock):
+    def test_multiple_calls_aggregated_result(self, fetch_mock):
         unbreakable_filters = ["location eq 'Walldorf'"]
         # causes _compose_queries to generate two filter strings
         breakable_filters = [["manufacturer eq 'abcCorp'"] * 100]
-        fetch_mock = auth_mock.return_value.fetch_endpoint_data
         fetch_mock.side_effect = [["result1-1", "result1-2"], ["result2-1"]]
         expected_result = ["result1-1", "result1-2", "result2-1"]
 

@@ -21,8 +21,8 @@ from io import BytesIO
 import pandas as pd
 
 import sailor.assetcentral.indicators as ac_indicators
+from ..utils.oauth_wrapper import get_oauth_client, RequestError
 from ..utils.timestamps import _any_to_timestamp, _timestamp_to_date_string
-from ..utils.oauth_wrapper import OAuthFlow, RequestError
 from ..utils.config import SailorConfig
 from .wrappers import TimeseriesDataset
 from ..utils.utils import DataNotFoundWarning
@@ -43,7 +43,7 @@ fixed_timeseries_columns = {
 
 def _start_bulk_timeseries_data_export(start_date: str, end_date: str, liot_indicator_group: str) -> str:
     LOG.debug("Triggering raw indicator data export for indicator group: %s.", liot_indicator_group)
-    oauth_iot = OAuthFlow('sap_iot')
+    oauth_iot = get_oauth_client('sap_iot')
     base_url = SailorConfig.get('sap_iot', 'export_url')  # todo: figure out what to do about these urls
     request_url = f'{base_url}/v1/InitiateDataExport/{liot_indicator_group}?timerange={start_date}-{end_date}'
 
@@ -53,7 +53,7 @@ def _start_bulk_timeseries_data_export(start_date: str, end_date: str, liot_indi
 
 def _check_bulk_timeseries_export_status(export_id: str) -> bool:
     LOG.debug("Checking export status for export id: %s.", export_id)
-    oauth_iot = OAuthFlow('sap_iot')
+    oauth_iot = get_oauth_client('sap_iot')
     base_url = SailorConfig.get('sap_iot', 'export_url')  # todo: figure out what to do about these urls
     request_url = f'{base_url}/v1/DataExportStatus?requestId={export_id}'
 
@@ -106,7 +106,7 @@ def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_se
 def _get_exported_bulk_timeseries_data(export_id: str,
                                        indicator_set: IndicatorSet,
                                        equipment_set: EquipmentSet) -> pd.DataFrame:
-    oauth_iot = OAuthFlow('sap_iot')
+    oauth_iot = get_oauth_client('sap_iot')
     base_url = SailorConfig.get('sap_iot', 'download_url')  # todo: figure out what to do about these urls
     request_url = f"{base_url}/v1/DownloadData('{export_id}')"
 
