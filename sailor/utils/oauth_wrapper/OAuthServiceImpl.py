@@ -66,8 +66,8 @@ class OAuthFlow:
                 warnings.warn('Could not resolve the configured scopes. Trying to continue without scopes...')
                 LOG.debug(exc, exc_info=True)
 
-        oauth_params = {'scope': ' '.join(self.resolved_scopes)} if self.resolved_scopes else None
-        session = self._get_session(oauth_params)
+        scope = ' '.join(self.resolved_scopes) if self.resolved_scopes else None
+        session = self._get_session(scope=scope)
 
         if not parameters:
             parameters = {}
@@ -89,12 +89,12 @@ class OAuthFlow:
             LOG.error(msg)
             raise RequestError(msg, response.status_code, response.reason, response.text)
 
-    def _get_session(self, params=None):
+    def _get_session(self, scope=None):
         """
         Return the current active session or create a new one.
 
         If a session exists, check if the session is valid and return that session.
-        Otherwise create a new session with client_credentials grant by default.
+        Otherwise create a new session.
         """
         if self._active_session:
             use_active_session = True
@@ -104,21 +104,15 @@ class OAuthFlow:
             if expiration_time - time.time() < 5*60:
                 LOG.debug('OAuth session expires at %s', datetime.fromtimestamp(expiration_time, tz=timezone.utc))
                 use_active_session = False
-            elif params is not None and 'scope' in params:
-                if sorted(decoded_token['scope']) != sorted(params['scope'].split(' ')):
+            elif scope is not None:
+                if sorted(decoded_token['scope']) != sorted(scope.split(' ')):
                     use_active_session = False
                     LOG.debug('Scopes are not identical.')
-            elif params is not None and 'grant_type' in params:
-                if params['grant_type'] != decoded_token['grant_type']:
-                    use_active_session = False
-                    LOG.debug('grant_types are not identical.')
             if use_active_session:
                 return self._active_session
 
         LOG.debug('Creating new OAuth session for "%s"', self.name)
-        if not params:
-            params = {}
-        params.setdefault('grant_type', 'client_credentials')
+        params = {'grant_type': 'client_credentials', 'scope': scope}
         service = OAuth2Service(name=self.name, client_id=self.client_id, client_secret=self.client_secret,
                                 access_token_url=self.oauth_url)
         self._active_session = service.get_auth_session('POST', data=params, decoder=json.loads)

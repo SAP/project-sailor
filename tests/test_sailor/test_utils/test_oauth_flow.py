@@ -55,8 +55,9 @@ def test_fetch_endpoint_data():
         result_data = oauth_flow.fetch_endpoint_data('https://some-service-url.to/api/resource', 'GET')
 
     assert expected_data == result_data
-    params = get_session_mock.call_args[0][0]
-    assert params['scope'] == ' '.join(full_scopes), 'Wrong scopes provided to oauth session'
+    assert 'scope' in get_session_mock.call_args[-1]
+    actual_scope = get_session_mock.call_args[-1]['scope']
+    assert actual_scope == ' '.join(full_scopes), 'Wrong scopes provided to oauth session'
 
 
 def test_scopes_config_not_available():
@@ -137,13 +138,13 @@ def test_get_session_returns_active_session_on_repeated_calls(get_auth_mock, dec
                                    'scope': ['test']})
 @patch('rauth.OAuth2Service.get_auth_session')
 def test_get_session_returns_new_session_if_scopes_are_different(get_auth_mock, decode_mock):
-    params = {'scope': 'abc def'}
+    new_scopes_requested = 'abc def'
     expected_session = MagicMock()
     get_auth_mock.return_value = expected_session
     oauth_flow = OAuthFlow('test_service')
     oauth_flow._active_session = MagicMock()
 
-    actual = oauth_flow._get_session(params)
+    actual = oauth_flow._get_session(scope=new_scopes_requested)
 
     get_auth_mock.assert_called_once()
     assert actual == expected_session
