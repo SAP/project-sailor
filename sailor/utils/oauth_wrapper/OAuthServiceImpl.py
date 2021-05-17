@@ -1,13 +1,13 @@
-"""Contains the OAuthFlow class which simplifies the interaction with OAuth-based APIs."""
-import json
+"""Improvements to OAuth and OData clients."""
 import logging
+import json
 import warnings
 from datetime import datetime, timezone
 import time
 
-import jwt
 from furl import furl
 from rauth import OAuth2Service
+import jwt
 
 from ..config import SailorConfig
 from .scope_config import SCOPE_CONFIG
@@ -16,18 +16,21 @@ LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
 
-class OAuthFlow:
-    """Provides methods for client_credential grant flows.
+class OAuth2Client():
+    """Provide session management for OAuth2 enhanced requests :class:`~requests.sessions.Session`'s.
 
-    This class acts as a wrapper for OAuth2Service class. On creating an object of this class, an instance of the
-    OAuth2Service is created with the values provided.
+    Manages a single session that can be used for making requests against endpoints which accept tokens issued by
+    the auth server used by this client.
+
+    Single entrypoint should be the convenience :meth:`request` method which acts as a convenience method for making
+    OAuth2 enhanced HTTP requests with an instance of this class.
     """
 
-    def __init__(self, name, scope_config=SCOPE_CONFIG):
+    def __init__(self, name, scope_config=None):
         """
-        Create a OAuthFlow object.
+        Create a OAuth2Client.
 
-        :param name: name of the OAuthFlow. Must be a service name found in the SailorConfig.
+        :param name: name of the OAuth2Client. Must be a service name found in the SailorConfig.
         :param scope_config: restrict access for this instance to certain scopes listed in scope_config
         """
         self.name = name
@@ -40,24 +43,56 @@ class OAuthFlow:
         else:
             self.oauth_url = 'https://' + self.subdomain + '.' + self.access_token_url
 
+        scope_config = SCOPE_CONFIG if scope_config is None else scope_config
         self.configured_scopes = scope_config.get(self.name, [])
         self.resolved_scopes = []
         self._active_session = None
 
-    def fetch_endpoint_data(self, endpoint_url, method, parameters=None):
+    def request(self, method, url, **req_kwargs):
+        """Make a request using this convenience wrapper.
+
+        The interface is the same as the :meth:`~requests.sessions.Session.requests` method provides.
+        Adds OData param url formatting for GET requests.
+        Requests for JSON content by default and returns JSON response by default.
+
+        Will use the currently attached session with this client or create a new one. If scopes are configured with
+        this client, will try to resolve the scopes with the auth server first before making the request.
+
+
+        Returns
+        -------
+        A dict if the response contains JSON. Otherwise returns the response content as bytes.
+
+        Raises
+        ------
+        RequestError
+            When the reponse is retrieved but response code is less than 400.
         """
-        Send request and return a JSON object from the obtained result.
+        if method == 'GET':
+            parameters = dict(req_kwargs.setdefault('params', {}))
+            parameters.setdefault('$format', 'json')
+            url_obj = furl(url)
+            url_obj.args = {**url_obj.args, **parameters}
+            url = url_obj.tostr(query_quote_plus=False)
+            del req_kwargs['params']
 
-        This method fetches the data on the endpoint_url specified as a parameter.
-        There is no need to explicitly create an access_token and then request the data.
-        If the endpoint_url already contains parameters, then these are extended by `parameters`.
+        req_kwargs.setdefault('headers', {'Accept': 'application/json'})
 
-        :param endpoint_url: A url which would fetch the data.
-        :type endpoint_url: str
-        :param method: Specifies the HTTP method
-        :type method: str
-        :param parameters: Set of parameters that needs to be send along with the request.
-        :type parameters: dict
+        LOG.debug('Calling %s', url)
+        response = self.get_session().request(method, url, **req_kwargs)
+        if response.ok:
+            if response.headers['Content-Type'] == 'application/json':
+                return response.json()
+            else:
+                return response.content
+        else:
+            msg = f'Request failed. Response {response.status_code} ({response.reason}): {response.text}'
+            raise RequestError(msg, response.status_code, response.reason, response.text)
+
+    def get_session(self):
+        """Return a session for making OAuth2 requests.
+
+        If the client has scopes configured, try to match these scopes with the auth server first.
         """
         if self.configured_scopes and not self.resolved_scopes:
             try:
@@ -67,27 +102,7 @@ class OAuthFlow:
                 LOG.debug(exc, exc_info=True)
 
         scope = ' '.join(self.resolved_scopes) if self.resolved_scopes else None
-        session = self._get_session(scope=scope)
-
-        if not parameters:
-            parameters = {}
-
-        parameters['$format'] = 'json'
-        endpoint_url = furl(endpoint_url)
-        endpoint_url.args = {**endpoint_url.args, **parameters}
-        endpoint_url = endpoint_url.tostr(query_quote_plus=False)
-
-        LOG.debug('Calling %s', endpoint_url)
-        response = session.request(method, endpoint_url)
-        if response.ok:
-            if response.headers['Content-Type'] == 'application/json':
-                return response.json()
-            else:
-                return response.content
-        else:
-            msg = f'Request failed. Response {response.status_code} ({response.reason}): {response.text}'
-            LOG.error(msg)
-            raise RequestError(msg, response.status_code, response.reason, response.text)
+        return self._get_session(scope=scope)
 
     def _get_session(self, scope=None):
         """
@@ -108,8 +123,14 @@ class OAuthFlow:
                 if sorted(decoded_token['scope']) != sorted(scope.split(' ')):
                     use_active_session = False
                     LOG.debug('Scopes are not identical.')
+
             if use_active_session:
                 return self._active_session
+            else:
+                try:
+                    self._active_session.close()
+                except Exception:
+                    LOG.exception('Could not close OAuth2Session.')
 
         LOG.debug('Creating new OAuth session for "%s"', self.name)
         params = {'grant_type': 'client_credentials', 'scope': scope}
@@ -120,7 +141,6 @@ class OAuthFlow:
         # the get_auth_session method of rauth does not check whether the response was 200 or not
         # and therefore does not log a proper error message
         if self._active_session.access_token_response.ok:
-            self._active_session.headers = {'Accept': 'application/json'}
             return self._active_session
         else:
             self._active_session = None

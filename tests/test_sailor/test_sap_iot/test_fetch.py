@@ -35,7 +35,7 @@ def make_csv_bytes():
 
 @pytest.fixture
 def mock_fetch(mock_config):
-    with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuthFlow.fetch_endpoint_data') as mock:
+    with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request') as mock:
         yield mock
 
 
@@ -46,7 +46,7 @@ class TestRawDataAsyncFunctions:
 
         _start_bulk_timeseries_data_export('start_date', 'end_date', 'indicator_group_id')
 
-        mock_fetch.assert_called_once_with(expected_url, 'POST')
+        mock_fetch.assert_called_once_with('POST', expected_url)
 
     def test_export_status_request_delegate_call(self, mock_fetch, mock_config):
         mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_BASE_URL')
@@ -55,7 +55,7 @@ class TestRawDataAsyncFunctions:
 
         _check_bulk_timeseries_export_status('export_id')
 
-        mock_fetch.assert_called_once_with(expected_url, 'GET')
+        mock_fetch.assert_called_once_with('GET', expected_url)
 
     @patch('sailor.sap_iot.fetch.zipfile.ZipFile')
     def test_export_get_data_request_delegate_call(self, mock_zipfile, mock_fetch, mock_config):
@@ -66,7 +66,7 @@ class TestRawDataAsyncFunctions:
         with pytest.raises(RuntimeError):
             _get_exported_bulk_timeseries_data('export_id', IndicatorSet([]), EquipmentSet([]))
 
-        mock_fetch.assert_called_once_with(expected_url, 'GET')
+        mock_fetch.assert_called_once_with('GET', expected_url, headers={'Accept': 'application/octet-stream'})
 
     def test_export_get_data_request_invalid_zipfile_response(self, mock_fetch):
         mock_fetch.return_value = b''
@@ -185,12 +185,14 @@ class TestRawDataWrapperFunction:
         mock_gzip.side_effect = [BytesIO(make_csv_bytes(1)), BytesIO(make_csv_bytes(2))]
 
         expected_calls = [
-            call('EXPORT_URL/v1/InitiateDataExport/IG_indicator_group_id_1?timerange=2020-10-01-2020-11-01', 'POST'),
-            call('EXPORT_URL/v1/InitiateDataExport/IG_indicator_group_id_2?timerange=2020-10-01-2020-11-01', 'POST'),
-            call('EXPORT_URL/v1/DataExportStatus?requestId=test_request_id_1', 'GET'),
-            call("DOWNLOAD_URL/v1/DownloadData('test_request_id_1')", 'GET'),
-            call('EXPORT_URL/v1/DataExportStatus?requestId=test_request_id_2', 'GET'),
-            call("DOWNLOAD_URL/v1/DownloadData('test_request_id_2')", 'GET'),
+            call('POST', 'EXPORT_URL/v1/InitiateDataExport/IG_indicator_group_id_1?timerange=2020-10-01-2020-11-01'),
+            call('POST', 'EXPORT_URL/v1/InitiateDataExport/IG_indicator_group_id_2?timerange=2020-10-01-2020-11-01'),
+            call('GET', 'EXPORT_URL/v1/DataExportStatus?requestId=test_request_id_1'),
+            call('GET', "DOWNLOAD_URL/v1/DownloadData('test_request_id_1')", headers={
+                                                                            'Accept': 'application/octet-stream'}),
+            call('GET', 'EXPORT_URL/v1/DataExportStatus?requestId=test_request_id_2'),
+            call('GET', "DOWNLOAD_URL/v1/DownloadData('test_request_id_2')", headers={
+                                                                            'Accept': 'application/octet-stream'}),
         ]
 
         expected_columns = ['timestamp', 'equipment_id', 'model_id']

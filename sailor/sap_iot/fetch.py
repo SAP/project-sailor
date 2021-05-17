@@ -47,7 +47,7 @@ def _start_bulk_timeseries_data_export(start_date: str, end_date: str, liot_indi
     base_url = SailorConfig.get('sap_iot', 'export_url')  # todo: figure out what to do about these urls
     request_url = f'{base_url}/v1/InitiateDataExport/{liot_indicator_group}?timerange={start_date}-{end_date}'
 
-    resp = oauth_iot.fetch_endpoint_data(request_url, 'POST')
+    resp = oauth_iot.request('POST', request_url)
     return resp['RequestId']
 
 
@@ -57,7 +57,7 @@ def _check_bulk_timeseries_export_status(export_id: str) -> bool:
     base_url = SailorConfig.get('sap_iot', 'export_url')  # todo: figure out what to do about these urls
     request_url = f'{base_url}/v1/DataExportStatus?requestId={export_id}'
 
-    resp = oauth_iot.fetch_endpoint_data(request_url, 'GET')
+    resp = oauth_iot.request('GET', request_url)
 
     if resp['Status'] == 'The file is available for download.':
         return True
@@ -110,7 +110,7 @@ def _get_exported_bulk_timeseries_data(export_id: str,
     base_url = SailorConfig.get('sap_iot', 'download_url')  # todo: figure out what to do about these urls
     request_url = f"{base_url}/v1/DownloadData('{export_id}')"
 
-    resp = oauth_iot.fetch_endpoint_data(request_url, 'GET')
+    resp = oauth_iot.request('GET', request_url, headers={'Accept': 'application/octet-stream'})
 
     ifile = BytesIO(resp)
     try:

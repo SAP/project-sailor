@@ -125,15 +125,15 @@ def _compose_queries(unbreakable_filters, breakable_filters):
 def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
     """Retrieve data from the AssetCentral service."""
     filters = _compose_queries(unbreakable_filters, breakable_filters)
-    service = get_oauth_client('asset_central')
+    oauth_client = get_oauth_client('asset_central')
 
     if not filters:
         filters = ['']
 
     result = []
     for filter_string in filters:
-        parameters = {'$filter': filter_string} if filter_string else None
-        endpoint_data = service.fetch_endpoint_data(endpoint_url, method='GET', parameters=parameters)
+        params = {'$filter': filter_string} if filter_string else {}
+        endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
 
         if isinstance(endpoint_data, list):
             result.extend(endpoint_data)
