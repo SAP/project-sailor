@@ -133,6 +133,7 @@ def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
     result = []
     for filter_string in filters:
         params = {'$filter': filter_string} if filter_string else {}
+        params['$format'] = 'json'
         endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
 
         if isinstance(endpoint_data, list):

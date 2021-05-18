@@ -16,17 +16,29 @@ def mock_config():
         yield mock
 
 
-@pytest.mark.parametrize('method,expected_url', [
-    ('GET', 'http://testurl.com?%24format=json'),
-    ('POST', 'http://testurl.com')])
-def test_request_sets_json_by_default(method, expected_url):
+def test_request_sets_json_by_default():
     oauth_client = OAuth2Client('test_client')
     session_mock = MagicMock(OAuth2Session)
 
     with patch.object(oauth_client, '_get_session', return_value=session_mock):
-        oauth_client.request(method, 'http://testurl.com')
+        oauth_client.request('METHOD', 'http://testurl.com')
 
-    session_mock.request.assert_called_once_with(method, expected_url, headers={'Accept': 'application/json'})
+    session_mock.request.assert_called_once_with('METHOD', 'http://testurl.com', headers={'Accept': 'application/json'})
+
+
+@pytest.mark.parametrize('headers,expected_headers', [
+    (None, None),
+    ({}, {}),
+    ({'Accept': 'application/octet-stream'}, {'Accept': 'application/octet-stream'}),
+    ({'some-header': 'value'}, {'some-header': 'value'})])
+def test_request_does_not_modify_headers_if_specified(headers, expected_headers):
+    oauth_client = OAuth2Client('test_client')
+    session_mock = MagicMock(OAuth2Session)
+
+    with patch.object(oauth_client, '_get_session', return_value=session_mock):
+        oauth_client.request('METHOD', 'http://testurl.com', headers=headers)
+
+    session_mock.request.assert_called_once_with('METHOD', 'http://testurl.com', headers=expected_headers)
 
 
 def test_request_converts_params_to_odata_url_on_get():

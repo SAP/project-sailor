@@ -69,7 +69,6 @@ class OAuth2Client():
         """
         if method == 'GET':
             parameters = req_kwargs.pop('params', {})
-            parameters.setdefault('$format', 'json')
             url_obj = furl(url)
             url_obj.args = {**url_obj.args, **parameters}
             url = url_obj.tostr(query_quote_plus=False)
