@@ -53,11 +53,10 @@ class OAuth2Client():
 
         The interface is the same as the :meth:`~requests.sessions.Session.requests` method provides.
         Adds OData param url formatting for GET requests.
-        Requests for JSON content by default and returns JSON response by default.
+        If headers are not set, requests for JSON content by default.
 
         Will use the currently attached session with this client or create a new one. If scopes are configured with
         this client, will try to resolve the scopes with the auth server first before making the request.
-
 
         Returns
         -------
@@ -66,34 +65,17 @@ class OAuth2Client():
         Raises
         ------
         RequestError
-            When the reponse is retrieved but response code is less than 400.
+            When the reponse is retrieved but response code is 400 or higher.
         """
         if method == 'GET':
-            parameters = dict(req_kwargs.setdefault('params', {}))
+            parameters = req_kwargs.pop('params', {})
             parameters.setdefault('$format', 'json')
             url_obj = furl(url)
             url_obj.args = {**url_obj.args, **parameters}
             url = url_obj.tostr(query_quote_plus=False)
-            del req_kwargs['params']
 
         req_kwargs.setdefault('headers', {'Accept': 'application/json'})
 
-        LOG.debug('Calling %s', url)
-        response = self.get_session().request(method, url, **req_kwargs)
-        if response.ok:
-            if response.headers['Content-Type'] == 'application/json':
-                return response.json()
-            else:
-                return response.content
-        else:
-            msg = f'Request failed. Response {response.status_code} ({response.reason}): {response.text}'
-            raise RequestError(msg, response.status_code, response.reason, response.text)
-
-    def get_session(self):
-        """Return a session for making OAuth2 requests.
-
-        If the client has scopes configured, try to match these scopes with the auth server first.
-        """
         if self.configured_scopes and not self.resolved_scopes:
             try:
                 self._resolve_configured_scopes()
@@ -102,7 +84,18 @@ class OAuth2Client():
                 LOG.debug(exc, exc_info=True)
 
         scope = ' '.join(self.resolved_scopes) if self.resolved_scopes else None
-        return self._get_session(scope=scope)
+        session = self._get_session(scope=scope)
+
+        LOG.debug('Calling %s', url)
+        response = session.request(method, url, **req_kwargs)
+        if response.ok:
+            if response.headers['Content-Type'] == 'application/json':
+                return response.json()
+            else:
+                return response.content
+        else:
+            msg = f'Request failed. Response {response.status_code} ({response.reason}): {response.text}'
+            raise RequestError(msg, response.status_code, response.reason, response.text)
 
     def _get_session(self, scope=None):
         """

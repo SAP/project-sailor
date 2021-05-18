@@ -23,7 +23,7 @@ def test_request_sets_json_by_default(method, expected_url):
     oauth_client = OAuth2Client('test_client')
     session_mock = MagicMock(OAuth2Session)
 
-    with patch.object(oauth_client, 'get_session', return_value=session_mock):
+    with patch.object(oauth_client, '_get_session', return_value=session_mock):
         oauth_client.request(method, 'http://testurl.com')
 
     session_mock.request.assert_called_once_with(method, expected_url, headers={'Accept': 'application/json'})
@@ -36,7 +36,7 @@ def test_request_converts_params_to_odata_url_on_get():
     params = {'old': 'false', 'new': 'true', '$format': 'json'}
     expected_url = 'https://some-service-url.to/api/resource?hello=world&old=false&new=true&%24format=json'
 
-    with patch.object(oauth_client, 'get_session', return_value=session_mock):
+    with patch.object(oauth_client, '_get_session', return_value=session_mock):
         oauth_client.request('GET', current_url, params=params)
 
     session_mock.request.assert_called_once_with('GET', expected_url, headers={'Accept': 'application/json'})
@@ -49,7 +49,7 @@ def test_request_raises_error_when_response_not_ok():
     session_mock.request.return_value = mock_response
     oauth_client = OAuth2Client('test_service')
 
-    with patch.object(oauth_client, 'get_session', return_value=session_mock):
+    with patch.object(oauth_client, '_get_session', return_value=session_mock):
         with pytest.raises(RequestError):
             oauth_client.request('GET', 'some_url')
 
