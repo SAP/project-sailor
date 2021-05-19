@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, MagicMock
 from datetime import datetime
 
+from rauth import OAuth2Session
 import jwt
 import pytest
 
-from sailor.utils.oauth_wrapper.OAuthServiceImpl import OAuthFlow
+from sailor.utils.oauth_wrapper.OAuthServiceImpl import OAuth2Client, RequestError
 
 
 @pytest.fixture(autouse=True, scope='module')
@@ -15,55 +16,60 @@ def mock_config():
         yield mock
 
 
-def test_fetch_endpoint_data_url_parameters():
-    mock_session = Mock()
-    mock_session.request.return_value = Mock(headers={'Content-Type': 'application/json'})
-    oauth_flow = OAuthFlow('test_service', {})
+def test_request_sets_json_by_default():
+    oauth_client = OAuth2Client('test_client')
+    session_mock = MagicMock(OAuth2Session)
 
+    with patch.object(oauth_client, '_get_session', return_value=session_mock):
+        oauth_client.request('METHOD', 'http://testurl.com')
+
+    session_mock.request.assert_called_once_with('METHOD', 'http://testurl.com', headers={'Accept': 'application/json'})
+
+
+@pytest.mark.parametrize('headers,expected_headers', [
+    (None, None),
+    ({}, {}),
+    ({'Accept': 'application/octet-stream'}, {'Accept': 'application/octet-stream'}),
+    ({'some-header': 'value'}, {'some-header': 'value'})])
+def test_request_does_not_modify_headers_if_specified(headers, expected_headers):
+    oauth_client = OAuth2Client('test_client')
+    session_mock = MagicMock(OAuth2Session)
+
+    with patch.object(oauth_client, '_get_session', return_value=session_mock):
+        oauth_client.request('METHOD', 'http://testurl.com', headers=headers)
+
+    session_mock.request.assert_called_once_with('METHOD', 'http://testurl.com', headers=expected_headers)
+
+
+def test_request_converts_params_to_odata_url_on_get():
+    oauth_client = OAuth2Client('test_client')
+    session_mock = MagicMock(OAuth2Session)
     current_url = 'https://some-service-url.to/api/resource?hello=world&old=true'
-    parameters = {'old': 'false', 'new': 'true'}
-
+    params = {'old': 'false', 'new': 'true', '$format': 'json'}
     expected_url = 'https://some-service-url.to/api/resource?hello=world&old=false&new=true&%24format=json'
 
-    with patch.object(oauth_flow, '_get_session', return_value=mock_session):
-        oauth_flow.fetch_endpoint_data(current_url, 'GET', parameters)
-    mock_session.request.assert_called_once_with('GET', expected_url)
+    with patch.object(oauth_client, '_get_session', return_value=session_mock):
+        oauth_client.request('GET', current_url, params=params)
+
+    session_mock.request.assert_called_once_with('GET', expected_url, headers={'Accept': 'application/json'})
 
 
-def test_fetch_endpoint_data():
-    expected_data = {'a': 1, 'b': True, 'c': '42'}
+def test_request_raises_error_when_response_not_ok():
+    mock_response = MagicMock()
+    mock_response.ok = False
+    session_mock = MagicMock(OAuth2Session)
+    session_mock.request.return_value = mock_response
+    oauth_client = OAuth2Client('test_service')
 
-    class MockResponse:
-        ok = True
-        headers = {'Content-Type': 'application/json'}
-
-        def json(self):
-            return expected_data
-
-    scope_config = {
-        'test_service': ['scope1', 'scope2', 'scope3']
-    }
-
-    full_scopes = ['foo!scope1', 'bar!scope2', 'foobar!scope3']
-    encoded_token = jwt.encode({'scope': full_scopes}, 'some_secret')
-
-    oauth_flow = OAuthFlow('test_service', scope_config)
-
-    with patch.object(oauth_flow, '_get_session') as get_session_mock:
-        get_session_mock.return_value.access_token_response.json.return_value = {'access_token': encoded_token}
-        get_session_mock.return_value.request.return_value = MockResponse()
-        result_data = oauth_flow.fetch_endpoint_data('https://some-service-url.to/api/resource', 'GET')
-
-    assert expected_data == result_data
-    assert 'scope' in get_session_mock.call_args[-1]
-    actual_scope = get_session_mock.call_args[-1]['scope']
-    assert actual_scope == ' '.join(full_scopes), 'Wrong scopes provided to oauth session'
+    with patch.object(oauth_client, '_get_session', return_value=session_mock):
+        with pytest.raises(RequestError):
+            oauth_client.request('GET', 'some_url')
 
 
 def test_scopes_config_not_available():
     scope_config = {}
 
-    oauth_flow = OAuthFlow('test_service', scope_config)
+    oauth_flow = OAuth2Client('test_service', scope_config)
     oauth_flow._resolve_configured_scopes()
     assert oauth_flow.resolved_scopes == [], 'OAuthFlow must not have scopes'
 
@@ -77,7 +83,7 @@ def test_scopes_config_available_token_available():
         'scope': ['foo!scope1', 'bar!scope2', 'foobar!scope3']
     }, 'some_secret')
 
-    oauth_flow = OAuthFlow('test_service', scope_config)
+    oauth_flow = OAuth2Client('test_service', scope_config)
 
     with patch('rauth.OAuth2Service.get_auth_session') as mock_method:
         mock_method.return_value.access_token_response.json.return_value = {'access_token': encoded_token}
@@ -93,7 +99,7 @@ def test_scopes_config_available_getting_token_fails():
         'test_service': ['scope1', 'scope2', 'scope3']
     }
 
-    oauth_flow = OAuthFlow('test_service', scope_config)
+    oauth_flow = OAuth2Client('test_service', scope_config)
 
     with patch.object(oauth_flow, '_get_session', side_effect=Exception) as mock_method:
         with pytest.raises(Exception):
@@ -109,7 +115,7 @@ def test_scopes_config_available_decoding_token_fails(jwt_decode_mock):
         'test_service': ['scope1', 'scope2', 'scope3']
     }
     invalid_encoded_token = 'xxxxxxxxxx'  # nosec
-    oauth_flow = OAuthFlow('test_service', scope_config)
+    oauth_flow = OAuth2Client('test_service', scope_config)
 
     with patch('rauth.OAuth2Service.get_auth_session') as mock_method:
         mock_method.return_value.access_token_response.json.return_value = {'access_token': invalid_encoded_token}
@@ -125,7 +131,7 @@ def test_scopes_config_available_decoding_token_fails(jwt_decode_mock):
 def test_get_session_returns_active_session_on_repeated_calls(get_auth_mock, decode_mock):
     expected_session = MagicMock()
     get_auth_mock.return_value = expected_session
-    oauth_flow = OAuthFlow('test_service')
+    oauth_flow = OAuth2Client('test_service')
 
     oauth_flow._get_session()
     actual = oauth_flow._get_session()
@@ -141,7 +147,7 @@ def test_get_session_returns_new_session_if_scopes_are_different(get_auth_mock, 
     new_scopes_requested = 'abc def'
     expected_session = MagicMock()
     get_auth_mock.return_value = expected_session
-    oauth_flow = OAuthFlow('test_service')
+    oauth_flow = OAuth2Client('test_service')
     oauth_flow._active_session = MagicMock()
 
     actual = oauth_flow._get_session(scope=new_scopes_requested)
@@ -156,7 +162,7 @@ def test_get_session_returns_new_session_if_scopes_are_different(get_auth_mock, 
 def test_get_session_returns_new_session_if_about_to_expire(get_auth_mock, decode_mock, time_mock):
     expected_session = MagicMock()
     get_auth_mock.return_value = expected_session
-    oauth_flow = OAuthFlow('test_service')
+    oauth_flow = OAuth2Client('test_service')
     oauth_flow._active_session = MagicMock()
 
     actual = oauth_flow._get_session()

@@ -297,7 +297,7 @@ class TestComposeQueries:
 class TestFetchData:
     @pytest.fixture
     def fetch_mock(self, mock_config):
-        with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuthFlow.fetch_endpoint_data') as mock:
+        with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request') as mock:
             yield mock
 
     @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
@@ -313,24 +313,26 @@ class TestFetchData:
         assert not issubclass(actual.__class__, str)
         assert isinstance(actual, Iterable)
 
-    def test_no_filters_makes_remote_call_with_no_params(self, fetch_mock):
+    def test_no_filters_makes_remote_call_without_query_params(self, fetch_mock):
         fetch_mock.return_value = ['result']
         unbreakable_filters = []
         breakable_filters = []
+        expected_params = {'$format': 'json'}
 
         actual = _fetch_data('', unbreakable_filters, breakable_filters)
 
-        fetch_mock.assert_called_once_with('', method='GET', parameters=None)
+        fetch_mock.assert_called_once_with('GET', '', params=expected_params)
         assert actual == ['result']
 
     def test_adds_filter_parameter_on_call(self, fetch_mock):
         unbreakable_filters = ["location eq 'Walldorf'"]
         breakable_filters = [["manufacturer eq 'abcCorp'"]]
-        expected_parameters = {'$filter': "location eq 'Walldorf' and (manufacturer eq 'abcCorp')"}
+        expected_parameters = {'$filter': "location eq 'Walldorf' and (manufacturer eq 'abcCorp')",
+                               '$format': 'json'}
 
         _fetch_data('', unbreakable_filters, breakable_filters)
 
-        fetch_mock.assert_called_once_with("", method="GET", parameters=expected_parameters)
+        fetch_mock.assert_called_once_with('GET', '', params=expected_parameters)
 
     def test_multiple_calls_aggregated_result(self, fetch_mock):
         unbreakable_filters = ["location eq 'Walldorf'"]
