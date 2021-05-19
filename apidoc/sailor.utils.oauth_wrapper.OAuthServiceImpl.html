@@ -159,7 +159,7 @@
             
   <div class="section" id="module-sailor.utils.oauth_wrapper.OAuthServiceImpl">
 <span id="sailor-utils-oauth-wrapper-oauthserviceimpl"></span><h1><a class="reference internal" href="#module-sailor.utils.oauth_wrapper.OAuthServiceImpl" title="sailor.utils.oauth_wrapper.OAuthServiceImpl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.oauth_wrapper.OAuthServiceImpl</span></code></a><a class="headerlink" href="#module-sailor.utils.oauth_wrapper.OAuthServiceImpl" title="Permalink to this headline">¶</a></h1>
-<p>Contains the OAuthFlow class which simplifies the interaction with OAuth-based APIs.</p>
+<p>Improvements to OAuth and OData clients.</p>
 <dl class="py exception">
 <dt id="sailor.utils.oauth_wrapper.OAuthServiceImpl.RequestError">
 <em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.utils.oauth_wrapper.OAuthServiceImpl.</span></code><code class="sig-name descname"><span class="pre">RequestError</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reason</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/utils/oauth_wrapper/OAuthServiceImpl.html#RequestError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.utils.oauth_wrapper.OAuthServiceImpl.RequestError" title="Permalink to this definition">¶</a></dt>
@@ -168,26 +168,32 @@
 </dd></dl>
 
 <dl class="py class">
-<dt id="sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuthFlow">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.utils.oauth_wrapper.OAuthServiceImpl.</span></code><code class="sig-name descname"><span class="pre">OAuthFlow</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'sap_iot':</span> <span class="pre">['.am.ts.r',</span> <span class="pre">'.am.ts.cud',</span> <span class="pre">'.r',</span> <span class="pre">'.am.map.r',</span> <span class="pre">'.export.r']}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/utils/oauth_wrapper/OAuthServiceImpl.html#OAuthFlow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuthFlow" title="Permalink to this definition">¶</a></dt>
+<dt id="sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.utils.oauth_wrapper.OAuthServiceImpl.</span></code><code class="sig-name descname"><span class="pre">OAuth2Client</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/utils/oauth_wrapper/OAuthServiceImpl.html#OAuth2Client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Provides methods for client_credential grant flows.</p>
-<p>This class acts as a wrapper for OAuth2Service class. On creating an object of this class, an instance of the
-OAuth2Service is created with the values provided.</p>
+<p>Provide session management for OAuth2 enhanced requests <code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code>’s.</p>
+<p>Manages a single session that can be used for making requests against endpoints which accept tokens issued by
+the auth server used by this client.</p>
+<p>Single entrypoint should be the convenience <a class="reference internal" href="#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request" title="sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request"><code class="xref py py-meth docutils literal notranslate"><span class="pre">request()</span></code></a> method which acts as a convenience method for making
+OAuth2 enhanced HTTP requests with an instance of this class.</p>
 <dl class="py method">
-<dt id="sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuthFlow.fetch_endpoint_data">
-<code class="sig-name descname"><span class="pre">fetch_endpoint_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/utils/oauth_wrapper/OAuthServiceImpl.html#OAuthFlow.fetch_endpoint_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuthFlow.fetch_endpoint_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Send request and return a JSON object from the obtained result.</p>
-<p>This method fetches the data on the endpoint_url specified as a parameter.
-There is no need to explicitly create an access_token and then request the data.
-If the endpoint_url already contains parameters, then these are extended by <cite>parameters</cite>.</p>
+<dt id="sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request">
+<code class="sig-name descname"><span class="pre">request</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">req_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/utils/oauth_wrapper/OAuthServiceImpl.html#OAuth2Client.request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a request using this convenience wrapper.</p>
+<p>The interface is the same as the <code class="xref py py-meth docutils literal notranslate"><span class="pre">requests()</span></code> method provides.
+Adds OData param url formatting for GET requests.
+If headers are not set, requests for JSON content by default.</p>
+<p>Will use the currently attached session with this client or create a new one. If scopes are configured with
+this client, will try to resolve the scopes with the auth server first before making the request.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>endpoint_url</strong> (<em>str</em>) – A url which would fetch the data.</p></li>
-<li><p><strong>method</strong> (<em>str</em>) – Specifies the HTTP method</p></li>
-<li><p><strong>parameters</strong> (<em>dict</em>) – Set of parameters that needs to be send along with the request.</p></li>
-</ul>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>A dict if the response contains JSON. Otherwise returns the response content as bytes.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sailor.utils.oauth_wrapper.OAuthServiceImpl.RequestError" title="sailor.utils.oauth_wrapper.OAuthServiceImpl.RequestError"><strong>RequestError</strong></a> – When the reponse is retrieved but response code is 400 or higher.</p>
 </dd>
 </dl>
 </dd></dl>

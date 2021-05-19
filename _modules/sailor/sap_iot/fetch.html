@@ -203,7 +203,7 @@
     <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;export_url&#39;</span><span class="p">)</span>  <span class="c1"># todo: figure out what to do about these urls</span>
     <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/v1/InitiateDataExport/</span><span class="si">{</span><span class="n">liot_indicator_group</span><span class="si">}</span><span class="s1">?timerange=</span><span class="si">{</span><span class="n">start_date</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">end_date</span><span class="si">}</span><span class="s1">&#39;</span>
 
-    <span class="n">resp</span> <span class="o">=</span> <span class="n">oauth_iot</span><span class="o">.</span><span class="n">fetch_endpoint_data</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">)</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">oauth_iot</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">request_url</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;RequestId&#39;</span><span class="p">]</span>
 
 
@@ -213,7 +213,7 @@
     <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;export_url&#39;</span><span class="p">)</span>  <span class="c1"># todo: figure out what to do about these urls</span>
     <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/v1/DataExportStatus?requestId=</span><span class="si">{</span><span class="n">export_id</span><span class="si">}</span><span class="s1">&#39;</span>
 
-    <span class="n">resp</span> <span class="o">=</span> <span class="n">oauth_iot</span><span class="o">.</span><span class="n">fetch_endpoint_data</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;GET&#39;</span><span class="p">)</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">oauth_iot</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">request_url</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;Status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;The file is available for download.&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -266,7 +266,7 @@
     <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;download_url&#39;</span><span class="p">)</span>  <span class="c1"># todo: figure out what to do about these urls</span>
     <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/v1/DownloadData(&#39;</span><span class="si">{</span><span class="n">export_id</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
 
-    <span class="n">resp</span> <span class="o">=</span> <span class="n">oauth_iot</span><span class="o">.</span><span class="n">fetch_endpoint_data</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;GET&#39;</span><span class="p">)</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">oauth_iot</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">request_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/octet-stream&#39;</span><span class="p">})</span>
 
     <span class="n">ifile</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>

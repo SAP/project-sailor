@@ -154,16 +154,16 @@
            <div itemprop="articleBody">
             
   <h1>Source code for sailor.utils.oauth_wrapper.OAuthServiceImpl</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Contains the OAuthFlow class which simplifies the interaction with OAuth-based APIs.&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">json</span>
+<span></span><span class="sd">&quot;&quot;&quot;Improvements to OAuth and OData clients.&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="kn">import</span> <span class="nn">jwt</span>
 <span class="kn">from</span> <span class="nn">furl</span> <span class="kn">import</span> <span class="n">furl</span>
 <span class="kn">from</span> <span class="nn">rauth</span> <span class="kn">import</span> <span class="n">OAuth2Service</span>
+<span class="kn">import</span> <span class="nn">jwt</span>
 
 <span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
 <span class="kn">from</span> <span class="nn">.scope_config</span> <span class="kn">import</span> <span class="n">SCOPE_CONFIG</span>
@@ -172,18 +172,21 @@
 <span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
 
 
-<div class="viewcode-block" id="OAuthFlow"><a class="viewcode-back" href="../../../../apidoc/sailor.utils.oauth_wrapper.OAuthServiceImpl.html#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuthFlow">[docs]</a><span class="k">class</span> <span class="nc">OAuthFlow</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Provides methods for client_credential grant flows.</span>
+<div class="viewcode-block" id="OAuth2Client"><a class="viewcode-back" href="../../../../apidoc/sailor.utils.oauth_wrapper.OAuthServiceImpl.html#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client">[docs]</a><span class="k">class</span> <span class="nc">OAuth2Client</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Provide session management for OAuth2 enhanced requests :class:`~requests.sessions.Session`&#39;s.</span>
 
-<span class="sd">    This class acts as a wrapper for OAuth2Service class. On creating an object of this class, an instance of the</span>
-<span class="sd">    OAuth2Service is created with the values provided.</span>
+<span class="sd">    Manages a single session that can be used for making requests against endpoints which accept tokens issued by</span>
+<span class="sd">    the auth server used by this client.</span>
+
+<span class="sd">    Single entrypoint should be the convenience :meth:`request` method which acts as a convenience method for making</span>
+<span class="sd">    OAuth2 enhanced HTTP requests with an instance of this class.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">scope_config</span><span class="o">=</span><span class="n">SCOPE_CONFIG</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">scope_config</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create a OAuthFlow object.</span>
+<span class="sd">        Create a OAuth2Client.</span>
 
-<span class="sd">        :param name: name of the OAuthFlow. Must be a service name found in the SailorConfig.</span>
+<span class="sd">        :param name: name of the OAuth2Client. Must be a service name found in the SailorConfig.</span>
 <span class="sd">        :param scope_config: restrict access for this instance to certain scopes listed in scope_config</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -196,25 +199,38 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oauth_url</span> <span class="o">=</span> <span class="s1">&#39;https://&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdomain</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token_url</span>
 
+        <span class="n">scope_config</span> <span class="o">=</span> <span class="n">SCOPE_CONFIG</span> <span class="k">if</span> <span class="n">scope_config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">scope_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">configured_scopes</span> <span class="o">=</span> <span class="n">scope_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resolved_scopes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_active_session</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="OAuthFlow.fetch_endpoint_data"><a class="viewcode-back" href="../../../../apidoc/sailor.utils.oauth_wrapper.OAuthServiceImpl.html#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuthFlow.fetch_endpoint_data">[docs]</a>    <span class="k">def</span> <span class="nf">fetch_endpoint_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Send request and return a JSON object from the obtained result.</span>
+<div class="viewcode-block" id="OAuth2Client.request"><a class="viewcode-back" href="../../../../apidoc/sailor.utils.oauth_wrapper.OAuthServiceImpl.html#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request">[docs]</a>    <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">req_kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make a request using this convenience wrapper.</span>
 
-<span class="sd">        This method fetches the data on the endpoint_url specified as a parameter.</span>
-<span class="sd">        There is no need to explicitly create an access_token and then request the data.</span>
-<span class="sd">        If the endpoint_url already contains parameters, then these are extended by `parameters`.</span>
+<span class="sd">        The interface is the same as the :meth:`~requests.sessions.Session.requests` method provides.</span>
+<span class="sd">        Adds OData param url formatting for GET requests.</span>
+<span class="sd">        If headers are not set, requests for JSON content by default.</span>
 
-<span class="sd">        :param endpoint_url: A url which would fetch the data.</span>
-<span class="sd">        :type endpoint_url: str</span>
-<span class="sd">        :param method: Specifies the HTTP method</span>
-<span class="sd">        :type method: str</span>
-<span class="sd">        :param parameters: Set of parameters that needs to be send along with the request.</span>
-<span class="sd">        :type parameters: dict</span>
+<span class="sd">        Will use the currently attached session with this client or create a new one. If scopes are configured with</span>
+<span class="sd">        this client, will try to resolve the scopes with the auth server first before making the request.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A dict if the response contains JSON. Otherwise returns the response content as bytes.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RequestError</span>
+<span class="sd">            When the reponse is retrieved but response code is 400 or higher.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;GET&#39;</span><span class="p">:</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="n">req_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">url_obj</span> <span class="o">=</span> <span class="n">furl</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">url_obj</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">url_obj</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">}</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">url_obj</span><span class="o">.</span><span class="n">tostr</span><span class="p">(</span><span class="n">query_quote_plus</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">req_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;headers&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">})</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">configured_scopes</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_scopes</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_configured_scopes</span><span class="p">()</span>
@@ -225,16 +241,8 @@
         <span class="n">scope</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resolved_scopes</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_scopes</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_session</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="n">scope</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">parameters</span><span class="p">:</span>
-            <span class="n">parameters</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;$format&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;json&#39;</span>
-        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">furl</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
-        <span class="n">endpoint_url</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">endpoint_url</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">}</span>
-        <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">endpoint_url</span><span class="o">.</span><span class="n">tostr</span><span class="p">(</span><span class="n">query_quote_plus</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calling </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="p">)</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calling </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="o">**</span><span class="n">req_kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;application/json&#39;</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
@@ -242,7 +250,6 @@
                 <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Request failed. Response </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s1">): </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="n">LOG</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">RequestError</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -264,8 +271,14 @@
                 <span class="k">if</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">decoded_token</span><span class="p">[</span><span class="s1">&#39;scope&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)):</span>
                     <span class="n">use_active_session</span> <span class="o">=</span> <span class="kc">False</span>
                     <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Scopes are not identical.&#39;</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="n">use_active_session</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_session</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_active_session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">LOG</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s1">&#39;Could not close OAuth2Session.&#39;</span><span class="p">)</span>
 
         <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Creating new OAuth session for &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;grant_type&#39;</span><span class="p">:</span> <span class="s1">&#39;client_credentials&#39;</span><span class="p">,</span> <span class="s1">&#39;scope&#39;</span><span class="p">:</span> <span class="n">scope</span><span class="p">}</span>
@@ -276,7 +289,6 @@
         <span class="c1"># the get_auth_session method of rauth does not check whether the response was 200 or not</span>
         <span class="c1"># and therefore does not log a proper error message</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_session</span><span class="o">.</span><span class="n">access_token_response</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_active_session</span><span class="o">.</span><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active_session</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_active_session</span> <span class="o">=</span> <span class="kc">None</span>
