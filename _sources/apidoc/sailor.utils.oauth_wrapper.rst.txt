@@ -8,6 +8,7 @@ Submodules
    :maxdepth: 4
 
    sailor.utils.oauth_wrapper.OAuthServiceImpl
+   sailor.utils.oauth_wrapper.clients
    sailor.utils.oauth_wrapper.scope_config
 
 Module contents
