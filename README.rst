@@ -1,9 +1,12 @@
 .. image:: https://api.reuse.software/badge/github.com/SAP/project-sailor
-    :target: https://api.reuse.software/badge/github.com/SAP/project-sailor
+    :target: https://api.reuse.software/info/github.com/SAP/project-sailor
 
 ================
 Project "Sailor"
 ================
+
+.. image:: https://sap.github.io/project-sailor/_static/sailor_logo_100x100.png
+    :alt: Project "Sailor"
 
 .. inclusion-marker-do-not-remove
 
