@@ -24,6 +24,10 @@ class Indicator(AssetcentralEntity):
     # TODO update field list - I think e.g. template id is also part of hte API response
 
     @classmethod
+    def get_available_properties(cls):  # noqa: D102
+        return cls.get_property_mapping().keys()
+
+    @classmethod
     def get_property_mapping(cls):
         """Return a mapping from assetcentral terminology to our terminology."""
         # TODO: There is still some weird stuff here, e.g. UOM vs. uom or convertedXXX

@@ -293,7 +293,8 @@ class _AssetcentralRequestMapper:
     _keys_safe_to_remove = []
 
     @classmethod
-    def get_available_keys(cls):
+    def get_available_properties(cls):
+        """Return the available Assetcentral properties for this class."""
         return cls._mapping.keys()
 
 
@@ -379,7 +380,7 @@ class ResultSet(Sequence):
 
     def as_df(self, columns=None):
         """Return all information on the objects stored in the ResultSet as a pandas dataframe."""
-        columns = self._element_type.get_property_mapping().keys() if columns is None else columns
+        columns = self._element_type.get_available_properties() if columns is None else columns
         return pd.DataFrame({
             prop: [element.__getattribute__(prop) for element in self.elements] for prop in columns
         })

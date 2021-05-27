@@ -85,15 +85,19 @@ class _NotificationRequestMapper(_AssetcentralRequestMapper):
         'modelId']
 
 
+class _NotificationRequest(_AssetcentralRequest, _NotificationRequestMapper):
+    pass
+
+
 @_add_properties_new
 class Notification(AssetcentralEntity, _NotificationRequestMapper):
     """AssetCentral Notification Object."""
 
     @classmethod
     def get_property_mapping(cls):
-        """Get property mapping (deprecated - use 'get_available_keys' instead)."""
+        """Return a mapping from assetcentral terminology to our terminology."""
         # TODO: remove method in future version
-        warnings.warn("deprecated - use 'get_available_keys' instead", FutureWarning)
+        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
         return cls._mapping
 
     def update(self, *args, **kwargs) -> 'Notification':
@@ -311,6 +315,3 @@ def update_notification(notification: Notification, *args, **kwargs) -> Notifica
     notification = find_notifications(id=response['notificationID'])[0]
     return notification
 
-
-class _NotificationRequest(_AssetcentralRequest, _NotificationRequestMapper):
-    pass

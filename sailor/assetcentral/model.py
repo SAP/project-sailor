@@ -36,6 +36,10 @@ class Model(AssetcentralEntity):
     # sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]
 
     @classmethod
+    def get_available_properties(cls):  # noqa: D102
+        return cls.get_property_mapping().keys()
+
+    @classmethod
     def get_property_mapping(cls):
         """Return a mapping from assetcentral terminology to our terminology."""
         return {
