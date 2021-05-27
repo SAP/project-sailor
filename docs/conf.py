@@ -95,6 +95,8 @@ html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'sticky_navigation': True
 }
+html_logo = '_static/sailor_logo_100x100.png'
+html_favicon = '_static/favicon.ico'
 # html_sidebars = {
 #     '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html']
 # }
