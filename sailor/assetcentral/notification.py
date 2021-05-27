@@ -4,20 +4,21 @@ Retrieve Notification information from AssetCentral.
 Classes are provided for individual Notifications as well as groups of Notifications (NotificationSet).
 """
 
+import warnings
+
 import pandas as pd
 import plotnine as p9
 
 import sailor.assetcentral.equipment
 from .constants import VIEW_NOTIFICATIONS
-from .utils import _fetch_data, _add_properties, ResultSet, _parse_filter_parameters,\
-    AssetcentralEntity, _ac_application_url
+from .utils import (_AssetcentralRequestMapper, _fetch_data, ResultSet, _parse_filter_parameters,
+                    AssetcentralEntity, _AssetcentralRequest, _ac_application_url, _add_properties_new)
+from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.timestamps import _string_to_timestamp_parser
 from ..utils.plot_helper import _default_plot_theme
 
 
-@_add_properties
-class Notification(AssetcentralEntity):
-    """AssetCentral Notification Object."""
+class _NotificationRequestMapper(_AssetcentralRequestMapper):
 
     # Properties (in AC terminology) are: notificationId, shortDescription, status, statusDescription, notificationType,
     # notificationTypeDescription, priority, priorityDescription, isInternal, createdBy, creationDateTime,
@@ -29,40 +30,92 @@ class Notification(AssetcentralEntity):
     # systemProposedFailureModeDesc, systemProposedFailureModeDisplayID, effectID, effectDisplayID, effectDesc,
     # causeID, causeDisplayID, causeDesc, instructionID, instructionTitle
 
+    _mapping = {
+        # our: (their_get, get_function, their_put_or_requestsetter)
+        'id': ('notificationId', None, 'notificationID'),
+        'name': ('internalId', None, None),
+        'short_description': ('shortDescription', None,
+                              lambda r, v: r.data.setdefault('description', {}).update(shortDescription=v)),
+        'long_description': ('longDescription', None,
+                             lambda r, v: r.data.setdefault('description', {}).update(longDescription=v)),
+        'breakdown': ('breakdown', None, 'breakdown'),  # TODO: turn into boolean? // setting 'breakdown' has no effect
+        'cause_id': ('causeID', None, 'causeID'),
+        'cause_description': ('causeDesc', None, None),
+        'cause_display_id': ('causeDisplayID', None, None),
+        'effect_id': ('effectID', None, 'effectID'),
+        'effect_description': ('effectDesc', None, None),
+        'effect_display_id': ('effectDisplayID', None, None),
+        'instruction_id': ('instructionID', None, 'instructionID'),
+        'instruction_title': ('instructionTitle', None, None),
+        'operator_id': ('operatorId', None, 'operator'),  # setting 'operator' has no effect
+        'confirmed_failure_mode_id': ('confirmedFailureModeID', None, 'confirmedFailureModeID'),
+        'confirmed_failure_mode_description': ('confirmedFailureModeDesc', None, None),
+        'confirmed_failure_mode_name': ('confirmedFailureModeDisplayID', None, None),
+        'end_date': ('endDate', _string_to_timestamp_parser('endDate'), 'endDate'),
+        'equipment_id': ('equipmentId', None, 'equipmentID'),
+        'equipment_name': ('equipmentName', None, None),
+        'functional_location_id': ('functionalLocationID', None, None),
+        'location_id': ('locationId', None, 'locationID'),
+        'location_name': ('location', None, None),
+        'malfunction_end_date': ('malfunctionEndDate', _string_to_timestamp_parser('malfunctionEndDate'),
+                                 'malfunctionEndDate'),
+        'malfunction_start_date': ('malfunctionStartDate', _string_to_timestamp_parser('malfunctionStartDate'),
+                                   'malfunctionStartDate'),
+        'notification_type': ('notificationType', None, 'type'),
+        'notification_type_description': ('notificationTypeDescription', None, None),
+        'priority': ('priority', None, 'priority'),
+        'priority_description': ('priorityDescription', None, None),
+        'root_equipment_id': ('rootEquipmentId', None, None),
+        'root_equipment_name': ('rootEquipmentName', None, None),
+        'start_date': ('startDate', _string_to_timestamp_parser('startDate'), 'startDate'),
+        'status': ('status', None,
+                   lambda r, v: r.data.update({'status': [v] if isinstance(v, str) else v})),
+        'status_text': ('statusDescription', None, None),
+        'system_failure_mode_id': ('systemProposedFailureModeID', None, 'systemProposedFailureModeID'),
+        'system_failure_mode_description': ('systemProposedFailureModeDesc', None, None),
+        'system_failure_mode_name': ('systemProposedFailureModeDisplayID', None, None),
+        'user_failure_mode_id': ('proposedFailureModeID', None, 'proposedFailureModeID'),
+        'user_failure_mode_description': ('proposedFailureModeDesc', None, None),
+        'user_failure_mode_name': ('proposedFailureModeDisplayID', None, None),
+        }
+
+    _keys_safe_to_remove = [
+        'isInternal', 'createdBy', 'creationDateTime', 'lastChangedBy', 'lastChangeDateTime',
+        'progressStatus', 'progressStatusDescription', 'coordinates', 'source', 'assetCoreEquipmentId', 'operator',
+        'modelId']
+
+
+@_add_properties_new
+class Notification(AssetcentralEntity, _NotificationRequestMapper):
+    """AssetCentral Notification Object."""
+
     @classmethod
     def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
-        return {
-            'id': ('notificationId', None, None, None),
-            'name': ('internalId', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'long_description': ('longDescription', None, None, None),
-            'breakdown': ('breakdown', None, None, None),  # TODO: turn into boolean?
+        """Get property mapping (deprecated - use 'get_available_keys' instead)."""
+        # TODO: remove method in future version
+        warnings.warn("deprecated - use 'get_available_keys' instead", FutureWarning)
+        return cls._mapping
 
-            'confirmed_failure_mode_id': ('confirmedFailureModeID', None, None, None),
-            'confirmed_failure_mode_description': ('confirmedFailureModeDesc', None, None, None),
-            'confirmed_failure_mode_name': ('confirmedFailureModeDisplayID', None, None, None),
-            'end_date': ('endDate', _string_to_timestamp_parser('endDate'), None, None),
-            'equipment_id': ('equipmentId', None, None, None),
-            'equipment_name': ('equipmentName', None, None, None),
-            'location_id': ('locationID', None, None, None),
-            'location_name': ('location', None, None, None),
-            'malfunction_end_date': ('malfunctionEndDate', _string_to_timestamp_parser('malfunctionEndDate'),
-                                     None, None),
-            'malfunction_start_date': ('malfunctionStartDate', _string_to_timestamp_parser('malfunctionStartDate'),
-                                       None, None),
-            'notification_type': ('notificationType', None, None, None),
-            'notification_type_description': ('notificationTypeDescription', None, None, None),
-            'priority_description': ('priorityDescription', None, None, None),
-            'start_date': ('startDate', _string_to_timestamp_parser('startDate'), None, None),
-            'status_text': ('statusDescription', None, None, None),
-            'system_failure_mode_id': ('systemProposedFailureModeID', None, None, None),
-            'system_failure_mode_description': ('systemProposedFailureModeDesc', None, None, None),
-            'system_failure_mode_name': ('systemProposedFailureModeDisplayID', None, None, None),
-            'user_failure_mode_id': ('proposedFailureModeID', None, None, None),
-            'user_failure_mode_description': ('proposedFailureModeDesc', None, None, None),
-            'user_failure_mode_name': ('proposedFailureModeDisplayID', None, None, None),
-        }
+    def update(self, *args, **kwargs) -> 'Notification':
+        """Write the current state of this object to AssetCentral with updated values supplied.
+
+        After the successful update in the remote system this object reflects the updated state.
+
+        Example
+        -------
+        .. code-block::
+
+            notf2 = notf.update(notification_type='M1')
+            assert notf.notification_type == 'M1'
+            assert notf2 == notf
+
+        See Also
+        --------
+        :meth:`update_notification`
+        """
+        updated_obj = update_notification(self, *args, **kwargs)
+        self.raw = updated_obj.raw
+        return self
 
     def plot_context(self, data=None, window_before=pd.Timedelta(days=7), window_after=pd.Timedelta(days=2)):
         """
@@ -201,9 +254,63 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
                            equipment_id=['id1', 'id2'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Notification.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, _NotificationRequestMapper._mapping)
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return NotificationSet([Notification(obj) for obj in object_list],
                            {'filters': kwargs, 'extended_filters': extended_filters})
+
+
+def create_notification(*args, **kwargs) -> Notification:
+    """Create a new notification.
+
+    Accepts a dictionary and keyword arguments.
+
+    Examples
+    --------
+    >>> notf = create_notification({'equipment_id': '123', 'short_description': 'test'})
+    >>> notf = create_notification(equipment_id='123', short_description='test')
+    >>> notf = create_notification({'equipment_id': '123'}, short_description='test')
+    """
+    request = _NotificationRequest(*args, **kwargs)
+    endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
+    oauth_client = get_oauth_client('asset_central')
+
+    response = oauth_client.request('POST', endpoint_url, json=request.data)
+    notification = find_notifications(id=response['notificationID'])[0]
+    return notification
+
+
+def update_notification(notification: Notification, *args, **kwargs) -> Notification:
+    """Update an existing notification.
+
+    Write the current state of the given notification object to AssetCentral with updated values supplied.
+    This equals a PUT request in the traditional REST programming model.
+
+    Accepts a dict, key/value pairs and keyword arguments as input.
+
+    Returns
+    -------
+    Notification
+        A new notification object as retrieved from AssetCentral after the update succeeded.
+
+    Examples
+    --------
+    >>> notf = update_notification(notf, {'notification_type': 'M1', 'short_description': 'test'})
+    >>> notf = update_notification(notf, notification_type='M1', short_description='test')
+    >>> notf = update_notification(notf, {'notification_type': 'M1'}, short_description='test')
+    """
+    request = _NotificationRequest.from_object(notification)
+    request.update(*args, **kwargs)
+
+    endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
+    oauth_client = get_oauth_client('asset_central')
+
+    response = oauth_client.request('PUT', endpoint_url, json=request.data)
+    notification = find_notifications(id=response['notificationID'])[0]
+    return notification
+
+
+class _NotificationRequest(_AssetcentralRequest, _NotificationRequestMapper):
+    pass

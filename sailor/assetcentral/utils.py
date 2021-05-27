@@ -1,8 +1,9 @@
 """Module for various utility functions, in particular those related to fetching data from remote oauth endpoints."""
 
+from copy import deepcopy
 from typing import Union
 from collections.abc import Sequence, Iterable
-from collections import Counter
+from collections import Counter, UserDict
 from itertools import product
 import operator
 import logging
@@ -284,7 +285,19 @@ def _ac_application_url():
     return SailorConfig.get('asset_central', 'application_url')
 
 
-class AssetcentralEntity:
+class _AssetcentralRequestMapper:
+    # mapping: {our: (their_get, get_function, their_put_or_requestsetter)}
+    #   get_function may be None
+    #   their_put_or_requestsetter MUST be None if field does not exist on PUT
+    _mapping = {}
+    _keys_safe_to_remove = []
+
+    @classmethod
+    def get_available_keys(cls):
+        return cls._mapping.keys()
+
+
+class AssetcentralEntity(_AssetcentralRequestMapper):
     """Common base class for Assetcentral entities."""
 
     def __init__(self, ac_json: dict):
@@ -303,6 +316,25 @@ class AssetcentralEntity:
     def __hash__(self):
         """Hash of an asset central object is the hash of it's id."""
         return self.id.__hash__()
+
+
+def _add_properties_new(cls: AssetcentralEntity):
+    """Add properties to the entity class based on the property mapping defined by the request mapper."""
+    # This is the new function to be used for all AssetcentralEntities.
+    # TODO: remove this comment block once everything is refactored
+    property_map = cls._mapping
+    for our_name, v in property_map.items():
+        their_name, getter, _ = v
+
+        # the assignment of the default value (`key=their_name`)
+        # is necessary due to the closure rules in loops
+        def _getter(self, key=their_name):
+            return self.raw.get(key, None)
+        if getter is None:
+            getter = _getter
+
+        setattr(cls, our_name, property(getter, None, None))
+    return cls
 
 
 class ResultSet(Sequence):
@@ -408,3 +440,39 @@ def _is_non_string_iterable(obj):
     if issubclass(obj.__class__, str):
         return False
     return isinstance(obj, Iterable)
+
+
+class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
+    """Used for building the dictionary for create and update requests."""
+
+    def __setitem__(self, key, value):
+        """Transform item to AC API terminology before writing the underlying dict.
+
+        If a key cannot be found using the mapping no transformation is done.
+        """
+        mapping = self._mapping
+        if key in mapping:
+            if put := mapping.get(key)[2]:
+                if callable(put):
+                    put(self, value)
+                else:
+                    self.data[put] = value
+        else:
+            warnings.warn(f"Unknown name for request found: '{key}'.")
+            self.data[key] = value
+
+    @classmethod
+    def from_object(cls, ac_entity: AssetcentralEntity):
+        """Create a new request object using an existing AC object."""
+        raw = deepcopy(ac_entity.raw)
+
+        update_kwargs = {}
+        for key, (get_key, _, _) in cls._mapping.items():
+            value = raw.pop(get_key)
+            # maybe use pop(get_key, None) if anything known to us is somehow missing from the response
+            update_kwargs.update({key: value})
+        # copy the rest that we don't know of
+        raw = raw.fromkeys(set(raw.keys()) - set(cls._keys_safe_to_remove))
+        LOG.debug('raw keys not known to mapping or deletelist:\n%s', raw.keys())
+        update_kwargs.update(raw)
+        return cls(**update_kwargs)
