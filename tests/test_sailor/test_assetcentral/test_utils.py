@@ -4,8 +4,22 @@ from unittest.mock import PropertyMock, patch
 import pytest
 
 from sailor.assetcentral.equipment import Equipment
-from sailor.assetcentral.utils import AssetcentralEntity, ResultSet, _unify_filters, _parse_filter_parameters, \
-    _apply_filters_post_request, _compose_queries, _fetch_data
+from sailor.assetcentral.utils import (
+    _AssetcentralRequestMapper, _AssetcentralRequest, AssetcentralEntity, ResultSet, _unify_filters,
+    _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data)
+
+
+class TestAssetcentralRequestMapper:
+
+    def test_get_available_properties_is_not_empty(self):
+        # note: __subclasses__ requires that all subclasses are imported
+        # currently we ensure this transitively: see __init__.py in test_assetcentral
+        classes = _AssetcentralRequestMapper.__subclasses__()
+        # remove the abstract classes that can't have a mapping
+        classes.remove(AssetcentralEntity)
+        classes.remove(_AssetcentralRequest)
+        for class_ in classes:
+            assert class_.get_available_properties()
 
 
 class TestAssetcentralEntity:
@@ -30,6 +44,51 @@ class TestAssetcentralEntity:
         entity1.id = '1'
         entity2 = Equipment({})
         assert entity1 != entity2
+
+
+class TestAssetcentralRequest:
+
+    @pytest.mark.filterwarnings('ignore:Unknown name for request found')
+    def test_setitem_sets_raw_if_not_found_in_mapping(self):
+        actual = _AssetcentralRequest({'abc': 1})
+        assert actual == {'abc': 1}
+
+    def test_setitem_sets_nothing_if_key_is_known_but_their_name_is_none(self):
+        actual = _AssetcentralRequest()
+        actual._mapping = {'abc': (None, None, None)}
+        actual.update({'abc': 1})
+        assert actual == {}
+
+    def test_setitem_sets_their_name(self):
+        actual = _AssetcentralRequest()
+        actual._mapping = {'abc': (None, None, 'DIFFERENT_NAME')}
+        actual.update({'abc': 1})
+        assert actual == {'DIFFERENT_NAME': 1}
+
+    def test_setitem_calls_their_name_function(self):
+        actual = _AssetcentralRequest()
+
+        # additional test assertions in 'their_name_function'
+        def their_name_function(req, value):
+            assert req == actual
+            assert value == 1
+            req.data['their_name_function_has_been_called'] = True
+
+        actual._mapping = {'abc': (None, None, their_name_function)}
+
+        actual.update({'abc': 1})
+        assert actual['their_name_function_has_been_called']
+
+    @pytest.mark.filterwarnings('ignore:Unknown name for request found')
+    def test_from_object(self, monkeypatch):
+        monkeypatch.setattr(_AssetcentralRequest, '_mapping', {'abc': ('ABC', None, 'AbC')})
+        monkeypatch.setattr(_AssetcentralRequest, '_keys_safe_to_remove', ['DEF'])
+        entity = AssetcentralEntity({'ABC': 1, 'DEF': 2, 'GHI': 3})
+
+        # now this should copy ABC to AbC and GHI to GHI and remove DEF
+        actual = _AssetcentralRequest.from_object(entity)
+
+        assert actual == {'AbC': 1, 'GHI': 3}
 
 
 class TestResultSet:

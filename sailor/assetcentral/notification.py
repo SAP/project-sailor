@@ -314,4 +314,3 @@ def update_notification(notification: Notification, *args, **kwargs) -> Notifica
     response = oauth_client.request('PUT', endpoint_url, json=request.data)
     notification = find_notifications(id=response['notificationID'])[0]
     return notification
-

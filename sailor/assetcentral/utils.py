@@ -466,14 +466,13 @@ class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
     def from_object(cls, ac_entity: AssetcentralEntity):
         """Create a new request object using an existing AC object."""
         raw = deepcopy(ac_entity.raw)
+        request = cls()
 
-        update_kwargs = {}
         for key, (get_key, _, _) in cls._mapping.items():
-            value = raw.pop(get_key)
-            # maybe use pop(get_key, None) if anything known to us is somehow missing from the response
-            update_kwargs.update({key: value})
-        # copy the rest that we don't know of
-        raw = raw.fromkeys(set(raw.keys()) - set(cls._keys_safe_to_remove))
+            # TODO: ?? maybe use pop(get_key, None) if anything known to us is somehow missing from the raw ac_json
+            request[key] = raw.pop(get_key)
+        for key in cls._keys_safe_to_remove:
+            raw.pop(key)
         LOG.debug('raw keys not known to mapping or deletelist:\n%s', raw.keys())
-        update_kwargs.update(raw)
-        return cls(**update_kwargs)
+        request.update(raw)
+        return request
