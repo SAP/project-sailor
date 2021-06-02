@@ -12,7 +12,7 @@ node {
         dockerExecute(script: this) {
             stage('prepare') {
                 checkout(scm)  // need to do this again from within the container because the .git directory does not carry over
-                sh "apt update && apt install -y jq && apt install -y curl && apt install -y bzip2"
+                sh "apt update && apt install -y git jq curl bzip2"
 
                 withCredentials([usernamePassword(credentialsId: 'github-sailor-user-token', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]){
                     sh '''git config --global credential.helper "!f() { echo username=\$GIT_USERNAME; echo password=\$GIT_PASSWORD; }; f"

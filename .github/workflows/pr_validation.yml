@@ -7,13 +7,11 @@ on:
 jobs:
   Tests:
     runs-on: ubuntu-latest
-    container:
-      image: dscdatascience.docker.repositories.sapcdn.io/pr_validation:2102a
-      credentials:
-          username: ${{ secrets.ARTIFACTORY_USR }}
-          password: ${{ secrets.ARTIFACTORY_PWD }}
-
     steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
       - uses: actions/checkout@v2
 
       - name: prepare
