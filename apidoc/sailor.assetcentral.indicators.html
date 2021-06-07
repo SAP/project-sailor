@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 
   
   
@@ -31,6 +33,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -196,35 +199,40 @@ Note that the indicators here represent ‘materialized’ indicators, i.e. indi
 Hence they contain information on indicator_group and template used to attach it to the equipment. Currently there
 is no support for unrealized ‘Indicator Templates’.</p>
 <dl class="py class">
-<dt id="sailor.assetcentral.indicators.AggregatedIndicator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.indicators.</span></code><code class="sig-name descname"><span class="pre">AggregatedIndicator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#AggregatedIndicator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.indicators.AggregatedIndicator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.indicators.AggregatedIndicator">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.indicators.</span></span><span class="sig-name descname"><span class="pre">AggregatedIndicator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#AggregatedIndicator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.indicators.AggregatedIndicator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sailor.assetcentral.indicators.Indicator" title="sailor.assetcentral.indicators.Indicator"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators.Indicator</span></code></a></p>
 <p>An extension of the AssetCentral Indicator object that additionally holds aggregation information.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="sailor.assetcentral.indicators.AggregatedIndicatorSet">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.indicators.</span></code><code class="sig-name descname"><span class="pre">AggregatedIndicatorSet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generating_query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#AggregatedIndicatorSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.indicators.AggregatedIndicatorSet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.indicators.AggregatedIndicatorSet">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.indicators.</span></span><span class="sig-name descname"><span class="pre">AggregatedIndicatorSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generating_query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#AggregatedIndicatorSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.indicators.AggregatedIndicatorSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sailor.assetcentral.indicators.IndicatorSet" title="sailor.assetcentral.indicators.IndicatorSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators.IndicatorSet</span></code></a></p>
 <p>Class representing a group of AggregatedIndicators.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="sailor.assetcentral.indicators.Indicator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.indicators.</span></code><code class="sig-name descname"><span class="pre">Indicator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#Indicator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.indicators.Indicator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.indicators.Indicator">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.indicators.</span></span><span class="sig-name descname"><span class="pre">Indicator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#Indicator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.indicators.Indicator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity" title="sailor.assetcentral.utils.AssetcentralEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.AssetcentralEntity</span></code></a></p>
 <p>AssetCentral Indicator Object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ac_json</strong> (<em>dict</em>) – </p>
+</dd>
+</dl>
 <dl class="py method">
-<dt id="sailor.assetcentral.indicators.Indicator.get_property_mapping">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_property_mapping</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#Indicator.get_property_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.indicators.Indicator.get_property_mapping" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.indicators.Indicator.get_property_mapping">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_property_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#Indicator.get_property_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.indicators.Indicator.get_property_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a mapping from assetcentral terminology to our terminology.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="sailor.assetcentral.indicators.IndicatorSet">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.indicators.</span></code><code class="sig-name descname"><span class="pre">IndicatorSet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generating_query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#IndicatorSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.indicators.IndicatorSet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.indicators.IndicatorSet">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.indicators.</span></span><span class="sig-name descname"><span class="pre">IndicatorSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generating_query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/indicators.html#IndicatorSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.indicators.IndicatorSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet" title="sailor.assetcentral.utils.ResultSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.ResultSet</span></code></a></p>
 <p>Class representing a group of Indicators.</p>
 </dd></dl>

@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 
   
   
@@ -31,6 +33,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -193,13 +196,18 @@
 <p>Retrieve Equipment information from AssetCentral.</p>
 <p>Classes are provided for individual Equipment as well as groups of Equipment (EquipmentSet).</p>
 <dl class="py class">
-<dt id="sailor.assetcentral.equipment.Equipment">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.equipment.</span></code><code class="sig-name descname"><span class="pre">Equipment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.equipment.</span></span><span class="sig-name descname"><span class="pre">Equipment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity" title="sailor.assetcentral.utils.AssetcentralEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.AssetcentralEntity</span></code></a></p>
 <p>AssetCentral Equipment Object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ac_json</strong> (<em>dict</em>) – </p>
+</dd>
+</dl>
 <dl class="py method">
-<dt id="sailor.assetcentral.equipment.Equipment.find_equipment_indicators">
-<code class="sig-name descname"><span class="pre">find_equipment_indicators</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.find_equipment_indicators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.find_equipment_indicators" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.find_equipment_indicators">
+<span class="sig-name descname"><span class="pre">find_equipment_indicators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.find_equipment_indicators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.find_equipment_indicators" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all Indicators assigned to this Equipment.</p>
 <p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p>
 <dl class="field-list simple">
@@ -221,8 +229,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="sailor.assetcentral.equipment.Equipment.find_failure_modes">
-<code class="sig-name descname"><span class="pre">find_failure_modes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.find_failure_modes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.find_failure_modes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.find_failure_modes">
+<span class="sig-name descname"><span class="pre">find_failure_modes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.find_failure_modes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.find_failure_modes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch the failure modes configured for the given equipment.</p>
 <p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p>
 <dl class="field-list simple">
@@ -244,8 +252,8 @@
 </dd></dl>
 
 <dl class="py method">
-<dt id="sailor.assetcentral.equipment.Equipment.find_notifications">
-<code class="sig-name descname"><span class="pre">find_notifications</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.find_notifications"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.find_notifications" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.find_notifications">
+<span class="sig-name descname"><span class="pre">find_notifications</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.find_notifications"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.find_notifications" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch notifications objects associated with this equipment.</p>
 <p>This is a wrapper for <a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.find_notifications" title="sailor.assetcentral.notification.find_notifications"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.assetcentral.notification.find_notifications()</span></code></a>
 that limits the fetch query to this equipment.</p>
@@ -269,8 +277,8 @@ that limits the fetch query to this equipment.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sailor.assetcentral.equipment.Equipment.find_workorders">
-<code class="sig-name descname"><span class="pre">find_workorders</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.find_workorders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.find_workorders" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.find_workorders">
+<span class="sig-name descname"><span class="pre">find_workorders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.find_workorders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.find_workorders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch workorder objects associated with this equipment.</p>
 <p>This is a wrapper for <a class="reference internal" href="sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.find_workorders" title="sailor.assetcentral.workorder.find_workorders"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder.find_workorders()</span></code></a> that limits the fetch query
 to this equipment.</p>
@@ -294,8 +302,8 @@ to this equipment.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sailor.assetcentral.equipment.Equipment.get_indicator_data">
-<code class="sig-name descname"><span class="pre">get_indicator_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.get_indicator_data" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.get_indicator_data">
+<span class="sig-name descname"><span class="pre">get_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.get_indicator_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.</p>
 <p>This is a wrapper for <a class="reference internal" href="sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data" title="sailor.sap_iot.fetch.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch.get_indicator_data()</span></code></a> that limits the fetch query
 to this equipment. Note that filtering for the equipment can only be done locally, so calling this function
@@ -325,27 +333,27 @@ my_equipment.get_indicator_data(‘2020-06-01’, ‘2020-12-05’)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sailor.assetcentral.equipment.Equipment.get_property_mapping">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_property_mapping</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.get_property_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.get_property_mapping" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.get_property_mapping">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_property_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.get_property_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.get_property_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a mapping from assetcentral terminology to our terminology.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sailor.assetcentral.equipment.Equipment.location">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">location</span></code><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.location" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.location">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">location</span></span><em class="property"><span class="pre">:</span> <span class="pre">sailor.assetcentral.location.Location</span></em><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.location" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Location associated with this Equipment.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="sailor.assetcentral.equipment.EquipmentSet">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.equipment.</span></code><code class="sig-name descname"><span class="pre">EquipmentSet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generating_query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.EquipmentSet">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.equipment.</span></span><span class="sig-name descname"><span class="pre">EquipmentSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generating_query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet" title="sailor.assetcentral.utils.ResultSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.ResultSet</span></code></a></p>
 <p>Class representing a group of Equipment.</p>
 <dl class="py method">
-<dt id="sailor.assetcentral.equipment.EquipmentSet.find_common_indicators">
-<code class="sig-name descname"><span class="pre">find_common_indicators</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.find_common_indicators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.find_common_indicators" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.EquipmentSet.find_common_indicators">
+<span class="sig-name descname"><span class="pre">find_common_indicators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.find_common_indicators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.find_common_indicators" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all Indicators common to all Equipment in this EquipmentSet.</p>
 <p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p>
 <dl class="field-list simple">
@@ -373,8 +381,8 @@ verify the uniformity of the Equipment included in this set.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sailor.assetcentral.equipment.EquipmentSet.find_notifications">
-<code class="sig-name descname"><span class="pre">find_notifications</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.find_notifications"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.find_notifications" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.EquipmentSet.find_notifications">
+<span class="sig-name descname"><span class="pre">find_notifications</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.find_notifications"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.find_notifications" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all Notifications for any of the equipment in this EquipmentSet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -401,8 +409,8 @@ verify the uniformity of the Equipment included in this set.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sailor.assetcentral.equipment.EquipmentSet.find_workorders">
-<code class="sig-name descname"><span class="pre">find_workorders</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.find_workorders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.find_workorders" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.EquipmentSet.find_workorders">
+<span class="sig-name descname"><span class="pre">find_workorders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.find_workorders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.find_workorders" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all Workorders for any of the equipment in this EquipmentSet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -424,8 +432,8 @@ verify the uniformity of the Equipment included in this set.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sailor.assetcentral.equipment.EquipmentSet.get_indicator_data">
-<code class="sig-name descname"><span class="pre">get_indicator_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.get_indicator_data" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.EquipmentSet.get_indicator_data">
+<span class="sig-name descname"><span class="pre">get_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.get_indicator_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.</p>
 <p>This is a wrapper for <a class="reference internal" href="sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data" title="sailor.sap_iot.fetch.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch.get_indicator_data()</span></code></a> that limits the fetch query
 to this equipment set.</p>
@@ -457,8 +465,8 @@ for a period from 01.06.2020 to 05.12.2020</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="sailor.assetcentral.equipment.find_equipment">
-<code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.equipment.</span></code><code class="sig-name descname"><span class="pre">find_equipment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#find_equipment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.find_equipment" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.find_equipment">
+<span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.equipment.</span></span><span class="sig-name descname"><span class="pre">find_equipment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#find_equipment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.find_equipment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch Equipments from AssetCentral with the applied filters, return an EquipmentSet.</p>
 <p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p>
 <dl class="field-list simple">

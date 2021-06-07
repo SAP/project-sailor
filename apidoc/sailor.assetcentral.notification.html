@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 
   
   
@@ -31,6 +33,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -193,19 +196,24 @@
 <p>Retrieve Notification information from AssetCentral.</p>
 <p>Classes are provided for individual Notifications as well as groups of Notifications (NotificationSet).</p>
 <dl class="py class">
-<dt id="sailor.assetcentral.notification.Notification">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.notification.</span></code><code class="sig-name descname"><span class="pre">Notification</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#Notification"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.Notification" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.notification.Notification">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.notification.</span></span><span class="sig-name descname"><span class="pre">Notification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#Notification"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.Notification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity" title="sailor.assetcentral.utils.AssetcentralEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.AssetcentralEntity</span></code></a></p>
 <p>AssetCentral Notification Object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ac_json</strong> (<em>dict</em>) – </p>
+</dd>
+</dl>
 <dl class="py method">
-<dt id="sailor.assetcentral.notification.Notification.get_property_mapping">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_property_mapping</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#Notification.get_property_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.Notification.get_property_mapping" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.notification.Notification.get_property_mapping">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_property_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#Notification.get_property_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.Notification.get_property_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a mapping from assetcentral terminology to our terminology.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sailor.assetcentral.notification.Notification.plot_context">
-<code class="sig-name descname"><span class="pre">plot_context</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_before</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Timedelta('7</span> <span class="pre">days</span> <span class="pre">00:00:00')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_after</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Timedelta('2</span> <span class="pre">days</span> <span class="pre">00:00:00')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#Notification.plot_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.Notification.plot_context" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.notification.Notification.plot_context">
+<span class="sig-name descname"><span class="pre">plot_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_before</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Timedelta('7</span> <span class="pre">days</span> <span class="pre">00:00:00')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_after</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Timedelta('2</span> <span class="pre">days</span> <span class="pre">00:00:00')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#Notification.plot_context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.Notification.plot_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a notification in the context of the timeseries data around the time of the notification.</p>
 <p>This plot can be used to gain insight into the sensor behaviour around the time that a malfunction occurs.
 If the <cite>data</cite> parameter is left as <cite>None</cite> the data required for plotting is automatically retrieved from
@@ -224,13 +232,13 @@ SAP IoT.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="sailor.assetcentral.notification.NotificationSet">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.notification.</span></code><code class="sig-name descname"><span class="pre">NotificationSet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generating_query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#NotificationSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.NotificationSet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.notification.NotificationSet">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.notification.</span></span><span class="sig-name descname"><span class="pre">NotificationSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generating_query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#NotificationSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.NotificationSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet" title="sailor.assetcentral.utils.ResultSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.ResultSet</span></code></a></p>
 <p>Class representing a group of Notifications.</p>
 <dl class="py method">
-<dt id="sailor.assetcentral.notification.NotificationSet.plot_overview">
-<code class="sig-name descname"><span class="pre">plot_overview</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#NotificationSet.plot_overview"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.NotificationSet.plot_overview" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.notification.NotificationSet.plot_overview">
+<span class="sig-name descname"><span class="pre">plot_overview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#NotificationSet.plot_overview"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.NotificationSet.plot_overview" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot an overview over all notifications in the set as a function of time.</p>
 <p>Each notification will be shown by a rectangle, on a y-scale representing the affected equipment
 and with a color representing the confirmed failure mode description.</p>
@@ -244,8 +252,8 @@ and with a color representing the confirmed failure mode description.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="sailor.assetcentral.notification.find_notifications">
-<code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.notification.</span></code><code class="sig-name descname"><span class="pre">find_notifications</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#find_notifications"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.find_notifications" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.notification.find_notifications">
+<span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.notification.</span></span><span class="sig-name descname"><span class="pre">find_notifications</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/notification.html#find_notifications"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.notification.find_notifications" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch Notifications from AssetCentral with the applied filters, return a NotificationSet.</p>
 <p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p>
 <p><strong>Allowed entries for filter terms</strong></p>

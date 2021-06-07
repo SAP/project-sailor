@@ -13,6 +13,8 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
 
   
   
@@ -31,6 +33,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -193,13 +196,13 @@
 <p>System module can be used to retrieve System information from AssetCentral.</p>
 <p>Classes are provided for individual Systems as well as groups of Systems (SystemSet).</p>
 <dl class="py class">
-<dt id="sailor.assetcentral.system.System">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.system.</span></code><code class="sig-name descname"><span class="pre">System</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#System"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.System" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.system.System">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.system.</span></span><span class="sig-name descname"><span class="pre">System</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#System"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.System" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity" title="sailor.assetcentral.utils.AssetcentralEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.AssetcentralEntity</span></code></a></p>
 <p>AssetCentral System Object.</p>
 <dl class="py method">
-<dt id="sailor.assetcentral.system.System.get_indicator_data">
-<code class="sig-name descname"><span class="pre">get_indicator_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#System.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.System.get_indicator_data" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.system.System.get_indicator_data">
+<span class="sig-name descname"><span class="pre">get_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#System.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.System.get_indicator_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get timeseries data for all Equipment in the System.</p>
 <p>This is a wrapper for <a class="reference internal" href="sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data" title="sailor.sap_iot.fetch.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch.get_indicator_data()</span></code></a> that limits the fetch query
 to the equipment in this System.</p>
@@ -219,14 +222,14 @@ potentially making the dataset very sparse.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="sailor.assetcentral.system.System.get_property_mapping">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_property_mapping</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#System.get_property_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.System.get_property_mapping" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.system.System.get_property_mapping">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_property_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#System.get_property_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.System.get_property_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a mapping from assetcentral terminology to our terminology.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="sailor.assetcentral.system.System.components">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">components</span></code><a class="headerlink" href="#sailor.assetcentral.system.System.components" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="sailor.assetcentral.system.System.components">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">components</span></span><a class="headerlink" href="#sailor.assetcentral.system.System.components" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pieces of equipment that are children of the system.</p>
 <p>Only top level, lower levels are ignored</p>
 </dd></dl>
@@ -234,13 +237,13 @@ potentially making the dataset very sparse.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="sailor.assetcentral.system.SystemSet">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.system.</span></code><code class="sig-name descname"><span class="pre">SystemSet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generating_query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#SystemSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.SystemSet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.system.SystemSet">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.system.</span></span><span class="sig-name descname"><span class="pre">SystemSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generating_query_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#SystemSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.SystemSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet" title="sailor.assetcentral.utils.ResultSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.ResultSet</span></code></a></p>
 <p>Class representing a group of Systems.</p>
 <dl class="py method">
-<dt id="sailor.assetcentral.system.SystemSet.get_indicator_data">
-<code class="sig-name descname"><span class="pre">get_indicator_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#SystemSet.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.SystemSet.get_indicator_data" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.system.SystemSet.get_indicator_data">
+<span class="sig-name descname"><span class="pre">get_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#SystemSet.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.SystemSet.get_indicator_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch data for a set of systems for all component equipment of each system.</p>
 <p>This is a wrapper for <a class="reference internal" href="sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data" title="sailor.sap_iot.fetch.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch.get_indicator_data()</span></code></a> that limits the fetch query
 to the equipment in this SystemSet.</p>
@@ -262,8 +265,8 @@ potentially making the dataset very sparse.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="sailor.assetcentral.system.find_systems">
-<code class="sig-prename descclassname"><span class="pre">sailor.assetcentral.system.</span></code><code class="sig-name descname"><span class="pre">find_systems</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#find_systems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.find_systems" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sailor.assetcentral.system.find_systems">
+<span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.system.</span></span><span class="sig-name descname"><span class="pre">find_systems</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#find_systems"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.find_systems" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch Systems from AssetCentral with the applied filters, return a SystemSet.</p>
 <p>This method supports the usual filter criteria, i.e.
 - Any named keyword arguments applied as equality filters, i.e. the name of the System property is checked
