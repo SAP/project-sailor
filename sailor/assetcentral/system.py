@@ -50,7 +50,7 @@ class System(AssetcentralEntity):
 
     @staticmethod
     def _traverse_components(component, model_order, equipment_ids, system_ids):
-        """Traverse component structure recursively, starting from `component`. Pydocstyle does not know punctuation."""
+        """Traverse component structure recursively, starting from 'component.' Pydocstyle does not know punctuation."""
         compd = {}
         compd['key'] = (component['model'], model_order)
         compd['id'] = component['id']
