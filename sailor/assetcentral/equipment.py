@@ -96,6 +96,7 @@ class Equipment(AssetcentralEntity):
         # AC-BUG: this endpoint just silently ignores filter parameters, so we can't really support them...
         endpoint_url = _ac_application_url() + VIEW_EQUIPMENT + f'({self.id})' + '/indicatorvalues'
         object_list = _fetch_data(endpoint_url)
+        object_list = [x for x in object_list if x]  # workaround for empty result
 
         filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
                                                        Indicator.get_property_mapping())
