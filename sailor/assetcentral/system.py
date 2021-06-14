@@ -164,6 +164,10 @@ class System(AssetcentralEntity):
         """
         all_indicators = sum((equipment.find_equipment_indicators() for equipment in self.components), IndicatorSet([]))
         return sap_iot.get_indicator_data(start, end, all_indicators, self.components)
+        if not hasattr(self, '_equipments'):
+            comp_tree = self._component_tree
+        # all_indicators = sum((equipment.find_equipment_indicators() for equipment in self._equipments), IndicatorSet([]))
+        # return sap_iot.get_indicator_data(start, end, all_indicators, self._equipments)
 
 
 class SystemSet(ResultSet):
