@@ -2,11 +2,10 @@ apiVersion: v1
 kind: Pod
 metadata:
 spec:
-  name: pr-validation-pod
-  imagePullSecrets: ['dscdatascience-jenkins']
+  name: github-cicd-pod
   containers:
   - name: container-exec
-    image: dscdatascience.common.repositories.cloud.sap/pr_validation:2102a
+    image: python:3.8.10-slim
     command:
     - sleep
     args:
