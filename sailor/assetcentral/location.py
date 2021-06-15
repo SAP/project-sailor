@@ -3,7 +3,7 @@ Location module can be used to retrieve Location information from AssetCentral.
 
 Classes are provided for individual Locations as well as groups of Locations (LocationSet).
 """
-
+import warnings
 
 from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
     _ac_application_url
@@ -25,6 +25,9 @@ class Location(AssetcentralEntity):
     @classmethod
     def get_property_mapping(cls):
         """Return a mapping from assetcentral terminology to our terminology."""
+        # TODO: return cls._mapping when feature is implemented. turn warning into FutureWarning
+        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead",
+                      PendingDeprecationWarning)
         return {
             'id': ('locationId', None, None, None),
             'name': ('name', None, None, None),

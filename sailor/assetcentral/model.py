@@ -7,6 +7,7 @@ Models can be of type Equipment, System or FunctionalLocation, but the type is n
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+import warnings
 
 from .constants import VIEW_MODEL_INDICATORS, VIEW_MODELS
 from .indicators import Indicator, IndicatorSet
@@ -42,6 +43,9 @@ class Model(AssetcentralEntity):
     @classmethod
     def get_property_mapping(cls):
         """Return a mapping from assetcentral terminology to our terminology."""
+        # TODO: return cls._mapping when feature is implemented. turn warning into FutureWarning
+        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead",
+                      PendingDeprecationWarning)
         return {
             'id': ('modelId', None, None, None),
             'name': ('name', None, None, None),

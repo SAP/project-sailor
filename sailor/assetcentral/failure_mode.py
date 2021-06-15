@@ -3,7 +3,7 @@ Failure Mode module can be used to retrieve FailureMode information from AssetCe
 
 Classes are provided for individual FailureModes as well as groups of FailureModes (FailureModeSet).
 """
-
+import warnings
 
 from .utils import _fetch_data, _add_properties, _parse_filter_parameters, ResultSet, \
     AssetcentralEntity, _ac_application_url
@@ -29,6 +29,9 @@ class FailureMode(AssetcentralEntity):
     @classmethod
     def get_property_mapping(cls):
         """Return a mapping from assetcentral terminology to our terminology."""
+        # TODO: return cls._mapping when feature is implemented. turn warning into FutureWarning
+        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead",
+                      PendingDeprecationWarning)
         return {
             'id': ('ID', None, None, None),
             'name': ('DisplayID', None, None, None),

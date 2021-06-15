@@ -6,7 +6,7 @@ Classes are provided for individual Systems as well as groups of Systems (System
 from __future__ import annotations
 
 import itertools
-# import warnings
+import warnings
 from typing import TYPE_CHECKING, Union
 from datetime import datetime
 from functools import cached_property
@@ -45,6 +45,9 @@ class System(AssetcentralEntity):
     @classmethod
     def get_property_mapping(cls):
         """Return a mapping from assetcentral terminology to our terminology."""
+        # TODO: return cls._mapping when feature is implemented. turn warning into FutureWarning
+        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead",
+                      PendingDeprecationWarning)
         return {
             'id': ('systemId', None, None, None),
             'name': ('internalId', None, None, None),
