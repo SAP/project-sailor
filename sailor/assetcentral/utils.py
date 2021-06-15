@@ -469,8 +469,15 @@ class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
         request = cls()
 
         for key, (get_key, _, _) in cls._mapping.items():
-            # TODO: ?? maybe use pop(get_key, None) if anything known to us is somehow missing from the raw ac_json
+            if get_key not in raw:
+                msg = ("Error when creating request object. Please try again. If the error persists "
+                       "please raise an issue with the developers including the stacktrace."
+                       "\n\n==========================  Debug information =========================="
+                       f"\nCould not find key '{get_key}'."
+                       f"\nAC entity keys: {raw.keys()}")
+                raise RuntimeError(msg)
             request[key] = raw.pop(get_key)
+
         for key in cls._keys_safe_to_remove:
             raw.pop(key)
         LOG.debug('raw keys not known to mapping or deletelist:\n%s', raw.keys())
