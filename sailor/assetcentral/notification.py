@@ -79,10 +79,12 @@ class _NotificationRequestMapper(_AssetcentralRequestMapper):
         'user_failure_mode_name': ('proposedFailureModeDisplayID', None, None),
         }
 
-    _keys_safe_to_remove = [
+    _raw_keys_for_removal = [
         'isInternal', 'createdBy', 'creationDateTime', 'lastChangedBy', 'lastChangeDateTime',
         'progressStatus', 'progressStatusDescription', 'coordinates', 'source', 'assetCoreEquipmentId', 'operator',
         'modelId']
+    _required_raw_keys = [
+        'priority', 'type', 'status', 'description', 'equipmentID']
 
 
 class _NotificationRequest(_AssetcentralRequest, _NotificationRequestMapper):

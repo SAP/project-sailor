@@ -82,7 +82,7 @@ class TestAssetcentralRequest:
     @pytest.mark.filterwarnings('ignore:Unknown name for request found')
     def test_from_object(self, monkeypatch):
         monkeypatch.setattr(_AssetcentralRequest, '_mapping', {'abc': ('ABC', None, 'AbC')})
-        monkeypatch.setattr(_AssetcentralRequest, '_keys_safe_to_remove', ['DEF'])
+        monkeypatch.setattr(_AssetcentralRequest, '_raw_keys_for_removal', ['DEF'])
         entity = AssetcentralEntity({'ABC': 1, 'DEF': 2, 'GHI': 3})
 
         # now this should copy ABC to AbC and GHI to GHI and remove DEF

@@ -290,7 +290,8 @@ class _AssetcentralRequestMapper:
     #   get_function may be None
     #   their_put_or_requestsetter MUST be None if field does not exist on PUT
     _mapping = {}
-    _keys_safe_to_remove = []
+    _raw_keys_for_removal = []
+    _required_raw_keys = []
 
     @classmethod
     def get_available_properties(cls):
@@ -462,6 +463,10 @@ class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
             warnings.warn(f"Unknown name for request found: '{key}'.")
             self.data[key] = value
 
+    def validate(self):
+        if missing_keys := set(self._required_raw_keys) - self.keys():
+            raise ValidationError("Required keys are missing", list(missing_keys))
+
     @classmethod
     def from_object(cls, ac_entity: AssetcentralEntity):
         """Create a new request object using an existing AC object."""
@@ -478,8 +483,12 @@ class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
                 raise RuntimeError(msg)
             request[key] = raw.pop(get_key)
 
-        for key in cls._keys_safe_to_remove:
+        for key in cls._raw_keys_for_removal:
             raw.pop(key)
         LOG.debug('raw keys not known to mapping or deletelist:\n%s', raw.keys())
         request.update(raw)
         return request
+
+
+class ValidationError(Exception):
+    pass
