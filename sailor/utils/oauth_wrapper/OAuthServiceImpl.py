@@ -51,12 +51,16 @@ class OAuth2Client():
     def request(self, method, url, **req_kwargs):
         """Make a request using this convenience wrapper.
 
-        The interface is the same as the :meth:`~requests.sessions.Session.requests` method provides.
-        Adds OData param url formatting for GET requests.
-        If headers are not set, requests for JSON content by default.
+        The interface is the same as the :meth:`requests.sessions.Session.request` method provides but changes the
+        following behavior:
 
-        Will use the currently attached session with this client or create a new one. If scopes are configured with
-        this client, will try to resolve the scopes with the auth server first before making the request.
+        - Does not return a response object. Instead, returns content or raises an error (see below).
+        - Automatically converts supplied 'params' for GET requests to OData URL parameters.
+        - If headers are not set, requests for JSON content by default.
+
+        Client session management: will use the currently attached session with this client or create a new one.
+        If scopes are configured with this client and are not resolved yet, will try to resolve the scopes with
+        the auth server first before making the request.
 
         Returns
         -------
