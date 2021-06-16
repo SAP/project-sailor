@@ -291,7 +291,6 @@ class _AssetcentralRequestMapper:
     #   their_put_or_requestsetter MUST be None if field does not exist on PUT
     _mapping = {}
     _raw_keys_for_removal = []
-    _required_raw_keys = []
 
     @classmethod
     def get_available_properties(cls):
@@ -326,7 +325,7 @@ def _add_properties_new(cls: AssetcentralEntity):
     # TODO: remove this comment block once everything is refactored
     property_map = cls._mapping
     for our_name, v in property_map.items():
-        their_name, getter, _ = v
+        their_name, getter, _, _ = v
 
         # the assignment of the default value (`key=their_name`)
         # is necessary due to the closure rules in loops
@@ -460,12 +459,15 @@ class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
                 else:
                     self.data[put] = value
         else:
-            warnings.warn(f"Unknown name for request found: '{key}'.")
+            warnings.warn(f"Unknown name for request parameter found: '{key}'.")
             self.data[key] = value
 
     def validate(self):
-        if missing_keys := set(self._required_raw_keys) - self.keys():
-            raise ValidationError("Required keys are missing", list(missing_keys))
+        missing_keys = [key for key, (_, _, _, validator) in self._mapping.items()
+                        if validator is not None and validator(self) is False]
+        if missing_keys:
+            raise AssetcentralRequestValidationError(
+                "Error when creating request. Missing values for mandatory parameters.", missing_keys)
 
     @classmethod
     def from_object(cls, ac_entity: AssetcentralEntity):
@@ -473,7 +475,7 @@ class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
         raw = deepcopy(ac_entity.raw)
         request = cls()
 
-        for key, (get_key, _, _) in cls._mapping.items():
+        for key, (get_key, _, _, _) in cls._mapping.items():
             if get_key not in raw:
                 msg = ("Error when creating request object. Please try again. If the error persists "
                        "please raise an issue with the developers including the stacktrace."
@@ -485,10 +487,10 @@ class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
 
         for key in cls._raw_keys_for_removal:
             raw.pop(key)
-        LOG.debug('raw keys not known to mapping or deletelist:\n%s', raw.keys())
+        LOG.debug("raw keys not known to mapping or deletelist:\n%s", raw.keys())
         request.update(raw)
         return request
 
 
-class ValidationError(Exception):
+class AssetcentralRequestValidationError(Exception):
     pass

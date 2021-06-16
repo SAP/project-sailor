@@ -48,20 +48,20 @@ class TestAssetcentralEntity:
 
 class TestAssetcentralRequest:
 
-    @pytest.mark.filterwarnings('ignore:Unknown name for request found')
+    @pytest.mark.filterwarnings('ignore:Unknown name for request parameter found')
     def test_setitem_sets_raw_if_not_found_in_mapping(self):
         actual = _AssetcentralRequest({'abc': 1})
         assert actual == {'abc': 1}
 
     def test_setitem_sets_nothing_if_key_is_known_but_their_name_is_none(self):
         actual = _AssetcentralRequest()
-        actual._mapping = {'abc': (None, None, None)}
+        actual._mapping = {'abc': (None, None, None, None)}
         actual.update({'abc': 1})
         assert actual == {}
 
     def test_setitem_sets_their_name(self):
         actual = _AssetcentralRequest()
-        actual._mapping = {'abc': (None, None, 'DIFFERENT_NAME')}
+        actual._mapping = {'abc': (None, None, 'DIFFERENT_NAME', None)}
         actual.update({'abc': 1})
         assert actual == {'DIFFERENT_NAME': 1}
 
@@ -74,14 +74,14 @@ class TestAssetcentralRequest:
             assert value == 1
             req.data['their_name_function_has_been_called'] = True
 
-        actual._mapping = {'abc': (None, None, their_name_function)}
+        actual._mapping = {'abc': (None, None, their_name_function, None)}
 
         actual.update({'abc': 1})
         assert actual['their_name_function_has_been_called']
 
-    @pytest.mark.filterwarnings('ignore:Unknown name for request found')
+    @pytest.mark.filterwarnings('ignore:Unknown name for request parameter found')
     def test_from_object(self, monkeypatch):
-        monkeypatch.setattr(_AssetcentralRequest, '_mapping', {'abc': ('ABC', None, 'AbC')})
+        monkeypatch.setattr(_AssetcentralRequest, '_mapping', {'abc': ('ABC', None, 'AbC', None)})
         monkeypatch.setattr(_AssetcentralRequest, '_raw_keys_for_removal', ['DEF'])
         entity = AssetcentralEntity({'ABC': 1, 'DEF': 2, 'GHI': 3})
 
