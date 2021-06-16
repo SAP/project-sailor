@@ -492,5 +492,5 @@ class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
         return request
 
 
-class AssetcentralRequestValidationError(Exception):
+class AssetcentralRequestValidationError(Exception):  # noqa: D101 (self-explanatory)
     pass

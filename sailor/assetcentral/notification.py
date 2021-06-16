@@ -36,7 +36,7 @@ class _NotificationRequestMapper(_AssetcentralRequestMapper):
         'name': ('internalId', None, None, None),
         'short_description': ('shortDescription', None,
                               lambda r, v: r.data.setdefault('description', {}).update(shortDescription=v),
-                              lambda r: r.get('description', {}).get('shortDescription') is not None),
+                              lambda r: bool(r.get('description', {}).get('shortDescription'))),
         'long_description': ('longDescription', None,
                              lambda r, v: r.data.setdefault('description', {}).update(longDescription=v), None),
         'breakdown': ('breakdown', None, 'breakdown', None),  # TODO: turn into boolean? // 'breakdown' has no effect
@@ -53,7 +53,7 @@ class _NotificationRequestMapper(_AssetcentralRequestMapper):
         'confirmed_failure_mode_description': ('confirmedFailureModeDesc', None, None, None),
         'confirmed_failure_mode_name': ('confirmedFailureModeDisplayID', None, None, None),
         'end_date': ('endDate', _string_to_timestamp_parser('endDate'), 'endDate', None),
-        'equipment_id': ('equipmentId', None, 'equipmentID', lambda r: r.get('equipmentID') is not None),
+        'equipment_id': ('equipmentId', None, 'equipmentID', lambda r: bool(r.get('equipmentID'))),
         'equipment_name': ('equipmentName', None, None, None),
         'functional_location_id': ('functionalLocationID', None, None, None),
         'location_id': ('locationId', None, 'locationID', None),
@@ -62,9 +62,9 @@ class _NotificationRequestMapper(_AssetcentralRequestMapper):
                                  'malfunctionEndDate', None),
         'malfunction_start_date': ('malfunctionStartDate', _string_to_timestamp_parser('malfunctionStartDate'),
                                    'malfunctionStartDate', None),
-        'notification_type': ('notificationType', None, 'type', lambda r: 'type' in r),
+        'notification_type': ('notificationType', None, 'type', lambda r: bool(r.get('type'))),
         'notification_type_description': ('notificationTypeDescription', None, None, None),
-        'priority': ('priority', None, 'priority', lambda r: r.get('priority') is not None),
+        'priority': ('priority', None, 'priority', lambda r: bool(r.get('priority'))),
         'priority_description': ('priorityDescription', None, None, None),
         'root_equipment_id': ('rootEquipmentId', None, None, None),
         'root_equipment_name': ('rootEquipmentName', None, None, None),
@@ -280,6 +280,7 @@ def create_notification(*args, **kwargs) -> Notification:
     >>> notf = create_notification({'equipment_id': '123'}, short_description='test')
     """
     request = _NotificationRequest(*args, **kwargs)
+    request.validate()
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     oauth_client = get_oauth_client('asset_central')
 
@@ -309,6 +310,7 @@ def update_notification(notification: Notification, *args, **kwargs) -> Notifica
     """
     request = _NotificationRequest.from_object(notification)
     request.update(*args, **kwargs)
+    request.validate()
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     oauth_client = get_oauth_client('asset_central')
