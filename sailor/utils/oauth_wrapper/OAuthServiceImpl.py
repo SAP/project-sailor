@@ -88,7 +88,8 @@ class OAuth2Client():
         LOG.debug('Calling %s', url)
         response = session.request(method, url, **req_kwargs)
         if response.ok:
-            if response.headers['Content-Type'] == 'application/json':
+            r_headers = {k.lower(): v for (k, v) in response.headers.items()}
+            if r_headers.get('content-type', '').lower() == 'application/json':
                 return response.json()
             else:
                 return response.content
