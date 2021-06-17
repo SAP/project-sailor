@@ -6,6 +6,7 @@ from datetime import datetime
 from rauth import OAuth2Session
 import jwt
 import pytest
+from requests.models import Response
 
 from sailor.utils.oauth_wrapper.OAuthServiceImpl import OAuth2Client, RequestError
 
@@ -72,9 +73,9 @@ def test_request_raises_error_when_response_not_ok():
     ('CoNTenT-tyPE', 'AppLICation/JsOn', True, {'some': 'value'}),
 ])
 def test_request_correctly_checks_content_type_response_header(name, value, json_expected, expected_content):
-    mock_response = MagicMock()
+    mock_response = MagicMock(wraps=Response())
     mock_response.ok = True
-    mock_response.headers = {name: value}
+    mock_response.headers.update({name: value})  # requests lib is using a special case-insensitive dict
     if json_expected:
         mock_response.json.return_value = expected_content
     else:
