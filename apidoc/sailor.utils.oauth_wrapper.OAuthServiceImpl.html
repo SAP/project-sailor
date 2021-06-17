@@ -188,11 +188,16 @@ OAuth2 enhanced HTTP requests with an instance of this class.</p>
 <dt class="sig sig-object py" id="sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request">
 <span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">req_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/utils/oauth_wrapper/OAuthServiceImpl.html#OAuth2Client.request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a request using this convenience wrapper.</p>
-<p>The interface is the same as the <code class="xref py py-meth docutils literal notranslate"><span class="pre">requests()</span></code> method provides.
-Adds OData param url formatting for GET requests.
-If headers are not set, requests for JSON content by default.</p>
-<p>Will use the currently attached session with this client or create a new one. If scopes are configured with
-this client, will try to resolve the scopes with the auth server first before making the request.</p>
+<p>The interface is the same as the <code class="xref py py-meth docutils literal notranslate"><span class="pre">requests.sessions.Session.request()</span></code> method provides but changes the
+following behavior:</p>
+<ul class="simple">
+<li><p>Does not return a response object. Instead, returns content or raises an error (see below).</p></li>
+<li><p>Automatically converts supplied ‘params’ for GET requests to OData URL parameters.</p></li>
+<li><p>If headers are not set, requests for JSON content by default.</p></li>
+</ul>
+<p>Client session management: will use the currently attached session with this client or create a new one.
+If scopes are configured with this client and are not resolved yet, will try to resolve the scopes with
+the auth server first before making the request.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p></p>
