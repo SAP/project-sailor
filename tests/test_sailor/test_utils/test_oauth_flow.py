@@ -6,6 +6,7 @@ from datetime import datetime
 from rauth import OAuth2Session
 import jwt
 import pytest
+from requests.models import Response
 
 from sailor.utils.oauth_wrapper.OAuthServiceImpl import OAuth2Client, RequestError
 
@@ -64,6 +65,28 @@ def test_request_raises_error_when_response_not_ok():
     with patch.object(oauth_client, '_get_session', return_value=session_mock):
         with pytest.raises(RequestError):
             oauth_client.request('GET', 'some_url')
+
+
+@pytest.mark.parametrize('name,value,json_expected,expected_content', [
+    ('other-name', 'other-value', False, 'some-binary-response'),  # no content-type field present
+    ('CoNTenT-tyPE', 'SOme-TYpE', False, 'some-binary-response'),
+    ('CoNTenT-tyPE', 'AppLICation/JsOn', True, {'some': 'value'}),
+])
+def test_request_correctly_checks_content_type_response_header(name, value, json_expected, expected_content):
+    mock_response = MagicMock(wraps=Response())
+    mock_response.ok = True
+    mock_response.headers.update({name: value})  # requests lib is using a special case-insensitive dict
+    if json_expected:
+        mock_response.json.return_value = expected_content
+    else:
+        mock_response.content = expected_content
+    session_mock = MagicMock(OAuth2Session)
+    session_mock.request.return_value = mock_response
+    oauth_client = OAuth2Client('test_service')
+
+    with patch.object(oauth_client, '_get_session', return_value=session_mock):
+        content = oauth_client.request('GET', 'some_url')
+    assert content == expected_content
 
 
 def test_scopes_config_not_available():
