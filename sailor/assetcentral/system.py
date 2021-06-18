@@ -162,12 +162,10 @@ class System(AssetcentralEntity):
         end
             End of time series data.
         """
-        all_indicators = sum((equipment.find_equipment_indicators() for equipment in self.components), IndicatorSet([]))
-        return sap_iot.get_indicator_data(start, end, all_indicators, self.components)
         if not hasattr(self, '_equipments'):
-            comp_tree = self._component_tree
-        # all_indicators = sum((equipment.find_equipment_indicators() for equipment in self._equipments), IndicatorSet([]))
-        # return sap_iot.get_indicator_data(start, end, all_indicators, self._equipments)
+            self._component_tree
+        all_indicators = sum((equi.find_equipment_indicators() for equi in self._equipments), IndicatorSet([]))
+        return sap_iot.get_indicator_data(start, end, all_indicators, self._equipments)
 
 
 class SystemSet(ResultSet):
@@ -198,7 +196,10 @@ class SystemSet(ResultSet):
         end
             End of time series data.
         """
-        all_equipment = sum((system.components for system in self), EquipmentSet([]))
+        for system in self:
+            if not hasattr(system, '_equipments'):
+                system._component_tree
+        all_equipment = sum((system._equipments for system in self), EquipmentSet([]))
         all_indicators = sum((equipment.find_equipment_indicators() for equipment in all_equipment), IndicatorSet([]))
 
         return sap_iot.get_indicator_data(start, end, all_indicators, all_equipment)
