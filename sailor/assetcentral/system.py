@@ -34,10 +34,6 @@ class System(AssetcentralEntity):
     # className, classID, subclass, subclassID, systemProviderID, sourceSearchTerms, systemProviderSearchTerms,
     # publishedOn, operator, operatorID, completeness
 
-    def __init__(self, ac_json):
-        """Create a new System object."""
-        self.raw = ac_json
-
     @classmethod
     def get_property_mapping(cls):
         """Return a mapping from assetcentral terminology to our terminology."""
