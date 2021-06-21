@@ -5,11 +5,14 @@ Classes are provided for individual Groups as well as groups of Groups (GroupSet
 """
 
 from functools import cached_property
+import warnings
 
 from .utils import AssetcentralEntity, ResultSet, _ac_application_url, _fetch_data, _apply_filters_post_request, \
     _add_properties
 from .constants import VIEW_GROUPS
-from .equipment import find_equipment
+from .equipment import find_equipment, EquipmentSet
+from .location import find_locations, LocationSet
+from .model import find_models, ModelSet
 
 
 @_add_properties
@@ -33,10 +36,25 @@ class Group(AssetcentralEntity):
         object_list = _fetch_data(endpoint_url)
         return object_list
 
+    def _generic_get_members(self, business_object_type, set_class, find_function, extended_filters, **kwargs):
+        member_name = set_class._element_type.__name__
+
+        if kwargs.get('id'):
+            raise RuntimeError(f'Can not specify `id` when retrieving "{member_name}" from a group.')
+
+        kwargs['id'] = [item['businessObjectId'] for item in self._members_raw
+                        if item['businessObjectType'] == business_object_type]
+
+        if not kwargs['id']:
+            warnings.warn(f'There are no "{member_name}" in this group!')
+            return set_class([])
+
+        return find_function(extended_filters=extended_filters, **kwargs)
+
     def find_equipment(self, *, extended_filters=(), **kwargs):
         """Retrieve all Equipment that are part of this group.
 
-        This is a wrapper for :meth:`sailor.assetcentral.notification.find_equipment`
+        This is a wrapper for :meth:`sailor.assetcentral.equipment.find_equipment`
         that limits the fetch query to members of this group.
 
         This method supports the common filter language explained at :ref:`filter`.
@@ -48,11 +66,41 @@ class Group(AssetcentralEntity):
         **kwargs
             See :ref:`filter`.
         """
-        if kwargs.get('id'):
-            raise RuntimeError('Can not specify `id` when retrieving equipment from a group.')
+        return self._generic_get_members('EQU', EquipmentSet, find_equipment, extended_filters, **kwargs)
 
-        kwargs['id'] = [item['businessObjectId'] for item in self._members_raw if item['businessObjectType'] == 'EQU']
-        return find_equipment(extended_filters=extended_filters, **kwargs)
+    def find_locations(self, *, extended_filters=(), **kwargs):
+        """Retrieve all Locations that are part of this group.
+
+        This is a wrapper for :meth:`sailor.assetcentral.location.find_location`
+        that limits the fetch query to members of this group.
+
+        This method supports the common filter language explained at :ref:`filter`.
+
+        Parameters
+        ----------
+        extended_filters
+            See :ref:`filter`.
+        **kwargs
+            See :ref:`filter`.
+        """
+        return self._generic_get_members('FL', LocationSet, find_locations, extended_filters, **kwargs)
+
+    def find_models(self, *, extended_filters=(), **kwargs):
+        """Retrieve all Models that are part of this group.
+
+        This is a wrapper for :meth:`sailor.assetcentral.model.find_models`
+        that limits the fetch query to members of this group.
+
+        This method supports the common filter language explained at :ref:`filter`.
+
+        Parameters
+        ----------
+        extended_filters
+            See :ref:`filter`.
+        **kwargs
+            See :ref:`filter`.
+        """
+        return self._generic_get_members('MOD', ModelSet, find_models, extended_filters, **kwargs)
 
 
 class GroupSet(ResultSet):
@@ -65,10 +113,24 @@ class GroupSet(ResultSet):
         },
     }
 
+    def _generic_get_members(self, business_object_type, set_class, find_function, extended_filters, **kwargs):
+        member_name = set_class._element_type.__name__
+
+        if kwargs.get('id'):
+            raise RuntimeError(f'Can not specify `id` when retrieving "{member_name}" from a group.')
+
+        kwargs['id'] = set([item['businessObjectId'] for group in self.elements for item in group._members_raw
+                            if item['businessObjectType'] == business_object_type])
+        if not kwargs['id']:
+            warnings.warn(f'There are no "{member_name}" in any of the groups in this set!')
+            return set_class([])
+
+        return find_function(extended_filters=extended_filters, **kwargs)
+
     def find_equipment(self, *, extended_filters=(), **kwargs):
         """Retrieve all equipment that are part of any group in this GroupSet.
 
-        This is a wrapper for :meth:`sailor.assetcentral.notification.find_equipment`
+        This is a wrapper for :meth:`sailor.assetcentral.equipment.find_equipment`
         that limits the fetch query to members of any group in this set.
 
         This method supports the common filter language explained at :ref:`filter`.
@@ -80,12 +142,41 @@ class GroupSet(ResultSet):
         **kwargs
             See :ref:`filter`.
         """
-        if kwargs.get('id'):
-            raise RuntimeError('Can not specify `id` when retrieving equipment from a group.')
+        return self._generic_get_members('EQU', EquipmentSet, find_equipment, extended_filters, **kwargs)
 
-        kwargs['id'] = set([item['businessObjectId'] for group in self.elements for item in group._members_raw
-                            if item['businessObjectType'] == 'EQU'])
-        return find_equipment(extended_filters=extended_filters, **kwargs)
+    def find_locations(self, *, extended_filters=(), **kwargs):
+        """Retrieve all locations that are part of any group in this GroupSet.
+
+        This is a wrapper for :meth:`sailor.assetcentral.location.find_locations`
+        that limits the fetch query to members of any group in this set.
+
+        This method supports the common filter language explained at :ref:`filter`.
+
+        Parameters
+        ----------
+        extended_filters
+            See :ref:`filter`.
+        **kwargs
+            See :ref:`filter`.
+        """
+        return self._generic_get_members('FL', LocationSet, find_locations, extended_filters, **kwargs)
+
+    def find_models(self, *, extended_filters=(), **kwargs):
+        """Retrieve all models that are part of any group in this GroupSet.
+
+        This is a wrapper for :meth:`sailor.assetcentral.model.find_models`
+        that limits the fetch query to members of any group in this set.
+
+        This method supports the common filter language explained at :ref:`filter`.
+
+        Parameters
+        ----------
+        extended_filters
+            See :ref:`filter`.
+        **kwargs
+            See :ref:`filter`.
+        """
+        return self._generic_get_members('MOD', ModelSet, find_models, extended_filters, **kwargs)
 
 
 def find_groups(*, extended_filters=(), **kwargs) -> GroupSet:
