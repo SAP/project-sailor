@@ -16,7 +16,7 @@ Contributions to `project "Sailor" <https://github.com/sap/project-sailor>`__ ar
 
 Report a bug
 ============
-You can report a bug by `creating an issue <https://docs.github.com/en/github/managing-your-work-on-github/creating-an-issue>`__ in the `project repository <https://github.com/SAP/project-sailor>`__.
+You can report a bug by `creating an issue <https://github.com/SAP/project-sailor/issues/new/choose>`__ in the `project repository <https://github.com/SAP/project-sailor>`__.
 Ideally your report should include:
 
 - short self-contained example or code snippet how to reproduce the bug
@@ -27,7 +27,7 @@ Ideally your report should include:
 
 Create a feature request
 ========================
-You can request a feature by `creating an issue <https://docs.github.com/en/github/managing-your-work-on-github/creating-an-issue>`__ in the `project repository <https://github.com/SAP/project-sailor>`__.
+You can request a feature by `creating an issue <https://github.com/SAP/project-sailor/issues/new/choose>`__ in the `project repository <https://github.com/SAP/project-sailor>`__.
 Alternatively you can get in touch with the developers directly by reaching out to `project.sailor@sap.com <mailto:project.sailor@sap.com>`__
 
 
