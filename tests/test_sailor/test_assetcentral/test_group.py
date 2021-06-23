@@ -32,7 +32,7 @@ class TestGroup:
         with pytest.raises(RuntimeError) as excinfo:
             group._generic_get_members('MATCH', element_class, None, None, id='some_id')
 
-        assert str(excinfo.value) == 'Can not specify `id` when retrieving "ElementName" from a group.'
+        assert str(excinfo.value) == 'Cannot specify `id` when retrieving "ElementName" from a group.'
 
 
 class TestGroupSet:
@@ -78,4 +78,4 @@ class TestGroupSet:
         with pytest.raises(RuntimeError) as excinfo:
             group_set._generic_get_members('MATCH', element_class, None, None, id='some_id')
 
-        assert str(excinfo.value) == 'Can not specify `id` when retrieving "ElementName" from a group.'
+        assert str(excinfo.value) == 'Cannot specify `id` when retrieving "ElementName" from a group.'
