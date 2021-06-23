@@ -6,7 +6,6 @@ Classes are provided for individual Systems as well as groups of Systems (System
 from __future__ import annotations
 
 import itertools
-import warnings
 from typing import TYPE_CHECKING, Union
 from datetime import datetime
 from functools import cached_property
@@ -37,13 +36,6 @@ class System(AssetcentralEntity):
     @classmethod
     def get_available_properties(cls):  # noqa: D102
         return cls._get_legacy_mapping().keys()
-
-    @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
-        # TODO: remove method in future version
-        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
-        return cls._get_legacy_mapping()
 
     @classmethod
     def _get_legacy_mapping(cls):

@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from typing import Union, TYPE_CHECKING
 from datetime import datetime
-import warnings
 
 import pandas as pd
 
@@ -47,13 +46,6 @@ class Equipment(AssetcentralEntity):
     @classmethod
     def get_available_properties(cls):  # noqa: D102
         return cls._get_legacy_mapping().keys()
-
-    @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
-        # TODO: remove method in future version
-        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
-        return cls._get_legacy_mapping()
 
     @classmethod
     def _get_legacy_mapping(cls):

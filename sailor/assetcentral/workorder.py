@@ -3,7 +3,6 @@ Workorder module can be used to retrieve Workorder information from AssetCentral
 
 Classes are provided for individual Workorders as well as groups of Workorders (WorkorderSet).
 """
-import warnings
 
 from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
     _ac_application_url
@@ -25,13 +24,6 @@ class Workorder(AssetcentralEntity):
     @classmethod
     def get_available_properties(cls):  # noqa: D102
         return cls._get_legacy_mapping().keys()
-
-    @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
-        # TODO: remove method in future version
-        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
-        return cls._get_legacy_mapping()
 
     @classmethod
     def _get_legacy_mapping(cls):

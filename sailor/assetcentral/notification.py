@@ -4,8 +4,6 @@ Retrieve Notification information from AssetCentral.
 Classes are provided for individual Notifications as well as groups of Notifications (NotificationSet).
 """
 
-import warnings
-
 import pandas as pd
 import plotnine as p9
 
@@ -91,13 +89,6 @@ class _NotificationRequest(_AssetcentralRequest, _NotificationRequestMapper):
 @_add_properties_ft
 class Notification(AssetcentralEntity, _NotificationRequestMapper):
     """AssetCentral Notification Object."""
-
-    @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
-        # TODO: remove method in future version
-        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
-        return cls._get_legacy_mapping()
 
     def update(self, *args, **kwargs) -> 'Notification':
         """Write the current state of this object to AssetCentral with updated values supplied.

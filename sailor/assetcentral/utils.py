@@ -308,6 +308,13 @@ class _AssetcentralRequestMapper:
 class AssetcentralEntity(_AssetcentralRequestMapper):
     """Common base class for Assetcentral entities."""
 
+    @classmethod
+    def get_property_mapping(cls):
+        """Return a mapping from assetcentral terminology to our terminology."""
+        # TODO: remove method in future version
+        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
+        return cls._get_legacy_mapping()
+
     def __init__(self, ac_json: dict):
         """Create a new entity."""
         self.raw = ac_json

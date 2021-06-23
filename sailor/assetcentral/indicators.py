@@ -7,7 +7,6 @@ Hence they contain information on indicator_group and template used to attach it
 is no support for unrealized 'Indicator Templates'.
 """
 import hashlib
-import warnings
 from functools import cached_property
 
 from .utils import _add_properties, AssetcentralEntity, ResultSet
@@ -27,13 +26,6 @@ class Indicator(AssetcentralEntity):
     @classmethod
     def get_available_properties(cls):  # noqa: D102
         return cls._get_legacy_mapping().keys()
-
-    @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
-        # TODO: remove method in future version
-        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
-        return cls._get_legacy_mapping()
 
     @classmethod
     def _get_legacy_mapping(cls):
