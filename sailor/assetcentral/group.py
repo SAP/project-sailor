@@ -7,8 +7,8 @@ Classes are provided for individual Groups as well as groups of Groups (GroupSet
 from functools import cached_property
 import warnings
 
-from .utils import AssetcentralEntity, ResultSet, _ac_application_url, _fetch_data, _apply_filters_post_request, \
-    _add_properties
+from .utils import (AssetcentralEntity, ResultSet, _ac_application_url, _fetch_data, _apply_filters_post_request,
+                    _add_properties)
 from .constants import VIEW_GROUPS
 from .equipment import find_equipment, EquipmentSet
 from .location import find_locations, LocationSet
@@ -40,7 +40,7 @@ class Group(AssetcentralEntity):
         member_name = set_class._element_type.__name__
 
         if kwargs.get('id'):
-            raise RuntimeError(f'Can not specify `id` when retrieving "{member_name}" from a group.')
+            raise RuntimeError(f'Cannot specify `id` when retrieving "{member_name}" from a group.')
 
         kwargs['id'] = [item['businessObjectId'] for item in self._members_raw
                         if item['businessObjectType'] == business_object_type]
@@ -117,7 +117,7 @@ class GroupSet(ResultSet):
         member_name = set_class._element_type.__name__
 
         if kwargs.get('id'):
-            raise RuntimeError(f'Can not specify `id` when retrieving "{member_name}" from a group.')
+            raise RuntimeError(f'Cannot specify `id` when retrieving "{member_name}" from a group.')
 
         kwargs['id'] = set([item['businessObjectId'] for group in self.elements for item in group._members_raw
                             if item['businessObjectType'] == business_object_type])
@@ -207,7 +207,7 @@ def find_groups(*, extended_filters=(), **kwargs) -> GroupSet:
 
         find_groups(name='MyGroup', group_type='FLEET')
 
-    Find all Groups  having a risk_value greater than 0::
+    Find all Groups having a risk_value greater than 0::
 
         groups = find_groups(extended_filters=['risk_value > 0'])
     """
