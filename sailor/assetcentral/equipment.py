@@ -14,7 +14,7 @@ from sailor import sap_iot
 from .constants import VIEW_EQUIPMENT, VIEW_OBJECTS
 from .failure_mode import find_failure_modes
 from .indicators import Indicator, IndicatorSet
-from .notification import find_notifications
+from .notification import find_notifications, create_notification
 from .location import Location, find_locations
 from .workorder import find_workorders
 from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
@@ -23,7 +23,7 @@ from ..utils.timestamps import _string_to_timestamp_parser
 
 if TYPE_CHECKING:
     from ..sap_iot import TimeseriesDataset
-    from .notification import NotificationSet
+    from .notification import NotificationSet, Notification
     from .failure_mode import FailureModeSet
     from .workorder import WorkorderSet
 
@@ -218,6 +218,20 @@ class Equipment(AssetcentralEntity):
             indicator_set = self.find_equipment_indicators()
 
         return sap_iot.get_indicator_data(start, end, indicator_set, EquipmentSet([self]))
+
+    def create_notification(self, *args, **kwargs) -> Notification:
+        """Create a new notification for this equipment.
+
+        Accepts a dictionary and keyword arguments.
+
+        Examples
+        --------
+        >>> notf = eq.create_notification({'short_description': 'test', 'notification_type': 'M2'})
+        >>> notf = eq.create_notification(short_description='test', notification_type='M2')
+        >>> notf = eq.create_notification({'short_description': 'test'}, notification_type='M2')
+        """
+        return create_notification(*args, **kwargs,
+                                   equipment_id=self.id, location_id=self.location.id)
 
 
 class EquipmentSet(ResultSet):

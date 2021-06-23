@@ -287,8 +287,7 @@ def update_notification(notification: Notification, *args, **kwargs) -> Notifica
 
     Returns
     -------
-    Notification
-        A new notification object as retrieved from AssetCentral after the update succeeded.
+    A new notification object as retrieved from AssetCentral after the update succeeded.
 
     Examples
     --------
