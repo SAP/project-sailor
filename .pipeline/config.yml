@@ -5,6 +5,4 @@ general:
 
 steps:
   dockerExecute:
-    dockerImage: 'dscdatascience.common.repositories.cloud.sap/pr_validation:2102a'
-    additionalPodProperties: 
-      imagePullSecrets: ['dscdatascience-jenkins']
+    dockerImage: 'python:3.8.10-slim'

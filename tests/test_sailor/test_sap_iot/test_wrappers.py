@@ -5,6 +5,7 @@ from numpy.random import default_rng
 import pandas as pd
 
 from sailor.assetcentral.indicators import IndicatorSet
+from sailor.assetcentral.equipment import EquipmentSet
 from sailor.sap_iot.wrappers import TimeseriesDataset
 
 
@@ -99,3 +100,11 @@ def test_interpolate_missing_data(simple_dataset, method, expect_ffill, expect_b
         assert not interpolated_dataset._df[interpolated_dataset._df.timestamp < actual_start].isnull().any().any()
     if expect_ffill:
         assert not interpolated_dataset._df[interpolated_dataset._df.timestamp > actual_end].isnull().any().any()
+
+
+def test_as_df_no_indicators():
+    df = pd.DataFrame({'equipment_id': [], 'model_id': [], 'timestamp': pd.to_datetime([], utc=True)})
+    data = TimeseriesDataset(df, IndicatorSet([]), EquipmentSet([]),
+                             pd.Timestamp('2021-01-01', tz='Etc/UTC'), pd.Timestamp('2021-01-03', tz='Etc/UTC'))
+
+    data.as_df(speaking_names=True)  # this used to lead to a TypeError, we're effectively testing that doesn't happen.

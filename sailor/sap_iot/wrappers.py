@@ -152,7 +152,8 @@ class TimeseriesDataset(object):
               .set_index(self.get_index_columns(speaking_names=True))
               .rename(columns=self._indicator_set._unique_id_to_names())
         )
-        data.columns = pd.MultiIndex.from_tuples(data.columns)
+        if len(data.columns) > 0:
+            data.columns = pd.MultiIndex.from_tuples(data.columns)
 
         return data
 

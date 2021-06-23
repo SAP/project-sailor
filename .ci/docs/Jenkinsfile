@@ -13,8 +13,9 @@ pipeline {
         stage('Install tools') {
             steps {
                 dir("MAIN") {
-                    sh 'apt install -y make'
-                    sh 'pip install -r ./.ci/docs/requirements_docs.txt'
+                    sh 'apt update && apt install -y git make'
+                    sh 'pip install -r .ci/docs/requirements_docs.txt'
+                    sh 'pip install -r requirements.txt'  // we also need those because sphinx imports our code
                 }
             }
         }
