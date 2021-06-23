@@ -26,14 +26,18 @@ class Indicator(AssetcentralEntity):
 
     @classmethod
     def get_available_properties(cls):  # noqa: D102
-        return cls.get_property_mapping().keys()
+        return cls._get_legacy_mapping().keys()
 
     @classmethod
     def get_property_mapping(cls):
         """Return a mapping from assetcentral terminology to our terminology."""
-        # TODO: return cls._mapping when feature is implemented. turn warning into FutureWarning
-        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead",
-                      PendingDeprecationWarning)
+        # TODO: remove method in future version
+        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
+        return cls._get_legacy_mapping()
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        # TODO: remove method in future version after field templates are in used
         # TODO: There is still some weird stuff here, e.g. UOM vs. uom or convertedXXX
         return {
             'id': ('propertyId', None, None, None),

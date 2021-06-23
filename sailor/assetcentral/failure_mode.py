@@ -24,14 +24,18 @@ class FailureMode(AssetcentralEntity):
 
     @classmethod
     def get_available_properties(cls):  # noqa: D102
-        return cls.get_property_mapping().keys()
+        return cls._get_legacy_mapping().keys()
 
     @classmethod
     def get_property_mapping(cls):
         """Return a mapping from assetcentral terminology to our terminology."""
-        # TODO: return cls._mapping when feature is implemented. turn warning into FutureWarning
-        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead",
-                      PendingDeprecationWarning)
+        # TODO: remove method in future version
+        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
+        return cls._get_legacy_mapping()
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        # TODO: remove method in future version after field templates are in used
         return {
             'id': ('ID', None, None, None),
             'name': ('DisplayID', None, None, None),
@@ -100,7 +104,7 @@ def find_failure_modes(*, extended_filters=(), **kwargs) -> FailureModeSet:
         find_failure_modes(extended_filters=['equipments_count >= 5'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, FailureMode.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, FailureMode._get_legacy_mapping())
 
     endpoint_url = _ac_application_url() + VIEW_FAILUREMODES
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)

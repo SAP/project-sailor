@@ -97,7 +97,7 @@ class TestResultSet:
 
     @pytest.mark.parametrize('cls', ResultSet.__subclasses__())
     def test_resultset_method_defaults(self, cls):
-        element_properties = cls._element_type.get_property_mapping()
+        element_properties = cls._element_type._get_legacy_mapping()
         assert cls._method_defaults['plot_distribution']['by'] in element_properties
 
     def test_magic_eq_type_not_equal(self):

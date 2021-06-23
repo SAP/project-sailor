@@ -46,14 +46,18 @@ class Equipment(AssetcentralEntity):
 
     @classmethod
     def get_available_properties(cls):  # noqa: D102
-        return cls.get_property_mapping().keys()
+        return cls._get_legacy_mapping().keys()
 
     @classmethod
     def get_property_mapping(cls):
         """Return a mapping from assetcentral terminology to our terminology."""
-        # TODO: return cls._mapping when feature is implemented. turn warning into FutureWarning
-        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead",
-                      PendingDeprecationWarning)
+        # TODO: remove method in future version
+        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
+        return cls._get_legacy_mapping()
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        # TODO: remove method in future version after field templates are in used
         return {
             'id': ('equipmentId', None, None, None),
             'name': ('name', None, None, None),
@@ -106,7 +110,7 @@ class Equipment(AssetcentralEntity):
         object_list = _fetch_data(endpoint_url)
 
         filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                       Indicator.get_property_mapping())
+                                                       Indicator._get_legacy_mapping())
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
     def find_notifications(self, *, extended_filters=(), **kwargs) -> NotificationSet:
@@ -395,7 +399,7 @@ def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
                         location_name='London')
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Equipment.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Equipment._get_legacy_mapping())
 
     endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)

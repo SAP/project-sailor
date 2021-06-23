@@ -150,7 +150,7 @@ def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
 
 def _add_properties(cls):
     """Add AssetCentral properties to a class based on the property mapping defined in the class."""
-    property_map = cls.get_property_mapping()
+    property_map = cls._get_legacy_mapping()
     for our_name, v in property_map.items():
         their_name, getter, setter, deleter = v
 
