@@ -292,6 +292,42 @@ filter criteria need to match for a FailureMode to be returned.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="sailor.assetcentral.find_groups">
+<span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.</span></span><span class="sig-name descname"><span class="pre">find_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/group.html#find_groups"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.find_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch Groups from AssetCentral with the applied filters, return a GroupSet.</p>
+<p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>, but the filters
+are evaluated locally rather than remotely, potentially leading to longer query times.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>sailor.assetcentral.group.GroupSet</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Find all Groups with the name ‘MyGroup’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_groups</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyGroup&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all Groups which either have the name ‘MyGroup’ or the name ‘MyOtherGroup’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_group</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyGroup&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherGroup&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Find all Groups with the name ‘MyGroup’ which are also of type ‘FLEET’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_groups</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyGroup&#39;</span><span class="p">,</span> <span class="n">group_type</span><span class="o">=</span><span class="s1">&#39;FLEET&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all Groups having a risk_value greater than 0:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">groups</span> <span class="o">=</span> <span class="n">find_groups</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;risk_value &gt; 0&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="sailor.assetcentral.find_locations">
 <span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.</span></span><span class="sig-name descname"><span class="pre">find_locations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/location.html#find_locations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.find_locations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch Locations from AssetCentral with the applied filters, return a LocationSet.</p>
