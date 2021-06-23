@@ -5,8 +5,8 @@ import pytest
 
 from sailor.assetcentral.equipment import Equipment
 from sailor.assetcentral.utils import (
-    _AssetcentralRequestMapper, _AssetcentralRequest, AssetcentralEntity, ResultSet, _unify_filters,
-    _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data)
+    AssetcentralFieldTemplate, _AssetcentralRequestMapper, _AssetcentralRequest, AssetcentralEntity, ResultSet,
+    _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data)
 
 
 class TestAssetcentralRequestMapper:
@@ -48,41 +48,36 @@ class TestAssetcentralEntity:
 
 class TestAssetcentralRequest:
 
-    @pytest.mark.filterwarnings('ignore:Unknown name for request parameter found')
+    @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
     def test_setitem_sets_raw_if_not_found_in_mapping(self):
         actual = _AssetcentralRequest({'abc': 1})
         assert actual == {'abc': 1}
 
-    def test_setitem_sets_nothing_if_key_is_known_but_their_name_is_none(self):
+    def test_setitem_sets_nothing_if_key_known_but_not_writable(self):
         actual = _AssetcentralRequest()
-        actual._mapping = {'abc': (None, None, None, None)}
-        actual.update({'abc': 1})
+        actual._field_templates = [AssetcentralFieldTemplate('our_name', 'their_name_get')]
+        actual._ft_lookup_map = {'our_name': actual._field_templates[0]}
+
+        actual.update({'our_name': 1})
         assert actual == {}
 
     def test_setitem_sets_their_name(self):
         actual = _AssetcentralRequest()
-        actual._mapping = {'abc': (None, None, 'DIFFERENT_NAME', None)}
-        actual.update({'abc': 1})
-        assert actual == {'DIFFERENT_NAME': 1}
+        actual._field_templates = [AssetcentralFieldTemplate('our_name', 'their_name_get', 'their_name_put')]
+        actual._ft_lookup_map = {'our_name': actual._field_templates[0]}
+        actual.update({'our_name': 1})
+        assert actual == {'their_name_put': 1}
 
-    def test_setitem_calls_their_name_function(self):
-        actual = _AssetcentralRequest()
-
-        # additional test assertions in 'their_name_function'
-        def their_name_function(req, value):
-            assert req == actual
-            assert value == 1
-            req.data['their_name_function_has_been_called'] = True
-
-        actual._mapping = {'abc': (None, None, their_name_function, None)}
-
-        actual.update({'abc': 1})
-        assert actual['their_name_function_has_been_called']
-
-    @pytest.mark.filterwarnings('ignore:Unknown name for request parameter found')
+    @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
     def test_from_object(self, monkeypatch):
-        monkeypatch.setattr(_AssetcentralRequest, '_mapping', {'abc': ('ABC', None, 'AbC', None)})
-        monkeypatch.setattr(_AssetcentralRequest, '_raw_keys_for_removal', ['DEF'])
+        monkeypatch.setattr(_AssetcentralRequest, '_field_templates', [
+                            AssetcentralFieldTemplate('ABC', 'ABC', 'AbC'),
+                            AssetcentralFieldTemplate('DEF', 'DEF'),
+                            AssetcentralFieldTemplate('GHI', 'GHI', 'GHI')])
+        monkeypatch.setattr(_AssetcentralRequest, '_ft_lookup_map', {
+                            'ABC': _AssetcentralRequest._field_templates[0],
+                            'DEF': _AssetcentralRequest._field_templates[1],
+                            'GHI': _AssetcentralRequest._field_templates[2]})
         entity = AssetcentralEntity({'ABC': 1, 'DEF': 2, 'GHI': 3})
 
         # now this should copy ABC to AbC and GHI to GHI and remove DEF

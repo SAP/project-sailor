@@ -24,14 +24,15 @@ def mock_request(mock_config):
     ([], {'abc': 1, 'def': 2}),
     ([{'ghi': 3}], {'abc': 1, 'def': 2})
 ])
-@pytest.mark.filterwarnings('ignore:Unknown name for request parameter found')
-def test_create_notification(mock_url, mock_request, input_args, input_kwargs):
+@pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
+def test_generic_create(mock_url, mock_request, input_args, input_kwargs):
     request_dict = dict(*input_args)
     request_dict.update(input_kwargs)
     expected_raw = {'notificationID': '123', **request_dict}
     mock_request.return_value = expected_raw
 
-    actual = create_notification(*input_args, **input_kwargs)
+    with patch('sailor.assetcentral.utils._AssetcentralRequest.validate'):
+        actual = create_notification(*input_args, **input_kwargs)
 
     mock_request.calls[0] == ('POST', mock_url + constants.VIEW_NOTIFICATIONS, {'json': request_dict})
     mock_request.calls[1] == ('GET', mock_url + constants.VIEW_NOTIFICATIONS, {'params': {'notificationId': '123'}})
@@ -48,7 +49,7 @@ def test_create_notification(mock_url, mock_request, input_args, input_kwargs):
     (True),
     (False),
 ])
-@pytest.mark.filterwarnings('ignore:Unknown name for request parameter found')
+@pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
 def test_update_notification(mock_url, mock_request, input_args, input_kwargs, object_method, monkeypatch):
     # we need to overwrite this for a valid equality test in this context as update_notification returns a new object
     # while notification.update returns the same object

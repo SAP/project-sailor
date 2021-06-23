@@ -286,16 +286,23 @@ def _ac_application_url():
 
 
 class _AssetcentralRequestMapper:
-    # mapping: {our: (their_get, get_function, their_put_or_requestsetter)}
-    #   get_function may be None
-    #   their_put_or_requestsetter MUST be None if field does not exist on PUT
-    _mapping = {}
-    _raw_keys_for_removal = []
+    _field_templates = []
+    _ft_lookup_map = None
+
+    def __new__(cls, *args, **kwargs):
+        # create a lookup map when this class is first used
+        if cls._ft_lookup_map is None:
+            cls._ft_lookup_map = {ft.our_name: ft for ft in cls._field_templates}
+        return super().__new__(cls)
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        return {ft.our_name: (ft.their_name_get, None, None, None) for ft in cls._field_templates}
 
     @classmethod
     def get_available_properties(cls):
         """Return the available Assetcentral properties for this class."""
-        return cls._mapping.keys()
+        return set([field.our_name for field in cls._field_templates if field.is_exposed])
 
 
 class AssetcentralEntity(_AssetcentralRequestMapper):
@@ -317,25 +324,6 @@ class AssetcentralEntity(_AssetcentralRequestMapper):
     def __hash__(self):
         """Hash of an asset central object is the hash of it's id."""
         return self.id.__hash__()
-
-
-def _add_properties_new(cls: AssetcentralEntity):
-    """Add properties to the entity class based on the property mapping defined by the request mapper."""
-    # This is the new function to be used for all AssetcentralEntities.
-    # TODO: remove this comment block once everything is refactored
-    property_map = cls._mapping
-    for our_name, v in property_map.items():
-        their_name, getter, _, _ = v
-
-        # the assignment of the default value (`key=their_name`)
-        # is necessary due to the closure rules in loops
-        def _getter(self, key=their_name):
-            return self.raw.get(key, None)
-        if getter is None:
-            getter = _getter
-
-        setattr(cls, our_name, property(getter, None, None))
-    return cls
 
 
 class ResultSet(Sequence):
@@ -451,20 +439,16 @@ class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
 
         If a key cannot be found using the mapping no transformation is done.
         """
-        mapping = self._mapping
-        if key in mapping:
-            if put := mapping.get(key)[2]:
-                if callable(put):
-                    put(self, value)
-                else:
-                    self.data[put] = value
+        if ft := self._ft_lookup_map.get(key):
+            if ft.is_writable:
+                ft.put_setter(self.data, value)
         else:
-            warnings.warn(f"Unknown name for request parameter found: '{key}'.")
+            warnings.warn(f"Unknown name for {type(self).__name__} parameter found: '{key}'.")
             self.data[key] = value
 
     def validate(self):
-        missing_keys = [key for key, (_, _, _, validator) in self._mapping.items()
-                        if validator is not None and validator(self) is False]
+        missing_keys = [ft.our_name for ft in self._field_templates
+                        if ft.is_mandatory and ft.their_name_put not in self.data]
         if missing_keys:
             raise AssetcentralRequestValidationError(
                 "Error when creating request. Missing values for mandatory parameters.", missing_keys)
@@ -475,22 +459,73 @@ class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
         raw = deepcopy(ac_entity.raw)
         request = cls()
 
-        for key, (get_key, _, _, _) in cls._mapping.items():
-            if get_key not in raw:
-                msg = ("Error when creating request object. Please try again. If the error persists "
-                       "please raise an issue with the developers including the stacktrace."
-                       "\n\n==========================  Debug information =========================="
-                       f"\nCould not find key '{get_key}'."
-                       f"\nAC entity keys: {raw.keys()}")
-                raise RuntimeError(msg)
-            request[key] = raw.pop(get_key)
-
-        for key in cls._raw_keys_for_removal:
-            raw.pop(key)
-        LOG.debug("raw keys not known to mapping or deletelist:\n%s", raw.keys())
+        for ft in cls._field_templates:
+            if ft.is_writable:
+                try:
+                    request[ft.our_name] = raw.pop(ft.their_name_get)
+                except KeyError:
+                    msg = ("Error when creating request object. Please try again. If the error persists "
+                           "please raise an issue with the developers including the stacktrace."
+                           "\n\n==========================  Debug information =========================="
+                           f"\nCould not find key '{ft.their_name_get}'."
+                           f"\nAC entity keys: {raw.keys()}")
+                    raise RuntimeError(msg)
+            else:
+                raw.pop(ft.their_name_get, None)
+        if raw.keys():
+            LOG.debug("raw keys for %s not known to mapping or deletelist:\n%s", type(ac_entity), raw.keys())
         request.update(raw)
         return request
 
 
 class AssetcentralRequestValidationError(Exception):  # noqa: D101 (self-explanatory)
     pass
+
+
+class AssetcentralFieldTemplate:
+    """Specify a field in Assetcentral."""
+
+    def __init__(self, our_name, their_name_get, their_name_put=None, is_exposed=True, is_mandatory=False,
+                 get_extractor=None, put_setter=None):
+        self.our_name = our_name
+        self.their_name_get = their_name_get
+        self.their_name_put = their_name_put
+        self.is_exposed = is_exposed
+        self.is_writable = their_name_put is not None
+        self.is_mandatory = is_mandatory
+
+        self.names = (our_name, their_name_get, their_name_put)
+
+        self.get_extractor = get_extractor or self._default_get_extractor
+        self.put_setter = put_setter or self._default_put_setter
+
+    def _default_put_setter(self, payload, value):
+        payload[self.their_name_put] = value
+        return
+
+    def _default_get_extractor(self, value):
+        return value
+
+
+def _nested_put_setter(*nested_names):
+    def setter(payload, value):
+        next_dict = payload
+        for nested_name in nested_names[:-1]:
+            next_dict = next_dict.setdefault(nested_name, {})
+        next_dict[nested_names[-1]] = value
+    return setter
+
+
+def _add_properties_ft(cls):
+    """Add properties to the entity class based on the field template defined by the request mapper."""
+    # This is the new function to be used for all AssetcentralEntities.
+    # TODO: remove this comment block once everything is refactored
+    for ft in cls._field_templates:
+
+        # the assignment of the default value (`ft=ft`)
+        # is necessary due to the closure rules in loops
+        def getter(self, ft=ft):
+            return ft.get_extractor(self.raw.get(ft.their_name_get))
+
+        setattr(cls, ft.our_name, property(getter, None, None))
+    return cls

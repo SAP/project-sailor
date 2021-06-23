@@ -12,86 +12,83 @@ import plotnine as p9
 import sailor.assetcentral.equipment
 from .constants import VIEW_NOTIFICATIONS
 from .utils import (_AssetcentralRequestMapper, _fetch_data, ResultSet, _parse_filter_parameters,
-                    AssetcentralEntity, _AssetcentralRequest, _ac_application_url, _add_properties_new)
+                    AssetcentralEntity, _AssetcentralRequest, AssetcentralFieldTemplate, _ac_application_url,
+                    _add_properties_ft, _nested_put_setter)
 from ..utils.oauth_wrapper import get_oauth_client
-from ..utils.timestamps import _string_to_timestamp_parser
+from ..utils.timestamps import _string_to_timestamp_parser_ft
 from ..utils.plot_helper import _default_plot_theme
 
 
 class _NotificationRequestMapper(_AssetcentralRequestMapper):
 
-    # Properties (in AC terminology) are: notificationId, shortDescription, status, statusDescription, notificationType,
-    # notificationTypeDescription, priority, priorityDescription, isInternal, createdBy, creationDateTime,
-    # lastChangedBy, lastChangeDateTime, longDescription, startDate, endDate, malfunctionStartDate, malfunctionEndDate,
-    # progressStatus, progressStatusDescription, equipmentId, equipmentName, rootEquipmentId, rootEquipmentName,
-    # locationId, breakdown, coordinates, source, operatorId, location, assetCoreEquipmentId, operator, internalId,
-    # modelId, proposedFailureModeID, proposedFailureModeDisplayID, proposedFailureModeDesc, confirmedFailureModeID,
-    # confirmedFailureModeDesc, confirmedFailureModeDisplayIDs, systemProposedFailureModeID,
-    # systemProposedFailureModeDesc, systemProposedFailureModeDisplayID, effectID, effectDisplayID, effectDesc,
-    # causeID, causeDisplayID, causeDesc, instructionID, instructionTitle
-
-    _mapping = {
-        # our: (their_get, get_function, their_put_or_requestsetter, request_validator)
-        'id': ('notificationId', None, 'notificationID', None),
-        'name': ('internalId', None, None, None),
-        'short_description': ('shortDescription', None,
-                              lambda r, v: r.data.setdefault('description', {}).update(shortDescription=v),
-                              lambda r: bool(r.get('description', {}).get('shortDescription'))),
-        'long_description': ('longDescription', None,
-                             lambda r, v: r.data.setdefault('description', {}).update(longDescription=v), None),
-        'breakdown': ('breakdown', None, 'breakdown', None),  # TODO: turn into boolean? // 'breakdown' has no effect
-        'cause_id': ('causeID', None, 'causeID', None),
-        'cause_description': ('causeDesc', None, None, None),
-        'cause_display_id': ('causeDisplayID', None, None, None),
-        'effect_id': ('effectID', None, 'effectID', None),
-        'effect_description': ('effectDesc', None, None, None),
-        'effect_display_id': ('effectDisplayID', None, None, None),
-        'instruction_id': ('instructionID', None, 'instructionID', None),
-        'instruction_title': ('instructionTitle', None, None, None),
-        'operator_id': ('operatorId', None, 'operator', None),  # setting 'operator' has no effect
-        'confirmed_failure_mode_id': ('confirmedFailureModeID', None, 'confirmedFailureModeID', None),
-        'confirmed_failure_mode_description': ('confirmedFailureModeDesc', None, None, None),
-        'confirmed_failure_mode_name': ('confirmedFailureModeDisplayID', None, None, None),
-        'end_date': ('endDate', _string_to_timestamp_parser('endDate'), 'endDate', None),
-        'equipment_id': ('equipmentId', None, 'equipmentID', lambda r: bool(r.get('equipmentID'))),
-        'equipment_name': ('equipmentName', None, None, None),
-        'functional_location_id': ('functionalLocationID', None, None, None),
-        'location_id': ('locationId', None, 'locationID', None),
-        'location_name': ('location', None, None, None),
-        'malfunction_end_date': ('malfunctionEndDate', _string_to_timestamp_parser('malfunctionEndDate'),
-                                 'malfunctionEndDate', None),
-        'malfunction_start_date': ('malfunctionStartDate', _string_to_timestamp_parser('malfunctionStartDate'),
-                                   'malfunctionStartDate', None),
-        'notification_type': ('notificationType', None, 'type', lambda r: bool(r.get('type'))),
-        'notification_type_description': ('notificationTypeDescription', None, None, None),
-        'priority': ('priority', None, 'priority', lambda r: bool(r.get('priority'))),
-        'priority_description': ('priorityDescription', None, None, None),
-        'root_equipment_id': ('rootEquipmentId', None, None, None),
-        'root_equipment_name': ('rootEquipmentName', None, None, None),
-        'start_date': ('startDate', _string_to_timestamp_parser('startDate'), 'startDate', None),
-        'status': ('status', None,
-                   lambda r, v: r.data.update({'status': [v] if isinstance(v, str) else v}),
-                   lambda r: bool(r.get('status', []))),
-        'status_text': ('statusDescription', None, None, None),
-        'system_failure_mode_id': ('systemProposedFailureModeID', None, 'systemProposedFailureModeID', None),
-        'system_failure_mode_description': ('systemProposedFailureModeDesc', None, None, None),
-        'system_failure_mode_name': ('systemProposedFailureModeDisplayID', None, None, None),
-        'user_failure_mode_id': ('proposedFailureModeID', None, 'proposedFailureModeID', None),
-        'user_failure_mode_description': ('proposedFailureModeDesc', None, None, None),
-        'user_failure_mode_name': ('proposedFailureModeDisplayID', None, None, None),
-        }
-
-    _raw_keys_for_removal = [
-        'isInternal', 'createdBy', 'creationDateTime', 'lastChangedBy', 'lastChangeDateTime',
-        'progressStatus', 'progressStatusDescription', 'coordinates', 'source', 'assetCoreEquipmentId', 'operator',
-        'modelId']
+    _field_templates = [
+        AssetcentralFieldTemplate('id', 'notificationId', 'notificationID'),
+        AssetcentralFieldTemplate('notification_type', 'notificationType', 'type', is_mandatory=True),
+        AssetcentralFieldTemplate('short_description', 'shortDescription', 'description', is_mandatory=True,
+                                  put_setter=_nested_put_setter('description', 'shortDescription')),
+        AssetcentralFieldTemplate('priority', 'priority', 'priority', is_mandatory=True),
+        AssetcentralFieldTemplate('status', 'status', 'status', is_mandatory=True,
+                                  put_setter=lambda p, v: p.update({'status': [v] if isinstance(v, str) else v})),
+        AssetcentralFieldTemplate('equipment_id', 'equipmentId', 'equipmentID', is_mandatory=True),
+        AssetcentralFieldTemplate('long_description', 'longDescription', 'description', is_mandatory=True,
+                                  put_setter=_nested_put_setter('description', 'longDescription')),
+        AssetcentralFieldTemplate('breakdown', 'breakdown', 'breakdown', get_extractor=lambda v: bool(int(v))),
+        AssetcentralFieldTemplate('cause_id', 'causeID', 'causeID'),
+        AssetcentralFieldTemplate('cause_description', 'causeDesc'),
+        AssetcentralFieldTemplate('cause_display_id', 'causeDisplayID'),
+        AssetcentralFieldTemplate('effect_id', 'effectID', 'effectID'),
+        AssetcentralFieldTemplate('effect_description', 'effectDesc'),
+        AssetcentralFieldTemplate('effect_display_id', 'effectDisplayID'),
+        AssetcentralFieldTemplate('instruction_id', 'instructionID', 'instructionID'),
+        AssetcentralFieldTemplate('instruction_title', 'instructionTitle'),
+        AssetcentralFieldTemplate('operator_id', 'operatorId', 'operator'),  # setting 'operator' has no effect
+        AssetcentralFieldTemplate('confirmed_failure_mode_id', 'confirmedFailureModeID', 'confirmedFailureModeID'),
+        AssetcentralFieldTemplate('confirmed_failure_mode_description', 'confirmedFailureModeDesc'),
+        AssetcentralFieldTemplate('confirmed_failure_mode_name', 'confirmedFailureModeDisplayID'),
+        AssetcentralFieldTemplate('end_date', 'endDate', 'endDate', get_extractor=_string_to_timestamp_parser_ft()),
+        AssetcentralFieldTemplate('equipment_name', 'equipmentName'),
+        AssetcentralFieldTemplate('functional_location_id', 'functionalLocationID', 'functionalLocationID'),
+        AssetcentralFieldTemplate('location_id', 'locationId', 'locationID'),
+        AssetcentralFieldTemplate('location_name', 'location'),
+        AssetcentralFieldTemplate('malfunction_end_date', 'malfunctionEndDate', 'malfunctionEndDate',
+                                  get_extractor=_string_to_timestamp_parser_ft()),
+        AssetcentralFieldTemplate('malfunction_start_date', 'malfunctionStartDate', 'malfunctionStartDate',
+                                  get_extractor=_string_to_timestamp_parser_ft()),
+        AssetcentralFieldTemplate('model_id', 'modelId'),
+        AssetcentralFieldTemplate('name', 'internalId'),
+        AssetcentralFieldTemplate('notification_type_description', 'notificationTypeDescription'),
+        AssetcentralFieldTemplate('priority_description', 'priorityDescription'),
+        AssetcentralFieldTemplate('root_equipment_id', 'rootEquipmentId'),
+        AssetcentralFieldTemplate('root_equipment_name', 'rootEquipmentName'),
+        AssetcentralFieldTemplate('start_date', 'startDate', 'startDate',
+                                  get_extractor=_string_to_timestamp_parser_ft()),
+        AssetcentralFieldTemplate('status_text', 'statusDescription'),
+        AssetcentralFieldTemplate('system_failure_mode_id', 'systemProposedFailureModeID',
+                                  'systemProposedFailureModeID'),
+        AssetcentralFieldTemplate('system_failure_mode_description', 'systemProposedFailureModeDesc'),
+        AssetcentralFieldTemplate('system_failure_mode_name', 'systemProposedFailureModeDisplayID'),
+        AssetcentralFieldTemplate('user_failure_mode_id', 'proposedFailureModeID', 'proposedFailureModeID'),
+        AssetcentralFieldTemplate('user_failure_mode_description', 'proposedFailureModeDesc'),
+        AssetcentralFieldTemplate('user_failure_mode_name', 'proposedFailureModeDisplayID'),
+        AssetcentralFieldTemplate('isInternal', 'isInternal', is_exposed=False),
+        AssetcentralFieldTemplate('createdBy', 'createdBy', is_exposed=False),
+        AssetcentralFieldTemplate('creationDateTime', 'creationDateTime', is_exposed=False),
+        AssetcentralFieldTemplate('lastChangedBy', 'lastChangedBy', is_exposed=False),
+        AssetcentralFieldTemplate('lastChangeDateTime', 'lastChangeDateTime', is_exposed=False),
+        AssetcentralFieldTemplate('progressStatus', 'progressStatus', is_exposed=False),
+        AssetcentralFieldTemplate('progressStatusDescription', 'progressStatusDescription', is_exposed=False),
+        AssetcentralFieldTemplate('coordinates', 'coordinates', is_exposed=False),
+        AssetcentralFieldTemplate('source', 'source', is_exposed=False),
+        AssetcentralFieldTemplate('assetCoreEquipmentId', 'assetCoreEquipmentId', is_exposed=False),
+        AssetcentralFieldTemplate('operator', 'operator', is_exposed=False),
+    ]
 
 
 class _NotificationRequest(_AssetcentralRequest, _NotificationRequestMapper):
     pass
 
 
-@_add_properties_new
+@_add_properties_ft
 class Notification(AssetcentralEntity, _NotificationRequestMapper):
     """AssetCentral Notification Object."""
 
@@ -100,7 +97,7 @@ class Notification(AssetcentralEntity, _NotificationRequestMapper):
         """Return a mapping from assetcentral terminology to our terminology."""
         # TODO: remove method in future version
         warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
-        return cls._mapping
+        return cls._get_legacy_mapping()
 
     def update(self, *args, **kwargs) -> 'Notification':
         """Write the current state of this object to AssetCentral with updated values supplied.
@@ -260,7 +257,7 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
                            equipment_id=['id1', 'id2'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, _NotificationRequestMapper._mapping)
+        _parse_filter_parameters(kwargs, extended_filters, _NotificationRequestMapper._get_legacy_mapping())
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
