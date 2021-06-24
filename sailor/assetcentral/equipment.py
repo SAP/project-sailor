@@ -219,7 +219,7 @@ class Equipment(AssetcentralEntity):
 
         return sap_iot.get_indicator_data(start, end, indicator_set, EquipmentSet([self]))
 
-    def create_notification(self, *args, **kwargs) -> Notification:
+    def create_notification(self, **kwargs) -> Notification:
         """Create a new notification for this equipment.
 
         Accepts a dictionary and keyword arguments.
@@ -230,7 +230,7 @@ class Equipment(AssetcentralEntity):
         >>> notf = eq.create_notification(short_description='test', notification_type='M2')
         >>> notf = eq.create_notification({'short_description': 'test'}, notification_type='M2')
         """
-        return create_notification(*args, **kwargs,
+        return create_notification(**kwargs,
                                    equipment_id=self.id, location_id=self.location.id)
 
 

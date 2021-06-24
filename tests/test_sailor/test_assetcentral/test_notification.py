@@ -19,20 +19,18 @@ def mock_request(mock_config):
         yield mock
 
 
-@pytest.mark.parametrize('input_args,input_kwargs', [
-    ([{'abc': 1, 'def': 2}], {}),
-    ([], {'abc': 1, 'def': 2}),
-    ([{'ghi': 3}], {'abc': 1, 'def': 2})
+@pytest.mark.parametrize('input_kwargs', [
+    ({}),
+    ({'abc': 1, 'def': 2}),
 ])
 @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
-def test_generic_create(mock_url, mock_request, input_args, input_kwargs):
-    request_dict = dict(*input_args)
-    request_dict.update(input_kwargs)
+def test_generic_create(mock_url, mock_request, input_kwargs):
+    request_dict = input_kwargs
     expected_raw = {'notificationID': '123', **request_dict}
     mock_request.return_value = expected_raw
 
     with patch('sailor.assetcentral.utils._AssetcentralWriteRequest.validate'):
-        actual = create_notification(*input_args, **input_kwargs)
+        actual = create_notification(**input_kwargs)
 
     mock_request.calls[0] == ('POST', mock_url + constants.VIEW_NOTIFICATIONS, {'json': request_dict})
     mock_request.calls[1] == ('GET', mock_url + constants.VIEW_NOTIFICATIONS, {'params': {'notificationId': '123'}})
@@ -40,17 +38,16 @@ def test_generic_create(mock_url, mock_request, input_args, input_kwargs):
     assert actual.raw == expected_raw
 
 
-@pytest.mark.parametrize('input_args,input_kwargs', [
-    ([{'abc': 1, 'def': 2}], {}),
-    ([], {'abc': 1, 'def': 2}),
-    ([{'ghi': 3}], {'abc': 1, 'def': 2})
+@pytest.mark.parametrize('input_kwargs', [
+    ({}),
+    ({'abc': 1, 'def': 2}),
 ])
 @pytest.mark.parametrize('object_method', [
     (True),
     (False),
 ])
 @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
-def test_update_notification(mock_url, mock_request, input_args, input_kwargs, object_method, monkeypatch):
+def test_update_notification(mock_url, mock_request, input_kwargs, object_method, monkeypatch):
     # we need to overwrite this for a valid equality test in this context as update_notification returns a new object
     # while notification.update returns the same object
     monkeypatch.setattr(Notification, '__eq__', object.__eq__)
@@ -74,16 +71,15 @@ def test_update_notification(mock_url, mock_request, input_args, input_kwargs, o
         'causeID': None, 'causeDisplayID': None, 'causeDesc': None, 'instructionID': 'ins123',
         'instructionTitle': 'Tit-gIavIcZmXT', 'functionalLocationID': None}
     notification = Notification(raw)
-    request_dict = dict(*input_args)
-    request_dict.update(input_kwargs)
+    request_dict = input_kwargs
     expected_put_response = {'notificationID': '123'}
     expected_get_response = {**raw, **request_dict}
     mock_request.side_effect = [expected_put_response, expected_get_response]
 
     if object_method:
-        actual = notification.update(*input_args, **input_kwargs)
+        actual = notification.update(**input_kwargs)
     else:
-        actual = update_notification(notification, *input_args, **input_kwargs)
+        actual = update_notification(notification, **input_kwargs)
 
     mock_request.calls[0] == ('PUT', mock_url + constants.VIEW_NOTIFICATIONS, {'json': request_dict})
     mock_request.calls[1] == ('GET', mock_url + constants.VIEW_NOTIFICATIONS, {'params': {'notificationId': '123'}})

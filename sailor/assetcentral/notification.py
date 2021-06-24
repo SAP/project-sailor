@@ -86,7 +86,7 @@ class Notification(AssetcentralEntity):
 
     _field_templates = _field_templates
 
-    def update(self, *args, **kwargs) -> 'Notification':
+    def update(self, **kwargs) -> 'Notification':
         """Write the current state of this object to AssetCentral with updated values supplied.
 
         After the successful update in the remote system this object reflects the updated state.
@@ -103,7 +103,7 @@ class Notification(AssetcentralEntity):
         --------
         :meth:`update_notification`
         """
-        updated_obj = update_notification(self, *args, **kwargs)
+        updated_obj = update_notification(self, **kwargs)
         self.raw = updated_obj.raw
         return self
 
@@ -252,7 +252,7 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
                            {'filters': kwargs, 'extended_filters': extended_filters})
 
 
-def create_notification(*args, **kwargs) -> Notification:
+def create_notification(**kwargs) -> Notification:
     """Create a new notification.
 
     Accepts a dictionary and keyword arguments.
@@ -263,7 +263,7 @@ def create_notification(*args, **kwargs) -> Notification:
     >>> notf = create_notification(equipment_id='123', short_description='test')
     >>> notf = create_notification({'equipment_id': '123'}, short_description='test')
     """
-    request = _AssetcentralWriteRequest(_field_templates, *args, **kwargs)
+    request = _AssetcentralWriteRequest(_field_templates, **kwargs)
     request.validate()
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     oauth_client = get_oauth_client('asset_central')
@@ -273,7 +273,7 @@ def create_notification(*args, **kwargs) -> Notification:
     return notification
 
 
-def update_notification(notification: Notification, *args, **kwargs) -> Notification:
+def update_notification(notification: Notification, **kwargs) -> Notification:
     """Update an existing notification.
 
     Write the current state of the given notification object to AssetCentral with updated values supplied.
@@ -292,7 +292,7 @@ def update_notification(notification: Notification, *args, **kwargs) -> Notifica
     >>> notf = update_notification(notf, {'notification_type': 'M1'}, short_description='test')
     """
     request = _AssetcentralWriteRequest.from_object(notification)
-    request.update(*args, **kwargs)
+    request.update(**kwargs)
     request.validate()
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
