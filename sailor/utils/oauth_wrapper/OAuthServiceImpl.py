@@ -136,6 +136,7 @@ class OAuth2Client():
         try:
             self._active_session = service.get_auth_session('POST', data=params, decoder=json.loads)
         except json.JSONDecodeError as exception:
+            LOG.debug('Decoding JSON while getting auth session failed.', exc_info=exception)
             raise RuntimeError('Decoding JSON while getting auth session failed. Original content: \n' + exception.doc)
 
         # the get_auth_session method of rauth does not check whether the response was 200 or not
