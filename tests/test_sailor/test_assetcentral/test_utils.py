@@ -44,34 +44,28 @@ class TestAssetcentralRequest:
 
     @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
     def test_setitem_sets_raw_if_not_found_in_mapping(self):
-        actual = _AssetcentralWriteRequest({'abc': 1})
+        actual = _AssetcentralWriteRequest([], {'abc': 1})
         assert actual == {'abc': 1}
 
     def test_setitem_sets_nothing_if_key_known_but_not_writable(self):
-        actual = _AssetcentralWriteRequest()
-        actual._field_templates = [AssetcentralFieldTemplate('our_name', 'their_name_get')]
-        actual._ft_lookup_map = {'our_name': actual._field_templates[0]}
+        field_templates = [AssetcentralFieldTemplate('our_name', 'their_name_get')]
+        actual = _AssetcentralWriteRequest(field_templates)
 
         actual.update({'our_name': 1})
         assert actual == {}
 
     def test_setitem_sets_their_name(self):
-        actual = _AssetcentralWriteRequest()
-        actual._field_templates = [AssetcentralFieldTemplate('our_name', 'their_name_get', 'their_name_put')]
-        actual._ft_lookup_map = {'our_name': actual._field_templates[0]}
+        field_templates = [AssetcentralFieldTemplate('our_name', 'their_name_get', 'their_name_put')]
+        actual = _AssetcentralWriteRequest(field_templates)
         actual.update({'our_name': 1})
         assert actual == {'their_name_put': 1}
 
     @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
     def test_from_object(self, monkeypatch):
-        monkeypatch.setattr(_AssetcentralWriteRequest, '_field_templates', [
-                            AssetcentralFieldTemplate('ABC', 'ABC', 'AbC'),
-                            AssetcentralFieldTemplate('DEF', 'DEF'),
-                            AssetcentralFieldTemplate('GHI', 'GHI', 'GHI')])
-        monkeypatch.setattr(_AssetcentralWriteRequest, '_ft_lookup_map', {
-                            'ABC': _AssetcentralWriteRequest._field_templates[0],
-                            'DEF': _AssetcentralWriteRequest._field_templates[1],
-                            'GHI': _AssetcentralWriteRequest._field_templates[2]})
+        field_templates = [AssetcentralFieldTemplate('ABC', 'ABC', 'AbC'),
+                           AssetcentralFieldTemplate('DEF', 'DEF'),
+                           AssetcentralFieldTemplate('GHI', 'GHI', 'GHI')]
+        monkeypatch.setattr(AssetcentralEntity, '_field_templates', field_templates)
         entity = AssetcentralEntity({'ABC': 1, 'DEF': 2, 'GHI': 3})
 
         # now this should copy ABC to AbC and GHI to GHI and remove DEF

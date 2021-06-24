@@ -432,14 +432,10 @@ def _is_non_string_iterable(obj):
 class _AssetcentralWriteRequest(UserDict):
     """Used for building the dictionary for create and update requests."""
 
-    _field_templates = []
-    _ft_lookup_map = None
-
-    def __new__(cls, *args, **kwargs):
-        # create a lookup map when this class is first used
-        if cls._ft_lookup_map is None:
-            cls._ft_lookup_map = {ft.our_name: ft for ft in cls._field_templates}
-        return super().__new__(cls)
+    def __init__(self, field_templates, *args, **kwargs):
+        self._field_templates = field_templates
+        self._ft_lookup_map = {ft.our_name: ft for ft in field_templates}
+        super().__init__(*args, **kwargs)
 
     def __setitem__(self, key, value):
         """Transform item to AC API terminology before writing the underlying dict.
@@ -464,9 +460,9 @@ class _AssetcentralWriteRequest(UserDict):
     def from_object(cls, ac_entity: AssetcentralEntity):
         """Create a new request object using an existing AC object."""
         raw = deepcopy(ac_entity.raw)
-        request = cls()
+        request = cls(ac_entity._field_templates)
 
-        for ft in cls._field_templates:
+        for ft in request._field_templates:
             if ft.is_writable:
                 try:
                     request[ft.our_name] = raw.pop(ft.their_name_get)

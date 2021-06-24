@@ -80,10 +80,6 @@ _field_templates = [
 ]
 
 
-class _NotificationRequest(_AssetcentralWriteRequest):
-    _field_templates = _field_templates
-
-
 @_add_properties_ft
 class Notification(AssetcentralEntity):
     """AssetCentral Notification Object."""
@@ -267,7 +263,7 @@ def create_notification(*args, **kwargs) -> Notification:
     >>> notf = create_notification(equipment_id='123', short_description='test')
     >>> notf = create_notification({'equipment_id': '123'}, short_description='test')
     """
-    request = _NotificationRequest(*args, **kwargs)
+    request = _AssetcentralWriteRequest(_field_templates, *args, **kwargs)
     request.validate()
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     oauth_client = get_oauth_client('asset_central')
@@ -295,7 +291,7 @@ def update_notification(notification: Notification, *args, **kwargs) -> Notifica
     >>> notf = update_notification(notf, notification_type='M1', short_description='test')
     >>> notf = update_notification(notf, {'notification_type': 'M1'}, short_description='test')
     """
-    request = _NotificationRequest.from_object(notification)
+    request = _AssetcentralWriteRequest.from_object(notification)
     request.update(*args, **kwargs)
     request.validate()
 
