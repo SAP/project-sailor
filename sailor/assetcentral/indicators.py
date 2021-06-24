@@ -83,6 +83,10 @@ class AggregatedIndicator(Indicator):
         m.update(unique_string.encode())
         return m.hexdigest()
 
+    @property
+    def _iot_column_header(self):
+        return f'{self._liot_id}_{self.aggregation_function}'
+
 
 class IndicatorSet(AssetcentralEntitySet):
     """Class representing a group of Indicators."""
@@ -145,6 +149,15 @@ class AggregatedIndicatorSet(IndicatorSet):
                 indicator.aggregation_function,
             )
         return mapping
+
+    @classmethod
+    def _from_indicator_set_and_aggregation_functions(cls, indicators, aggregation_functions):
+        aggregated_indicators = []
+        for indicator in indicators:
+            for aggregation_function in aggregation_functions:
+                aggregated_indicators.append(AggregatedIndicator(indicator.raw.copy(), aggregation_function))
+
+        return cls(aggregated_indicators)
 
 # while there is a generic '/services/api/v1/indicators' endpoint that allows to find indicators,
 # that endpoint returns a very different object from the one that you can find via the equipment.

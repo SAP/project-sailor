@@ -42,7 +42,7 @@ def test__request_extension_url_different_services_caching(mock_oauth):
     mock_oauth.return_value = {
         'Extensions': [
             {'Description': 'Write time-series data', 'Service URL': first_expected_path},
-            {'Description': 'Unknown desciprtion', 'Service URL': other_path},
+            {'Description': 'Unknown description', 'Service URL': other_path},
             {'Description': 'Read time-series analytics aggregates', 'Service URL': second_expected_path}
         ]
     }

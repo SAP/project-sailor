@@ -5,7 +5,7 @@ Classes are provided for individual Equipment as well as groups of Equipment (Eq
 """
 from __future__ import annotations
 
-from typing import Union, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING, Iterable
 from datetime import datetime
 
 import pandas as pd
@@ -387,6 +387,54 @@ class EquipmentSet(AssetcentralEntitySet):
             indicator_set = self.find_common_indicators()
 
         return sap_iot.get_indicator_data(start, end, indicator_set, self)
+
+    def get_indicator_aggregates(
+            self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+            indicator_set: IndicatorSet = None,
+            aggregation_functions: Iterable[str] = ('AVG',),
+            aggregation_interval: Union[str, pd.Timedelta, datetime.timedelta] = 'PT2M'
+    ) -> TimeseriesDataset:
+        """
+        Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.
+
+        This is a wrapper for :meth:`sailor.sap_iot.fetch_aggregates.get_indicator_aggregates` that limits the fetch
+        query to this equipment set. Unlike :meth:`sailor.assetcentral.equipment.Equipment.get_indicator_data` this
+        function retrieves pre-aggregated data from the hot store.
+
+        Parameters
+        ----------
+        start
+            Date of beginning of requested timeseries data. Any time component will be ignored.
+        end
+            Date of end of requested timeseries data. Any time component will be ignored.
+        indicator_set
+            IndicatorSet for which timeseries data is returned.
+        aggregation_functions: Determines which aggregates to retrieve. Possible aggregates are
+            'MIN', 'MAX', 'AVG', 'STDDEV', 'SUM', 'FIRST', 'LAST',
+            'COUNT', 'PERCENT_GOOD', 'TMIN', 'TMAX',  'TFIRST', 'TLAST'
+        aggregation_interval: Determines the aggregation interval. Can be specified as a string (like `PT2M` for
+            2-minute aggregates) or as a pandas.Timedelta or datetime.timedelta object.
+
+        Example
+        -------
+        Get indicator data for all Equipment belonging to the Model 'MyModel'
+        for a period from 01.06.2020 to 05.12.2020 ::
+
+            my_equipment_set = find_equipment(model_name='MyModel')
+            my_equipment_set.get_indicator_data('2020-06-01', '2020-12-05')
+        Note
+        ----
+        If `indicator_set` is not specified, indicators common to all equipments in this set are used.
+        """
+        if start is None or end is None:
+            raise ValueError("Time parameters must be specified")
+
+        if indicator_set is None:
+            indicator_set = self.find_common_indicators()
+
+        return sap_iot.get_indicator_aggregates(start, end, indicator_set, self,
+                                                aggregation_functions, aggregation_interval)
 
 
 def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
