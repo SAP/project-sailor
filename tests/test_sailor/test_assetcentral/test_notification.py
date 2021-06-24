@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import pytest
 
@@ -36,6 +36,26 @@ def test_generic_create(mock_url, mock_request, input_kwargs):
     mock_request.calls[1] == ('GET', mock_url + constants.VIEW_NOTIFICATIONS, {'params': {'notificationId': '123'}})
     assert type(actual) == Notification
     assert actual.raw == expected_raw
+
+
+def test_generic_create_raises_when_find_is_empty(mock_url, mock_request):
+    successful_create_result = {'notificationID': '123'}
+    empty_find_call_result = []
+    mock_request.side_effect = [successful_create_result, empty_find_call_result]
+
+    with patch('sailor.assetcentral.utils._AssetcentralWriteRequest.validate'):
+        with pytest.raises(RuntimeError, match='Unexpected error'):
+            create_notification()
+
+
+def test_generic_update_raises_when_find_is_empty(mock_url, mock_request):
+    successful_create_result = {'notificationID': '123'}
+    empty_find_call_result = []
+    mock_request.side_effect = [successful_create_result, empty_find_call_result]
+
+    with patch('sailor.assetcentral.utils._AssetcentralWriteRequest.validate'):
+        with pytest.raises(RuntimeError, match='Unexpected error'):
+            update_notification(MagicMock())
 
 
 @pytest.mark.parametrize('input_kwargs', [

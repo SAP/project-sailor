@@ -3,6 +3,7 @@ Retrieve Notification information from AssetCentral.
 
 Classes are provided for individual Notifications as well as groups of Notifications (NotificationSet).
 """
+import logging
 
 import pandas as pd
 import plotnine as p9
@@ -16,6 +17,8 @@ from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.timestamps import _string_to_timestamp_parser_ft
 from ..utils.plot_helper import _default_plot_theme
 
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
 
 _field_templates = [
     AssetcentralFieldTemplate('id', 'notificationId', 'notificationID'),
@@ -269,8 +272,10 @@ def create_notification(**kwargs) -> Notification:
     oauth_client = get_oauth_client('asset_central')
 
     response = oauth_client.request('POST', endpoint_url, json=request.data)
-    notification = find_notifications(id=response['notificationID'])[0]
-    return notification
+    result = find_notifications(id=response['notificationID'])
+    if len(result) != 1:
+        raise RuntimeError('Unexpected error when creating the notification. Please try again.')
+    return result[0]
 
 
 def update_notification(notification: Notification, **kwargs) -> Notification:
@@ -299,5 +304,7 @@ def update_notification(notification: Notification, **kwargs) -> Notification:
     oauth_client = get_oauth_client('asset_central')
 
     response = oauth_client.request('PUT', endpoint_url, json=request.data)
-    notification = find_notifications(id=response['notificationID'])[0]
-    return notification
+    result = find_notifications(id=response['notificationID'])
+    if len(result) != 1:
+        raise RuntimeError('Unexpected error when updating the notification. Please try again.')
+    return result[0]
