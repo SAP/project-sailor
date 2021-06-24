@@ -5,21 +5,8 @@ import pytest
 
 from sailor.assetcentral.equipment import Equipment
 from sailor.assetcentral.utils import (
-    AssetcentralFieldTemplate, _AssetcentralRequestMapper, _AssetcentralRequest, AssetcentralEntity, ResultSet,
+    AssetcentralFieldTemplate, _AssetcentralWriteRequest, AssetcentralEntity, ResultSet,
     _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data)
-
-
-class TestAssetcentralRequestMapper:
-
-    def test_get_available_properties_is_not_empty(self):
-        # note: __subclasses__ requires that all subclasses are imported
-        # currently we ensure this transitively: see __init__.py in test_assetcentral
-        classes = _AssetcentralRequestMapper.__subclasses__()
-        # remove the abstract classes that can't have a mapping
-        classes.remove(AssetcentralEntity)
-        classes.remove(_AssetcentralRequest)
-        for class_ in classes:
-            assert class_.get_available_properties()
 
 
 class TestAssetcentralEntity:
@@ -45,16 +32,23 @@ class TestAssetcentralEntity:
         entity2 = Equipment({})
         assert entity1 != entity2
 
+    def test_get_available_properties_is_not_empty(self):
+        # note: __subclasses__ requires that all subclasses are imported
+        # currently we ensure this transitively: see __init__.py in test_assetcentral
+        classes = AssetcentralEntity.__subclasses__()
+        for class_ in classes:
+            assert class_.get_available_properties()
+
 
 class TestAssetcentralRequest:
 
     @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
     def test_setitem_sets_raw_if_not_found_in_mapping(self):
-        actual = _AssetcentralRequest({'abc': 1})
+        actual = _AssetcentralWriteRequest({'abc': 1})
         assert actual == {'abc': 1}
 
     def test_setitem_sets_nothing_if_key_known_but_not_writable(self):
-        actual = _AssetcentralRequest()
+        actual = _AssetcentralWriteRequest()
         actual._field_templates = [AssetcentralFieldTemplate('our_name', 'their_name_get')]
         actual._ft_lookup_map = {'our_name': actual._field_templates[0]}
 
@@ -62,7 +56,7 @@ class TestAssetcentralRequest:
         assert actual == {}
 
     def test_setitem_sets_their_name(self):
-        actual = _AssetcentralRequest()
+        actual = _AssetcentralWriteRequest()
         actual._field_templates = [AssetcentralFieldTemplate('our_name', 'their_name_get', 'their_name_put')]
         actual._ft_lookup_map = {'our_name': actual._field_templates[0]}
         actual.update({'our_name': 1})
@@ -70,18 +64,18 @@ class TestAssetcentralRequest:
 
     @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
     def test_from_object(self, monkeypatch):
-        monkeypatch.setattr(_AssetcentralRequest, '_field_templates', [
+        monkeypatch.setattr(_AssetcentralWriteRequest, '_field_templates', [
                             AssetcentralFieldTemplate('ABC', 'ABC', 'AbC'),
                             AssetcentralFieldTemplate('DEF', 'DEF'),
                             AssetcentralFieldTemplate('GHI', 'GHI', 'GHI')])
-        monkeypatch.setattr(_AssetcentralRequest, '_ft_lookup_map', {
-                            'ABC': _AssetcentralRequest._field_templates[0],
-                            'DEF': _AssetcentralRequest._field_templates[1],
-                            'GHI': _AssetcentralRequest._field_templates[2]})
+        monkeypatch.setattr(_AssetcentralWriteRequest, '_ft_lookup_map', {
+                            'ABC': _AssetcentralWriteRequest._field_templates[0],
+                            'DEF': _AssetcentralWriteRequest._field_templates[1],
+                            'GHI': _AssetcentralWriteRequest._field_templates[2]})
         entity = AssetcentralEntity({'ABC': 1, 'DEF': 2, 'GHI': 3})
 
         # now this should copy ABC to AbC and GHI to GHI and remove DEF
-        actual = _AssetcentralRequest.from_object(entity)
+        actual = _AssetcentralWriteRequest.from_object(entity)
 
         assert actual == {'AbC': 1, 'GHI': 3}
 

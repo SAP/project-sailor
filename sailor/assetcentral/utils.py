@@ -285,28 +285,15 @@ def _ac_application_url():
     return SailorConfig.get('asset_central', 'application_url')
 
 
-class _AssetcentralRequestMapper:
+class AssetcentralEntity:
+    """Common base class for Assetcentral entities."""
+
     _field_templates = []
-    _ft_lookup_map = None
-
-    def __new__(cls, *args, **kwargs):
-        # create a lookup map when this class is first used
-        if cls._ft_lookup_map is None:
-            cls._ft_lookup_map = {ft.our_name: ft for ft in cls._field_templates}
-        return super().__new__(cls)
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        return {ft.our_name: (ft.their_name_get, None, None, None) for ft in cls._field_templates}
 
     @classmethod
     def get_available_properties(cls):
         """Return the available Assetcentral properties for this class."""
         return set([field.our_name for field in cls._field_templates if field.is_exposed])
-
-
-class AssetcentralEntity(_AssetcentralRequestMapper):
-    """Common base class for Assetcentral entities."""
 
     @classmethod
     def get_property_mapping(cls):
@@ -314,6 +301,10 @@ class AssetcentralEntity(_AssetcentralRequestMapper):
         # TODO: remove method in future version
         warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
         return cls._get_legacy_mapping()
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        return {ft.our_name: (ft.their_name_get, None, None, None) for ft in cls._field_templates}
 
     def __init__(self, ac_json: dict):
         """Create a new entity."""
@@ -438,8 +429,17 @@ def _is_non_string_iterable(obj):
     return isinstance(obj, Iterable)
 
 
-class _AssetcentralRequest(UserDict, _AssetcentralRequestMapper):
+class _AssetcentralWriteRequest(UserDict):
     """Used for building the dictionary for create and update requests."""
+
+    _field_templates = []
+    _ft_lookup_map = None
+
+    def __new__(cls, *args, **kwargs):
+        # create a lookup map when this class is first used
+        if cls._ft_lookup_map is None:
+            cls._ft_lookup_map = {ft.our_name: ft for ft in cls._field_templates}
+        return super().__new__(cls)
 
     def __setitem__(self, key, value):
         """Transform item to AC API terminology before writing the underlying dict.

@@ -31,7 +31,7 @@ def test_generic_create(mock_url, mock_request, input_args, input_kwargs):
     expected_raw = {'notificationID': '123', **request_dict}
     mock_request.return_value = expected_raw
 
-    with patch('sailor.assetcentral.utils._AssetcentralRequest.validate'):
+    with patch('sailor.assetcentral.utils._AssetcentralWriteRequest.validate'):
         actual = create_notification(*input_args, **input_kwargs)
 
     mock_request.calls[0] == ('POST', mock_url + constants.VIEW_NOTIFICATIONS, {'json': request_dict})
