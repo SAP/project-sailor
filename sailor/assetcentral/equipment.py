@@ -230,6 +230,10 @@ class Equipment(AssetcentralEntity):
         >>> notf = eq.create_notification(short_description='test', notification_type='M2')
         >>> notf = eq.create_notification({'short_description': 'test'}, notification_type='M2')
         """
+        forbidden_keys = ['id', 'equipment_id']
+        for key in forbidden_keys:
+            if key in kwargs:
+                raise RuntimeError(f'You cannot set {key} at this point.')
         return create_notification(**kwargs,
                                    equipment_id=self.id, location_id=self.location.id)
 

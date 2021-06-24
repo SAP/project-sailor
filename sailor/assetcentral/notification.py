@@ -266,6 +266,8 @@ def create_notification(**kwargs) -> Notification:
     >>> notf = create_notification(equipment_id='123', short_description='test')
     >>> notf = create_notification({'equipment_id': '123'}, short_description='test')
     """
+    if 'id' in kwargs:
+        raise RuntimeError('You cannot specify id at this point.')
     request = _AssetcentralWriteRequest(_field_templates, **kwargs)
     request.validate()
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
@@ -296,6 +298,8 @@ def update_notification(notification: Notification, **kwargs) -> Notification:
     >>> notf = update_notification(notf, notification_type='M1', short_description='test')
     >>> notf = update_notification(notf, {'notification_type': 'M1'}, short_description='test')
     """
+    if 'id' in kwargs:
+        raise RuntimeError('You cannot specify id at this point.')
     request = _AssetcentralWriteRequest.from_object(notification)
     request.update(**kwargs)
     request.validate()
