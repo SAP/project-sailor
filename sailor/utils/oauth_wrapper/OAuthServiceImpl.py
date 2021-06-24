@@ -132,7 +132,13 @@ class OAuth2Client():
         params = {'grant_type': 'client_credentials', 'scope': scope}
         service = OAuth2Service(name=self.name, client_id=self.client_id, client_secret=self.client_secret,
                                 access_token_url=self.oauth_url)
-        self._active_session = service.get_auth_session('POST', data=params, decoder=json.loads)
+
+        def safe_json_decoder(json_string):
+            try:
+                return json.loads(json_string)
+            except json.JSONDecodeError:
+                raise RuntimeError(json_string)
+        self._active_session = service.get_auth_session('POST', data=params, decoder=safe_json_decoder)
 
         # the get_auth_session method of rauth does not check whether the response was 200 or not
         # and therefore does not log a proper error message

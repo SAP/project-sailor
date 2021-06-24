@@ -117,6 +117,15 @@ def test_scopes_config_available_token_available():
     mock_method.assert_called_once()
 
 
+def test_get_auth_service_non_json_response_raises():
+    oauth_flow = OAuth2Client('test_service')
+
+    with patch('rauth.OAuth2Service.get_raw_access_token') as mock_method:
+        mock_method.return_value.content = 'non-json content'
+        with pytest.raises(RuntimeError, match='non-json content'):
+            oauth_flow._get_session()
+
+
 def test_scopes_config_available_getting_token_fails():
     scope_config = {
         'test_service': ['scope1', 'scope2', 'scope3']
