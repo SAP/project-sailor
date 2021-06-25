@@ -14,11 +14,11 @@ from sailor import sap_iot
 from .constants import VIEW_EQUIPMENT, VIEW_OBJECTS
 from .failure_mode import find_failure_modes
 from .indicators import Indicator, IndicatorSet
-from .notification import find_notifications, create_notification
+from .notification import find_notifications, NOTIFICATION_FIELD_MAP, _create_or_update_notification
 from .location import Location, find_locations
 from .workorder import find_workorders
-from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    _ac_application_url, _apply_filters_post_request
+from .utils import (_fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, _AssetcentralWriteRequest,
+                    _ac_application_url, _apply_filters_post_request, validate_user_input)
 from ..utils.timestamps import _string_to_timestamp_parser
 
 if TYPE_CHECKING:
@@ -230,12 +230,10 @@ class Equipment(AssetcentralEntity):
         >>> notf = eq.create_notification(short_description='test', notification_type='M2')
         >>> notf = eq.create_notification({'short_description': 'test'}, notification_type='M2')
         """
-        forbidden_keys = ['id', 'equipment_id']
-        for key in forbidden_keys:
-            if key in kwargs:
-                raise RuntimeError(f'You cannot set {key} at this point.')
-        return create_notification(**kwargs,
-                                   equipment_id=self.id, location_id=self.location.id)
+        validate_user_input(kwargs, NOTIFICATION_FIELD_MAP, forbidden_fields=['id', 'equipment_id'])
+        request = _AssetcentralWriteRequest(NOTIFICATION_FIELD_MAP, kwargs,
+                                       equipment_id=self.id, location_id=self.location.id)
+        return _create_or_update_notification(request, 'POST')
 
 
 class EquipmentSet(ResultSet):

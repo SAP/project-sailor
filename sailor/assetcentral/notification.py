@@ -11,8 +11,8 @@ import plotnine as p9
 import sailor.assetcentral.equipment
 from .constants import VIEW_NOTIFICATIONS
 from .utils import (_fetch_data, ResultSet, _parse_filter_parameters,
-                    AssetcentralEntity, _AssetcentralWriteRequest, AssetcentralFieldTemplate, _ac_application_url,
-                    _add_properties_ft, _nested_put_setter)
+                    AssetcentralEntity, AssetcentralFieldTemplate, _AssetcentralWriteRequest, _ac_application_url,
+                    _add_properties_ft, _nested_put_setter, validate_user_input)
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.timestamps import _string_to_timestamp_parser_ft
 from ..utils.plot_helper import _default_plot_theme
@@ -82,12 +82,14 @@ _field_templates = [
     AssetcentralFieldTemplate('operator', 'operator', is_exposed=False),
 ]
 
+NOTIFICATION_FIELD_MAP = {ft.our_name: ft for ft in _field_templates}
+
 
 @_add_properties_ft
 class Notification(AssetcentralEntity):
     """AssetCentral Notification Object."""
 
-    _field_templates = _field_templates
+    _field_map = NOTIFICATION_FIELD_MAP
 
     def update(self, **kwargs) -> 'Notification':
         """Write the current state of this object to AssetCentral with updated values supplied.
@@ -255,6 +257,18 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
                            {'filters': kwargs, 'extended_filters': extended_filters})
 
 
+def _create_or_update_notification(request, method) -> Notification:
+    request.validate()
+    endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
+    oauth_client = get_oauth_client('asset_central')
+
+    response = oauth_client.request(method, endpoint_url, json=request.data)
+    result = find_notifications(id=response['notificationID'])
+    if len(result) != 1:
+        raise RuntimeError('Unexpected error when creating or updating the notification. Please try again.')
+    return result[0]
+
+
 def create_notification(**kwargs) -> Notification:
     """Create a new notification.
 
@@ -266,18 +280,9 @@ def create_notification(**kwargs) -> Notification:
     >>> notf = create_notification(equipment_id='123', short_description='test')
     >>> notf = create_notification({'equipment_id': '123'}, short_description='test')
     """
-    if 'id' in kwargs:
-        raise RuntimeError('You cannot specify id at this point.')
-    request = _AssetcentralWriteRequest(_field_templates, **kwargs)
-    request.validate()
-    endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
-    oauth_client = get_oauth_client('asset_central')
-
-    response = oauth_client.request('POST', endpoint_url, json=request.data)
-    result = find_notifications(id=response['notificationID'])
-    if len(result) != 1:
-        raise RuntimeError('Unexpected error when creating the notification. Please try again.')
-    return result[0]
+    validate_user_input(kwargs, NOTIFICATION_FIELD_MAP, forbidden_fields=['id'])
+    request = _AssetcentralWriteRequest(NOTIFICATION_FIELD_MAP, kwargs)
+    return _create_or_update_notification(request, 'POST')
 
 
 def update_notification(notification: Notification, **kwargs) -> Notification:
@@ -298,17 +303,8 @@ def update_notification(notification: Notification, **kwargs) -> Notification:
     >>> notf = update_notification(notf, notification_type='M1', short_description='test')
     >>> notf = update_notification(notf, {'notification_type': 'M1'}, short_description='test')
     """
-    if 'id' in kwargs:
-        raise RuntimeError('You cannot specify id at this point.')
+    validate_user_input(kwargs, NOTIFICATION_FIELD_MAP, forbidden_fields=['id', 'equipment_id'])
     request = _AssetcentralWriteRequest.from_object(notification)
-    request.update(**kwargs)
-    request.validate()
+    request.update(kwargs)
+    return _create_or_update_notification(request, 'PUT')
 
-    endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
-    oauth_client = get_oauth_client('asset_central')
-
-    response = oauth_client.request('PUT', endpoint_url, json=request.data)
-    result = find_notifications(id=response['notificationID'])
-    if len(result) != 1:
-        raise RuntimeError('Unexpected error when updating the notification. Please try again.')
-    return result[0]

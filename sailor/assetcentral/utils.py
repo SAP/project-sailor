@@ -288,12 +288,12 @@ def _ac_application_url():
 class AssetcentralEntity:
     """Common base class for Assetcentral entities."""
 
-    _field_templates = []
+    _field_map = {}
 
     @classmethod
     def get_available_properties(cls):
         """Return the available Assetcentral properties for this class."""
-        return set([field.our_name for field in cls._field_templates if field.is_exposed])
+        return set([field.our_name for field in cls._field_map.values() if field.is_exposed])
 
     @classmethod
     def get_property_mapping(cls):
@@ -304,7 +304,7 @@ class AssetcentralEntity:
 
     @classmethod
     def _get_legacy_mapping(cls):
-        return {ft.our_name: (ft.their_name_get, None, None, None) for ft in cls._field_templates}
+        return {ft.our_name: (ft.their_name_get, None, None, None) for ft in cls._field_map.values()}
 
     def __init__(self, ac_json: dict):
         """Create a new entity."""
@@ -429,12 +429,20 @@ def _is_non_string_iterable(obj):
     return isinstance(obj, Iterable)
 
 
+def validate_user_input(input_dict, field_map, forbidden_fields=()):
+    for field_name in forbidden_fields:
+        their_name_put = field_map.get(field_name).their_name_put
+        offender = field_name if field_name in input_dict else None
+        offender = their_name_put if their_name_put in input_dict else offender
+        if offender:
+            raise RuntimeError(f"You cannot set '{offender}' in this request.")
+
+
 class _AssetcentralWriteRequest(UserDict):
     """Used for building the dictionary for create and update requests."""
 
-    def __init__(self, field_templates, *args, **kwargs):
-        self._field_templates = field_templates
-        self._ft_lookup_map = {ft.our_name: ft for ft in field_templates}
+    def __init__(self, field_map, *args, **kwargs):
+        self.field_map = field_map
         super().__init__(*args, **kwargs)
 
     def __setitem__(self, key, value):
@@ -442,7 +450,7 @@ class _AssetcentralWriteRequest(UserDict):
 
         If a key cannot be found using the mapping no transformation is done.
         """
-        if ft := self._ft_lookup_map.get(key):
+        if ft := self.field_map.get(key):
             if ft.is_writable:
                 ft.put_setter(self.data, value)
         else:
@@ -450,7 +458,7 @@ class _AssetcentralWriteRequest(UserDict):
             self.data[key] = value
 
     def validate(self):
-        missing_keys = [ft.our_name for ft in self._field_templates
+        missing_keys = [ft.our_name for ft in self.field_map.values()
                         if ft.is_mandatory and ft.their_name_put not in self.data]
         if missing_keys:
             raise AssetcentralRequestValidationError(
@@ -460,9 +468,9 @@ class _AssetcentralWriteRequest(UserDict):
     def from_object(cls, ac_entity: AssetcentralEntity):
         """Create a new request object using an existing AC object."""
         raw = deepcopy(ac_entity.raw)
-        request = cls(ac_entity._field_templates)
+        request = cls(ac_entity._field_map)
 
-        for ft in request._field_templates:
+        for ft in request.field_map.values():
             if ft.is_writable:
                 try:
                     request[ft.our_name] = raw.pop(ft.their_name_get)
@@ -523,7 +531,7 @@ def _add_properties_ft(cls):
     """Add properties to the entity class based on the field template defined by the request mapper."""
     # This is the new function to be used for all AssetcentralEntities.
     # TODO: remove this comment block once everything is refactored
-    for ft in cls._field_templates:
+    for ft in cls._field_map.values():
 
         # the assignment of the default value (`ft=ft`)
         # is necessary due to the closure rules in loops
