@@ -17,8 +17,8 @@ from .indicators import Indicator, IndicatorSet
 from .notification import find_notifications, NOTIFICATION_FIELD_MAP, _create_or_update_notification
 from .location import Location, find_locations
 from .workorder import find_workorders
-from .utils import (_fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, _AssetcentralWriteRequest,
-                    _ac_application_url, _apply_filters_post_request, validate_user_input)
+from .utils import (AssetcentralEntity, ResultSet, _AssetcentralWriteRequest, _ac_application_url,
+                    _apply_filters_post_request, _fetch_data, _add_properties, _parse_filter_parameters)
 from ..utils.timestamps import _string_to_timestamp_parser
 
 if TYPE_CHECKING:
@@ -230,9 +230,8 @@ class Equipment(AssetcentralEntity):
         >>> notf = eq.create_notification(short_description='test', notification_type='M2')
         >>> notf = eq.create_notification({'short_description': 'test'}, notification_type='M2')
         """
-        validate_user_input(kwargs, NOTIFICATION_FIELD_MAP, forbidden_fields=['id', 'equipment_id'])
-        request = _AssetcentralWriteRequest(NOTIFICATION_FIELD_MAP, kwargs,
-                                       equipment_id=self.id, location_id=self.location.id)
+        request = _AssetcentralWriteRequest(NOTIFICATION_FIELD_MAP, equipment_id=self.id, location_id=self.location.id)
+        request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
         return _create_or_update_notification(request, 'POST')
 
 

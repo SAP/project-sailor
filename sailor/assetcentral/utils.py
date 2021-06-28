@@ -429,21 +429,30 @@ def _is_non_string_iterable(obj):
     return isinstance(obj, Iterable)
 
 
-def validate_user_input(input_dict, field_map, forbidden_fields=()):
-    for field_name in forbidden_fields:
-        their_name_put = field_map.get(field_name).their_name_put
-        offender = field_name if field_name in input_dict else None
-        offender = their_name_put if their_name_put in input_dict else offender
-        if offender:
-            raise RuntimeError(f"You cannot set '{offender}' in this request.")
-
-
 class _AssetcentralWriteRequest(UserDict):
     """Used for building the dictionary for create and update requests."""
 
     def __init__(self, field_map, *args, **kwargs):
         self.field_map = field_map
         super().__init__(*args, **kwargs)
+
+    def insert_user_input(self, input_dict, forbidden_fields=()):
+        """Validate user input and update request if successful."""
+        for field_name in forbidden_fields:
+            their_name_put = self.field_map[field_name].their_name_put
+            offender = field_name if field_name in input_dict else None
+            offender = their_name_put if their_name_put in input_dict else offender
+            if offender:
+                raise RuntimeError(f"You cannot set '{offender}' in this request.")
+        self.update(input_dict)
+
+    def validate(self):
+        """Validate that mandatory fields are set."""
+        missing_keys = [ft.our_name for ft in self.field_map.values()
+                        if ft.is_mandatory and ft.their_name_put not in self.data]
+        if missing_keys:
+            raise AssetcentralRequestValidationError(
+                "Error when creating request. Missing values for mandatory parameters.", missing_keys)
 
     def __setitem__(self, key, value):
         """Transform item to AC API terminology before writing the underlying dict.
@@ -456,13 +465,6 @@ class _AssetcentralWriteRequest(UserDict):
         else:
             warnings.warn(f"Unknown name for {type(self).__name__} parameter found: '{key}'.")
             self.data[key] = value
-
-    def validate(self):
-        missing_keys = [ft.our_name for ft in self.field_map.values()
-                        if ft.is_mandatory and ft.their_name_put not in self.data]
-        if missing_keys:
-            raise AssetcentralRequestValidationError(
-                "Error when creating request. Missing values for mandatory parameters.", missing_keys)
 
     @classmethod
     def from_object(cls, ac_entity: AssetcentralEntity):

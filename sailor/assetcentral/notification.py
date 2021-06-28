@@ -10,9 +10,8 @@ import plotnine as p9
 
 import sailor.assetcentral.equipment
 from .constants import VIEW_NOTIFICATIONS
-from .utils import (_fetch_data, ResultSet, _parse_filter_parameters,
-                    AssetcentralEntity, AssetcentralFieldTemplate, _AssetcentralWriteRequest, _ac_application_url,
-                    _add_properties_ft, _nested_put_setter, validate_user_input)
+from .utils import (AssetcentralEntity, AssetcentralFieldTemplate, _AssetcentralWriteRequest, ResultSet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_ft, _nested_put_setter)
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.timestamps import _string_to_timestamp_parser_ft
 from ..utils.plot_helper import _default_plot_theme
@@ -29,7 +28,7 @@ _field_templates = [
     AssetcentralFieldTemplate('status', 'status', 'status', is_mandatory=True,
                               put_setter=lambda p, v: p.update({'status': [v] if isinstance(v, str) else v})),
     AssetcentralFieldTemplate('equipment_id', 'equipmentId', 'equipmentID', is_mandatory=True),
-    AssetcentralFieldTemplate('long_description', 'longDescription', 'description', is_mandatory=True,
+    AssetcentralFieldTemplate('long_description', 'longDescription', 'description',
                               put_setter=_nested_put_setter('description', 'longDescription')),
     AssetcentralFieldTemplate('breakdown', 'breakdown', 'breakdown', get_extractor=lambda v: bool(int(v))),
     AssetcentralFieldTemplate('cause_id', 'causeID', 'causeID'),
@@ -280,8 +279,8 @@ def create_notification(**kwargs) -> Notification:
     >>> notf = create_notification(equipment_id='123', short_description='test')
     >>> notf = create_notification({'equipment_id': '123'}, short_description='test')
     """
-    validate_user_input(kwargs, NOTIFICATION_FIELD_MAP, forbidden_fields=['id'])
-    request = _AssetcentralWriteRequest(NOTIFICATION_FIELD_MAP, kwargs)
+    request = _AssetcentralWriteRequest(NOTIFICATION_FIELD_MAP)
+    request.insert_user_input(kwargs, forbidden_fields=['id'])
     return _create_or_update_notification(request, 'POST')
 
 
@@ -303,8 +302,7 @@ def update_notification(notification: Notification, **kwargs) -> Notification:
     >>> notf = update_notification(notf, notification_type='M1', short_description='test')
     >>> notf = update_notification(notf, {'notification_type': 'M1'}, short_description='test')
     """
-    validate_user_input(kwargs, NOTIFICATION_FIELD_MAP, forbidden_fields=['id', 'equipment_id'])
     request = _AssetcentralWriteRequest.from_object(notification)
-    request.update(kwargs)
+    request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
     return _create_or_update_notification(request, 'PUT')
 
