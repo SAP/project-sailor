@@ -5,7 +5,7 @@ import pytest
 
 from sailor.assetcentral.equipment import Equipment
 from sailor.assetcentral.utils import (
-    AssetcentralFieldTemplate, _AssetcentralWriteRequest, AssetcentralEntity, ResultSet,
+    _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity, ResultSet,
     _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data)
 
 
@@ -48,23 +48,23 @@ class TestAssetcentralRequest:
         assert actual == {'abc': 1}
 
     def test_setitem_sets_nothing_if_key_known_but_not_writable(self):
-        field_templates = [AssetcentralFieldTemplate('our_name', 'their_name_get')]
+        field_templates = [_AssetcentralField('our_name', 'their_name_get')]
         actual = _AssetcentralWriteRequest(field_templates)
 
         actual.update({'our_name': 1})
         assert actual == {}
 
     def test_setitem_sets_their_name(self):
-        field_templates = [AssetcentralFieldTemplate('our_name', 'their_name_get', 'their_name_put')]
+        field_templates = [_AssetcentralField('our_name', 'their_name_get', 'their_name_put')]
         actual = _AssetcentralWriteRequest(field_templates)
         actual.update({'our_name': 1})
         assert actual == {'their_name_put': 1}
 
     @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
     def test_from_object(self, monkeypatch):
-        field_templates = [AssetcentralFieldTemplate('ABC', 'ABC', 'AbC'),
-                           AssetcentralFieldTemplate('DEF', 'DEF'),
-                           AssetcentralFieldTemplate('GHI', 'GHI', 'GHI')]
+        field_templates = [_AssetcentralField('ABC', 'ABC', 'AbC'),
+                           _AssetcentralField('DEF', 'DEF'),
+                           _AssetcentralField('GHI', 'GHI', 'GHI')]
         monkeypatch.setattr(AssetcentralEntity, '_field_templates', field_templates)
         entity = AssetcentralEntity({'ABC': 1, 'DEF': 2, 'GHI': 3})
 

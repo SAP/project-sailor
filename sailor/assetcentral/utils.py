@@ -304,7 +304,7 @@ class AssetcentralEntity:
 
     @classmethod
     def _get_legacy_mapping(cls):
-        return {ft.our_name: (ft.their_name_get, None, None, None) for ft in cls._field_map.values()}
+        return {field.our_name: (field.their_name_get, None, None, None) for field in cls._field_map.values()}
 
     def __init__(self, ac_json: dict):
         """Create a new entity."""
@@ -448,8 +448,8 @@ class _AssetcentralWriteRequest(UserDict):
 
     def validate(self):
         """Validate that mandatory fields are set."""
-        missing_keys = [ft.our_name for ft in self.field_map.values()
-                        if ft.is_mandatory and ft.their_name_put not in self.data]
+        missing_keys = [field.our_name for field in self.field_map.values()
+                        if field.is_mandatory and field.their_name_put not in self.data]
         if missing_keys:
             raise AssetcentralRequestValidationError(
                 "Error when creating request. Missing values for mandatory parameters.", missing_keys)
@@ -459,9 +459,9 @@ class _AssetcentralWriteRequest(UserDict):
 
         If a key cannot be found using the mapping no transformation is done.
         """
-        if ft := self.field_map.get(key):
-            if ft.is_writable:
-                ft.put_setter(self.data, value)
+        if field := self.field_map.get(key):
+            if field.is_writable:
+                field.put_setter(self.data, value)
         else:
             warnings.warn(f"Unknown name for {type(self).__name__} parameter found: '{key}'.")
             self.data[key] = value
@@ -472,19 +472,19 @@ class _AssetcentralWriteRequest(UserDict):
         raw = deepcopy(ac_entity.raw)
         request = cls(ac_entity._field_map)
 
-        for ft in request.field_map.values():
-            if ft.is_writable:
+        for field in request.field_map.values():
+            if field.is_writable:
                 try:
-                    request[ft.our_name] = raw.pop(ft.their_name_get)
+                    request[field.our_name] = raw.pop(field.their_name_get)
                 except KeyError:
                     msg = ("Error when creating request object. Please try again. If the error persists "
                            "please raise an issue with the developers including the stacktrace."
                            "\n\n==========================  Debug information =========================="
-                           f"\nCould not find key '{ft.their_name_get}'."
+                           f"\nCould not find key '{field.their_name_get}'."
                            f"\nAC entity keys: {raw.keys()}")
                     raise RuntimeError(msg)
             else:
-                raw.pop(ft.their_name_get, None)
+                raw.pop(field.their_name_get, None)
         if raw.keys():
             LOG.debug("raw keys for %s not known to mapping or deletelist:\n%s", type(ac_entity), raw.keys())
         request.update(raw)
@@ -495,7 +495,7 @@ class AssetcentralRequestValidationError(Exception):  # noqa: D101 (self-explana
     pass
 
 
-class AssetcentralFieldTemplate:
+class _AssetcentralField:
     """Specify a field in Assetcentral."""
 
     def __init__(self, our_name, their_name_get, their_name_put=None, is_exposed=True, is_mandatory=False,
@@ -529,16 +529,16 @@ def _nested_put_setter(*nested_names):
     return setter
 
 
-def _add_properties_ft(cls):
+def _add_properties_new(cls):
     """Add properties to the entity class based on the field template defined by the request mapper."""
     # This is the new function to be used for all AssetcentralEntities.
     # TODO: remove this comment block once everything is refactored
-    for ft in cls._field_map.values():
+    for field in cls._field_map.values():
 
-        # the assignment of the default value (`ft=ft`)
+        # the assignment of the default value (`field=field`)
         # is necessary due to the closure rules in loops
-        def getter(self, ft=ft):
-            return ft.get_extractor(self.raw.get(ft.their_name_get))
+        def getter(self, field=field):
+            return field.get_extractor(self.raw.get(field.their_name_get))
 
-        setattr(cls, ft.our_name, property(getter, None, None))
+        setattr(cls, field.our_name, property(getter, None, None))
     return cls

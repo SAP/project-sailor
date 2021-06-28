@@ -10,83 +10,82 @@ import plotnine as p9
 
 import sailor.assetcentral.equipment
 from .constants import VIEW_NOTIFICATIONS
-from .utils import (AssetcentralEntity, AssetcentralFieldTemplate, _AssetcentralWriteRequest, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_ft, _nested_put_setter)
+from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new, _nested_put_setter)
 from ..utils.oauth_wrapper import get_oauth_client
-from ..utils.timestamps import _string_to_timestamp_parser_ft
+from ..utils.timestamps import _string_to_timestamp_parser_new
 from ..utils.plot_helper import _default_plot_theme
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
-NOTIFICATION_FIELDS = [
-    AssetcentralFieldTemplate('id', 'notificationId', 'notificationID'),
-    AssetcentralFieldTemplate('notification_type', 'notificationType', 'type', is_mandatory=True),
-    AssetcentralFieldTemplate('short_description', 'shortDescription', 'description', is_mandatory=True,
-                              put_setter=_nested_put_setter('description', 'shortDescription')),
-    AssetcentralFieldTemplate('priority', 'priority', 'priority', is_mandatory=True),
-    AssetcentralFieldTemplate('status', 'status', 'status', is_mandatory=True,
-                              put_setter=lambda p, v: p.update({'status': [v] if isinstance(v, str) else v})),
-    AssetcentralFieldTemplate('equipment_id', 'equipmentId', 'equipmentID', is_mandatory=True),
-    AssetcentralFieldTemplate('long_description', 'longDescription', 'description',
-                              put_setter=_nested_put_setter('description', 'longDescription')),
-    AssetcentralFieldTemplate('breakdown', 'breakdown', 'breakdown', get_extractor=lambda v: bool(int(v))),
-    AssetcentralFieldTemplate('cause_id', 'causeID', 'causeID'),
-    AssetcentralFieldTemplate('cause_description', 'causeDesc'),
-    AssetcentralFieldTemplate('cause_display_id', 'causeDisplayID'),
-    AssetcentralFieldTemplate('effect_id', 'effectID', 'effectID'),
-    AssetcentralFieldTemplate('effect_description', 'effectDesc'),
-    AssetcentralFieldTemplate('effect_display_id', 'effectDisplayID'),
-    AssetcentralFieldTemplate('instruction_id', 'instructionID', 'instructionID'),
-    AssetcentralFieldTemplate('instruction_title', 'instructionTitle'),
-    AssetcentralFieldTemplate('operator_id', 'operatorId', 'operator'),  # setting 'operator' has no effect
-    AssetcentralFieldTemplate('confirmed_failure_mode_id', 'confirmedFailureModeID', 'confirmedFailureModeID'),
-    AssetcentralFieldTemplate('confirmed_failure_mode_description', 'confirmedFailureModeDesc'),
-    AssetcentralFieldTemplate('confirmed_failure_mode_name', 'confirmedFailureModeDisplayID'),
-    AssetcentralFieldTemplate('end_date', 'endDate', 'endDate', get_extractor=_string_to_timestamp_parser_ft()),
-    AssetcentralFieldTemplate('equipment_name', 'equipmentName'),
-    AssetcentralFieldTemplate('functional_location_id', 'functionalLocationID', 'functionalLocationID'),
-    AssetcentralFieldTemplate('location_id', 'locationId', 'locationID'),
-    AssetcentralFieldTemplate('location_name', 'location'),
-    AssetcentralFieldTemplate('malfunction_end_date', 'malfunctionEndDate', 'malfunctionEndDate',
-                              get_extractor=_string_to_timestamp_parser_ft()),
-    AssetcentralFieldTemplate('malfunction_start_date', 'malfunctionStartDate', 'malfunctionStartDate',
-                              get_extractor=_string_to_timestamp_parser_ft()),
-    AssetcentralFieldTemplate('model_id', 'modelId'),
-    AssetcentralFieldTemplate('name', 'internalId'),
-    AssetcentralFieldTemplate('notification_type_description', 'notificationTypeDescription'),
-    AssetcentralFieldTemplate('priority_description', 'priorityDescription'),
-    AssetcentralFieldTemplate('root_equipment_id', 'rootEquipmentId'),
-    AssetcentralFieldTemplate('root_equipment_name', 'rootEquipmentName'),
-    AssetcentralFieldTemplate('start_date', 'startDate', 'startDate',
-                              get_extractor=_string_to_timestamp_parser_ft()),
-    AssetcentralFieldTemplate('status_text', 'statusDescription'),
-    AssetcentralFieldTemplate('system_failure_mode_id', 'systemProposedFailureModeID',
-                              'systemProposedFailureModeID'),
-    AssetcentralFieldTemplate('system_failure_mode_description', 'systemProposedFailureModeDesc'),
-    AssetcentralFieldTemplate('system_failure_mode_name', 'systemProposedFailureModeDisplayID'),
-    AssetcentralFieldTemplate('user_failure_mode_id', 'proposedFailureModeID', 'proposedFailureModeID'),
-    AssetcentralFieldTemplate('user_failure_mode_description', 'proposedFailureModeDesc'),
-    AssetcentralFieldTemplate('user_failure_mode_name', 'proposedFailureModeDisplayID'),
-    AssetcentralFieldTemplate('isInternal', 'isInternal', is_exposed=False),
-    AssetcentralFieldTemplate('createdBy', 'createdBy', is_exposed=False),
-    AssetcentralFieldTemplate('creationDateTime', 'creationDateTime', is_exposed=False),
-    AssetcentralFieldTemplate('lastChangedBy', 'lastChangedBy', is_exposed=False),
-    AssetcentralFieldTemplate('lastChangeDateTime', 'lastChangeDateTime', is_exposed=False),
-    AssetcentralFieldTemplate('progressStatus', 'progressStatus', is_exposed=False),
-    AssetcentralFieldTemplate('progressStatusDescription', 'progressStatusDescription', is_exposed=False),
-    AssetcentralFieldTemplate('coordinates', 'coordinates', is_exposed=False),
-    AssetcentralFieldTemplate('source', 'source', is_exposed=False),
-    AssetcentralFieldTemplate('assetCoreEquipmentId', 'assetCoreEquipmentId', is_exposed=False),
-    AssetcentralFieldTemplate('operator', 'operator', is_exposed=False),
+_NOTIFICATION_FIELDS = [
+    _AssetcentralField('id', 'notificationId', 'notificationID'),
+    _AssetcentralField('notification_type', 'notificationType', 'type', is_mandatory=True),
+    _AssetcentralField('short_description', 'shortDescription', 'description', is_mandatory=True,
+                       put_setter=_nested_put_setter('description', 'shortDescription')),
+    _AssetcentralField('priority', 'priority', 'priority', is_mandatory=True),
+    _AssetcentralField('status', 'status', 'status', is_mandatory=True,
+                       put_setter=lambda p, v: p.update({'status': [v] if isinstance(v, str) else v})),
+    _AssetcentralField('equipment_id', 'equipmentId', 'equipmentID', is_mandatory=True),
+    _AssetcentralField('long_description', 'longDescription', 'description',
+                       put_setter=_nested_put_setter('description', 'longDescription')),
+    _AssetcentralField('breakdown', 'breakdown', 'breakdown', get_extractor=lambda v: bool(int(v))),
+    _AssetcentralField('cause_id', 'causeID', 'causeID'),
+    _AssetcentralField('cause_description', 'causeDesc'),
+    _AssetcentralField('cause_display_id', 'causeDisplayID'),
+    _AssetcentralField('effect_id', 'effectID', 'effectID'),
+    _AssetcentralField('effect_description', 'effectDesc'),
+    _AssetcentralField('effect_display_id', 'effectDisplayID'),
+    _AssetcentralField('instruction_id', 'instructionID', 'instructionID'),
+    _AssetcentralField('instruction_title', 'instructionTitle'),
+    _AssetcentralField('operator_id', 'operatorId', 'operator'),  # setting 'operator' has no effect
+    _AssetcentralField('confirmed_failure_mode_id', 'confirmedFailureModeID', 'confirmedFailureModeID'),
+    _AssetcentralField('confirmed_failure_mode_description', 'confirmedFailureModeDesc'),
+    _AssetcentralField('confirmed_failure_mode_name', 'confirmedFailureModeDisplayID'),
+    _AssetcentralField('end_date', 'endDate', 'endDate', get_extractor=_string_to_timestamp_parser_new()),
+    _AssetcentralField('equipment_name', 'equipmentName'),
+    _AssetcentralField('functional_location_id', 'functionalLocationID', 'functionalLocationID'),
+    _AssetcentralField('location_id', 'locationId', 'locationID'),
+    _AssetcentralField('location_name', 'location'),
+    _AssetcentralField('malfunction_end_date', 'malfunctionEndDate', 'malfunctionEndDate',
+                       get_extractor=_string_to_timestamp_parser_new()),
+    _AssetcentralField('malfunction_start_date', 'malfunctionStartDate', 'malfunctionStartDate',
+                       get_extractor=_string_to_timestamp_parser_new()),
+    _AssetcentralField('model_id', 'modelId'),
+    _AssetcentralField('name', 'internalId'),
+    _AssetcentralField('notification_type_description', 'notificationTypeDescription'),
+    _AssetcentralField('priority_description', 'priorityDescription'),
+    _AssetcentralField('root_equipment_id', 'rootEquipmentId'),
+    _AssetcentralField('root_equipment_name', 'rootEquipmentName'),
+    _AssetcentralField('start_date', 'startDate', 'startDate',
+                       get_extractor=_string_to_timestamp_parser_new()),
+    _AssetcentralField('status_text', 'statusDescription'),
+    _AssetcentralField('system_failure_mode_id', 'systemProposedFailureModeID', 'systemProposedFailureModeID'),
+    _AssetcentralField('system_failure_mode_description', 'systemProposedFailureModeDesc'),
+    _AssetcentralField('system_failure_mode_name', 'systemProposedFailureModeDisplayID'),
+    _AssetcentralField('user_failure_mode_id', 'proposedFailureModeID', 'proposedFailureModeID'),
+    _AssetcentralField('user_failure_mode_description', 'proposedFailureModeDesc'),
+    _AssetcentralField('user_failure_mode_name', 'proposedFailureModeDisplayID'),
+    _AssetcentralField('isInternal', 'isInternal', is_exposed=False),
+    _AssetcentralField('createdBy', 'createdBy', is_exposed=False),
+    _AssetcentralField('creationDateTime', 'creationDateTime', is_exposed=False),
+    _AssetcentralField('lastChangedBy', 'lastChangedBy', is_exposed=False),
+    _AssetcentralField('lastChangeDateTime', 'lastChangeDateTime', is_exposed=False),
+    _AssetcentralField('progressStatus', 'progressStatus', is_exposed=False),
+    _AssetcentralField('progressStatusDescription', 'progressStatusDescription', is_exposed=False),
+    _AssetcentralField('coordinates', 'coordinates', is_exposed=False),
+    _AssetcentralField('source', 'source', is_exposed=False),
+    _AssetcentralField('assetCoreEquipmentId', 'assetCoreEquipmentId', is_exposed=False),
+    _AssetcentralField('operator', 'operator', is_exposed=False),
 ]
 
 
-@_add_properties_ft
+@_add_properties_new
 class Notification(AssetcentralEntity):
     """AssetCentral Notification Object."""
 
-    _field_map = {ft.our_name: ft for ft in NOTIFICATION_FIELDS}
+    _field_map = {field.our_name: field for field in _NOTIFICATION_FIELDS}
 
     def update(self, **kwargs) -> 'Notification':
         """Write the current state of this object to AssetCentral with updated values supplied.
@@ -269,7 +268,7 @@ def _create_or_update_notification(request, method) -> Notification:
 def create_notification(**kwargs) -> Notification:
     """Create a new notification.
 
-    Accepts a dictionary and keyword arguments.
+    Accepts keyword arguments which names correspond to the available properties.
 
     Examples
     --------
@@ -288,7 +287,7 @@ def update_notification(notification: Notification, **kwargs) -> Notification:
     Write the current state of the given notification object to AssetCentral with updated values supplied.
     This equals a PUT request in the traditional REST programming model.
 
-    Accepts a dict, key/value pairs and keyword arguments as input.
+    Accepts keyword arguments which names correspond to the available properties.
 
     Returns
     -------

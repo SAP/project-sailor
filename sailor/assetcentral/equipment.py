@@ -222,7 +222,7 @@ class Equipment(AssetcentralEntity):
     def create_notification(self, **kwargs) -> Notification:
         """Create a new notification for this equipment.
 
-        Accepts a dictionary and keyword arguments.
+        Accepts keyword arguments which names correspond to the available properties.
 
         Examples
         --------
