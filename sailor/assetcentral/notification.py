@@ -19,7 +19,7 @@ from ..utils.plot_helper import _default_plot_theme
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
-_field_templates = [
+NOTIFICATION_FIELDS = [
     AssetcentralFieldTemplate('id', 'notificationId', 'notificationID'),
     AssetcentralFieldTemplate('notification_type', 'notificationType', 'type', is_mandatory=True),
     AssetcentralFieldTemplate('short_description', 'shortDescription', 'description', is_mandatory=True,
@@ -81,14 +81,12 @@ _field_templates = [
     AssetcentralFieldTemplate('operator', 'operator', is_exposed=False),
 ]
 
-NOTIFICATION_FIELD_MAP = {ft.our_name: ft for ft in _field_templates}
-
 
 @_add_properties_ft
 class Notification(AssetcentralEntity):
     """AssetCentral Notification Object."""
 
-    _field_map = NOTIFICATION_FIELD_MAP
+    _field_map = {ft.our_name: ft for ft in NOTIFICATION_FIELDS}
 
     def update(self, **kwargs) -> 'Notification':
         """Write the current state of this object to AssetCentral with updated values supplied.
@@ -279,7 +277,7 @@ def create_notification(**kwargs) -> Notification:
     >>> notf = create_notification(equipment_id='123', short_description='test')
     >>> notf = create_notification({'equipment_id': '123'}, short_description='test')
     """
-    request = _AssetcentralWriteRequest(NOTIFICATION_FIELD_MAP)
+    request = _AssetcentralWriteRequest(Notification._field_map)
     request.insert_user_input(kwargs, forbidden_fields=['id'])
     return _create_or_update_notification(request, 'POST')
 
@@ -305,4 +303,3 @@ def update_notification(notification: Notification, **kwargs) -> Notification:
     request = _AssetcentralWriteRequest.from_object(notification)
     request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
     return _create_or_update_notification(request, 'PUT')
-
