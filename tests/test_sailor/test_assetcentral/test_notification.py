@@ -2,7 +2,8 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from sailor.assetcentral.notification import Notification, create_notification, update_notification
+from sailor.assetcentral.notification import (
+    Notification, create_notification, update_notification, _create_or_update_notification)
 from sailor.assetcentral import constants
 
 
@@ -19,16 +20,18 @@ def mock_request(mock_config):
         yield mock
 
 
+# this test might be able to be turned into a generic test for all create functions
 @pytest.mark.parametrize('input_kwargs', [
     ({}),
     ({'abc': 1, 'def': 2}),
 ])
 @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
-def test_generic_create(mock_url, mock_request, input_kwargs):
+def test_generic_create_calls_and_result(mock_url, mock_request, input_kwargs):
     request_dict = input_kwargs
     expected_raw = {'notificationID': '123', **request_dict}
     mock_request.return_value = expected_raw
 
+    # mock validate so that validation does not fail
     with patch('sailor.assetcentral.utils._AssetcentralWriteRequest.validate'):
         actual = create_notification(**input_kwargs)
 
@@ -38,38 +41,32 @@ def test_generic_create(mock_url, mock_request, input_kwargs):
     assert actual.raw == expected_raw
 
 
-def test_generic_create_raises_when_find_is_empty(mock_url, mock_request):
+# this test might be able to be turned into a generic test for all _create_or_update functions
+@pytest.mark.parametrize('find_call_result', [
+    ([]),
+    ([{'notificationId': '123'}, {'notificationId': '456'}]),
+])
+@pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
+def test_generic_create_update_raises_when_find_has_no_single_result(mock_url, mock_request, find_call_result):
     successful_create_result = {'notificationID': '123'}
-    empty_find_call_result = []
-    mock_request.side_effect = [successful_create_result, empty_find_call_result]
+    mock_request.side_effect = [successful_create_result, find_call_result]
 
-    with patch('sailor.assetcentral.utils._AssetcentralWriteRequest.validate'):
-        with pytest.raises(RuntimeError, match='Unexpected error'):
-            create_notification()
-
-
-def test_generic_update_raises_when_find_is_empty(mock_url, mock_request):
-    successful_create_result = {'notificationID': '123'}
-    empty_find_call_result = []
-    mock_request.side_effect = [successful_create_result, empty_find_call_result]
-
-    with patch('sailor.assetcentral.utils._AssetcentralWriteRequest.validate'):
-        with pytest.raises(RuntimeError, match='Unexpected error'):
-            update_notification(MagicMock())
+    with pytest.raises(RuntimeError, match='Unexpected error'):
+        _create_or_update_notification(MagicMock(), '')
 
 
 @pytest.mark.parametrize('input_kwargs', [
     ({}),
     ({'abc': 1, 'def': 2}),
 ])
-@pytest.mark.parametrize('object_method', [
+@pytest.mark.parametrize('is_object_method', [
     (True),
     (False),
 ])
 @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
-def test_update_notification(mock_url, mock_request, input_kwargs, object_method, monkeypatch):
-    # we need to overwrite this for a valid equality test in this context as update_notification returns a new object
-    # while notification.update returns the same object
+def test_update_notification_calls_and_result(mock_url, mock_request, input_kwargs, is_object_method, monkeypatch):
+    # we need to overwrite __eq__ for a valid equality test in this context as update_notification returns a new object
+    # whereas notification.update returns the same object
     monkeypatch.setattr(Notification, '__eq__', object.__eq__)
 
     raw = {  # at least the keys in the mapping must exist. that's why we have a full raw dict here
@@ -96,7 +93,7 @@ def test_update_notification(mock_url, mock_request, input_kwargs, object_method
     expected_get_response = {**raw, **request_dict}
     mock_request.side_effect = [expected_put_response, expected_get_response]
 
-    if object_method:
+    if is_object_method:
         actual = notification.update(**input_kwargs)
     else:
         actual = update_notification(notification, **input_kwargs)
@@ -105,7 +102,7 @@ def test_update_notification(mock_url, mock_request, input_kwargs, object_method
     mock_request.calls[1] == ('GET', mock_url + constants.VIEW_NOTIFICATIONS, {'params': {'notificationId': '123'}})
     assert type(actual) == Notification
     assert actual.raw == expected_get_response
-    if object_method:
+    if is_object_method:
         assert actual == notification
     else:
         assert actual != notification

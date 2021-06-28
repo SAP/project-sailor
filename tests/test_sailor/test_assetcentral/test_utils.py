@@ -44,28 +44,28 @@ class TestAssetcentralRequest:
 
     @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
     def test_setitem_sets_raw_if_not_found_in_mapping(self):
-        actual = _AssetcentralWriteRequest([], {'abc': 1})
+        actual = _AssetcentralWriteRequest({}, {'abc': 1})
         assert actual == {'abc': 1}
 
     def test_setitem_sets_nothing_if_key_known_but_not_writable(self):
-        field_templates = [_AssetcentralField('our_name', 'their_name_get')]
-        actual = _AssetcentralWriteRequest(field_templates)
+        field_map = {'our_name': _AssetcentralField('our_name', 'their_name_get')}
+        actual = _AssetcentralWriteRequest(field_map)
 
         actual.update({'our_name': 1})
         assert actual == {}
 
     def test_setitem_sets_their_name(self):
-        field_templates = [_AssetcentralField('our_name', 'their_name_get', 'their_name_put')]
-        actual = _AssetcentralWriteRequest(field_templates)
+        field_map = {'our_name': _AssetcentralField('our_name', 'their_name_get', 'their_name_put')}
+        actual = _AssetcentralWriteRequest(field_map)
         actual.update({'our_name': 1})
         assert actual == {'their_name_put': 1}
 
     @pytest.mark.filterwarnings('ignore:Unknown name for .* parameter found')
     def test_from_object(self, monkeypatch):
-        field_templates = [_AssetcentralField('ABC', 'ABC', 'AbC'),
-                           _AssetcentralField('DEF', 'DEF'),
-                           _AssetcentralField('GHI', 'GHI', 'GHI')]
-        monkeypatch.setattr(AssetcentralEntity, '_field_templates', field_templates)
+        field_map = {'ABC': _AssetcentralField('ABC', 'ABC', 'AbC'),
+                     'DEF': _AssetcentralField('DEF', 'DEF'),
+                     'GHI': _AssetcentralField('GHI', 'GHI', 'GHI')}
+        monkeypatch.setattr(AssetcentralEntity, '_field_map', field_map)
         entity = AssetcentralEntity({'ABC': 1, 'DEF': 2, 'GHI': 3})
 
         # now this should copy ABC to AbC and GHI to GHI and remove DEF
