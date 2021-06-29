@@ -49,7 +49,7 @@ def test_aggregation_happy_path(simple_dataset, aggregation_functions, expected_
 
     aggregate_dataset = simple_dataset.aggregate(interval, aggregation_functions=aggregation_functions)
 
-    assert len(aggregate_dataset._indicator_set) == expected_indicator_count
+    assert len(aggregate_dataset.indicator_set) == expected_indicator_count
     assert aggregate_dataset._df.timestamp.min() <= simple_dataset._df.timestamp.min()
     assert aggregate_dataset._df.timestamp.min() > simple_dataset._df.timestamp.min() - interval
     assert aggregate_dataset._df.timestamp.max() <= simple_dataset._df.timestamp.max()
@@ -63,7 +63,7 @@ def test_interpolation_happy_path(simple_dataset):
     interpolated_dataset = simple_dataset.interpolate(interval)
 
     assert all(interpolated_dataset._df.groupby('equipment_id').timestamp.count() == expected_count)
-    assert interpolated_dataset._indicator_set == simple_dataset._indicator_set
+    assert interpolated_dataset.indicator_set == simple_dataset.indicator_set
     assert interpolated_dataset._df.timestamp.min() == simple_dataset.nominal_data_start
     assert interpolated_dataset._df.timestamp.max() < simple_dataset.nominal_data_end
 
@@ -82,7 +82,7 @@ def test_interpolate_missing_data(simple_dataset, method, expect_ffill, expect_b
     test_dataset.nominal_data_end = actual_end + pd.Timedelta('1h')
     remove_times = ((test_dataset._df.timestamp >= actual_start + pd.Timedelta('1h')) &
                     (test_dataset._df.timestamp < actual_start + pd.Timedelta('3h')))
-    for indicator in test_dataset._indicator_set:
+    for indicator in test_dataset.indicator_set:
         test_dataset._df.loc[remove_times, indicator._unique_id] = float('NaN')
 
     # this is not an regular test assert, but makes sure that during setup we actually introduced a 'hole' in the data
@@ -100,6 +100,47 @@ def test_interpolate_missing_data(simple_dataset, method, expect_ffill, expect_b
         assert not interpolated_dataset._df[interpolated_dataset._df.timestamp < actual_start].isnull().any().any()
     if expect_ffill:
         assert not interpolated_dataset._df[interpolated_dataset._df.timestamp > actual_end].isnull().any().any()
+
+
+def test_filter_equipment_id_only(simple_dataset):
+    filtered_dataset = simple_dataset.filter(equipment_ids=['equipment_id_1'])
+
+    assert len(filtered_dataset.equipment_set) == 1
+    assert len(filtered_dataset._df) == 100
+    assert filtered_dataset._df.equipment_id.unique() == ['equipment_id_1']
+    assert filtered_dataset.indicator_set == simple_dataset.indicator_set
+
+
+def test_filter_equipment_set_only(simple_dataset):
+    filtered_dataset = simple_dataset.filter(equipment_set=simple_dataset.equipment_set.filter(id='equipment_id_1'))
+
+    assert len(filtered_dataset.equipment_set) == 1
+    assert len(filtered_dataset._df) == 100
+    assert filtered_dataset._df.equipment_id.unique() == ['equipment_id_1']
+    assert filtered_dataset.indicator_set == simple_dataset.indicator_set
+
+
+def test_filter_equipment_set_and_id(simple_dataset):
+    filtered_dataset = simple_dataset.filter(equipment_ids=['equipment_id_2'],
+                                             equipment_set=simple_dataset.equipment_set.filter(id='equipment_id_1'))
+
+    assert len(filtered_dataset.equipment_set) == 1
+    assert len(filtered_dataset._df) == 100
+    assert filtered_dataset._df.equipment_id.unique() == ['equipment_id_1']
+    assert filtered_dataset.indicator_set == simple_dataset.indicator_set
+
+
+def test_filter_indicator_set(simple_dataset):
+    selected_indicators = simple_dataset.indicator_set.filter(id='indicator_id_1')
+
+    filtered_dataset = simple_dataset.filter(indicator_set=selected_indicators)
+
+    assert len(filtered_dataset.equipment_set) == 2
+    assert len(filtered_dataset._df) == len(simple_dataset._df)
+    assert filtered_dataset.indicator_set == selected_indicators
+    assert len(filtered_dataset._df.columns) == 4
+    assert all(filtered_dataset._df.columns == (filtered_dataset.get_index_columns() +
+                                                [indicator._unique_id for indicator in selected_indicators]))
 
 
 def test_as_df_no_indicators():

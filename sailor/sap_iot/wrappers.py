@@ -23,7 +23,7 @@ from ..utils.plot_helper import _default_plot_theme
 from ..utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals
 
 if TYPE_CHECKING:
-    from ..assetcentral.indicators import IndicatorSet
+    from ..assetcentral.indicators import IndicatorSet, AggregatedIndicatorSet
     from ..assetcentral.equipment import EquipmentSet
 
 LOG = logging.getLogger(__name__)
@@ -67,6 +67,16 @@ class TimeseriesDataset(object):
             warnings.warn('There is no data in the dataframe for some of the indicators in the indicator set.')
             self._indicator_set = self._indicator_set.filter(_unique_id=df_indicator_ids)
 
+    @property
+    def indicator_set(self):
+        """Return all Indicators present in the TimeseriesDataset."""
+        return self._indicator_set
+
+    @property
+    def equipment_set(self):
+        """Return all equipment present in the TimeseriesDataset."""
+        return self._equipment_set
+
     def get_key_columns(self, speaking_names=False):
         """
         Return those columns of the data that identify the asset.
@@ -90,9 +100,9 @@ class TimeseriesDataset(object):
             raise NotImplementedError('Currently only Equipment is supported as base object for timeseries data.')
 
         if speaking_names:
-            return ['model_name', 'equipment_name']
+            return ['equipment_name', 'model_name']
         else:
-            return ['model_id', 'equipment_id']
+            return ['equipment_id', 'model_id']
 
     @staticmethod
     def get_time_column():
@@ -121,7 +131,7 @@ class TimeseriesDataset(object):
             return list(self._indicator_set._unique_id_to_names().values())
         return list(self._indicator_set._unique_id_to_constituent_ids().keys())
 
-    def get_index_columns(self, speaking_names=False):
+    def get_index_columns(self, speaking_names=False) -> list:
         """Return the names of all index columns (key columns and time column)."""
         return [*self.get_key_columns(speaking_names), self.get_time_column()]
 
@@ -319,7 +329,8 @@ class TimeseriesDataset(object):
         return new_wrapper, fitted_scaler
 
     def filter(self, equipment_ids: Iterable[str] = None, start: Union[str, pd.Timestamp, datetime] = None,
-               end: Union[str, pd.Timestamp, datetime] = None) -> TimeseriesDataset:
+               end: Union[str, pd.Timestamp, datetime] = None, equipment_set: EquipmentSet = None,
+               indicator_set: Union[IndicatorSet, AggregatedIndicatorSet] = None) -> TimeseriesDataset:
         """Return a new TimeseriesDataset extracted from an original data with filter parameters.
 
         Only indicator data specified in filters are returned.
@@ -327,11 +338,16 @@ class TimeseriesDataset(object):
         Parameters
         ----------
         equipment_ids
-            Optional equipment set ids to filter timeseries data.
+            Optional equipment set ids to filter timeseries data. If equipment_set is also present this
+            argument is ignored.
         start
             Optional start time of timeseries data are returned.
         end
             Optional end time until timeseries data are returned.
+        equipment_set
+            Optional EquipmentSet to filter timeseries data. Takes precedence over equipment_ids.
+        indicator_set:
+            Optional IndicatorSet to filter dataset columns.
 
         Example
         -------
@@ -342,20 +358,36 @@ class TimeseriesDataset(object):
         if isinstance(equipment_ids, str):
             equipment_ids = [equipment_ids]
 
-        if equipment_ids is None:
-            equipment_ids = [equipment.id for equipment in self._equipment_set]
+        if equipment_ids is not None:
+            warnings.warn('Passing equipment_ids to the filter is deprecated and will be removed'
+                          'after September 1 2021. Please use equipment_set as filter instead.', FutureWarning)
+
         start_time = _any_to_timestamp(start, default=self.nominal_data_start)
         end_time = _any_to_timestamp(end, default=self.nominal_data_end)
-        selected_equi_set = self._equipment_set.filter(id=equipment_ids)
+
+        if equipment_set is not None:
+            equipment_ids = [equipment.id for equipment in equipment_set]
+            selected_equi_set = equipment_set
+        else:
+            if equipment_ids is None:
+                equipment_ids = [equipment.id for equipment in self._equipment_set]
+            selected_equi_set = self._equipment_set.filter(id=equipment_ids)
 
         selected_df = self._df.query('(equipment_id in @equipment_ids) &'
                                      '(timestamp >= @start_time) & (timestamp < @end_time)')
+
+        if indicator_set is not None:
+            selected_column_ids = [indicator._unique_id for indicator in indicator_set]
+            selected_df = selected_df[self.get_index_columns() + selected_column_ids]
+            selected_indicator_set = indicator_set
+        else:
+            selected_indicator_set = self._indicator_set
 
         if len(selected_df) == 0:
             warnings.warn('The selected filters removed all data, the resulting TimeseriesDataset is empty.')
         LOG.debug('Filtered Dataset contains %s rows.', len(selected_df))
 
-        return TimeseriesDataset(selected_df, self._indicator_set, selected_equi_set,
+        return TimeseriesDataset(selected_df, selected_indicator_set, selected_equi_set,
                                  start_time, end_time, self.is_normalized)
 
     def aggregate(self,
