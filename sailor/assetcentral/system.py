@@ -6,7 +6,7 @@ Classes are provided for individual Systems as well as groups of Systems (System
 from __future__ import annotations
 
 import itertools
-# import warnings
+import warnings
 from typing import TYPE_CHECKING, Union
 from datetime import datetime
 from functools import cached_property
@@ -76,13 +76,13 @@ class System(AssetcentralEntity):
     def _update_components(self, component):
         """Add indicators and replace id with model_id in the key."""
         if component['object_type'] == 'EQU':
-            obj = self._equipments.filter(id=component['id'])[0]
-            component['indicators'] = self._indicators[component['id']]
+            obj = self._hier['equipment'].filter(id=component['id'])[0]
+            component['indicators'] = self._hier['indicators'][component['id']]
         else:
             if component['id'] == self.id:
                 obj = self
             else:
-                obj = self._systems.filter(id=component['id'])[0]
+                obj = self._hier['systems'].filter(id=component['id'])[0]
         component['key'] = (obj.model_id, component['key'][1])
         if 'child_list' in component.keys():
             component['child_nodes'] = {}
@@ -93,25 +93,26 @@ class System(AssetcentralEntity):
             del component['child_list']
 
     @cached_property
-    def _component_tree(self):
+    def _hierarchy(self):
         """Prepare component tree and cache it."""
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
         comps = _fetch_data(endpoint_url)[0]
-        self._components, equipment_ids, system_ids = System._traverse_components(comps, 0, [], [])
+        self._hier = {}
+        self._hier['component_tree'], equipment_ids, system_ids = System._traverse_components(comps, 0, [], [])
         if system_ids:
-            self._systems = find_systems(id=system_ids)
+            self._hier['systems'] = find_systems(id=system_ids)
         else:
-            self._systems = SystemSet([])
-        self._indicators = {}
+            self._hier['systems'] = SystemSet([])
+        self._hier['indicators'] = {}
         if equipment_ids:
-            self._equipments = find_equipment(id=equipment_ids)
-            for equi in self._equipments:
-                self._indicators[equi.id] = equi.find_equipment_indicators(type='Measured')
+            self._hier['equipment'] = find_equipment(id=equipment_ids)
+            for equi in self._hier['equipment']:
+                self._hier['indicators'][equi.id] = equi.find_equipment_indicators(type='Measured')
         else:
-            self._equipments = EquipmentSet([])
-        self._update_components(self._components)
-        del self._components['key']
-        return self._components
+            self._hier['equipment'] = EquipmentSet([])
+        self._update_components(self._hier['component_tree'])
+        del self._hier['component_tree']['key']
+        return self._hier
 
     @cached_property
     def components(self):
@@ -119,14 +120,13 @@ class System(AssetcentralEntity):
 
         Only top level, lower levels are ignored
         """
-        # warnings.warn("deprecated: attribute will be removed as soon as multilevel system hierarchies are supported",
-        #              FutureWarning)
+        warnings.warn("deprecated: attribute will be removed after September 1, 2021", FutureWarning)
         equipment_ids = set()
-        comp_tree = self._component_tree
+        comp_tree = self._hierarchy['component_tree']
         for c in comp_tree['child_nodes']:
             if comp_tree['child_nodes'][c]['object_type'] == 'EQU':
                 equipment_ids.add(comp_tree['child_nodes'][c]['id'])
-        return self._equipments.filter(id=equipment_ids)
+        return self._hierarchy['equipment'].filter(id=equipment_ids)
 
     @staticmethod
     def _create_selection_dictionary(comp_tree):
@@ -162,10 +162,9 @@ class System(AssetcentralEntity):
         end
             End of time series data.
         """
-        if not hasattr(self, '_equipments'):
-            self._component_tree
-        all_indicators = sum((equi.find_equipment_indicators() for equi in self._equipments), IndicatorSet([]))
-        return sap_iot.get_indicator_data(start, end, all_indicators, self._equipments)
+        all_indicators = sum((equi.find_equipment_indicators() for equi in self._hierarchy['equipment']),
+                             IndicatorSet([]))
+        return sap_iot.get_indicator_data(start, end, all_indicators, self._hierarchy['equipment'])
 
 
 class SystemSet(ResultSet):
@@ -196,10 +195,7 @@ class SystemSet(ResultSet):
         end
             End of time series data.
         """
-        for system in self:
-            if not hasattr(system, '_equipments'):
-                system._component_tree
-        all_equipment = sum((system._equipments for system in self), EquipmentSet([]))
+        all_equipment = sum((system._hierarchy['equipment'] for system in self), EquipmentSet([]))
         all_indicators = sum((equipment.find_equipment_indicators() for equipment in all_equipment), IndicatorSet([]))
 
         return sap_iot.get_indicator_data(start, end, all_indicators, all_equipment)
@@ -241,10 +237,10 @@ class SystemSet(ResultSet):
         if len(selection) == 0:
             # build selection dictionary from one of the systems
             intersection = True
-            selection = System._create_selection_dictionary(self[0]._component_tree)
+            selection = System._create_selection_dictionary(self[0]._hierarchy['component_tree'])
         for system in self:
             indicator_list = []
-            SystemSet._map_comp_info(selection['child_nodes'], system._component_tree['child_nodes'],
+            SystemSet._map_comp_info(selection['child_nodes'], system._hierarchy['component_tree']['child_nodes'],
                                      indicator_list, none_positions)
             system_indicators[system.id] = indicator_list
         if intersection:

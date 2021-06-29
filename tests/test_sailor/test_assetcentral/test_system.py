@@ -275,13 +275,14 @@ def test_update_components(make_indicator_set, component_tree):
     equi3 = Equipment({'equipmentId': 'EM2-3id', 'internalId': 'EM2-3', 'modelId': 'EM2'})
     ind1 = make_indicator_set(propertyId=['1', '2'])
     ind2 = make_indicator_set(propertyId=['3', '4'])
-    system._components = systemcomponents_global
-    system._systems = SystemSet([system, system1, system2])
-    system._equipments = EquipmentSet([equi11, equi12, equi13, equi21, equi22, equi23, equi3])
-    system._indicators = {'EM1-11id': ind1, 'EM1-12id': ind1, 'EM2-13id': ind2,
+    system._hier = {}
+    system._hier['component_tree'] = systemcomponents_global
+    system._hier['systems'] = SystemSet([system, system1, system2])
+    system._hier['equipment'] = EquipmentSet([equi11, equi12, equi13, equi21, equi22, equi23, equi3])
+    system._hier['indicators'] = {'EM1-11id': ind1, 'EM1-12id': ind1, 'EM2-13id': ind2,
                           'EM1-21id': ind1, 'EM1-22id': ind1, 'EM2-23id': ind2, 'EM2-3id': ind2}
-    system._update_components(system._components)
-    assert system._components == component_tree
+    system._update_components(system._hier['component_tree'])
+    assert system._hier['component_tree'] == component_tree
 
 
 def test_create_selection_dictionary(selection_dictionary, component_tree):
@@ -362,14 +363,15 @@ def test_map_comp_info(make_indicator_set):
     assert none_positions == {2, 3}
 
 
-def test_map_component_information(make_indicator_set, selection_dictionary):
-    system1 = System({'systemId': '1', 'internalId': 'SY1'})
-    system2 = System({'systemId': '2', 'internalId': 'SY2'})
-    system3 = System({'systemId': '3', 'internalId': 'SY3'})
+def test_map_component_information(make_indicator_set, selection_dictionary, mock_config):
+    s1 = System({'systemId': '1', 'internalId': 'SY1'})
+    s2 = System({'systemId': '2', 'internalId': 'SY2'})
+    s3 = System({'systemId': '3', 'internalId': 'SY3'})
     ind1 = make_indicator_set(propertyId=['1', '2'])
     ind2 = make_indicator_set(propertyId=['3', '4'])
-    system_set = SystemSet([system1, system2, system3])
-    system1._component_tree = {'id': '1',
+    system_set = SystemSet([s1, s2, s3])
+    s1._hierarchy = {}
+    s1._hierarchy['component_tree'] = {'id': '1',
                                'name': 'SY0-1',
                                'order': None,
                                'object_type': 'SYS',
@@ -432,7 +434,8 @@ def test_map_component_information(make_indicator_set, selection_dictionary):
                                                 'object_type': 'EQU',
                                                 'indicators': ind2,
                                                 'child_nodes': {}}}}
-    system2._component_tree = {'id': '2',
+    s2._hierarchy = {}
+    s2._hierarchy['component_tree'] = {'id': '2',
                                'name': 'SY0-2',
                                'order': None,
                                'object_type': 'SYS',
@@ -473,7 +476,8 @@ def test_map_component_information(make_indicator_set, selection_dictionary):
                                                                  'object_type': 'EQU',
                                                                  'indicators': ind2,
                                                                  'child_nodes': {}}}}}}
-    system3._component_tree = {'id': '3',
+    s3._hierarchy = {}
+    s3._hierarchy['component_tree'] = {'id': '3',
                                'name': 'SY0-3',
                                'order': None,
                                'object_type': 'SYS',
