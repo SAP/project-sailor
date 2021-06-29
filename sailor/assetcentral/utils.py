@@ -299,7 +299,9 @@ class AssetcentralEntity:
     def get_property_mapping(cls):
         """Return a mapping from assetcentral terminology to our terminology."""
         # TODO: remove method in future version
-        warnings.warn("get_property_mapping: deprecated - use 'get_available_properties' instead", FutureWarning)
+        msg = ("'get_property_mapping': deprecated. Method will be removed after September 01, 2021. " +
+               "use 'get_available_properties' instead")
+        warnings.warn(msg, FutureWarning)
         return cls._get_legacy_mapping()
 
     @classmethod
