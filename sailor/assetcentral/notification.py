@@ -3,8 +3,6 @@ Retrieve Notification information from AssetCentral.
 
 Classes are provided for individual Notifications as well as groups of Notifications (NotificationSet).
 """
-import logging
-
 import pandas as pd
 import plotnine as p9
 
@@ -15,9 +13,6 @@ from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRe
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.timestamps import _string_to_timestamp_parser_new
 from ..utils.plot_helper import _default_plot_theme
-
-LOG = logging.getLogger(__name__)
-LOG.addHandler(logging.NullHandler())
 
 _NOTIFICATION_FIELDS = [
     _AssetcentralField('id', 'notificationId', 'notificationID'),
