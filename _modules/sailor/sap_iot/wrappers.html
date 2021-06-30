@@ -187,7 +187,7 @@
 <span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_any_to_timestamp</span><span class="p">,</span> <span class="n">_calculate_nice_sub_intervals</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..assetcentral.indicators</span> <span class="kn">import</span> <span class="n">IndicatorSet</span>
+    <span class="kn">from</span> <span class="nn">..assetcentral.indicators</span> <span class="kn">import</span> <span class="n">IndicatorSet</span><span class="p">,</span> <span class="n">AggregatedIndicatorSet</span>
     <span class="kn">from</span> <span class="nn">..assetcentral.equipment</span> <span class="kn">import</span> <span class="n">EquipmentSet</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -231,6 +231,16 @@
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;There is no data in the dataframe for some of the indicators in the indicator set.&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">_unique_id</span><span class="o">=</span><span class="n">df_indicator_ids</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">indicator_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return all Indicators present in the TimeseriesDataset.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">equipment_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return all equipment present in the TimeseriesDataset.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span>
+
 <div class="viewcode-block" id="TimeseriesDataset.get_key_columns"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_key_columns">[docs]</a>    <span class="k">def</span> <span class="nf">get_key_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speaking_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return those columns of the data that identify the asset.</span>
@@ -254,9 +264,9 @@
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Currently only Equipment is supported as base object for timeseries data.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">speaking_names</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;model_name&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;model_id&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_id&#39;</span><span class="p">]</span></div>
+            <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;model_id&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="TimeseriesDataset.get_time_column"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_time_column">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_time_column</span><span class="p">():</span>
@@ -285,7 +295,7 @@
             <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span><span class="o">.</span><span class="n">_unique_id_to_names</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span><span class="o">.</span><span class="n">_unique_id_to_constituent_ids</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="TimeseriesDataset.get_index_columns"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_index_columns">[docs]</a>    <span class="k">def</span> <span class="nf">get_index_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speaking_names</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="TimeseriesDataset.get_index_columns"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_index_columns">[docs]</a>    <span class="k">def</span> <span class="nf">get_index_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speaking_names</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return the names of all index columns (key columns and time column).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_key_columns</span><span class="p">(</span><span class="n">speaking_names</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_column</span><span class="p">()]</span></div>
 
@@ -483,7 +493,8 @@
         <span class="k">return</span> <span class="n">new_wrapper</span><span class="p">,</span> <span class="n">fitted_scaler</span></div>
 
 <div class="viewcode-block" id="TimeseriesDataset.filter"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equipment_ids</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-               <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
+               <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">:</span> <span class="n">EquipmentSet</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">indicator_set</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">IndicatorSet</span><span class="p">,</span> <span class="n">AggregatedIndicatorSet</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return a new TimeseriesDataset extracted from an original data with filter parameters.</span>
 
 <span class="sd">        Only indicator data specified in filters are returned.</span>
@@ -491,11 +502,16 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        equipment_ids</span>
-<span class="sd">            Optional equipment set ids to filter timeseries data.</span>
+<span class="sd">            Optional equipment set ids to filter timeseries data. If equipment_set is also present this</span>
+<span class="sd">            argument is ignored.</span>
 <span class="sd">        start</span>
 <span class="sd">            Optional start time of timeseries data are returned.</span>
 <span class="sd">        end</span>
 <span class="sd">            Optional end time until timeseries data are returned.</span>
+<span class="sd">        equipment_set</span>
+<span class="sd">            Optional EquipmentSet to filter timeseries data. Takes precedence over equipment_ids.</span>
+<span class="sd">        indicator_set:</span>
+<span class="sd">            Optional IndicatorSet to filter dataset columns.</span>
 
 <span class="sd">        Example</span>
 <span class="sd">        -------</span>
@@ -506,20 +522,36 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">equipment_ids</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">equipment_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">equipment_ids</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">equipment_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">equipment_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">equipment</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">equipment_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Passing equipment_ids to the TimeseriesDataset filter is deprecated and will be removed &#39;</span>
+                          <span class="s1">&#39;after September 1 2021. Please use equipment_set as filter instead.&#39;</span><span class="p">,</span> <span class="ne">FutureWarning</span><span class="p">)</span>
+
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">_any_to_timestamp</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_start</span><span class="p">)</span>
         <span class="n">end_time</span> <span class="o">=</span> <span class="n">_any_to_timestamp</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_end</span><span class="p">)</span>
-        <span class="n">selected_equi_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">equipment_ids</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">equipment_set</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">equipment_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">equipment</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="n">equipment_set</span><span class="p">]</span>
+            <span class="n">selected_equi_set</span> <span class="o">=</span> <span class="n">equipment_set</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">equipment_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">equipment_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">equipment</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span><span class="p">]</span>
+            <span class="n">selected_equi_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">equipment_ids</span><span class="p">)</span>
 
         <span class="n">selected_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;(equipment_id in @equipment_ids) &amp;&#39;</span>
                                      <span class="s1">&#39;(timestamp &gt;= @start_time) &amp; (timestamp &lt; @end_time)&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">indicator_set</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected_column_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">indicator</span><span class="o">.</span><span class="n">_unique_id</span> <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">indicator_set</span><span class="p">]</span>
+            <span class="n">selected_df</span> <span class="o">=</span> <span class="n">selected_df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_index_columns</span><span class="p">()</span> <span class="o">+</span> <span class="n">selected_column_ids</span><span class="p">]</span>
+            <span class="n">selected_indicator_set</span> <span class="o">=</span> <span class="n">indicator_set</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">selected_indicator_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;The selected filters removed all data, the resulting TimeseriesDataset is empty.&#39;</span><span class="p">)</span>
         <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Filtered Dataset contains </span><span class="si">%s</span><span class="s1"> rows.&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_df</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="n">TimeseriesDataset</span><span class="p">(</span><span class="n">selected_df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span><span class="p">,</span> <span class="n">selected_equi_set</span><span class="p">,</span>
+        <span class="k">return</span> <span class="n">TimeseriesDataset</span><span class="p">(</span><span class="n">selected_df</span><span class="p">,</span> <span class="n">selected_indicator_set</span><span class="p">,</span> <span class="n">selected_equi_set</span><span class="p">,</span>
                                  <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_normalized</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TimeseriesDataset.aggregate"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>

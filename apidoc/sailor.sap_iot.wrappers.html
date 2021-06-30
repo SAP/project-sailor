@@ -241,15 +241,18 @@ aggregation_function.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sailor.sap_iot.wrappers.TimeseriesDataset.filter">
-<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">equipment_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.filter" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">equipment_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equipment_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a new TimeseriesDataset extracted from an original data with filter parameters.</p>
 <p>Only indicator data specified in filters are returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>equipment_ids</strong> (<em>Iterable</em><em>[</em><em>str</em><em>]</em>) – Optional equipment set ids to filter timeseries data.</p></li>
+<li><p><strong>equipment_ids</strong> (<em>Iterable</em><em>[</em><em>str</em><em>]</em>) – Optional equipment set ids to filter timeseries data. If equipment_set is also present this
+argument is ignored.</p></li>
 <li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime</em><em>]</em>) – Optional start time of timeseries data are returned.</p></li>
 <li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime</em><em>]</em>) – Optional end time until timeseries data are returned.</p></li>
+<li><p><strong>equipment_set</strong> (<a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet"><em>EquipmentSet</em></a>) – Optional EquipmentSet to filter timeseries data. Takes precedence over equipment_ids.</p></li>
+<li><p><strong>indicator_set</strong> (<em>Union</em><em>[</em><a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.IndicatorSet" title="sailor.assetcentral.indicators.IndicatorSet"><em>IndicatorSet</em></a><em>, </em><a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.AggregatedIndicatorSet" title="sailor.assetcentral.indicators.AggregatedIndicatorSet"><em>AggregatedIndicatorSet</em></a><em>]</em>) – Optional IndicatorSet to filter dataset columns.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -285,6 +288,11 @@ data set ‘my_indicator_data’:</p>
 <dt class="sig sig-object py" id="sailor.sap_iot.wrappers.TimeseriesDataset.get_index_columns">
 <span class="sig-name descname"><span class="pre">get_index_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">speaking_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/wrappers.html#TimeseriesDataset.get_index_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.get_index_columns" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the names of all index columns (key columns and time column).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -403,6 +411,18 @@ returned by this method will be rendered in jupyter notebooks, but can also be f
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">my_indicator_data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;2020-07-02&#39;</span><span class="p">,</span><span class="s1">&#39;2020-09-01&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sailor.sap_iot.wrappers.TimeseriesDataset.equipment_set">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">equipment_set</span></span><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.equipment_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all equipment present in the TimeseriesDataset.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sailor.sap_iot.wrappers.TimeseriesDataset.indicator_set">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">indicator_set</span></span><a class="headerlink" href="#sailor.sap_iot.wrappers.TimeseriesDataset.indicator_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all Indicators present in the TimeseriesDataset.</p>
 </dd></dl>
 
 </dd></dl>
