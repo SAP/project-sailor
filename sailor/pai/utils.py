@@ -3,8 +3,6 @@
 import logging
 import warnings
 
-import pandas as pd
-
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.config import SailorConfig
 from ..utils.utils import DataNotFoundWarning
@@ -37,6 +35,7 @@ def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
     if len(result) == 0:
         warnings.warn(DataNotFoundWarning(), stacklevel=2)
     return result
+
 
 def _pai_application_url():
     """Return the Pai application URL from the SailorConfig."""

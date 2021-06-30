@@ -3,12 +3,10 @@ Retrieve Alert information from the alert re-use service.
 
 """
 
-import pandas as pd
-import plotnine as p9
 
 from .constants import VIEW_ALERTS
 from .utils import _fetch_data, PaiEntity, _pai_application_url
-from ..assetcentral.utils import _add_properties, _parse_filter_parameters, ResultSet, _apply_filters_post_request
+from ..assetcentral.utils import _add_properties, _parse_filter_parameters, ResultSet
 from ..utils.timestamps import _odata_to_timestamp_parser
 
 
@@ -16,14 +14,14 @@ from ..utils.timestamps import _odata_to_timestamp_parser
 class Alert(PaiEntity):
     """PAI Alert Object."""
 
-    #Properties (in PAI terminology) are: 
-    #AlertId, AlertType, AlertTypeDescription, Category, ChangedBy, ChangedOn, Count, CountryID, 
-    #CreatedBy, CreatedOn, CustomProperty, Description, EquipmentDescription, EquipmentID, EquipmentName, 
+    #Properties (in PAI terminology) are:
+    #AlertId, AlertType, AlertTypeDescription, Category, ChangedBy, ChangedOn, Count, CountryID,
+    #CreatedBy, CreatedOn, CustomProperty, Description, EquipmentDescription, EquipmentID, EquipmentName,
     #ErrorCodeDescription, ErrorCodeID, FunctionalLocationID, FunctionalLocationName, FunctionalLocationDescription,
-    #IndicatorDescription, IndicatorGroupID, IndicatorGroupName, IndicatorID, IndicatorName, LastOccuredOn, 
-    #MaintenancePlant, ModelDescription, ModelID, ModelName, NotificationId, OperatorID, OperatorName, 
+    #IndicatorDescription, IndicatorGroupID, IndicatorGroupName, IndicatorID, IndicatorName, LastOccuredOn,
+    #MaintenancePlant, ModelDescription, ModelID, ModelName, NotificationId, OperatorID, OperatorName,
     #PlannerGroup, PlanningPlant, Processor, RefAlertTypeId, SerialNumber, SeverityCode, Source, StatusCode,
-    #TemplateID, TemplateName, TopEquipmentDescription, TopEquipmentID, TopEquipmentName, TopFunctionalLocationID, 
+    #TemplateID, TemplateName, TopEquipmentDescription, TopEquipmentID, TopEquipmentName, TopFunctionalLocationID,
     #TopFunctionalLocationName, TopFunctionalLocationDescription, TriggeredOn
 
     @classmethod
@@ -32,19 +30,19 @@ class Alert(PaiEntity):
         return {
             'id': ('AlertId', None, None, None),
             'type': ('AlertType', None, None, None),
-            'type_description': ('AlertTypeDescription', None,None,None),
+            'type_description': ('AlertTypeDescription', None, None, None),
             'category': ('Category', None,None,None),
-            'changed_by': ('ChangedBy',None, None, None),
-            'changed_on': ('ChangedOn', _odata_to_timestamp_parser('ChangedOn', unit = 's'),None,None),
+            'changed_by': ('ChangedBy', None, None, None),
+            'changed_on': ('ChangedOn', _odata_to_timestamp_parser('ChangedOn', unit = 's'), None, None),
             'count': ('Count', None, None, None),
-            'country_id': ('CountryID', None,None,None),
+            'country_id': ('CountryID', None, None, None),
             'created_by': ('CreatedBy', None, None, None),
             'created_on': ('CreatedOn', _odata_to_timestamp_parser('CreatedOn', unit = 's'), None, None),
-            'custom_property': ('CustomProperty', None, None, None), 
-            'description': ('Description', None,None,None),
-            'equipment_description' : ('EquipmentDescription', None, None, None),
-            'equipment_id': ('EquipmentID', None,None,None),
-            'equipment_name': ('EquipmentName', None,None,None),
+            'custom_property': ('CustomProperty', None, None, None),
+            'description': ('Description', None, None, None),
+            'equipment_description': ('EquipmentDescription', None, None, None),
+            'equipment_id': ('EquipmentID', None, None, None),
+            'equipment_name': ('EquipmentName', None, None, None),
             'error_code_description': ('ErrorCodeDescription', None, None, None),
             'error_code_id': ('ErrorCodeID', None, None, None),
             'functional_location_id': ('FunctionalLocationID', None, None, None),
@@ -58,29 +56,29 @@ class Alert(PaiEntity):
             'last_occured_on': ('LastOccuredOn', _odata_to_timestamp_parser('CreatedOn', unit = 's'), None, None),
             'maintenance_plant': ('MaintenancePlant', None, None, None),
             'model_description': ('ModelDescription', None, None, None),
-            'model_id' : ('ModelID', None,None,None),
-            'model_name' : ('ModelName', None,None,None),
-            'notification_id' : ('NotificationId', None,None,None),
-            'operator_id' : ('OperatorID', None,None,None),
-            'operator_name' : ('OperatorName', None,None,None),
-            'planner_group': ('PlannerGroup', None,None,None),
-            'planning_plant': ('PlanningPlant', None,None,None),
-            'processor': ('Processor', None,None,None),
-            'ref_alert_type_id': ('RefAlertTypeId', None,None,None),
-            'serial_number': ('SerialNumber', None,None,None),
-            'severity_code': ('SeverityCode', None,None,None),
-            'source': ('Source', None,None,None),
-            'template_id': ('TemplateID', None,None,None),
-            'status_code': ('StatusCode', None,None,None),
-            'template_id': ('TemplateID', None,None,None),
-            'template_name': ('TemplateName', None,None,None),
-            'top_equipment_description': ('TopEquipmentDescription', None,None,None),
-            'top_equipment_id': ('TopEquipmentID', None,None,None),
-            'top_equipment_name': ('TopEquipmentName', None,None,None),
-            'top_functional_location_id': ('TopFunctionalLocationID', None,None,None),
-            'top_functional_location_name': ('TopFunctionalLocationName', None,None,None),
-            'top_functional_location_description': ('TopFunctionalLocationDescription', None,None,None),
-            'triggered_on': ('TriggeredOn', _odata_to_timestamp_parser('TriggeredOn', unit = 's'),None,None)
+            'model_id': ('ModelID', None, None, None),
+            'model_name': ('ModelName', None, None, None),
+            'notification_id': ('NotificationId', None, None, None),
+            'operator_id': ('OperatorID', None, None, None),
+            'operator_name': ('OperatorName', None, None, None),
+            'planner_group': ('PlannerGroup', None, None, None),
+            'planning_plant': ('PlanningPlant', None, None, None),
+            'processor': ('Processor', None, None, None),
+            'ref_alert_type_id': ('RefAlertTypeId', None, None, None),
+            'serial_number': ('SerialNumber', None, None, None),
+            'severity_code': ('SeverityCode', None, None, None),
+            'source': ('Source', None, None, None),
+            'template_id': ('TemplateID', None, None, None),
+            'status_code': ('StatusCode', None, None, None),
+            'template_id': ('TemplateID', None, None, None),
+            'template_name': ('TemplateName', None, None, None),
+            'top_equipment_description': ('TopEquipmentDescription', None, None, None),
+            'top_equipment_id': ('TopEquipmentID', None, None, None),
+            'top_equipment_name': ('TopEquipmentName', None, None, None),
+            'top_functional_location_id': ('TopFunctionalLocationID', None, None, None),
+            'top_functional_location_name': ('TopFunctionalLocationName', None, None, None),
+            'top_functional_location_description': ('TopFunctionalLocationDescription', None, None, None),
+            'triggered_on': ('TriggeredOn', _odata_to_timestamp_parser('TriggeredOn', unit='s'), None, None)
         }
 
 
@@ -93,6 +91,7 @@ class AlertSet(ResultSet):
             'by': 'type',
         },
     }
+
 
 def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
     """
