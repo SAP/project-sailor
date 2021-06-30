@@ -6,7 +6,8 @@ import pytest
 from sailor.assetcentral.equipment import Equipment
 from sailor.assetcentral.utils import (
     AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity, ResultSet,
-    _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data)
+    _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data,
+    _add_properties_new)
 
 
 class TestAssetcentralEntity:
@@ -39,7 +40,17 @@ class TestAssetcentralEntity:
         for class_ in classes:
             assert class_.get_available_properties()
 
-    #TODO: add get extractor test
+    def test_integration_with_fields(self):
+        def get_extractor(value):
+            return pow(value, 2)
+        fields = [_AssetcentralField('our_name', 'their_name_get', 'their_name_put', get_extractor=get_extractor)]
+
+        @_add_properties_new
+        class FieldTestEntity(AssetcentralEntity):
+            _field_map = {f.our_name: f for f in fields}
+        entity = FieldTestEntity({'their_name_get': 9})
+
+        assert entity.our_name == 81
 
 
 class TestAssetcentralRequest:

@@ -1,4 +1,3 @@
-from sailor.assetcentral.notification import Notification
 from unittest.mock import patch, Mock, call
 
 import pytest
