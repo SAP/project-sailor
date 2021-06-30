@@ -14,15 +14,15 @@ from ..utils.timestamps import _odata_to_timestamp_parser
 class Alert(PaiEntity):
     """PAI Alert Object."""
 
-    #Properties (in PAI terminology) are:
-    #AlertId, AlertType, AlertTypeDescription, Category, ChangedBy, ChangedOn, Count, CountryID,
-    #CreatedBy, CreatedOn, CustomProperty, Description, EquipmentDescription, EquipmentID, EquipmentName,
-    #ErrorCodeDescription, ErrorCodeID, FunctionalLocationID, FunctionalLocationName, FunctionalLocationDescription,
-    #IndicatorDescription, IndicatorGroupID, IndicatorGroupName, IndicatorID, IndicatorName, LastOccuredOn,
-    #MaintenancePlant, ModelDescription, ModelID, ModelName, NotificationId, OperatorID, OperatorName,
-    #PlannerGroup, PlanningPlant, Processor, RefAlertTypeId, SerialNumber, SeverityCode, Source, StatusCode,
-    #TemplateID, TemplateName, TopEquipmentDescription, TopEquipmentID, TopEquipmentName, TopFunctionalLocationID,
-    #TopFunctionalLocationName, TopFunctionalLocationDescription, TriggeredOn
+    # Properties (in PAI terminology) are:
+    # AlertId, AlertType, AlertTypeDescription, Category, ChangedBy, ChangedOn, Count, CountryID,
+    # CreatedBy, CreatedOn, CustomProperty, Description, EquipmentDescription, EquipmentID, EquipmentName,
+    # ErrorCodeDescription, ErrorCodeID, FunctionalLocationID, FunctionalLocationName, FunctionalLocationDescription,
+    # IndicatorDescription, IndicatorGroupID, IndicatorGroupName, IndicatorID, IndicatorName, LastOccuredOn,
+    # MaintenancePlant, ModelDescription, ModelID, ModelName, NotificationId, OperatorID, OperatorName,
+    # lannerGroup, PlanningPlant, Processor, RefAlertTypeId, SerialNumber, SeverityCode, Source, StatusCode,
+    # TemplateID, TemplateName, TopEquipmentDescription, TopEquipmentID, TopEquipmentName, TopFunctionalLocationID,
+    # TopFunctionalLocationName, TopFunctionalLocationDescription, TriggeredOn
 
     @classmethod
     def get_property_mapping(cls):
@@ -31,13 +31,13 @@ class Alert(PaiEntity):
             'id': ('AlertId', None, None, None),
             'type': ('AlertType', None, None, None),
             'type_description': ('AlertTypeDescription', None, None, None),
-            'category': ('Category', None,None,None),
+            'category': ('Category', None, None, None),
             'changed_by': ('ChangedBy', None, None, None),
-            'changed_on': ('ChangedOn', _odata_to_timestamp_parser('ChangedOn', unit = 's'), None, None),
+            'changed_on': ('ChangedOn', _odata_to_timestamp_parser('ChangedOn', unit='s'), None, None),
             'count': ('Count', None, None, None),
             'country_id': ('CountryID', None, None, None),
             'created_by': ('CreatedBy', None, None, None),
-            'created_on': ('CreatedOn', _odata_to_timestamp_parser('CreatedOn', unit = 's'), None, None),
+            'created_on': ('CreatedOn', _odata_to_timestamp_parser('CreatedOn', unit='s'), None, None),
             'custom_property': ('CustomProperty', None, None, None),
             'description': ('Description', None, None, None),
             'equipment_description': ('EquipmentDescription', None, None, None),
@@ -53,7 +53,7 @@ class Alert(PaiEntity):
             'indicator_group_name': ('IndicatorGroupName', None, None, None),
             'indicator_id': ('IndicatorID', None, None, None),
             'indicator_name': ('IndicatorName', None, None, None),
-            'last_occured_on': ('LastOccuredOn', _odata_to_timestamp_parser('CreatedOn', unit = 's'), None, None),
+            'last_occured_on': ('LastOccuredOn', _odata_to_timestamp_parser('CreatedOn', unit='s'), None, None),
             'maintenance_plant': ('MaintenancePlant', None, None, None),
             'model_description': ('ModelDescription', None, None, None),
             'model_id': ('ModelID', None, None, None),
@@ -119,11 +119,11 @@ def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
     unbreakable_filters, breakable_filters = \
         _parse_filter_parameters(kwargs, extended_filters, Alert.get_property_mapping())
 
-    endpoint_url =  _pai_application_url() + VIEW_ALERTS
+    endpoint_url = _pai_application_url() + VIEW_ALERTS
     objects = []
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     for odata_result in object_list:
         for element in odata_result['d']['results']:
             objects.append(element)
     return AlertSet([Alert(obj) for obj in objects],
-                           {'filters': kwargs, 'extended_filters': extended_filters})
+                    {'filters': kwargs, 'extended_filters': extended_filters})
