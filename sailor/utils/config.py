@@ -14,7 +14,7 @@ from .utils import DataNotFoundWarning
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
-CONFIG_PROPERTIES = ('asset_central', 'sap_iot')
+CONFIG_PROPERTIES = ('asset_central', 'sap_iot', 'pai')
 
 
 @contextmanager
