@@ -85,7 +85,9 @@ class Notification(AssetcentralEntity):
     def update(self, **kwargs) -> 'Notification':
         """Write the current state of this object to AssetCentral with updated values supplied.
 
-        After the successful update in the remote system this object reflects the updated state.
+        After the update in the remote system was successful, this object reflects the updated state.
+
+        Accepts keyword arguments which names correspond to the available properties.
 
         Example
         -------
@@ -94,6 +96,11 @@ class Notification(AssetcentralEntity):
             notf2 = notf.update(notification_type='M1')
             assert notf.notification_type == 'M1'
             assert notf2 == notf
+
+        Returns
+        -------
+        Notification
+            self
 
         See Also
         --------
@@ -263,13 +270,20 @@ def _create_or_update_notification(request, method) -> Notification:
 def create_notification(**kwargs) -> Notification:
     """Create a new notification.
 
-    Accepts keyword arguments which names correspond to the available properties.
+    Parameters
+    ----------
+    **kwargs
+        Keyword arguments which names correspond to the available properties.
 
-    Examples
-    --------
-    >>> notf = create_notification({'equipment_id': '123', 'short_description': 'test'})
-    >>> notf = create_notification(equipment_id='123', short_description='test')
-    >>> notf = create_notification({'equipment_id': '123'}, short_description='test')
+    Returns
+    -------
+    Notification
+        A new notification object as retrieved from AssetCentral after the create succeeded.
+
+    Example
+    -------
+    >>> notf = create_notification(equipment_id='123', short_description='test',
+    ...                            notification_type='M2', status='NEW', priority=5)
     """
     request = _AssetcentralWriteRequest(Notification._field_map)
     request.insert_user_input(kwargs, forbidden_fields=['id'])
@@ -282,17 +296,19 @@ def update_notification(notification: Notification, **kwargs) -> Notification:
     Write the current state of the given notification object to AssetCentral with updated values supplied.
     This equals a PUT request in the traditional REST programming model.
 
-    Accepts keyword arguments which names correspond to the available properties.
+    Parameters
+    ----------
+    **kwargs
+        Keyword arguments which names correspond to the available properties.
 
     Returns
     -------
-    A new notification object as retrieved from AssetCentral after the update succeeded.
+    Notification
+        A new notification object as retrieved from AssetCentral after the update succeeded.
 
     Examples
     --------
-    >>> notf = update_notification(notf, {'notification_type': 'M1', 'short_description': 'test'})
-    >>> notf = update_notification(notf, notification_type='M1', short_description='test')
-    >>> notf = update_notification(notf, {'notification_type': 'M1'}, short_description='test')
+    >>> notf = update_notification(notf, status='IPR', long_description='hello world')
     """
     request = _AssetcentralWriteRequest.from_object(notification)
     request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])

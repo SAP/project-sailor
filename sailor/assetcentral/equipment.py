@@ -222,13 +222,9 @@ class Equipment(AssetcentralEntity):
     def create_notification(self, **kwargs) -> Notification:
         """Create a new notification for this equipment.
 
-        Accepts keyword arguments which names correspond to the available properties.
-
-        Examples
+        See Also
         --------
-        >>> notf = eq.create_notification({'short_description': 'test', 'notification_type': 'M2'})
-        >>> notf = eq.create_notification(short_description='test', notification_type='M2')
-        >>> notf = eq.create_notification({'short_description': 'test'}, notification_type='M2')
+        :meth:`sailor.assetcentral.notification.create_notification`
         """
         request = _AssetcentralWriteRequest(Notification._field_map, equipment_id=self.id, location_id=self.location.id)
         request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
