@@ -74,7 +74,7 @@ def test_interpolation_happy_path(simple_dataset):
     ('bfill', False, True)
 ])
 def test_interpolate_missing_data(simple_dataset, method, expect_ffill, expect_bfill):
-    test_dataset = simple_dataset.filter(['equipment_id_1'])
+    test_dataset = simple_dataset.filter(equipment_set=simple_dataset.equipment_set.filter(id='equipment_id_1'))
     actual_start = test_dataset._df.timestamp.min()
     actual_end = test_dataset._df.timestamp.max()
 
@@ -102,6 +102,7 @@ def test_interpolate_missing_data(simple_dataset, method, expect_ffill, expect_b
         assert not interpolated_dataset._df[interpolated_dataset._df.timestamp > actual_end].isnull().any().any()
 
 
+@pytest.mark.filterwarnings('ignore:Passing equipment_ids to the TimeseriesDataset filter is deprecated')
 def test_filter_equipment_id_only(simple_dataset):
     filtered_dataset = simple_dataset.filter(equipment_ids=['equipment_id_1'])
 
@@ -120,6 +121,7 @@ def test_filter_equipment_set_only(simple_dataset):
     assert filtered_dataset.indicator_set == simple_dataset.indicator_set
 
 
+@pytest.mark.filterwarnings('ignore:Passing equipment_ids to the TimeseriesDataset filter is deprecated')
 def test_filter_equipment_set_and_id(simple_dataset):
     filtered_dataset = simple_dataset.filter(equipment_ids=['equipment_id_2'],
                                              equipment_set=simple_dataset.equipment_set.filter(id='equipment_id_1'))

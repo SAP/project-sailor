@@ -359,7 +359,7 @@ class TimeseriesDataset(object):
             equipment_ids = [equipment_ids]
 
         if equipment_ids is not None:
-            warnings.warn('Passing equipment_ids to the filter is deprecated and will be removed'
+            warnings.warn('Passing equipment_ids to the TimeseriesDataset filter is deprecated and will be removed '
                           'after September 1 2021. Please use equipment_set as filter instead.', FutureWarning)
 
         start_time = _any_to_timestamp(start, default=self.nominal_data_start)
