@@ -1,6 +1,7 @@
 """
 Retrieve Alert information from the alert re-use service.
 
+Classes are provided for individual Alert as well as groups of Alerts (AlertSet).
 """
 
 
