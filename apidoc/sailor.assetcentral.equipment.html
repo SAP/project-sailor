@@ -207,6 +207,21 @@
 </dd>
 </dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.create_notification">
+<span class="sig-name descname"><span class="pre">create_notification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.create_notification"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.create_notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new notification for this equipment.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.create_notification" title="sailor.assetcentral.notification.create_notification"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.assetcentral.notification.create_notification()</span></code></a></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification" title="sailor.assetcentral.notification.Notification">sailor.assetcentral.notification.Notification</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.find_equipment_indicators">
 <span class="sig-name descname"><span class="pre">find_equipment_indicators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.find_equipment_indicators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.find_equipment_indicators" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all Indicators assigned to this Equipment.</p>
@@ -303,6 +318,12 @@ to this equipment.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.get_available_properties">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_available_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.get_available_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.get_available_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the available Assetcentral properties for this class.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.get_indicator_data">
 <span class="sig-name descname"><span class="pre">get_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.get_indicator_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.</p>
@@ -331,12 +352,6 @@ my_equipment.get_indicator_data(‘2020-06-01’, ‘2020-12-05’)</p>
 <p class="admonition-title">Note</p>
 <p>If <cite>indicator_set</cite> is not specified, all indicators associated to this equipment are used.</p>
 </div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.get_property_mapping">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_property_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.get_property_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.get_property_mapping" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a mapping from assetcentral terminology to our terminology.</p>
 </dd></dl>
 
 <dl class="py property">

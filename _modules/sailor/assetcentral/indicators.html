@@ -187,9 +187,13 @@
     <span class="c1"># uomdescription, dimension, dimensionDesc, pstid, uom</span>
     <span class="c1"># TODO update field list - I think e.g. template id is also part of hte API response</span>
 
-<div class="viewcode-block" id="Indicator.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.Indicator.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Indicator.get_available_properties"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.Indicator.get_available_properties">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_available_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>  <span class="c1"># noqa: D102</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_get_legacy_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="c1"># TODO: remove method in future version after field templates are in used</span>
         <span class="c1"># TODO: There is still some weird stuff here, e.g. UOM vs. uom or convertedXXX</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;propertyId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
@@ -207,7 +211,7 @@
             <span class="s1">&#39;uom_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;UOMDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;_liot_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;propertyId&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="s1">&#39;I_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;propertyId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;_liot_group_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;pstid&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="s1">&#39;IG_&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pstid&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="p">}</span></div>
+        <span class="p">}</span>
 
     <span class="nd">@cached_property</span>
     <span class="k">def</span> <span class="nf">_unique_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

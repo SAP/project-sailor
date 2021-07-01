@@ -195,6 +195,12 @@
   <div class="section" id="module-sailor.assetcentral.utils">
 <span id="sailor-assetcentral-utils"></span><h1><a class="reference internal" href="#module-sailor.assetcentral.utils" title="sailor.assetcentral.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a><a class="headerlink" href="#module-sailor.assetcentral.utils" title="Permalink to this headline">¶</a></h1>
 <p>Module for various utility functions, in particular those related to fetching data from remote oauth endpoints.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="sailor.assetcentral.utils.AssetcentralRequestValidationError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.utils.</span></span><span class="sig-name descname"><span class="pre">AssetcentralRequestValidationError</span></span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#AssetcentralRequestValidationError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.utils.AssetcentralRequestValidationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="sailor.assetcentral.utils.AssetcentralEntity">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.utils.</span></span><span class="sig-name descname"><span class="pre">AssetcentralEntity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#AssetcentralEntity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.utils.AssetcentralEntity" title="Permalink to this definition">¶</a></dt>
@@ -205,6 +211,18 @@
 <dd class="field-odd"><p><strong>ac_json</strong> (<em>dict</em>) – </p>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.assetcentral.utils.AssetcentralEntity.get_available_properties">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_available_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#AssetcentralEntity.get_available_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.utils.AssetcentralEntity.get_available_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the available Assetcentral properties for this class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.assetcentral.utils.AssetcentralEntity.get_property_mapping">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_property_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#AssetcentralEntity.get_property_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.utils.AssetcentralEntity.get_property_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a mapping from assetcentral terminology to our terminology.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">

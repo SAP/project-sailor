@@ -185,9 +185,13 @@
     <span class="c1"># assetCoreEquipmentId, operator, internalId, modelId, plant, workCenter, basicStartDate, basicEndDate,</span>
     <span class="c1"># actualStartDate, actualEndDate, personResponsible</span>
 
-<div class="viewcode-block" id="Workorder.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.Workorder.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Workorder.get_available_properties"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.Workorder.get_available_properties">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_available_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>  <span class="c1"># noqa: D102</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_get_legacy_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="c1"># TODO: remove method in future version after field templates are in used</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;workOrderID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;internalId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
@@ -203,7 +207,7 @@
             <span class="s1">&#39;status_text&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;statusDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;workOrderType&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;type_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;workOrderTypeDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="p">}</span></div></div>
+        <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="WorkorderSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.WorkorderSet">[docs]</a><span class="k">class</span> <span class="nc">WorkorderSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
@@ -267,7 +271,7 @@
 <span class="sd">        find_workorders(extended_filters=[&#39;start_date &gt;= &quot;2020-01-01&quot;&#39;])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \
-        <span class="n">_parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Workorder</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
+        <span class="n">_parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Workorder</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">())</span>
 
     <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_WORKORDERS</span>
     <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>

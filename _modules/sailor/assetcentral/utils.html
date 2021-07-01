@@ -164,9 +164,10 @@
   <h1>Source code for sailor.assetcentral.utils</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Module for various utility functions, in particular those related to fetching data from remote oauth endpoints.&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterable</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">UserDict</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
 <span class="kn">import</span> <span class="nn">operator</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -313,7 +314,7 @@
 
 <span class="k">def</span> <span class="nf">_add_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Add AssetCentral properties to a class based on the property mapping defined in the class.&quot;&quot;&quot;</span>
-    <span class="n">property_map</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span>
+    <span class="n">property_map</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">our_name</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">property_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">their_name</span><span class="p">,</span> <span class="n">getter</span><span class="p">,</span> <span class="n">setter</span><span class="p">,</span> <span class="n">deleter</span> <span class="o">=</span> <span class="n">v</span>
 
@@ -451,6 +452,26 @@
 <div class="viewcode-block" id="AssetcentralEntity"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity">[docs]</a><span class="k">class</span> <span class="nc">AssetcentralEntity</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Common base class for Assetcentral entities.&quot;&quot;&quot;</span>
 
+    <span class="n">_field_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="AssetcentralEntity.get_available_properties"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity.get_available_properties">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_available_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the available Assetcentral properties for this class.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">([</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_field_map</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">is_exposed</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="AssetcentralEntity.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
+        <span class="c1"># TODO: remove method in future version</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&#39;get_property_mapping&#39;: deprecated. Method will be removed after September 01, 2021. &quot;</span> <span class="o">+</span>
+               <span class="s2">&quot;use &#39;get_available_properties&#39; instead&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="ne">FutureWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_get_legacy_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span><span class="p">:</span> <span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">their_name_get</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_field_map</span><span class="o">.</span><span class="n">values</span><span class="p">()}</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ac_json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new entity.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">ac_json</span>
@@ -511,7 +532,7 @@
 
 <div class="viewcode-block" id="ResultSet.as_df"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.as_df">[docs]</a>    <span class="k">def</span> <span class="nf">as_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return all information on the objects stored in the ResultSet as a pandas dataframe.&quot;&quot;&quot;</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element_type</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">columns</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element_type</span><span class="o">.</span><span class="n">get_available_properties</span><span class="p">()</span> <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">columns</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
             <span class="n">prop</span><span class="p">:</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">columns</span>
         <span class="p">})</span></div>
@@ -572,6 +593,121 @@
     <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_AssetcentralWriteRequest</span><span class="p">(</span><span class="n">UserDict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Used for building the dictionary for create and update requests.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_map</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field_map</span> <span class="o">=</span> <span class="n">field_map</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">insert_user_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">,</span> <span class="n">forbidden_fields</span><span class="o">=</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;Validate user input and update request if successful.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">forbidden_fields</span><span class="p">:</span>
+            <span class="n">their_name_put</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_map</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">their_name_put</span>
+            <span class="n">offender</span> <span class="o">=</span> <span class="n">field_name</span> <span class="k">if</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">input_dict</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">offender</span> <span class="o">=</span> <span class="n">their_name_put</span> <span class="k">if</span> <span class="n">their_name_put</span> <span class="ow">in</span> <span class="n">input_dict</span> <span class="k">else</span> <span class="n">offender</span>
+            <span class="k">if</span> <span class="n">offender</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You cannot set &#39;</span><span class="si">{</span><span class="n">offender</span><span class="si">}</span><span class="s2">&#39; in this request.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validate that mandatory fields are set.&quot;&quot;&quot;</span>
+        <span class="n">missing_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_map</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">is_mandatory</span> <span class="ow">and</span> <span class="n">field</span><span class="o">.</span><span class="n">their_name_put</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">missing_keys</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AssetcentralRequestValidationError</span><span class="p">(</span>
+                <span class="s2">&quot;Error when creating request. Missing values for mandatory parameters.&quot;</span><span class="p">,</span> <span class="n">missing_keys</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transform item to AC API terminology before writing the underlying dict.</span>
+
+<span class="sd">        If a key cannot be found using the mapping no transformation is done.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">field_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">is_writable</span><span class="p">:</span>
+                <span class="n">field</span><span class="o">.</span><span class="n">put_setter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown name for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> parameter found: &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ac_entity</span><span class="p">:</span> <span class="n">AssetcentralEntity</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new request object using an existing AC object.&quot;&quot;&quot;</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">ac_entity</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">ac_entity</span><span class="o">.</span><span class="n">_field_map</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">field_map</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">is_writable</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">request</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">their_name_get</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Error when creating request object. Please try again. If the error persists &quot;</span>
+                           <span class="s2">&quot;please raise an issue with the developers including the stacktrace.&quot;</span>
+                           <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">==========================  Debug information ==========================&quot;</span>
+                           <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Could not find key &#39;</span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">their_name_get</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                           <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">AC entity keys: </span><span class="si">{</span><span class="n">raw</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">raw</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">their_name_get</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;raw keys for </span><span class="si">%s</span><span class="s2"> not known to mapping or deletelist:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">ac_entity</span><span class="p">),</span> <span class="n">raw</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">request</span>
+
+
+<div class="viewcode-block" id="AssetcentralRequestValidationError"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralRequestValidationError">[docs]</a><span class="k">class</span> <span class="nc">AssetcentralRequestValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>  <span class="c1"># noqa: D101 (self-explanatory)</span>
+    <span class="k">pass</span></div>
+
+
+<span class="k">class</span> <span class="nc">_AssetcentralField</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Specify a field in Assetcentral.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">our_name</span><span class="p">,</span> <span class="n">their_name_get</span><span class="p">,</span> <span class="n">their_name_put</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">get_extractor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">put_setter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">our_name</span> <span class="o">=</span> <span class="n">our_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">their_name_get</span> <span class="o">=</span> <span class="n">their_name_get</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">their_name_put</span> <span class="o">=</span> <span class="n">their_name_put</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_exposed</span> <span class="o">=</span> <span class="n">is_exposed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_writable</span> <span class="o">=</span> <span class="n">their_name_put</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_mandatory</span> <span class="o">=</span> <span class="n">is_mandatory</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="n">our_name</span><span class="p">,</span> <span class="n">their_name_get</span><span class="p">,</span> <span class="n">their_name_put</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_extractor</span> <span class="o">=</span> <span class="n">get_extractor</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_get_extractor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">put_setter</span> <span class="o">=</span> <span class="n">put_setter</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_put_setter</span>
+
+    <span class="k">def</span> <span class="nf">_default_put_setter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">payload</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">their_name_put</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_default_get_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span> <span class="nf">_nested_put_setter</span><span class="p">(</span><span class="o">*</span><span class="n">nested_names</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">next_dict</span> <span class="o">=</span> <span class="n">payload</span>
+        <span class="k">for</span> <span class="n">nested_name</span> <span class="ow">in</span> <span class="n">nested_names</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">next_dict</span> <span class="o">=</span> <span class="n">next_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">nested_name</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">next_dict</span><span class="p">[</span><span class="n">nested_names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">setter</span>
+
+
+<span class="k">def</span> <span class="nf">_add_properties_new</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add properties to the entity class based on the field template defined by the request mapper.&quot;&quot;&quot;</span>
+    <span class="c1"># This is the new function to be used for all AssetcentralEntities.</span>
+    <span class="c1"># TODO: remove this comment block once everything is refactored</span>
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_field_map</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+
+        <span class="c1"># the assignment of the default value (`field=field`)</span>
+        <span class="c1"># is necessary due to the closure rules in loops</span>
+        <span class="k">def</span> <span class="nf">getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">field</span><span class="o">.</span><span class="n">get_extractor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">their_name_get</span><span class="p">))</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">our_name</span><span class="p">,</span> <span class="nb">property</span><span class="p">(</span><span class="n">getter</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+    <span class="k">return</span> <span class="bp">cls</span>
 </pre></div>
 
            </div>

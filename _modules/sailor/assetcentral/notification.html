@@ -167,66 +167,112 @@
 
 <span class="sd">Classes are provided for individual Notifications as well as groups of Notifications (NotificationSet).</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">plotnine</span> <span class="k">as</span> <span class="nn">p9</span>
 
 <span class="kn">import</span> <span class="nn">sailor.assetcentral.equipment</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_NOTIFICATIONS</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span>\
-    <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_ac_application_url</span>
-<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">_AssetcentralWriteRequest</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span>
+                    <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_add_properties_new</span><span class="p">,</span> <span class="n">_nested_put_setter</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span>
+<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser_new</span>
 <span class="kn">from</span> <span class="nn">..utils.plot_helper</span> <span class="kn">import</span> <span class="n">_default_plot_theme</span>
 
+<span class="n">_NOTIFICATION_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;notificationId&#39;</span><span class="p">,</span> <span class="s1">&#39;notificationID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;notification_type&#39;</span><span class="p">,</span> <span class="s1">&#39;notificationType&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;short_description&#39;</span><span class="p">,</span> <span class="s1">&#39;shortDescription&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">put_setter</span><span class="o">=</span><span class="n">_nested_put_setter</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;shortDescription&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;priority&#39;</span><span class="p">,</span> <span class="s1">&#39;priority&#39;</span><span class="p">,</span> <span class="s1">&#39;priority&#39;</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">put_setter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span><span class="p">})),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;equipmentId&#39;</span><span class="p">,</span> <span class="s1">&#39;equipmentID&#39;</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;long_description&#39;</span><span class="p">,</span> <span class="s1">&#39;longDescription&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span>
+                       <span class="n">put_setter</span><span class="o">=</span><span class="n">_nested_put_setter</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;longDescription&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;breakdown&#39;</span><span class="p">,</span> <span class="s1">&#39;breakdown&#39;</span><span class="p">,</span> <span class="s1">&#39;breakdown&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">))),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;cause_id&#39;</span><span class="p">,</span> <span class="s1">&#39;causeID&#39;</span><span class="p">,</span> <span class="s1">&#39;causeID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;cause_description&#39;</span><span class="p">,</span> <span class="s1">&#39;causeDesc&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;cause_display_id&#39;</span><span class="p">,</span> <span class="s1">&#39;causeDisplayID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;effect_id&#39;</span><span class="p">,</span> <span class="s1">&#39;effectID&#39;</span><span class="p">,</span> <span class="s1">&#39;effectID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;effect_description&#39;</span><span class="p">,</span> <span class="s1">&#39;effectDesc&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;effect_display_id&#39;</span><span class="p">,</span> <span class="s1">&#39;effectDisplayID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;instruction_id&#39;</span><span class="p">,</span> <span class="s1">&#39;instructionID&#39;</span><span class="p">,</span> <span class="s1">&#39;instructionID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;instruction_title&#39;</span><span class="p">,</span> <span class="s1">&#39;instructionTitle&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;operator_id&#39;</span><span class="p">,</span> <span class="s1">&#39;operatorId&#39;</span><span class="p">,</span> <span class="s1">&#39;operator&#39;</span><span class="p">),</span>  <span class="c1"># setting &#39;operator&#39; has no effect</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;confirmed_failure_mode_id&#39;</span><span class="p">,</span> <span class="s1">&#39;confirmedFailureModeID&#39;</span><span class="p">,</span> <span class="s1">&#39;confirmedFailureModeID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;confirmed_failure_mode_description&#39;</span><span class="p">,</span> <span class="s1">&#39;confirmedFailureModeDesc&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;confirmed_failure_mode_name&#39;</span><span class="p">,</span> <span class="s1">&#39;confirmedFailureModeDisplayID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;end_date&#39;</span><span class="p">,</span> <span class="s1">&#39;endDate&#39;</span><span class="p">,</span> <span class="s1">&#39;endDate&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">()),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;equipmentName&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;functional_location_id&#39;</span><span class="p">,</span> <span class="s1">&#39;functionalLocationID&#39;</span><span class="p">,</span> <span class="s1">&#39;functionalLocationID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;location_id&#39;</span><span class="p">,</span> <span class="s1">&#39;locationId&#39;</span><span class="p">,</span> <span class="s1">&#39;locationID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;location_name&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;malfunction_end_date&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunctionEndDate&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunctionEndDate&#39;</span><span class="p">,</span>
+                       <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">()),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;malfunction_start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunctionStartDate&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunctionStartDate&#39;</span><span class="p">,</span>
+                       <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">()),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;model_id&#39;</span><span class="p">,</span> <span class="s1">&#39;modelId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;internalId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;notification_type_description&#39;</span><span class="p">,</span> <span class="s1">&#39;notificationTypeDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;priority_description&#39;</span><span class="p">,</span> <span class="s1">&#39;priorityDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;root_equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;rootEquipmentId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;root_equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;rootEquipmentName&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="s1">&#39;startDate&#39;</span><span class="p">,</span>
+                       <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">()),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;status_text&#39;</span><span class="p">,</span> <span class="s1">&#39;statusDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;system_failure_mode_id&#39;</span><span class="p">,</span> <span class="s1">&#39;systemProposedFailureModeID&#39;</span><span class="p">,</span> <span class="s1">&#39;systemProposedFailureModeID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;system_failure_mode_description&#39;</span><span class="p">,</span> <span class="s1">&#39;systemProposedFailureModeDesc&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;system_failure_mode_name&#39;</span><span class="p">,</span> <span class="s1">&#39;systemProposedFailureModeDisplayID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;user_failure_mode_id&#39;</span><span class="p">,</span> <span class="s1">&#39;proposedFailureModeID&#39;</span><span class="p">,</span> <span class="s1">&#39;proposedFailureModeID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;user_failure_mode_description&#39;</span><span class="p">,</span> <span class="s1">&#39;proposedFailureModeDesc&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;user_failure_mode_name&#39;</span><span class="p">,</span> <span class="s1">&#39;proposedFailureModeDisplayID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;isInternal&#39;</span><span class="p">,</span> <span class="s1">&#39;isInternal&#39;</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;createdBy&#39;</span><span class="p">,</span> <span class="s1">&#39;createdBy&#39;</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;creationDateTime&#39;</span><span class="p">,</span> <span class="s1">&#39;creationDateTime&#39;</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;lastChangedBy&#39;</span><span class="p">,</span> <span class="s1">&#39;lastChangedBy&#39;</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;lastChangeDateTime&#39;</span><span class="p">,</span> <span class="s1">&#39;lastChangeDateTime&#39;</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;progressStatus&#39;</span><span class="p">,</span> <span class="s1">&#39;progressStatus&#39;</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;progressStatusDescription&#39;</span><span class="p">,</span> <span class="s1">&#39;progressStatusDescription&#39;</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;coordinates&#39;</span><span class="p">,</span> <span class="s1">&#39;coordinates&#39;</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;assetCoreEquipmentId&#39;</span><span class="p">,</span> <span class="s1">&#39;assetCoreEquipmentId&#39;</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;operator&#39;</span><span class="p">,</span> <span class="s1">&#39;operator&#39;</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="p">]</span>
 
-<div class="viewcode-block" id="Notification"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.Notification">[docs]</a><span class="nd">@_add_properties</span>
+
+<div class="viewcode-block" id="Notification"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.Notification">[docs]</a><span class="nd">@_add_properties_new</span>
 <span class="k">class</span> <span class="nc">Notification</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral Notification Object.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Properties (in AC terminology) are: notificationId, shortDescription, status, statusDescription, notificationType,</span>
-    <span class="c1"># notificationTypeDescription, priority, priorityDescription, isInternal, createdBy, creationDateTime,</span>
-    <span class="c1"># lastChangedBy, lastChangeDateTime, longDescription, startDate, endDate, malfunctionStartDate, malfunctionEndDate,</span>
-    <span class="c1"># progressStatus, progressStatusDescription, equipmentId, equipmentName, rootEquipmentId, rootEquipmentName,</span>
-    <span class="c1"># locationId, breakdown, coordinates, source, operatorId, location, assetCoreEquipmentId, operator, internalId,</span>
-    <span class="c1"># modelId, proposedFailureModeID, proposedFailureModeDisplayID, proposedFailureModeDesc, confirmedFailureModeID,</span>
-    <span class="c1"># confirmedFailureModeDesc, confirmedFailureModeDisplayIDs, systemProposedFailureModeID,</span>
-    <span class="c1"># systemProposedFailureModeDesc, systemProposedFailureModeDisplayID, effectID, effectDisplayID, effectDesc,</span>
-    <span class="c1"># causeID, causeDisplayID, causeDesc, instructionID, instructionTitle</span>
+    <span class="n">_field_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span><span class="p">:</span> <span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">_NOTIFICATION_FIELDS</span><span class="p">}</span>
 
-<div class="viewcode-block" id="Notification.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.Notification.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;notificationId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;internalId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;short_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;shortDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;long_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;longDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;breakdown&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;breakdown&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># TODO: turn into boolean?</span>
+<div class="viewcode-block" id="Notification.update"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.Notification.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Notification&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Write the current state of this object to AssetCentral with updated values supplied.</span>
 
-            <span class="s1">&#39;confirmed_failure_mode_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;confirmedFailureModeID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;confirmed_failure_mode_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;confirmedFailureModeDesc&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;confirmed_failure_mode_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;confirmedFailureModeDisplayID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;end_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;endDate&#39;</span><span class="p">,</span> <span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="s1">&#39;endDate&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;equipmentId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;equipment_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;equipmentName&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;location_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;locationID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;location_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;malfunction_end_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;malfunctionEndDate&#39;</span><span class="p">,</span> <span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="s1">&#39;malfunctionEndDate&#39;</span><span class="p">),</span>
-                                     <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;malfunction_start_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;malfunctionStartDate&#39;</span><span class="p">,</span> <span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="s1">&#39;malfunctionStartDate&#39;</span><span class="p">),</span>
-                                       <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;notification_type&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;notificationType&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;notification_type_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;notificationTypeDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;priority_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;priorityDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;start_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;status_text&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;statusDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;system_failure_mode_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;systemProposedFailureModeID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;system_failure_mode_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;systemProposedFailureModeDesc&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;system_failure_mode_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;systemProposedFailureModeDisplayID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;user_failure_mode_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;proposedFailureModeID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;user_failure_mode_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;proposedFailureModeDesc&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;user_failure_mode_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;proposedFailureModeDisplayID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="p">}</span></div>
+<span class="sd">        After the update in the remote system was successful, this object reflects the updated state.</span>
+
+<span class="sd">        Accepts keyword arguments which names correspond to the available properties.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        .. code-block::</span>
+
+<span class="sd">            notf2 = notf.update(notification_type=&#39;M1&#39;)</span>
+<span class="sd">            assert notf.notification_type == &#39;M1&#39;</span>
+<span class="sd">            assert notf2 == notf</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Notification</span>
+<span class="sd">            self</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :meth:`update_notification`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">updated_obj</span> <span class="o">=</span> <span class="n">update_notification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">updated_obj</span><span class="o">.</span><span class="n">raw</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="Notification.plot_context"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.Notification.plot_context">[docs]</a>    <span class="k">def</span> <span class="nf">plot_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">window_before</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span> <span class="n">window_after</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -365,12 +411,72 @@
 <span class="sd">                           equipment_id=[&#39;id1&#39;, &#39;id2&#39;])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \
-        <span class="n">_parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Notification</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
+        <span class="n">_parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Notification</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">())</span>
 
     <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_NOTIFICATIONS</span>
     <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">NotificationSet</span><span class="p">([</span><span class="n">Notification</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">],</span>
                            <span class="p">{</span><span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;extended_filters&#39;</span><span class="p">:</span> <span class="n">extended_filters</span><span class="p">})</span></div>
+
+
+<span class="k">def</span> <span class="nf">_create_or_update_notification</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Notification</span><span class="p">:</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+    <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_NOTIFICATIONS</span>
+    <span class="n">oauth_client</span> <span class="o">=</span> <span class="n">get_oauth_client</span><span class="p">(</span><span class="s1">&#39;asset_central&#39;</span><span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">oauth_client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">find_notifications</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;notificationID&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Unexpected error when creating or updating the notification. Please try again.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="create_notification"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.create_notification">[docs]</a><span class="k">def</span> <span class="nf">create_notification</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Notification</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Create a new notification.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword arguments which names correspond to the available properties.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Notification</span>
+<span class="sd">        A new notification object as retrieved from AssetCentral after the create succeeded.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; notf = create_notification(equipment_id=&#39;123&#39;, short_description=&#39;test&#39;,</span>
+<span class="sd">    ...                            notification_type=&#39;M2&#39;, status=&#39;NEW&#39;, priority=5)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">_AssetcentralWriteRequest</span><span class="p">(</span><span class="n">Notification</span><span class="o">.</span><span class="n">_field_map</span><span class="p">)</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">insert_user_input</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">forbidden_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">_create_or_update_notification</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="update_notification"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.update_notification">[docs]</a><span class="k">def</span> <span class="nf">update_notification</span><span class="p">(</span><span class="n">notification</span><span class="p">:</span> <span class="n">Notification</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Notification</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Update an existing notification.</span>
+
+<span class="sd">    Write the current state of the given notification object to AssetCentral with updated values supplied.</span>
+<span class="sd">    This equals a PUT request in the traditional REST programming model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword arguments which names correspond to the available properties.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Notification</span>
+<span class="sd">        A new notification object as retrieved from AssetCentral after the update succeeded.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; notf = update_notification(notf, status=&#39;IPR&#39;, long_description=&#39;hello world&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">_AssetcentralWriteRequest</span><span class="o">.</span><span class="n">from_object</span><span class="p">(</span><span class="n">notification</span><span class="p">)</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">insert_user_input</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">forbidden_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_id&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">_create_or_update_notification</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;PUT&#39;</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

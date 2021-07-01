@@ -199,9 +199,13 @@
     <span class="c1"># description, descriptions[], gtin, brand, isFirmwareCompatible, templates[], classId, subclassId, adminData{},</span>
     <span class="c1"># sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]</span>
 
-<div class="viewcode-block" id="Model.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.Model.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Model.get_available_properties"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.Model.get_available_properties">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_available_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>  <span class="c1"># noqa: D102</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_get_legacy_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="c1"># TODO: remove method in future version after field templates are in used</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;modelId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
@@ -215,7 +219,7 @@
             <span class="s1">&#39;service_expiration_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;serviceExpirationDate&#39;</span><span class="p">,</span>
                                         <span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="s1">&#39;serviceExpirationDate&#39;</span><span class="p">,</span> <span class="s1">&#39;ms&#39;</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="s1">&#39;template_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;templateId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="p">}</span></div>
+        <span class="p">}</span>
 
 <div class="viewcode-block" id="Model.find_equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.model.html#sailor.assetcentral.Model.find_equipment">[docs]</a>    <span class="k">def</span> <span class="nf">find_equipment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EquipmentSet</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -262,7 +266,7 @@
         <span class="c1"># AC-BUG: this api doesn&#39;t support filters (thank you AC) so we have to fetch all of them and then filter below</span>
         <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
         <span class="n">filtered_objects</span> <span class="o">=</span> <span class="n">_apply_filters_post_request</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span>
-                                                       <span class="n">Indicator</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
+                                                       <span class="n">Indicator</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="n">IndicatorSet</span><span class="p">([</span><span class="n">Indicator</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">filtered_objects</span><span class="p">])</span></div></div>
 
@@ -324,7 +328,7 @@
 <span class="sd">        find_models(extended_filters=[&#39;model_expiration_date &lt; &quot;2018-01-01&quot;&#39;])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \
-        <span class="n">_parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Model</span><span class="o">.</span><span class="n">get_property_mapping</span><span class="p">())</span>
+        <span class="n">_parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Model</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">())</span>
 
     <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_MODELS</span>
     <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
