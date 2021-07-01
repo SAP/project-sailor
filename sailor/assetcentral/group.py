@@ -20,7 +20,12 @@ class Group(AssetcentralEntity):
     """AssetCentral Location Object."""
 
     @classmethod
-    def get_property_mapping(cls):
+    def get_available_properties(cls):  # noqa: D102
+        return cls._get_legacy_mapping().keys()
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        # TODO: remove method in future version after field templates are in used
         """Return a mapping from assetcentral terminology to our terminology."""
         return {
             'id': ('id', None, None, None),
@@ -215,5 +220,5 @@ def find_groups(*, extended_filters=(), **kwargs) -> GroupSet:
     object_list = _fetch_data(endpoint_url)
 
     filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                   Group.get_property_mapping())
+                                                   Group._get_legacy_mapping())
     return GroupSet([Group(obj) for obj in filtered_objects])

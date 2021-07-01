@@ -10,6 +10,7 @@ Submodules
    sailor.assetcentral.constants
    sailor.assetcentral.equipment
    sailor.assetcentral.failure_mode
+   sailor.assetcentral.group
    sailor.assetcentral.indicators
    sailor.assetcentral.location
    sailor.assetcentral.model

@@ -89,7 +89,7 @@ class OAuth2Client():
         scope = ' '.join(self.resolved_scopes) if self.resolved_scopes else None
         session = self._get_session(scope=scope)
 
-        LOG.debug('Calling %s', url)
+        LOG.debug('Calling %s with req_kwargs: %s', url, req_kwargs)
         response = session.request(method, url, **req_kwargs)
         if response.ok:
             if response.headers.get('content-type', '').lower() == 'application/json':
@@ -132,7 +132,12 @@ class OAuth2Client():
         params = {'grant_type': 'client_credentials', 'scope': scope}
         service = OAuth2Service(name=self.name, client_id=self.client_id, client_secret=self.client_secret,
                                 access_token_url=self.oauth_url)
-        self._active_session = service.get_auth_session('POST', data=params, decoder=json.loads)
+
+        try:
+            self._active_session = service.get_auth_session('POST', data=params, decoder=json.loads)
+        except json.JSONDecodeError as exception:
+            LOG.debug('Decoding JSON while getting auth session failed.', exc_info=exception)
+            raise RuntimeError('Decoding JSON while getting auth session failed. Original content: \n' + exception.doc)
 
         # the get_auth_session method of rauth does not check whether the response was 200 or not
         # and therefore does not log a proper error message

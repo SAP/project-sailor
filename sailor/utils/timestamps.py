@@ -14,6 +14,10 @@ def _string_to_timestamp_parser(name, unit=None):
     return lambda self: pd.Timestamp(self.raw[name], unit=unit, tz='UTC') if self.raw[name] else None
 
 
+def _string_to_timestamp_parser_new(unit=None):
+    return lambda value: pd.Timestamp(value, unit=unit, tz='UTC')
+
+
 def _any_to_timestamp(value, default: pd.Timestamp = None):
     """Try to parse a timestamp provided in a variety of formats into a uniform representation as pd.Timestamp."""
     if value is None:
