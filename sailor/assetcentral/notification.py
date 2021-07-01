@@ -3,66 +3,112 @@ Retrieve Notification information from AssetCentral.
 
 Classes are provided for individual Notifications as well as groups of Notifications (NotificationSet).
 """
-
 import pandas as pd
 import plotnine as p9
 
 import sailor.assetcentral.equipment
 from .constants import VIEW_NOTIFICATIONS
-from .utils import _fetch_data, _add_properties, ResultSet, _parse_filter_parameters,\
-    AssetcentralEntity, _ac_application_url
-from ..utils.timestamps import _string_to_timestamp_parser
+from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new, _nested_put_setter)
+from ..utils.oauth_wrapper import get_oauth_client
+from ..utils.timestamps import _string_to_timestamp_parser_new
 from ..utils.plot_helper import _default_plot_theme
 
+_NOTIFICATION_FIELDS = [
+    _AssetcentralField('id', 'notificationId', 'notificationID'),
+    _AssetcentralField('notification_type', 'notificationType', 'type', is_mandatory=True),
+    _AssetcentralField('short_description', 'shortDescription', 'description', is_mandatory=True,
+                       put_setter=_nested_put_setter('description', 'shortDescription')),
+    _AssetcentralField('priority', 'priority', 'priority', is_mandatory=True),
+    _AssetcentralField('status', 'status', 'status', is_mandatory=True,
+                       put_setter=lambda p, v: p.update({'status': [v] if isinstance(v, str) else v})),
+    _AssetcentralField('equipment_id', 'equipmentId', 'equipmentID', is_mandatory=True),
+    _AssetcentralField('long_description', 'longDescription', 'description',
+                       put_setter=_nested_put_setter('description', 'longDescription')),
+    _AssetcentralField('breakdown', 'breakdown', 'breakdown', get_extractor=lambda v: bool(int(v))),
+    _AssetcentralField('cause_id', 'causeID', 'causeID'),
+    _AssetcentralField('cause_description', 'causeDesc'),
+    _AssetcentralField('cause_display_id', 'causeDisplayID'),
+    _AssetcentralField('effect_id', 'effectID', 'effectID'),
+    _AssetcentralField('effect_description', 'effectDesc'),
+    _AssetcentralField('effect_display_id', 'effectDisplayID'),
+    _AssetcentralField('instruction_id', 'instructionID', 'instructionID'),
+    _AssetcentralField('instruction_title', 'instructionTitle'),
+    _AssetcentralField('operator_id', 'operatorId', 'operator'),  # setting 'operator' has no effect
+    _AssetcentralField('confirmed_failure_mode_id', 'confirmedFailureModeID', 'confirmedFailureModeID'),
+    _AssetcentralField('confirmed_failure_mode_description', 'confirmedFailureModeDesc'),
+    _AssetcentralField('confirmed_failure_mode_name', 'confirmedFailureModeDisplayID'),
+    _AssetcentralField('end_date', 'endDate', 'endDate', get_extractor=_string_to_timestamp_parser_new()),
+    _AssetcentralField('equipment_name', 'equipmentName'),
+    _AssetcentralField('functional_location_id', 'functionalLocationID', 'functionalLocationID'),
+    _AssetcentralField('location_id', 'locationId', 'locationID'),
+    _AssetcentralField('location_name', 'location'),
+    _AssetcentralField('malfunction_end_date', 'malfunctionEndDate', 'malfunctionEndDate',
+                       get_extractor=_string_to_timestamp_parser_new()),
+    _AssetcentralField('malfunction_start_date', 'malfunctionStartDate', 'malfunctionStartDate',
+                       get_extractor=_string_to_timestamp_parser_new()),
+    _AssetcentralField('model_id', 'modelId'),
+    _AssetcentralField('name', 'internalId'),
+    _AssetcentralField('notification_type_description', 'notificationTypeDescription'),
+    _AssetcentralField('priority_description', 'priorityDescription'),
+    _AssetcentralField('root_equipment_id', 'rootEquipmentId'),
+    _AssetcentralField('root_equipment_name', 'rootEquipmentName'),
+    _AssetcentralField('start_date', 'startDate', 'startDate',
+                       get_extractor=_string_to_timestamp_parser_new()),
+    _AssetcentralField('status_text', 'statusDescription'),
+    _AssetcentralField('system_failure_mode_id', 'systemProposedFailureModeID', 'systemProposedFailureModeID'),
+    _AssetcentralField('system_failure_mode_description', 'systemProposedFailureModeDesc'),
+    _AssetcentralField('system_failure_mode_name', 'systemProposedFailureModeDisplayID'),
+    _AssetcentralField('user_failure_mode_id', 'proposedFailureModeID', 'proposedFailureModeID'),
+    _AssetcentralField('user_failure_mode_description', 'proposedFailureModeDesc'),
+    _AssetcentralField('user_failure_mode_name', 'proposedFailureModeDisplayID'),
+    _AssetcentralField('isInternal', 'isInternal', is_exposed=False),
+    _AssetcentralField('createdBy', 'createdBy', is_exposed=False),
+    _AssetcentralField('creationDateTime', 'creationDateTime', is_exposed=False),
+    _AssetcentralField('lastChangedBy', 'lastChangedBy', is_exposed=False),
+    _AssetcentralField('lastChangeDateTime', 'lastChangeDateTime', is_exposed=False),
+    _AssetcentralField('progressStatus', 'progressStatus', is_exposed=False),
+    _AssetcentralField('progressStatusDescription', 'progressStatusDescription', is_exposed=False),
+    _AssetcentralField('coordinates', 'coordinates', is_exposed=False),
+    _AssetcentralField('source', 'source', is_exposed=False),
+    _AssetcentralField('assetCoreEquipmentId', 'assetCoreEquipmentId', is_exposed=False),
+    _AssetcentralField('operator', 'operator', is_exposed=False),
+]
 
-@_add_properties
+
+@_add_properties_new
 class Notification(AssetcentralEntity):
     """AssetCentral Notification Object."""
 
-    # Properties (in AC terminology) are: notificationId, shortDescription, status, statusDescription, notificationType,
-    # notificationTypeDescription, priority, priorityDescription, isInternal, createdBy, creationDateTime,
-    # lastChangedBy, lastChangeDateTime, longDescription, startDate, endDate, malfunctionStartDate, malfunctionEndDate,
-    # progressStatus, progressStatusDescription, equipmentId, equipmentName, rootEquipmentId, rootEquipmentName,
-    # locationId, breakdown, coordinates, source, operatorId, location, assetCoreEquipmentId, operator, internalId,
-    # modelId, proposedFailureModeID, proposedFailureModeDisplayID, proposedFailureModeDesc, confirmedFailureModeID,
-    # confirmedFailureModeDesc, confirmedFailureModeDisplayIDs, systemProposedFailureModeID,
-    # systemProposedFailureModeDesc, systemProposedFailureModeDisplayID, effectID, effectDisplayID, effectDesc,
-    # causeID, causeDisplayID, causeDesc, instructionID, instructionTitle
+    _field_map = {field.our_name: field for field in _NOTIFICATION_FIELDS}
 
-    @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
-        return {
-            'id': ('notificationId', None, None, None),
-            'name': ('internalId', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'long_description': ('longDescription', None, None, None),
-            'breakdown': ('breakdown', None, None, None),  # TODO: turn into boolean?
+    def update(self, **kwargs) -> 'Notification':
+        """Write the current state of this object to AssetCentral with updated values supplied.
 
-            'confirmed_failure_mode_id': ('confirmedFailureModeID', None, None, None),
-            'confirmed_failure_mode_description': ('confirmedFailureModeDesc', None, None, None),
-            'confirmed_failure_mode_name': ('confirmedFailureModeDisplayID', None, None, None),
-            'end_date': ('endDate', _string_to_timestamp_parser('endDate'), None, None),
-            'equipment_id': ('equipmentId', None, None, None),
-            'equipment_name': ('equipmentName', None, None, None),
-            'location_id': ('locationID', None, None, None),
-            'location_name': ('location', None, None, None),
-            'malfunction_end_date': ('malfunctionEndDate', _string_to_timestamp_parser('malfunctionEndDate'),
-                                     None, None),
-            'malfunction_start_date': ('malfunctionStartDate', _string_to_timestamp_parser('malfunctionStartDate'),
-                                       None, None),
-            'notification_type': ('notificationType', None, None, None),
-            'notification_type_description': ('notificationTypeDescription', None, None, None),
-            'priority_description': ('priorityDescription', None, None, None),
-            'start_date': ('startDate', _string_to_timestamp_parser('startDate'), None, None),
-            'status_text': ('statusDescription', None, None, None),
-            'system_failure_mode_id': ('systemProposedFailureModeID', None, None, None),
-            'system_failure_mode_description': ('systemProposedFailureModeDesc', None, None, None),
-            'system_failure_mode_name': ('systemProposedFailureModeDisplayID', None, None, None),
-            'user_failure_mode_id': ('proposedFailureModeID', None, None, None),
-            'user_failure_mode_description': ('proposedFailureModeDesc', None, None, None),
-            'user_failure_mode_name': ('proposedFailureModeDisplayID', None, None, None),
-        }
+        After the update in the remote system was successful, this object reflects the updated state.
+
+        Accepts keyword arguments which names correspond to the available properties.
+
+        Example
+        -------
+        .. code-block::
+
+            notf2 = notf.update(notification_type='M1')
+            assert notf.notification_type == 'M1'
+            assert notf2 == notf
+
+        Returns
+        -------
+        Notification
+            self
+
+        See Also
+        --------
+        :meth:`update_notification`
+        """
+        updated_obj = update_notification(self, **kwargs)
+        self.raw = updated_obj.raw
+        return self
 
     def plot_context(self, data=None, window_before=pd.Timedelta(days=7), window_after=pd.Timedelta(days=2)):
         """
@@ -201,9 +247,69 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
                            equipment_id=['id1', 'id2'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Notification.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Notification._get_legacy_mapping())
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return NotificationSet([Notification(obj) for obj in object_list],
                            {'filters': kwargs, 'extended_filters': extended_filters})
+
+
+def _create_or_update_notification(request, method) -> Notification:
+    request.validate()
+    endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
+    oauth_client = get_oauth_client('asset_central')
+
+    response = oauth_client.request(method, endpoint_url, json=request.data)
+    result = find_notifications(id=response['notificationID'])
+    if len(result) != 1:
+        raise RuntimeError('Unexpected error when creating or updating the notification. Please try again.')
+    return result[0]
+
+
+def create_notification(**kwargs) -> Notification:
+    """Create a new notification.
+
+    Parameters
+    ----------
+    **kwargs
+        Keyword arguments which names correspond to the available properties.
+
+    Returns
+    -------
+    Notification
+        A new notification object as retrieved from AssetCentral after the create succeeded.
+
+    Example
+    -------
+    >>> notf = create_notification(equipment_id='123', short_description='test',
+    ...                            notification_type='M2', status='NEW', priority=5)
+    """
+    request = _AssetcentralWriteRequest(Notification._field_map)
+    request.insert_user_input(kwargs, forbidden_fields=['id'])
+    return _create_or_update_notification(request, 'POST')
+
+
+def update_notification(notification: Notification, **kwargs) -> Notification:
+    """Update an existing notification.
+
+    Write the current state of the given notification object to AssetCentral with updated values supplied.
+    This equals a PUT request in the traditional REST programming model.
+
+    Parameters
+    ----------
+    **kwargs
+        Keyword arguments which names correspond to the available properties.
+
+    Returns
+    -------
+    Notification
+        A new notification object as retrieved from AssetCentral after the update succeeded.
+
+    Examples
+    --------
+    >>> notf = update_notification(notf, status='IPR', long_description='hello world')
+    """
+    request = _AssetcentralWriteRequest.from_object(notification)
+    request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
+    return _create_or_update_notification(request, 'PUT')
