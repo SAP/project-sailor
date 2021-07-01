@@ -98,6 +98,33 @@ class TestEquipment:
 
         mock_find.assert_has_calls(expected_calls)
 
+    @patch('sailor.assetcentral.equipment._create_or_update_notification')
+    def test_create_notification_builds_request(self, create_update_mock):
+        equipment = Equipment({'equipmentId': '123', 'location': 'Walldorf'})
+        equipment._location = Location({'locationId': '456', 'name': 'Walldorf'})
+        create_kwargs = {'notification_type': 'M2', 'short_description': 'test', 'priority': 15, 'status': 'NEW'}
+        expected_request_dict = {
+            'equipmentID': '123', 'locationID': '456', 'type': 'M2', 'description': {'shortDescription': 'test'},
+            'priority': 15, 'status': ['NEW']}
+
+        equipment.create_notification(**create_kwargs)
+
+        create_update_mock.assert_called_once_with(expected_request_dict, 'POST')
+
+    @pytest.mark.parametrize('create_kwargs', [
+        ({'id': 123}),
+        ({'notificationID': 123}),
+        ({'equipment_id': 123}),
+        ({'equipmentID': 123})
+    ])
+    def test_create_notification_forbidden_fields_raises(self, create_kwargs):
+        equipment = Equipment({})
+        equipment._location = Location({'locationId': '456', 'name': 'Walldorf'})
+        expected_offender = list(create_kwargs.keys())[0]
+
+        with pytest.raises(RuntimeError, match=f"You cannot set '{expected_offender}' in this request."):
+            equipment.create_notification(**create_kwargs)
+
 
 class TestEquipmentSet:
 
