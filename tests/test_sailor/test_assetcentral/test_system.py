@@ -3,7 +3,6 @@ from unittest.mock import patch
 import pytest
 
 from sailor.assetcentral.system import find_systems, SystemSet, System
-from sailor.assetcentral.equipment import Equipment, EquipmentSet
 from sailor.assetcentral import constants
 
 # expected result of _traverse_components and input for _update_components
@@ -262,27 +261,24 @@ def test_traverse_components():
     assert system_ids == ['SY1-1id', 'SY1-2id']
 
 
-def test_update_components(make_indicator_set, component_tree):
+def test_update_components(make_equipment_set, make_indicator_set, component_tree):
     system = System({'systemId': 'SY0id', 'internalId': 'SY0', 'modelID': 'SY0'})
     system1 = System({'systemId': 'SY1-1id', 'internalId': 'SY1-1', 'modelID': 'SY1'})
     system2 = System({'systemId': 'SY1-2id', 'internalId': 'SY1-2', 'modelID': 'SY1'})
-    equi11 = Equipment({'equipmentId': 'EM1-11id', 'internalId': 'EM1-11', 'modelId': 'EM1'})
-    equi12 = Equipment({'equipmentId': 'EM1-12id', 'internalId': 'EM1-12', 'modelId': 'EM1'})
-    equi13 = Equipment({'equipmentId': 'EM2-13id', 'internalId': 'EM2-13', 'modelId': 'EM2'})
-    equi21 = Equipment({'equipmentId': 'EM1-21id', 'internalId': 'EM1-21', 'modelId': 'EM1'})
-    equi22 = Equipment({'equipmentId': 'EM1-22id', 'internalId': 'EM1-22', 'modelId': 'EM1'})
-    equi23 = Equipment({'equipmentId': 'EM2-23id', 'internalId': 'EM2-23', 'modelId': 'EM2'})
-    equi3 = Equipment({'equipmentId': 'EM2-3id', 'internalId': 'EM2-3', 'modelId': 'EM2'})
+    equi = make_equipment_set(equipmentId=['EM1-11id', 'EM1-12id', 'EM2-13id', 'EM1-21id', 'EM1-22id', 'EM2-23id',
+                                           'EM2-3id'],
+                              internalId=['EM1-11', 'EM1-12', 'EM2-13', 'EM1-21', 'EM1-22', 'EM2-23', 'EM2-3'],
+                              modelId=['EM1', 'EM1', 'EM2', 'EM1', 'EM1', 'EM2', 'EM2'])
     ind1 = make_indicator_set(propertyId=['1', '2'])
     ind2 = make_indicator_set(propertyId=['3', '4'])
-    system._hier = {}
-    system._hier['component_tree'] = systemcomponents_global
-    system._hier['systems'] = SystemSet([system, system1, system2])
-    system._hier['equipment'] = EquipmentSet([equi11, equi12, equi13, equi21, equi22, equi23, equi3])
-    system._hier['indicators'] = {'EM1-11id': ind1, 'EM1-12id': ind1, 'EM2-13id': ind2,
-                                  'EM1-21id': ind1, 'EM1-22id': ind1, 'EM2-23id': ind2, 'EM2-3id': ind2}
-    system._update_components(system._hier['component_tree'])
-    assert system._hier['component_tree'] == component_tree
+    system._System__hierarchy = {}
+    system._System__hierarchy['component_tree'] = systemcomponents_global
+    system._System__hierarchy['systems'] = SystemSet([system, system1, system2])
+    system._System__hierarchy['equipment'] = equi
+    system._System__hierarchy['indicators'] = {'EM1-11id': ind1, 'EM1-12id': ind1, 'EM2-13id': ind2,
+                                               'EM1-21id': ind1, 'EM1-22id': ind1, 'EM2-23id': ind2, 'EM2-3id': ind2}
+    system._update_components(system._System__hierarchy['component_tree'])
+    assert system._System__hierarchy['component_tree'] == component_tree
 
 
 def test_create_selection_dictionary(selection_dictionary, component_tree):

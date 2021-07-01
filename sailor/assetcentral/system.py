@@ -76,13 +76,13 @@ class System(AssetcentralEntity):
     def _update_components(self, component):
         """Add indicators and replace id with model_id in the key."""
         if component['object_type'] == 'EQU':
-            obj = self._hier['equipment'].filter(id=component['id'])[0]
-            component['indicators'] = self._hier['indicators'][component['id']]
+            obj = self.__hierarchy['equipment'].filter(id=component['id'])[0]
+            component['indicators'] = self.__hierarchy['indicators'][component['id']]
         else:
             if component['id'] == self.id:
                 obj = self
             else:
-                obj = self._hier['systems'].filter(id=component['id'])[0]
+                obj = self.__hierarchy['systems'].filter(id=component['id'])[0]
         component['key'] = (obj.model_id, component['key'][1])
         if 'child_list' in component.keys():
             component['child_nodes'] = {}
@@ -97,22 +97,22 @@ class System(AssetcentralEntity):
         """Prepare component tree and cache it."""
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
         comps = _fetch_data(endpoint_url)[0]
-        self._hier = {}
-        self._hier['component_tree'], equipment_ids, system_ids = System._traverse_components(comps, 0, [], [])
+        self.__hierarchy = {}
+        self.__hierarchy['component_tree'], equipment_ids, system_ids = System._traverse_components(comps, 0, [], [])
         if system_ids:
-            self._hier['systems'] = find_systems(id=system_ids)
+            self.__hierarchy['systems'] = find_systems(id=system_ids)
         else:
-            self._hier['systems'] = SystemSet([])
-        self._hier['indicators'] = {}
+            self.__hierarchy['systems'] = SystemSet([])
+        self.__hierarchy['indicators'] = {}
         if equipment_ids:
-            self._hier['equipment'] = find_equipment(id=equipment_ids)
-            for equi in self._hier['equipment']:
-                self._hier['indicators'][equi.id] = equi.find_equipment_indicators(type='Measured')
+            self.__hierarchy['equipment'] = find_equipment(id=equipment_ids)
+            for equi in self.__hierarchy['equipment']:
+                self.__hierarchy['indicators'][equi.id] = equi.find_equipment_indicators(type='Measured')
         else:
-            self._hier['equipment'] = EquipmentSet([])
-        self._update_components(self._hier['component_tree'])
-        del self._hier['component_tree']['key']
-        return self._hier
+            self.__hierarchy['equipment'] = EquipmentSet([])
+        self._update_components(self.__hierarchy['component_tree'])
+        del self.__hierarchy['component_tree']['key']
+        return self.__hierarchy
 
     @cached_property
     def components(self):
@@ -120,7 +120,8 @@ class System(AssetcentralEntity):
 
         Only top level, lower levels are ignored
         """
-        warnings.warn("deprecated: attribute will be removed after September 1, 2021", FutureWarning)
+        warnings.warn("deprecated: attribute 'components' of class System will be removed after September 1, 2021",
+                      FutureWarning)
         equipment_ids = set()
         comp_tree = self._hierarchy['component_tree']
         for c in comp_tree['child_nodes']:
