@@ -11,6 +11,8 @@ in your SAP backends. In particular, you will learn how to:
 - :ref:`Read master data from AssetCentral<how_to_read_master_data>`
 - :ref:`Explore and visualize master data <how_to_explore_data>`
 - :ref:`Read timeseries data from SAP IoT <how_to_read_timeseries>`
+- :ref:`Use the TimeseriesDataset <how_to_work_with_data>`
+- :ref:`Create and update master data <how_to_write_master_data>`
 - :ref:`Build custom plots on the extracted data <how_to_custom_plot>`
 - :ref:`Build a machine learning model on the extracted data <how_to_model>`
 
@@ -210,6 +212,8 @@ If here the indicator set is left blank, then all indicators returned by :meth:`
     data = equipment_set.get_indicator_data('2020-10-01 00:00:00+00:00', '2021-01-01 00:00:00+00:00')
 
 
+.. _how_to_work_with_data:
+
 Working with Timeseries Data
 ============================
 Timeseries data is always returned as a :class:`~sailor.sap_iot.wrappers.TimeseriesDataset`.
@@ -239,11 +243,43 @@ Finally, you might be interested in plotting the resulting dataset::
 .. image:: _static/data_plot.png
 
 
+.. _how_to_write_master_data:
 
+Writing Master Data
+===================
+We also aim to provide the possibility to write data to all backend systems supported by Sailor.
+In this example we show you how to create notifications in AssetCentral.
+
+Notifications are usually created for some equipment.
+Therefore we can use the :meth:`~sailor.assetcentral.equipment.Equipment.create_notification` function 
+to create a new notification for an equipment. In this example we want to create a new breakdown notification 
+with high priority::
+
+    equi = equipment_set[0]
+    notif = equi.create_notification(
+                    status='NEW', notification_type='M2', priority=25,
+                    short_description='Valve broken',
+                    start_date='2021-07-07', end_date='2021-07-08')
+
+We might want to update this notification at a later time, e.g., when the maintenance crew is working on the equipment.
+For this we need a notification object representing this notification. This can be the original ``notif`` object that 
+we have created, or you can obtain the object from Assetcentral again.
+We can call the :meth:`~sailor.assetcentral.notification.Notification.update` method directly on the 
+Notification object to send our desired changes to Assetcentral::
+
+    notif = find_notifications(id='previous_notification_ID')[0]
+    notif.update(status='IPR')
+
+As you can see from these examples we can use the same properties as keyword arguments, that we are familiar with,
+e.g., from when using the ``find_*`` functions. 
+
+
+Customization
+=============
 .. _how_to_custom_plot:
 
 Building Custom Visualizations
-==============================
+------------------------------
 
 To build your custom analysis or plot, you can use the data in any :class:`~sailor.assetcentral.utils.ResultSet` and transform
 it into a `pandas` dataframe using :meth:`~sailor.assetcentral.utils.ResultSet.as_df()`. The data frame can then form the 
@@ -264,7 +300,7 @@ basis of your visualization.
 .. _how_to_model:
 
 Building Custom Machine Learning Models
-=======================================
+---------------------------------------
 
 Building machine learning models can be done using the same starting point as building custom visualizations, namely the method 
 :meth:`~sailor.assetcentral.utils.ResultSet.as_df()`.
@@ -283,8 +319,3 @@ This is an example of the steps necessary to train an isolation forest for detec
     # score isolation forest, and join back to index (equipment/timestamp info)
     score_data = data.as_df()
     scores = pd.Series(iforest.predict(score_data), index=score_data.index, name='score').to_frame()
-
-
-Writing Master Data
-===================
-notifications example....
