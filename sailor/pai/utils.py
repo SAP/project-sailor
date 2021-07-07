@@ -1,13 +1,9 @@
 """Module for various utility functions, in particular those related to fetching data from remote oauth endpoints."""
 
 import logging
-import warnings
 
-from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.config import SailorConfig
-from ..utils.utils import DataNotFoundWarning
-from ..assetcentral.utils import AssetcentralEntity, _compose_queries
-
+from ..assetcentral.utils import AssetcentralEntity
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 

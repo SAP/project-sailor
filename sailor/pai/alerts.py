@@ -121,7 +121,7 @@ def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
 
     endpoint_url = _pai_application_url() + ALERTS_READ_PATH
     objects = []
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters,'predictive_asset_insights')
+    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters, 'predictive_asset_insights')
     for odata_result in object_list:
         for element in odata_result['d']['results']:
             objects.append(element)
