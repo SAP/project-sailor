@@ -32,6 +32,7 @@ packages like this:
     import pandas as pd
     from sailor.assetcentral import find_models, find_equipment, find_notifications, find_systems
 
+
 .. _how_to_read_master_data:
 
 Reading Master Data
@@ -47,22 +48,25 @@ an object representing multiple pieces of equipment. The convenience function :m
     equipment_set = find_equipment(model_name='my_model_name')
     equipment_set.as_df().head()
 
-Other ways of filtering are also available, e.g., for selecting the ``my_model_name`` equipment in a specific location,
-say PaloAlto.
 
-.. code-block:: python
+Filtering data
+    Other ways of filtering are also available, e.g., for selecting the ``my_model_name`` equipment in a specific location,
+    say PaloAlto::
 
-    equipment_set2 = find_equipment(model_name='my_model_name', location_name='PaloAlto')
+        equipment_set2 = find_equipment(model_name='my_model_name', location_name='PaloAlto')
+
+    For an overview of the syntax used for filtering, refer to the documentation of the :doc:`Filter Language<../filter_language>`.
+    To get an overview of the fields that are available as filters, you can use the function :meth:`~sailor.assetcentral.equipment.Equipment.get_available_properties()`.
+    The names of the items in the resulting map can be used as filters. Similar functions also exist for the other objects::
+
+        from sailor.assetcentral.equipment import Equipment
+        Equipment.get_available_properties()
+
+    Furthermore it is possible to filter on result sets directly. Please see :meth:`~sailor.assetcentral.utils.ResultSet.filter` for details::
+
+        equipment_set2.filter(id='ID_123')
 
 
-For an overview of the syntax used for filtering, refer to the documentation of the :doc:`Filter Language<../filter_language>`.
-To get an overview of the fields that are available as filters, you can use the function :meth:`~sailor.assetcentral.equipment.Equipment.get_property_mapping()`. 
-The names of the items in the resulting map can be used as filters. Similar functions also exist for the other objects.
-
-.. code-block:: python
-
-    from sailor.assetcentral.equipment import Equipment
-    Equipment.get_property_mapping()
 
 Other typical starting points for the analysis are models. You can search for models using
 :meth:`~sailor.assetcentral.model.find_models()`.
@@ -97,11 +101,11 @@ Again, a ``pandas`` dataframe representation of the object can be obtained using
     notification_set = equipment_set.find_notifications(extended_filters=['malfunction_start_date > "2020-08-01"']) 
     notification_set.as_df().head()
 
+
 .. _how_to_explore_data:
 
 Exploring Data
 ==============
-
 
 To facilitate exploration and use of the extracted data for exploration, visualization, and model building, the :meth:`~sailor.assetcentral.utils.ResultSet.as_df()` function
 is provided for all objects. The functions provide representations of the objects as ``pandas`` dataframe.
@@ -167,6 +171,7 @@ a timeseries dataset locally as described in :ref:`Read timeseries data<how_to_r
     timeseries_data = equipment_set.get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00')
     notification_set[0].plot_context(timeseries_data)
 
+
 .. _how_to_read_timeseries:
 
 Read Timeseries Data
@@ -204,6 +209,15 @@ If here the indicator set is left blank, then all indicators returned by :meth:`
 
     timeseries_data = equipment_set.get_indicator_data('2020-10-01 00:00:00+00:00', '2021-01-01 00:00:00+00:00')
 
+
+    data_aggregated = data.aggregate('24h', ['min', 'max'])
+    data_aggregated
+Add aggregation example
+filter equipments or indicators
+show plot
+
+
+
 .. _how_to_custom_plot:
 
 Building Custom Visualizations
@@ -216,13 +230,14 @@ basis of your visualization.
 .. code-block:: python
 
     import plotnine as p9
-    from sailor.utils.plot_helper import default_plot_theme
+    from sailor.utils.plot_helper import _default_plot_theme
     data = equipment_set[0:4].get_indicator_data('2020-09-01 00:00:00+00:00', '2020-10-05 00:00:00+00:00')
     df = data.as_df(speaking_names=True).droplevel([0, 1], axis=1).reset_index()
     df = df.melt(id_vars=['equipment_name', 'model_name', 'timestamp'], var_name='indicator')
-    p9.ggplot(df, p9.aes(x='indicator', y='value', fill='equipment_name')) + p9.geom_violin(alpha=0.6) + default_plot_theme()
+    p9.ggplot(df, p9.aes(x='indicator', y='value', fill='equipment_name')) + p9.geom_violin(alpha=0.6) + _default_plot_theme()
 
 .. image:: _static/custom_plot.png
+
 
 .. _how_to_model:
 
@@ -246,3 +261,8 @@ This is an example of the steps necessary to train an isolation forest for detec
     # score isolation forest, and join back to index (equipment/timestamp info)
     score_data = data.as_df()
     scores = pd.Series(iforest.predict(score_data), index=score_data.index, name='score').to_frame()
+
+
+Writing Master Data
+===================
+notifications example....
