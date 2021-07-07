@@ -89,7 +89,7 @@ class OAuth2Client():
         scope = ' '.join(self.resolved_scopes) if self.resolved_scopes else None
         session = self._get_session(scope=scope)
 
-        LOG.debug('Calling %s', url)
+        LOG.debug('Calling %s with req_kwargs: %s', url, req_kwargs)
         response = session.request(method, url, **req_kwargs)
         if response.ok:
             if response.headers.get('content-type', '').lower() == 'application/json':

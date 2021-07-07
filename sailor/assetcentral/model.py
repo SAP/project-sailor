@@ -36,8 +36,12 @@ class Model(AssetcentralEntity):
     # sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]
 
     @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
+    def get_available_properties(cls):  # noqa: D102
+        return cls._get_legacy_mapping().keys()
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        # TODO: remove method in future version after field templates are in used
         return {
             'id': ('modelId', None, None, None),
             'name': ('name', None, None, None),
@@ -98,7 +102,7 @@ class Model(AssetcentralEntity):
         # AC-BUG: this api doesn't support filters (thank you AC) so we have to fetch all of them and then filter below
         object_list = _fetch_data(endpoint_url)
         filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                       Indicator.get_property_mapping())
+                                                       Indicator._get_legacy_mapping())
 
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
@@ -160,7 +164,7 @@ def find_models(*, extended_filters=(), **kwargs) -> ModelSet:
         find_models(extended_filters=['model_expiration_date < "2018-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Model.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Model._get_legacy_mapping())
 
     endpoint_url = _ac_application_url() + VIEW_MODELS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)

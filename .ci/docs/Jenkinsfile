@@ -34,7 +34,10 @@ pipeline {
             }
             steps {
                 sh 'git config --global credential.helper "!f() { echo username=\$GIT_CREDENTIALS_USR; echo password=\$GIT_CREDENTIALS_PSW; }; f"'
+                sh '''git config --global user.name "${GIT_CONFIG_USER_NAME};"
+                      git config --global user.email "${GIT_CONFIG_USER_MAIL}"'''
                 dir("MAIN") {
+                    sh './.ci/docs/add_apidoc_main.sh $DOCS_SOURCE_DIR'
                     sh './.ci/docs/publish_docs.sh $DOCS_SOURCE_DIR'
                 }
             }

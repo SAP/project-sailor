@@ -14,11 +14,11 @@ from sailor import sap_iot
 from .constants import VIEW_EQUIPMENT, VIEW_OBJECTS
 from .failure_mode import find_failure_modes
 from .indicators import Indicator, IndicatorSet
-from .notification import find_notifications
+from .notification import Notification, find_notifications, _create_or_update_notification
 from .location import Location, find_locations
 from .workorder import find_workorders
-from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    _ac_application_url, _apply_filters_post_request
+from .utils import (AssetcentralEntity, ResultSet, _AssetcentralWriteRequest, _ac_application_url,
+                    _apply_filters_post_request, _fetch_data, _add_properties, _parse_filter_parameters)
 from ..utils.timestamps import _string_to_timestamp_parser
 
 if TYPE_CHECKING:
@@ -44,8 +44,12 @@ class Equipment(AssetcentralEntity):
     _location = None
 
     @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
+    def get_available_properties(cls):  # noqa: D102
+        return cls._get_legacy_mapping().keys()
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        # TODO: remove method in future version after field templates are in used
         return {
             'id': ('equipmentId', None, None, None),
             'name': ('name', None, None, None),
@@ -98,7 +102,7 @@ class Equipment(AssetcentralEntity):
         object_list = _fetch_data(endpoint_url)
 
         filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                       Indicator.get_property_mapping())
+                                                       Indicator._get_legacy_mapping())
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
     def find_notifications(self, *, extended_filters=(), **kwargs) -> NotificationSet:
@@ -214,6 +218,17 @@ class Equipment(AssetcentralEntity):
             indicator_set = self.find_equipment_indicators()
 
         return sap_iot.get_indicator_data(start, end, indicator_set, EquipmentSet([self]))
+
+    def create_notification(self, **kwargs) -> Notification:
+        """Create a new notification for this equipment.
+
+        See Also
+        --------
+        :meth:`sailor.assetcentral.notification.create_notification`
+        """
+        request = _AssetcentralWriteRequest(Notification._field_map, equipment_id=self.id, location_id=self.location.id)
+        request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
+        return _create_or_update_notification(request, 'POST')
 
 
 class EquipmentSet(ResultSet):
@@ -387,7 +402,7 @@ def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
                         location_name='London')
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Equipment.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Equipment._get_legacy_mapping())
 
     endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)

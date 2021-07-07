@@ -22,8 +22,12 @@ class Workorder(AssetcentralEntity):
     # actualStartDate, actualEndDate, personResponsible
 
     @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
+    def get_available_properties(cls):  # noqa: D102
+        return cls._get_legacy_mapping().keys()
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        # TODO: remove method in future version after field templates are in used
         return {
             'id': ('workOrderID', None, None, None),
             'name': ('internalId', None, None, None),
@@ -103,7 +107,7 @@ def find_workorders(*, extended_filters=(), **kwargs) -> WorkorderSet:
         find_workorders(extended_filters=['start_date >= "2020-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Workorder.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Workorder._get_legacy_mapping())
 
     endpoint_url = _ac_application_url() + VIEW_WORKORDERS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)

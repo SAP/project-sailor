@@ -24,8 +24,12 @@ class Indicator(AssetcentralEntity):
     # TODO update field list - I think e.g. template id is also part of hte API response
 
     @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
+    def get_available_properties(cls):  # noqa: D102
+        return cls._get_legacy_mapping().keys()
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        # TODO: remove method in future version after field templates are in used
         # TODO: There is still some weird stuff here, e.g. UOM vs. uom or convertedXXX
         return {
             'id': ('propertyId', None, None, None),
