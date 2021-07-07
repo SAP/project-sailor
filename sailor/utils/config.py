@@ -29,7 +29,7 @@ def try_log(exception, msg):
         raise
 
 
-class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES)):
+class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES, defaults=(None,) * len(CONFIG_PROPERTIES))):
     """Stores the config of Sailor."""
 
     config = None
