@@ -168,8 +168,8 @@ a timeseries dataset locally as described in :ref:`Read timeseries data<how_to_r
 
 .. code-block:: python
 
-    timeseries_data = equipment_set.get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00')
-    notification_set[0].plot_context(timeseries_data)
+    data = equipment_set.get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00')
+    notification_set[0].plot_context(data)
 
 
 .. _how_to_read_timeseries:
@@ -198,7 +198,7 @@ This retrieves data for a single piece of equipment.
 
 .. code-block:: python
 
-    timeseries_data = equipment_set[0].get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00', indicators)
+    data = equipment_set[0].get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00', indicators)
 
 If you leave indicator set blank, then all indicators attached to the piece of equipment will be fetched.
 
@@ -207,14 +207,36 @@ If here the indicator set is left blank, then all indicators returned by :meth:`
 
 .. code-block:: python
 
-    timeseries_data = equipment_set.get_indicator_data('2020-10-01 00:00:00+00:00', '2021-01-01 00:00:00+00:00')
+    data = equipment_set.get_indicator_data('2020-10-01 00:00:00+00:00', '2021-01-01 00:00:00+00:00')
 
 
-    data_aggregated = data.aggregate('24h', ['min', 'max'])
-    data_aggregated
-Add aggregation example
-filter equipments or indicators
-show plot
+Working with Timeseries Data
+============================
+Timeseries data is always returned as a :class:`~sailor.sap_iot.wrappers.TimeseriesDataset`.
+With this object you have some options on how to work with the data contained within it.
+
+You can retrieve the data as a DataFrame::
+
+    data.as_df(speaking_names=True)
+
+.. image:: _static/data_as_df.png
+
+**Filtering.** E.g., filter the dataset based on a subset of indicators or equipments::
+
+    eq_subset = data.equipment_set.filter(location_name='PaloAlto')
+    ind_subset = data.indicator_set.filter(name=['DS_BearingTemperature', 'DS_OilPressure'])
+    data = data.filter(equipment_set=eq_subset, indicator_set=ind_subset)
+
+**Aggregation and interpolation.** If you are working with raw data and want to have your timeseries data aggregated.
+Interpolation of ``NaN`` values is also supported::
+
+    data = data.aggregate('24h', ['min', 'max']).interpolate('24h')
+
+Finally, you might be interested in plotting the resulting dataset::
+
+    data.plot()
+
+.. image:: _static/data_plot.png
 
 
 
