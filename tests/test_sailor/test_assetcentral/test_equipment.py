@@ -97,8 +97,8 @@ class TestEquipment:
         mock_find.assert_has_calls(expected_calls)
 
     @patch('sailor.assetcentral.equipment._create_or_update_notification')
-    def test_create_notification_builds_request(self, create_update_mock):
-        equipment = Equipment({'equipmentId': '123', 'location': 'Walldorf'})
+    def test_create_notification_builds_request(self, create_update_mock, make_equipment):
+        equipment = make_equipment(equipmentId='123', location='Walldorf')
         equipment._location = Location({'locationId': '456', 'name': 'Walldorf'})
         create_kwargs = {'notification_type': 'M2', 'short_description': 'test', 'priority': 15, 'status': 'NEW'}
         expected_request_dict = {
@@ -115,8 +115,8 @@ class TestEquipment:
         ({'equipment_id': 123}),
         ({'equipmentID': 123})
     ])
-    def test_create_notification_forbidden_fields_raises(self, create_kwargs):
-        equipment = Equipment({})
+    def test_create_notification_forbidden_fields_raises(self, create_kwargs, make_equipment):
+        equipment = make_equipment()
         equipment._location = Location({'locationId': '456', 'name': 'Walldorf'})
         expected_offender = list(create_kwargs.keys())[0]
 
