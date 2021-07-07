@@ -297,7 +297,11 @@ class AssetcentralEntity:
 
     @classmethod
     def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
+        """Return a mapping from assetcentral terminology to our terminology.
+
+        .. deprecated:: 1.4.0
+        Use :meth:`get_available_properties` instead.
+        """
         # TODO: remove method in future version
         msg = ("'get_property_mapping': deprecated. Method will be removed after September 01, 2021. " +
                "use 'get_available_properties' instead")

@@ -122,7 +122,8 @@ class System(AssetcentralEntity):
     def components(self):
         """Pieces of equipment that are children of the system.
 
-        Only top level, lower levels are ignored
+        .. deprecated:: 1.4.0
+        Only top level, lower levels are ignored.
         """
         warnings.warn("deprecated: attribute 'components' of class System will be removed after September 1, 2021",
                       FutureWarning)
