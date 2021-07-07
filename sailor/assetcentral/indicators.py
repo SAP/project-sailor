@@ -90,10 +90,6 @@ class IndicatorSet(ResultSet):
         },
     }
 
-    def __init__(self, elements, generating_query_params=None):
-        """Create a new IndicatorSet from the passed elements."""
-        super(IndicatorSet, self).__init__(elements, generating_query_params)
-
     def _unique_id_to_names(self):
         """Get details on an opaque column_id in terms of AssetCentral names."""
         mapping = {}
