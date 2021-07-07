@@ -1,3 +1,3 @@
 """Please store all the constants here."""
 
-VIEW_ALERTS = '/alerts/odata/v1/Alerts'
+ALERTS_READ_PATH = '/alerts/odata/v1/Alerts'

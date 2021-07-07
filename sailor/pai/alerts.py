@@ -5,17 +5,17 @@ Classes are provided for individual Alert as well as groups of Alerts (AlertSet)
 """
 
 
-from .constants import VIEW_ALERTS
-from .utils import _fetch_data, PaiEntity, _pai_application_url
-from ..assetcentral.utils import _add_properties, _parse_filter_parameters, ResultSet
+from .constants import ALERTS_READ_PATH
+from .utils import PredictiveAssetInsightsEntity, _pai_application_url
+from ..assetcentral.utils import _fetch_data, _add_properties, _parse_filter_parameters, ResultSet
 from ..utils.timestamps import _odata_to_timestamp_parser
 
 
 @_add_properties
-class Alert(PaiEntity):
-    """PAI Alert Object."""
+class Alert(PredictiveAssetInsightsEntity):
+    """PredictiveAssetInsights Alert Object."""
 
-    # Properties (in PAI terminology) are:
+    # Properties (in PredictiveAssetInsights terminology) are:
     # AlertId, AlertType, AlertTypeDescription, Category, ChangedBy, ChangedOn, Count, CountryID,
     # CreatedBy, CreatedOn, CustomProperty, Description, EquipmentDescription, EquipmentID, EquipmentName,
     # ErrorCodeDescription, ErrorCodeID, FunctionalLocationID, FunctionalLocationName, FunctionalLocationDescription,
@@ -27,7 +27,7 @@ class Alert(PaiEntity):
 
     @classmethod
     def get_property_mapping(cls):
-        """Return a mapping from PAI terminology to our terminology."""
+        """Return a mapping from PredictiveAssetInsights (PAI) terminology to our terminology."""
         return {
             'id': ('AlertId', None, None, None),
             'type': ('AlertType', None, None, None),
@@ -71,7 +71,6 @@ class Alert(PaiEntity):
             'source': ('Source', None, None, None),
             'template_id': ('TemplateID', None, None, None),
             'status_code': ('StatusCode', None, None, None),
-            'template_id': ('TemplateID', None, None, None),
             'template_name': ('TemplateName', None, None, None),
             'top_equipment_description': ('TopEquipmentDescription', None, None, None),
             'top_equipment_id': ('TopEquipmentID', None, None, None),
@@ -96,7 +95,7 @@ class AlertSet(ResultSet):
 
 def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
     """
-    Fetch Alerts from PAI with the applied filters, return an AlertSet.
+    Fetch Alerts from PredictiveAssetInsights (PAI) with the applied filters, return an AlertSet.
 
     This method supports the common filter language explained at :ref:`filter`.
 
@@ -120,9 +119,9 @@ def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
     unbreakable_filters, breakable_filters = \
         _parse_filter_parameters(kwargs, extended_filters, Alert.get_property_mapping())
 
-    endpoint_url = _pai_application_url() + VIEW_ALERTS
+    endpoint_url = _pai_application_url() + ALERTS_READ_PATH
     objects = []
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters,'predictive_asset_insights')
     for odata_result in object_list:
         for element in odata_result['d']['results']:
             objects.append(element)

@@ -122,10 +122,10 @@ def _compose_queries(unbreakable_filters, breakable_filters):
     return filters
 
 
-def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
+def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), client_name='asset_central'):
     """Retrieve data from the AssetCentral service."""
     filters = _compose_queries(unbreakable_filters, breakable_filters)
-    oauth_client = get_oauth_client('asset_central')
+    oauth_client = get_oauth_client(client_name)
 
     if not filters:
         filters = ['']
