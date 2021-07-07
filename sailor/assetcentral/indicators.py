@@ -89,11 +89,6 @@ class IndicatorSet(ResultSet):
     def __init__(self, elements, generating_query_params=None):
         """Create a new IndicatorSet from the passed elements."""
         super(IndicatorSet, self).__init__(elements, generating_query_params)
-        bad_elements = [element for element in self.elements if not type(element) == self._element_type]
-        if bad_elements:
-            bad_types = ' or '.join({element.__class__.__name__ for element in bad_elements})
-            raise RuntimeError(f'{self.__class__.__name__} may only contain elements of type '
-                               f'{self._element_type.__name__}, not {bad_types}')
 
     def _unique_id_to_names(self):
         """Get details on an opaque column_id in terms of AssetCentral names."""

@@ -3,7 +3,6 @@ from unittest.mock import patch, Mock, call
 import pytest
 
 from sailor.assetcentral.location import Location, LocationSet
-from sailor.assetcentral.equipment import Equipment, EquipmentSet
 from sailor.assetcentral import constants
 
 
@@ -17,9 +16,8 @@ def mock_url():
 class TestEquipment:
 
     @pytest.fixture()
-    def eq_obj(self):
-        return Equipment(
-            {'equipmentId': 'D2602147691E463DA91EA2B4C3998C4B', 'name': 'testEquipment', 'location': 'USA'})
+    def eq_obj(self, make_equipment):
+        return make_equipment(equipmentId='D2602147691E463DA91EA2B4C3998C4B', name='testEquipment', location='USA')
 
     @patch('sailor.assetcentral.equipment._apply_filters_post_request')
     @patch('sailor.assetcentral.equipment._fetch_data')
@@ -66,8 +64,8 @@ class TestEquipment:
             assert actual == expected
 
     @patch('sailor.assetcentral.location._fetch_data')
-    def test_location_returns_location(self, mock_fetch, mock_config):
-        equipment = Equipment({'equipmentId': '123', 'location': 'Walldorf'})
+    def test_location_returns_location(self, mock_fetch, mock_config, make_equipment):
+        equipment = make_equipment(equipment_id='123', location='Walldorf')
         mock_fetch.return_value = [{'locationId': '456', 'name': 'Walldorf'}]
         expected_result = Location({'locationId': '456', 'name': 'Walldorf'})
 
@@ -77,9 +75,9 @@ class TestEquipment:
         assert actual == expected_result
 
     @patch('sailor.assetcentral.equipment.find_locations')
-    def test_location_fetches_only_once(self, mock_find):
+    def test_location_fetches_only_once(self, mock_find, make_equipment):
         mock_find.return_value = LocationSet([Location({'locationId': '456', 'name': 'Walldorf'})])
-        equipment = Equipment({'equipmentId': '123', 'location': 'Walldorf'})
+        equipment = make_equipment(equipment_id='123', location='Walldorf')
 
         equipment.location
         equipment.location
@@ -87,13 +85,13 @@ class TestEquipment:
         mock_find.assert_called_once()
 
     @patch('sailor.assetcentral.equipment.find_locations')
-    def test_location_different_instances_always_fetch(self, mock_find):
+    def test_location_different_instances_always_fetch(self, mock_find, make_equipment):
         mock_find.return_value = LocationSet([Location({'locationId': '456', 'name': 'Walldorf'})])
-        equipment = Equipment({'equipmentId': '123', 'location': 'Walldorf'})
-        equipment2 = Equipment({'equipmentId': '123', 'location': 'Walldorf'})
+        equipment1 = make_equipment(equipment_id='123', location='Walldorf')
+        equipment2 = make_equipment(equipment_id='123', location='Walldorf')
         expected_calls = [call(name='Walldorf'), call(name='Walldorf')]
 
-        equipment.location
+        equipment1.location
         equipment2.location
 
         mock_find.assert_has_calls(expected_calls)
@@ -101,14 +99,11 @@ class TestEquipment:
 
 class TestEquipmentSet:
 
-    @pytest.fixture()
-    def eq_set(self):
-        return EquipmentSet([Mock(Equipment), Mock(Equipment)])
-
     @pytest.mark.parametrize('function_name', [
         'find_notifications', 'find_workorders',
     ])
-    def test_delegate_called_with_filters(self, eq_set, function_name):
+    def test_delegate_called_with_filters(self, make_equipment_set, function_name):
+        eq_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'])
         expected = f'expected return value is the value returned by the delegate function "{function_name}"'
         function_under_test = getattr(eq_set, function_name)
 
@@ -119,14 +114,14 @@ class TestEquipmentSet:
                                                   equipment_id=[equipment.id for equipment in eq_set])
             assert actual == expected
 
-    def test_find_common_indicators(self, make_indicator, make_indicator_set):
-        eq1 = Mock(Equipment)
-        eq1.find_equipment_indicators.return_value = make_indicator_set(propertyId=['1', '2', '3'])
-        eq2 = Mock(Equipment)
-        eq2.find_equipment_indicators.return_value = make_indicator_set(propertyId=['1', '3'])
-        eq3 = Mock(Equipment)
-        eq3.find_equipment_indicators.return_value = make_indicator_set(propertyId=['3', '1'])
-        equipment_set = EquipmentSet([eq1, eq2, eq3])
+    def test_find_common_indicators(self, make_indicator, make_indicator_set, make_equipment_set):
+        equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2', 'equipment_id_3'])
+        indicator_ids = [['1', '2', '3'], ['1', '3'], ['3', '1']]
+
+        for i, equipment in enumerate(equipment_set):
+            equipment.find_equipment_indicators = Mock()
+            equipment.find_equipment_indicators.return_value = make_indicator_set(propertyId=indicator_ids[i])
+
         expected_result = make_indicator_set(propertyId=['3', '1'])
 
         actual_result = equipment_set.find_common_indicators()

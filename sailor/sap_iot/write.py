@@ -10,11 +10,11 @@ from functools import partial
 from collections import defaultdict
 import logging
 
+import sailor.assetcentral.indicators as ac_indicators
 from .wrappers import TimeseriesDataset
 from ..utils.timestamps import _timestamp_to_isoformat
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.config import SailorConfig
-from ..assetcentral.indicators import IndicatorSet, AggregatedIndicatorSet
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -24,17 +24,19 @@ _MAX_PAGE_SIZE = 100000
 
 
 def _upload_data_single_equipment(data_subset, equipment_id, tags):
-    LOG.debug(f'Uploading data for equipment {equipment_id}')
+    LOG.debug('Uploading data for equipment %s', equipment_id)
 
     base_url = SailorConfig.get('sap_iot', 'upload_url')
     request_url = f'{base_url}/Timeseries/extend/Measurements/objectId/{equipment_id}'
     oauth_iot = get_oauth_client('sap_iot')
 
+    # shape[1] is the number of columns, we want to divide the page size by the number of columns as each column
+    # contributes to the payload size
     page_size = max(_MAX_PAGE_SIZE // data_subset.shape[1], 1)
-    LOG.debug('Uploading %s rows with page size %s', len(data_subset), page_size)
+    LOG.debug('Uploading %d rows with page size %d', len(data_subset), page_size)
 
     for page in (data_subset.iloc[i:i + page_size, :] for i in range(0, len(data_subset), page_size)):
-        LOG.debug('Uploading page with size %s', len(page))
+        LOG.debug('Uploading page with size %d', len(page))
         payload = {
             'Tags': tags,
             'Values': page.to_dict(orient='records')
@@ -43,7 +45,7 @@ def _upload_data_single_equipment(data_subset, equipment_id, tags):
 
 
 def _upload_data_single_indicator_group(dataset, indicator_set, group_id, template_id):
-    LOG.debug(f'Starting upload for {group_id}, {template_id}')
+    LOG.debug('Starting upload for %s, %s', group_id, template_id)
 
     df = dataset.filter(indicator_set=indicator_set).as_df().reset_index()
     df = (
@@ -71,7 +73,7 @@ def upload_indicator_data(dataset: TimeseriesDataset):
     Please note that only some indicators from an IndicatorGroup are present in the dataset, SAP IoT will delete
     any values for the missing indicators for the uploaded timestamps.
     """
-    if isinstance(dataset.indicator_set, AggregatedIndicatorSet):
+    if isinstance(dataset.indicator_set, ac_indicators.AggregatedIndicatorSet):
         raise RuntimeError('TimeseriesDatasets containing aggregated indicators may not be uploaded to SAP IoT')
 
     query_groups = defaultdict(list)
@@ -79,5 +81,5 @@ def upload_indicator_data(dataset: TimeseriesDataset):
         query_groups[(indicator._liot_group_id, indicator.template_id)].append(indicator)
 
     for (group_id, template_id), group_indicators in query_groups.items():
-        selected_indicator_set = IndicatorSet(group_indicators)
+        selected_indicator_set = ac_indicators.IndicatorSet(group_indicators)
         _upload_data_single_indicator_group(dataset, selected_indicator_set, group_id, template_id)
