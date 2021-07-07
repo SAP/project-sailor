@@ -314,6 +314,7 @@ class AssetcentralEntity:
 
     @property
     def id(self):
+        """Return the ID of the object."""
         return self.raw.get('id')
 
     def __repr__(self) -> str:
