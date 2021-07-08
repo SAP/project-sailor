@@ -7,7 +7,7 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   sailor.pai.alerts
+   sailor.pai.alert
    sailor.pai.constants
    sailor.pai.utils
 
