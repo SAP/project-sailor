@@ -26,7 +26,11 @@ class Alert(PredictiveAssetInsightsEntity):
     # TopFunctionalLocationName, TopFunctionalLocationDescription, TriggeredOn
 
     @classmethod
-    def get_property_mapping(cls):
+    def get_available_properties(cls):  # noqa: D102
+        return cls._get_legacy_mapping().keys()
+    
+    @classmethod
+    def _get_legacy_mapping(cls):
         """Return a mapping from PredictiveAssetInsights (PAI) terminology to our terminology."""
         return {
             'id': ('AlertId', None, None, None),
@@ -117,7 +121,7 @@ def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
         find_equipment(severity_code=[10, 1])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Alert.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Alert._get_legacy_mapping())
 
     endpoint_url = _pai_application_url() + ALERTS_READ_PATH
     objects = []

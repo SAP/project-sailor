@@ -1,11 +1,8 @@
 """Module for various utility functions, in particular those related to fetching data from remote oauth endpoints."""
 
-import logging
 
 from ..utils.config import SailorConfig
 from ..assetcentral.utils import AssetcentralEntity
-LOG = logging.getLogger(__name__)
-LOG.addHandler(logging.NullHandler())
 
 
 def _pai_application_url():
