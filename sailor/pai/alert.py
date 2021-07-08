@@ -28,7 +28,7 @@ class Alert(PredictiveAssetInsightsEntity):
     @classmethod
     def get_available_properties(cls):  # noqa: D102
         return cls._get_legacy_mapping().keys()
-    
+
     @classmethod
     def _get_legacy_mapping(cls):
         """Return a mapping from PredictiveAssetInsights (PAI) terminology to our terminology."""
