@@ -4,7 +4,6 @@ Location module can be used to retrieve Location information from AssetCentral.
 Classes are provided for individual Locations as well as groups of Locations (LocationSet).
 """
 
-
 from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
     _ac_application_url
 from .constants import VIEW_LOCATIONS
@@ -19,8 +18,12 @@ class Location(AssetcentralEntity):
     # changedOn, publishedOn, source, imageURL, locationStatus, locationTypeDescription, locationType
 
     @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
+    def get_available_properties(cls):  # noqa: D102
+        return cls._get_legacy_mapping().keys()
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        # TODO: remove method in future version after field templates are in used
         return {
             'id': ('locationId', None, None, None),
             'name': ('name', None, None, None),
@@ -90,7 +93,7 @@ def find_locations(*, extended_filters=(), **kwargs) -> LocationSet:
         find_locations(extended_filters=['short_description != "Location 1"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Location.get_property_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Location._get_legacy_mapping())
 
     endpoint_url = _ac_application_url() + VIEW_LOCATIONS
 
