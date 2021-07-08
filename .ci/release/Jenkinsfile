@@ -51,7 +51,7 @@ node {
                 sh "pytest"
             }
             stage('build release') {
-                sh "python -m build"
+                sh "python -m build -w -s"
                 sourceDistFilepath = sh(script: "ls dist/*.tar.gz", returnStdout: true).trim()
                 wheelFilepath = sh(script: "ls dist/*.whl", returnStdout: true).trim()
             }

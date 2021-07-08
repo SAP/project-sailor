@@ -1,8 +1,9 @@
 """Module for various utility functions, in particular those related to fetching data from remote oauth endpoints."""
 
+from copy import deepcopy
 from typing import Union
 from collections.abc import Sequence, Iterable
-from collections import Counter
+from collections import Counter, UserDict
 from itertools import product
 import operator
 import logging
@@ -149,7 +150,7 @@ def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), clie
 
 def _add_properties(cls):
     """Add AssetCentral properties to a class based on the property mapping defined in the class."""
-    property_map = cls.get_property_mapping()
+    property_map = cls._get_legacy_mapping()
     for our_name, v in property_map.items():
         their_name, getter, setter, deleter = v
 
@@ -287,6 +288,26 @@ def _ac_application_url():
 class AssetcentralEntity:
     """Common base class for Assetcentral entities."""
 
+    _field_map = {}
+
+    @classmethod
+    def get_available_properties(cls):
+        """Return the available Assetcentral properties for this class."""
+        return set([field.our_name for field in cls._field_map.values() if field.is_exposed])
+
+    @classmethod
+    def get_property_mapping(cls):
+        """Return a mapping from assetcentral terminology to our terminology."""
+        # TODO: remove method in future version
+        msg = ("'get_property_mapping': deprecated. Method will be removed after September 01, 2021. " +
+               "use 'get_available_properties' instead")
+        warnings.warn(msg, FutureWarning)
+        return cls._get_legacy_mapping()
+
+    @classmethod
+    def _get_legacy_mapping(cls):
+        return {field.our_name: (field.their_name_get, None, None, None) for field in cls._field_map.values()}
+
     def __init__(self, ac_json: dict):
         """Create a new entity."""
         self.raw = ac_json
@@ -347,7 +368,7 @@ class ResultSet(Sequence):
 
     def as_df(self, columns=None):
         """Return all information on the objects stored in the ResultSet as a pandas dataframe."""
-        columns = self._element_type.get_property_mapping().keys() if columns is None else columns
+        columns = self._element_type.get_available_properties() if columns is None else columns
         return pd.DataFrame({
             prop: [element.__getattribute__(prop) for element in self.elements] for prop in columns
         })
@@ -408,3 +429,118 @@ def _is_non_string_iterable(obj):
     if issubclass(obj.__class__, str):
         return False
     return isinstance(obj, Iterable)
+
+
+class _AssetcentralWriteRequest(UserDict):
+    """Used for building the dictionary for create and update requests."""
+
+    def __init__(self, field_map, *args, **kwargs):
+        self.field_map = field_map
+        super().__init__(*args, **kwargs)
+
+    def insert_user_input(self, input_dict, forbidden_fields=()):
+        """Validate user input and update request if successful."""
+        for field_name in forbidden_fields:
+            their_name_put = self.field_map[field_name].their_name_put
+            offender = field_name if field_name in input_dict else None
+            offender = their_name_put if their_name_put in input_dict else offender
+            if offender:
+                raise RuntimeError(f"You cannot set '{offender}' in this request.")
+        self.update(input_dict)
+
+    def validate(self):
+        """Validate that mandatory fields are set."""
+        missing_keys = [field.our_name for field in self.field_map.values()
+                        if field.is_mandatory and field.their_name_put not in self.data]
+        if missing_keys:
+            raise AssetcentralRequestValidationError(
+                "Error when creating request. Missing values for mandatory parameters.", missing_keys)
+
+    def __setitem__(self, key, value):
+        """Transform item to AC API terminology before writing the underlying dict.
+
+        If a key cannot be found using the mapping no transformation is done.
+        """
+        if field := self.field_map.get(key):
+            if field.is_writable:
+                field.put_setter(self.data, value)
+        else:
+            warnings.warn(f"Unknown name for {type(self).__name__} parameter found: '{key}'.")
+            self.data[key] = value
+
+    @classmethod
+    def from_object(cls, ac_entity: AssetcentralEntity):
+        """Create a new request object using an existing AC object."""
+        raw = deepcopy(ac_entity.raw)
+        request = cls(ac_entity._field_map)
+
+        for field in request.field_map.values():
+            if field.is_writable:
+                try:
+                    request[field.our_name] = raw.pop(field.their_name_get)
+                except KeyError:
+                    msg = ("Error when creating request object. Please try again. If the error persists "
+                           "please raise an issue with the developers including the stacktrace."
+                           "\n\n==========================  Debug information =========================="
+                           f"\nCould not find key '{field.their_name_get}'."
+                           f"\nAC entity keys: {raw.keys()}")
+                    raise RuntimeError(msg)
+            else:
+                raw.pop(field.their_name_get, None)
+        if raw.keys():
+            LOG.debug("raw keys for %s not known to mapping or deletelist:\n%s", type(ac_entity), raw.keys())
+        request.update(raw)
+        return request
+
+
+class AssetcentralRequestValidationError(Exception):  # noqa: D101 (self-explanatory)
+    pass
+
+
+class _AssetcentralField:
+    """Specify a field in Assetcentral."""
+
+    def __init__(self, our_name, their_name_get, their_name_put=None, is_exposed=True, is_mandatory=False,
+                 get_extractor=None, put_setter=None):
+        self.our_name = our_name
+        self.their_name_get = their_name_get
+        self.their_name_put = their_name_put
+        self.is_exposed = is_exposed
+        self.is_writable = their_name_put is not None
+        self.is_mandatory = is_mandatory
+
+        self.names = (our_name, their_name_get, their_name_put)
+
+        self.get_extractor = get_extractor or self._default_get_extractor
+        self.put_setter = put_setter or self._default_put_setter
+
+    def _default_put_setter(self, payload, value):
+        payload[self.their_name_put] = value
+        return
+
+    def _default_get_extractor(self, value):
+        return value
+
+
+def _nested_put_setter(*nested_names):
+    def setter(payload, value):
+        next_dict = payload
+        for nested_name in nested_names[:-1]:
+            next_dict = next_dict.setdefault(nested_name, {})
+        next_dict[nested_names[-1]] = value
+    return setter
+
+
+def _add_properties_new(cls):
+    """Add properties to the entity class based on the field template defined by the request mapper."""
+    # This is the new function to be used for all AssetcentralEntities.
+    # TODO: remove this comment block once everything is refactored
+    for field in cls._field_map.values():
+
+        # the assignment of the default value (`field=field`)
+        # is necessary due to the closure rules in loops
+        def getter(self, field=field):
+            return field.get_extractor(self.raw.get(field.their_name_get))
+
+        setattr(cls, field.our_name, property(getter, None, None))
+    return cls

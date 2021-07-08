@@ -4,8 +4,10 @@ from unittest.mock import PropertyMock, patch
 import pytest
 
 from sailor.assetcentral.equipment import Equipment
-from sailor.assetcentral.utils import AssetcentralEntity, ResultSet, _unify_filters, _parse_filter_parameters, \
-    _apply_filters_post_request, _compose_queries, _fetch_data
+from sailor.assetcentral.utils import (
+    AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity, ResultSet,
+    _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data,
+    _add_properties_new)
 
 
 class TestAssetcentralEntity:
@@ -31,6 +33,109 @@ class TestAssetcentralEntity:
         entity2 = Equipment({})
         assert entity1 != entity2
 
+    def test_get_available_properties_is_not_empty(self):
+        # note: __subclasses__ requires that all subclasses are imported
+        # currently we ensure this transitively: see __init__.py in test_assetcentral
+        classes = AssetcentralEntity.__subclasses__()
+        for class_ in classes:
+            assert class_.get_available_properties()
+
+    def test_integration_with_fields(self):
+        def get_extractor(value):
+            return pow(value, 2)
+        fields = [_AssetcentralField('our_name', 'their_name_get', 'their_name_put', get_extractor=get_extractor)]
+
+        @_add_properties_new
+        class FieldTestEntity(AssetcentralEntity):
+            _field_map = {f.our_name: f for f in fields}
+        entity = FieldTestEntity({'their_name_get': 9})
+
+        assert entity.our_name == 81
+
+
+class TestAssetcentralRequest:
+
+    def test_setitem_sets_raw_and_emits_warning_if_key_not_found_in_mapping(self):
+        actual = _AssetcentralWriteRequest({})
+        with pytest.warns(UserWarning, match="Unknown name for _AssetcentralWriteRequest parameter found: 'abc'"):
+            actual.update({'abc': 1})
+        assert actual == {'abc': 1}
+
+    def test_setitem_sets_nothing_if_key_known_but_not_writable(self):
+        field_map = {'our_name': _AssetcentralField('our_name', 'their_name_get')}
+        actual = _AssetcentralWriteRequest(field_map)
+
+        actual.update({'our_name': 1})
+
+        assert actual == {}
+
+    def test_setitem_sets_their_name(self):
+        field_map = {'our_name': _AssetcentralField('our_name', 'their_name_get', 'their_name_put')}
+        actual = _AssetcentralWriteRequest(field_map)
+
+        actual.update({'our_name': 1})
+
+        assert actual == {'their_name_put': 1}
+
+    def test_setitem_uses_field_put_setter(self):
+        def put_setter(payload, value):
+            payload['test'] = int(value)
+        field_map = {'our_name': _AssetcentralField('our_name', 'their_name_get', 'their_name_put',
+                                                    put_setter=put_setter)}
+        actual = _AssetcentralWriteRequest(field_map)
+
+        actual.update({'our_name': '111'})
+
+        assert actual == {'test': 111}
+
+    @pytest.mark.filterwarnings('ignore:Unknown name for _AssetcentralWriteRequest parameter found')
+    def test_from_object(self, monkeypatch):
+        field_map = {'ABC': _AssetcentralField('ABC', 'ABC', 'AbC'),
+                     'DEF': _AssetcentralField('DEF', 'DEF'),
+                     'GHI': _AssetcentralField('GHI', 'GHI', 'GHI')}
+        monkeypatch.setattr(AssetcentralEntity, '_field_map', field_map)
+        entity = AssetcentralEntity({'ABC': 1, 'DEF': 2, 'GHI': 3})
+        expected_request_dict = {'AbC': 1, 'GHI': 3}
+
+        actual = _AssetcentralWriteRequest.from_object(entity)
+
+        assert actual == expected_request_dict
+
+    def test_insert_user_input_updates_dict(self):
+        field_map = {'our_name': _AssetcentralField('our_name', 'their_name_get', 'their_name_put')}
+        actual = _AssetcentralWriteRequest(field_map)
+
+        actual.insert_user_input({'our_name': 1})
+
+        assert actual == {'their_name_put': 1}
+
+    def test_insert_user_input_raises_when_field_forbidden(self):
+        field_map = {'our_name': _AssetcentralField('our_name', 'their_name_get', 'their_name_put')}
+        actual = _AssetcentralWriteRequest(field_map)
+        with pytest.raises(RuntimeError, match="You cannot set 'our_name' in this request."):
+            actual.insert_user_input({'our_name': 1}, forbidden_fields=['our_name'])
+        with pytest.raises(RuntimeError, match="You cannot set 'their_name_put' in this request."):
+            actual.insert_user_input({'their_name_put': 1}, forbidden_fields=['our_name'])
+
+    @pytest.mark.parametrize('is_mandatory,has_value', [
+        (True, False),
+        (True, True),
+        (False, False),
+        (False, True),
+    ])
+    def test_validate_raises_when_mandatory_field_missing(self, is_mandatory, has_value):
+        field_map = {'field':
+                     _AssetcentralField('field', 'their_name_get', 'their_name_put', is_mandatory=is_mandatory)}
+        actual = _AssetcentralWriteRequest(field_map)
+        if has_value:
+            actual.update(field='value')
+
+        if not has_value and is_mandatory:
+            with pytest.raises(AssetcentralRequestValidationError):
+                actual.validate()
+        else:
+            actual.validate()
+
 
 class TestResultSet:
 
@@ -43,7 +148,7 @@ class TestResultSet:
 
     @pytest.mark.parametrize('cls', ResultSet.__subclasses__())
     def test_resultset_method_defaults(self, cls):
-        element_properties = cls._element_type.get_property_mapping()
+        element_properties = cls._element_type._get_legacy_mapping()
         assert cls._method_defaults['plot_distribution']['by'] in element_properties
 
     def test_magic_eq_type_not_equal(self):
