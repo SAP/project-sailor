@@ -1,0 +1,89 @@
+name: PRwithSonar
+
+on:
+  push:
+    branches:
+      - branch-sonartest
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - uses: actions/checkout@v2
+
+      - name: prepare
+        run: |
+          pip install pytest coverage
+          pip install -r requirements.txt
+
+      - name: pytest
+        run: |
+          coverage run -m pytest -q tests
+          coverage xml
+
+      - name: Store coverage for sonar job
+        uses: actions/upload-artifact@v1
+        with:
+          name: coverage
+          path: coverage.xml
+
+
+  Linting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - uses: actions/checkout@v2
+
+      - name: prepare
+        run: | 
+          pip install -r .ci/requirements_pr.txt
+          git fetch --depth 1 origin main
+          mkdir ../reports
+
+      - name: bandit
+        continue-on-error: true
+        run: ./.ci/run_lint.sh bandit "--ini setup.cfg --output ../reports/bandit.json -f json"
+      - name: flake8
+        continue-on-error: true
+        run: ./.ci/run_lint.sh flake8 --output-file=../reports/flake8.out
+      - name: pydocstyle
+        continue-on-error: true
+        run: ./.ci/run_lint.sh pydocstyle > ../reports/pydocstyle.json
+
+      - name: Store reports for sonar job
+        uses: actions/upload-artifact@v1
+        with:
+          name: linting-reports
+          path: ../reports/
+
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    needs: [Linting,Tests]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get coverage
+        uses: actions/download-artifact@v1
+        with:
+          name: coverage
+
+      - name: Get linting reports
+        uses: actions/download-artifact@v1
+        with:
+          name: linting-reports
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
