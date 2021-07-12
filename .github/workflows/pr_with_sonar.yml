@@ -63,7 +63,7 @@ jobs:
           path: ../reports/
 
       - name: Fail job on linting error
-        if: ${{ contains(steps.*.outcome, 'failure' }}
+        if: ${{ contains(steps.*.outcome, 'failure') }}
         run: echo "::error Linting failed for ${{ steps.*.outcome }}. Please check the corresponding step logs."
 
 
