@@ -21,7 +21,7 @@ jobs:
 
       - name: pytest
         run: |
-          coverage run -m pytest -q tests || true
+          coverage run -m pytest -q tests
           coverage xml
 
       - name: Store coverage for sonar job
@@ -75,32 +75,33 @@ jobs:
         if: contains(steps.*.outcome, 'failure')
         run: |
           echo "::error::Linting failed for at least one linting step. Please check the corresponding step logs."
+          exit 1
 
 
   # the scanner can run independently but if it has reports available on the specified paths of the sonar properties file
   # it will use them. therefore we wait for the previous jobs to finish, but carry on even if they have failed.
-  # Sonarcloud:
-  #   name: SonarCloud
-  #   runs-on: ubuntu-latest
-  #   if: always()
-  #   needs: [Linting,Tests]
-  #   steps:
-  #     - uses: actions/checkout@v2
+  Sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [Linting,Tests]
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - name: Get coverage report
-  #       uses: actions/download-artifact@v1
-  #       with:
-  #         name: coverage
-  #       continue-on-error: true
+      - name: Get coverage report
+        uses: actions/download-artifact@v1
+        with:
+          name: coverage
+        continue-on-error: true
 
-  #     - name: Get linting reports
-  #       uses: actions/download-artifact@v1
-  #       with:
-  #         name: linting-reports
-  #       continue-on-error: true
+      - name: Get linting reports
+        uses: actions/download-artifact@v1
+        with:
+          name: linting-reports
+        continue-on-error: true
 
-  #     - name: SonarCloud Scan
-  #       uses: SonarSource/sonarcloud-github-action@master
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
