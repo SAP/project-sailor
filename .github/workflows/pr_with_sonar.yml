@@ -46,13 +46,13 @@ jobs:
           git fetch --depth 1 origin main
           mkdir ../reports
 
-      - name: bandit
+      - id: bandit
         continue-on-error: true
         run: ./.ci/run_lint.sh bandit "--ini setup.cfg --output ../reports/bandit.json -f json"
-      - name: flake8
+      - id: flake8
         continue-on-error: true
         run: ./.ci/run_lint.sh flake8 --output-file=../reports/flake8.out
-      - name: pydocstyle
+      - id: pydocstyle
         continue-on-error: true
         run: ./.ci/run_lint.sh pydocstyle > ../reports/pydocstyle.json
 
