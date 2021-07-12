@@ -62,25 +62,35 @@ jobs:
           name: linting-reports
           path: ../reports/
 
-  sonarcloud:
-    name: SonarCloud
-    runs-on: ubuntu-latest
-    needs: [Linting,Tests]
-    steps:
-      - uses: actions/checkout@v2
+      - name: Fail job on linting error
+        if: ${{ contains(steps.*.outcome, 'failure' }}
+        run: echo "::error Linting failed for ${{ steps.*.outcome }}. Please check the corresponding step logs."
 
-      - name: Get coverage
-        uses: actions/download-artifact@v1
-        with:
-          name: coverage
 
-      - name: Get linting reports
-        uses: actions/download-artifact@v1
-        with:
-          name: linting-reports
+  # the scanner can run independently but if it has reports available on the specified paths of the sonar properties file
+  # it will use them. therefore we wait for the previous jobs to finish, but carry on even if they have failed.
+  # Sonarcloud:
+  #   name: SonarCloud
+  #   runs-on: ubuntu-latest
+  #   if: always()
+  #   needs: [Linting,Tests]
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #     - name: Get coverage report
+  #       uses: actions/download-artifact@v1
+  #       with:
+  #         name: coverage
+  #       continue-on-error: true
+
+  #     - name: Get linting reports
+  #       uses: actions/download-artifact@v1
+  #       with:
+  #         name: linting-reports
+  #       continue-on-error: true
+
+  #     - name: SonarCloud Scan
+  #       uses: SonarSource/sonarcloud-github-action@master
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
