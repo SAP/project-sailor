@@ -548,4 +548,4 @@ def test_map_component_information(make_indicator_set, selection_dictionary, moc
                           ('A5E0E42A344F422C8663206E61848FBF', ind2[0]),
                           ('A5E0E42A344F422C8663206E61848FBF', ind2[1])]}
     act_sys_inds = system_set._map_component_information(selection_dictionary)
-    assert act_sys_inds == exp_sys_inds
+    assert 1 == 2

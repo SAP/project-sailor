@@ -1,10 +1,8 @@
 name: PRwithSonar
 
 on:
-  push:
-    branches:
-      - branch-sonartest
   pull_request:
+    branches: [branch-sonartest-pr]
     types: [opened, synchronize, reopened]
 
 jobs:
