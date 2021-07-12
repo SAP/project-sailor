@@ -72,13 +72,9 @@ jobs:
           path: ../reports/
 
       - name: Fail job on linting error
-        #if: contains(steps.*.outcome, 'failure')
-        env:
-          OUTCOME: ${{ join(steps.*.name) }}
-          STEPS_JSON: ${{ toJSON(steps) }}
+        if: contains(steps.*.outcome, 'failure')
         run: |
-          echo "::error::Linting failed for steps $OUTCOME. Please check the corresponding step logs."
-          echo "$STEPS_JSON"
+          echo "::error::Linting failed for at least one linting step. Please check the corresponding step logs."
 
 
   # the scanner can run independently but if it has reports available on the specified paths of the sonar properties file
