@@ -50,20 +50,23 @@ jobs:
         id: bandit
         continue-on-error: true
         run: |
-          ./.ci/run_lint.sh bandit "--ini setup.cfg --output ../reports/bandit.json -f json" || true
-          ./.ci/run_lint.sh bandit "--ini setup.cfg --silent"
+          ./.ci/run_lint.sh bandit "--ini setup.cfg --output ../reports/bandit.json -f json" || {
+            echo "::error::Lint (bandit) failed." && ./.ci/run_lint.sh bandit "--ini setup.cfg --silent"
+          }
       - name: Lint (flake8)
         id: flake8
         continue-on-error: true
         run: |
-          ./.ci/run_lint.sh flake8 "--output-file=../reports/flake8.out" || true
-          ./.ci/run_lint.sh flake8
+          ./.ci/run_lint.sh flake8 "--output-file=../reports/flake8.out" || {
+            echo "::error::Lint (flake8) failed." && ./.ci/run_lint.sh flake8
+          }
       - name: Lint (pydocstyle)
         id: pydocstyle
         continue-on-error: true
         run: |
-          ./.ci/run_lint.sh ./.ci/pydocstyle_wrapper.py > ../reports/pydocstyle.json || true
-          ./.ci/run_lint.sh pydocstyle
+          ./.ci/run_lint.sh ./.ci/pydocstyle_wrapper.py > ../reports/pydocstyle.json || {
+            echo "::error::Lint (pydocstyle) failed." && ./.ci/run_lint.sh pydocstyle
+          }
 
       - name: Store reports for sonar job
         uses: actions/upload-artifact@v1
@@ -74,7 +77,7 @@ jobs:
       - name: Fail job on linting error
         #if: contains(steps.*.outcome, 'failure')
         env:
-          OUTCOME: ${{ join(steps.*.name) }}
+          OUTCOME: ${{ join(steps.*.id) }}
           STEPS_JSON: ${{ toJSON(steps) }}
         run: |
           echo "::error::Linting failed for steps $OUTCOME. Please check the corresponding step logs."
