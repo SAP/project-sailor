@@ -20,6 +20,8 @@ LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
 
+# Unfortunately there is no guidance from SAP IoT yet on how much data can be uploaded at once.
+# The value of _MAX_PAGE_SIZE below was chosen based on local experiments where data ingestion seemed to work well.
 _MAX_PAGE_SIZE = 100000
 
 
