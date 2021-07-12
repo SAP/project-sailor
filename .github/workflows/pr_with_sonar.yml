@@ -46,15 +46,24 @@ jobs:
           git fetch --depth 1 origin main
           mkdir ../reports
 
-      - id: bandit
+      - name: Lint (bandit)
+        id: bandit
         continue-on-error: true
-        run: ./.ci/run_lint.sh bandit "--ini setup.cfg --output ../reports/bandit.json -f json"
-      - id: flake8
+        run: |
+          ./.ci/run_lint.sh bandit "--ini setup.cfg --output ../reports/bandit.json -f json" || true
+          ./.ci/run_lint.sh bandit "--ini setup.cfg --silent"
+      - name: Lint (flake8)
+        id: flake8
         continue-on-error: true
-        run: ./.ci/run_lint.sh flake8 --output-file=../reports/flake8.out
-      - id: pydocstyle
+        run: |
+          ./.ci/run_lint.sh flake8 "--output-file=../reports/flake8.out" || true
+          ./.ci/run_lint.sh flake8
+      - name: Lint (pydocstyle)
+        id: pydocstyle
         continue-on-error: true
-        run: ./.ci/run_lint.sh pydocstyle > ../reports/pydocstyle.json
+        run: |
+          ./.ci/run_lint.sh ./.ci/pydocstyle_wrapper.py > ../reports/pydocstyle.json || true
+          ./.ci/run_lint.sh pydocstyle
 
       - name: Store reports for sonar job
         uses: actions/upload-artifact@v1
@@ -65,7 +74,7 @@ jobs:
       - name: Fail job on linting error
         #if: contains(steps.*.outcome, 'failure')
         env:
-          OUTCOME: ${{ join(steps.*.outcome) }}
+          OUTCOME: ${{ join(steps.*.name) }}
           STEPS_JSON: ${{ toJSON(steps) }}
         run: |
           echo "::error::Linting failed for steps $OUTCOME. Please check the corresponding step logs."
