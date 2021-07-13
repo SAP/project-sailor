@@ -187,9 +187,9 @@ another field of the object.</p></li>
 </dd>
 </dl>
 <p>The names of all fields known for an object, and hence all fields which may be used for filtering can be determined
-by calling the <cite>get_property_mapping</cite> classmethod of the object, such as
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">get_property_mapping()</span></code> etc. This method returns a dictionary, and
-the keys of this dictionary list all known and filterable fields.</p>
+by calling the <a class="reference internal" href="apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity.get_available_properties" title="sailor.assetcentral.utils.AssetcentralEntity.get_available_properties"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_available_properties()</span></code></a> classmethod of the object, such as
+<code class="docutils literal notranslate"><span class="pre">Notification.get_available_properties()</span></code> etc. This method returns a set of all known and
+and filterable fields.</p>
 <div class="section" id="named-keyword-arguments">
 <h2>Named Keyword Arguments<a class="headerlink" href="#named-keyword-arguments" title="Permalink to this headline">¶</a></h2>
 <p>Any <strong>named keyword argument</strong> is applied as an equality filter.</p>

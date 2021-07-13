@@ -461,7 +461,11 @@
 
 <div class="viewcode-block" id="AssetcentralEntity.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.</span>
+
+<span class="sd">        .. deprecated:: 1.4.0</span>
+<span class="sd">        Use :meth:`get_available_properties` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO: remove method in future version</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&#39;get_property_mapping&#39;: deprecated. Method will be removed after September 01, 2021. &quot;</span> <span class="o">+</span>
                <span class="s2">&quot;use &#39;get_available_properties&#39; instead&quot;</span><span class="p">)</span>
@@ -548,8 +552,14 @@
             <span class="n">prop</span><span class="p">:</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">columns</span>
         <span class="p">})</span></div>
 
-<div class="viewcode-block" id="ResultSet.filter"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Select a subset of the ResultSet based on named filter criteria for the attributes of the elements.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ResultSet.filter"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ResultSet&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Select a subset of the ResultSet based on named filter criteria for the attributes of the elements.</span>
+
+<span class="sd">        All keyword arguments are concatenated as filters with OR operator, i.e., only one of the supplied filters</span>
+<span class="sd">        must match for an entity to be selected.</span>
+
+<span class="sd">        Returns a new ResultSet object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">selection</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>

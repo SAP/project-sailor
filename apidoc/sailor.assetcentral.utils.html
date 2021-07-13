@@ -221,6 +221,10 @@
 <dt class="sig sig-object py" id="sailor.assetcentral.utils.AssetcentralEntity.get_property_mapping">
 <em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_property_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#AssetcentralEntity.get_property_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.utils.AssetcentralEntity.get_property_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a mapping from assetcentral terminology to our terminology.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 1.4.0.</span></p>
+</div>
+<p>Use <a class="reference internal" href="#sailor.assetcentral.utils.AssetcentralEntity.get_available_properties" title="sailor.assetcentral.utils.AssetcentralEntity.get_available_properties"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_available_properties()</span></code></a> instead.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -246,6 +250,14 @@
 <dt class="sig sig-object py" id="sailor.assetcentral.utils.ResultSet.filter">
 <span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/utils.html#ResultSet.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.utils.ResultSet.filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select a subset of the ResultSet based on named filter criteria for the attributes of the elements.</p>
+<p>All keyword arguments are concatenated as filters with OR operator, i.e., only one of the supplied filters
+must match for an entity to be selected.</p>
+<p>Returns a new ResultSet object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#sailor.assetcentral.utils.ResultSet" title="sailor.assetcentral.utils.ResultSet">sailor.assetcentral.utils.ResultSet</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

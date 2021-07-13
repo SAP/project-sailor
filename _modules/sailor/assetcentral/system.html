@@ -200,7 +200,7 @@
 
 <div class="viewcode-block" id="System.get_available_properties"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.System.get_available_properties">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_available_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>  <span class="c1"># noqa: D102</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_get_legacy_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
@@ -286,7 +286,8 @@
     <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Pieces of equipment that are children of the system.</span>
 
-<span class="sd">        Only top level, lower levels are ignored</span>
+<span class="sd">        .. deprecated:: 1.4.0</span>
+<span class="sd">        Only top level, lower levels are ignored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;deprecated: attribute &#39;components&#39; of class System will be removed after September 1, 2021&quot;</span><span class="p">,</span>
                       <span class="ne">FutureWarning</span><span class="p">)</span>

@@ -248,8 +248,12 @@ aggregation_function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>equipment_ids</strong> (<em>Iterable</em><em>[</em><em>str</em><em>]</em>) – Optional equipment set ids to filter timeseries data. If equipment_set is also present this
-argument is ignored.</p></li>
+<li><p><strong>equipment_ids</strong> (<em>Iterable</em><em>[</em><em>str</em><em>]</em>) – <div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 1.4.0.</span></p>
+</div>
+<p>Optional equipment set ids to filter timeseries data. If equipment_set is also present this
+argument is ignored.</p>
+</p></li>
 <li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime</em><em>]</em>) – Optional start time of timeseries data are returned.</p></li>
 <li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime</em><em>]</em>) – Optional end time until timeseries data are returned.</p></li>
 <li><p><strong>equipment_set</strong> (<a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet"><em>EquipmentSet</em></a>) – Optional EquipmentSet to filter timeseries data. Takes precedence over equipment_ids.</p></li>
