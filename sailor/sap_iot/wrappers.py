@@ -338,6 +338,7 @@ class TimeseriesDataset(object):
         Parameters
         ----------
         equipment_ids
+            .. deprecated:: 1.4.0
             Optional equipment set ids to filter timeseries data. If equipment_set is also present this
             argument is ignored.
         start

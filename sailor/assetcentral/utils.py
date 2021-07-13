@@ -297,7 +297,11 @@ class AssetcentralEntity:
 
     @classmethod
     def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
+        """Return a mapping from assetcentral terminology to our terminology.
+
+        .. deprecated:: 1.4.0
+        Use :meth:`get_available_properties` instead.
+        """
         # TODO: remove method in future version
         msg = ("'get_property_mapping': deprecated. Method will be removed after September 01, 2021. " +
                "use 'get_available_properties' instead")
@@ -384,8 +388,14 @@ class ResultSet(Sequence):
             prop: [element.__getattribute__(prop) for element in self.elements] for prop in columns
         })
 
-    def filter(self, **kwargs):
-        """Select a subset of the ResultSet based on named filter criteria for the attributes of the elements."""
+    def filter(self, **kwargs) -> 'ResultSet':
+        """Select a subset of the ResultSet based on named filter criteria for the attributes of the elements.
+
+        All keyword arguments are concatenated as filters with OR operator, i.e., only one of the supplied filters
+        must match for an entity to be selected.
+
+        Returns a new ResultSet object.
+        """
         selection = []
 
         for element in self.elements:

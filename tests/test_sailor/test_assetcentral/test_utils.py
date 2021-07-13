@@ -31,9 +31,13 @@ class TestAssetcentralEntity:
     def test_get_available_properties_is_not_empty(self):
         # note: __subclasses__ requires that all subclasses are imported
         # currently we ensure this transitively: see __init__.py in test_assetcentral
+        # TODO: after refactoring, this test should be moved up to the new superclass and we must make sure
+        #       that all subclasses are imported
         classes = AssetcentralEntity.__subclasses__()
         for class_ in classes:
-            assert class_.get_available_properties()
+            actual = class_.get_available_properties()
+            assert actual
+            assert type(actual) == set
 
     def test_integration_with_fields(self):
         def get_extractor(value):
