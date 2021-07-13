@@ -59,7 +59,7 @@ Filtering data
 
     For an overview of the syntax used for filtering, refer to the documentation of the :doc:`Filter Language<../filter_language>`.
     To get an overview of the fields that are available as filters, you can use the function :meth:`~sailor.assetcentral.equipment.Equipment.get_available_properties()`.
-    The names of the items in the resulting map can be used as filters. Similar functions also exist for the other objects::
+    The fields in the resulting set can be used as filters. Similar functions also exist for the other objects::
 
         from sailor.assetcentral.equipment import Equipment
         Equipment.get_available_properties()

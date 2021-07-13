@@ -15,9 +15,9 @@ All functions of this kind support two types of parameters:
    another field of the object.
 
 The names of all fields known for an object, and hence all fields which may be used for filtering can be determined
-by calling the `get_available_properties` classmethod of the object, such as
-:meth:`~sailor.assetcentral.notification.Notification.get_available_properties` etc. This method returns a dictionary, and
-the keys of this dictionary list all known and filterable fields.
+by calling the :meth:`~sailor.assetcentral.utils.AssetcentralEntity.get_available_properties` classmethod of the object, such as
+``Notification.get_available_properties()`` etc. This method returns a set of all known and
+and filterable fields.
 
 Named Keyword Arguments
 -----------------------
