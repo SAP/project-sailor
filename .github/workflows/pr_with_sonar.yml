@@ -48,34 +48,28 @@ jobs:
 
       - name: Lint (bandit)
         id: bandit
-        continue-on-error: true
         run: |
           ./.ci/run_lint.sh bandit "--ini setup.cfg --output ../reports/bandit.json -f json" || true
           ./.ci/run_lint.sh bandit "--ini setup.cfg --silent"
       - name: Lint (flake8)
         id: flake8
-        continue-on-error: true
+        if: always()
         run: |
           ./.ci/run_lint.sh flake8 "--output-file=../reports/flake8.out" || true
           ./.ci/run_lint.sh flake8
       - name: Lint (pydocstyle)
         id: pydocstyle
-        continue-on-error: true
+        if: always()
         run: |
           ./.ci/run_lint.sh ./.ci/pydocstyle_wrapper.py > ../reports/pydocstyle.json || true
           ./.ci/run_lint.sh pydocstyle
 
       - name: Store reports for sonar job
         uses: actions/upload-artifact@v1
+        if: always()
         with:
           name: linting-reports
           path: ../reports/
-
-      - name: Fail job on linting error
-        if: contains(steps.*.outcome, 'failure')
-        run: |
-          echo "::error::Linting failed for at least one linting step. Please check the corresponding step logs."
-          exit 1
 
 
   # the scanner can run independently but if it has reports available on the specified paths of the sonar properties file
