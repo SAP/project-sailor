@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>sailor.sap_iot.write &mdash; Project &#34;Sailor&#34;  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Project "Sailor"
+          
+
+          
+            
+            <img src="../../../_static/sailor_logo_100x100.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../filter_language.html">Filter Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Project "Sailor"</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sailor.sap_iot.write</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sailor.sap_iot.write</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Timeseries module can be used to write timeseries data to the SAP iot extension timeseries api.</span>
+
+<span class="sd">Currently only a single function to upload a `TimeseriesDataset` is exposed. It will upload the full dataset,</span>
+<span class="sd">indicator and equipment information is taken from the TimeseriesDataset.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">sailor.assetcentral.indicators</span> <span class="k">as</span> <span class="nn">ac_indicators</span>
+<span class="kn">from</span> <span class="nn">.wrappers</span> <span class="kn">import</span> <span class="n">TimeseriesDataset</span>
+<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_timestamp_to_isoformat</span>
+<span class="kn">from</span> <span class="nn">..utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span>
+<span class="kn">from</span> <span class="nn">..utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+
+<span class="c1"># Unfortunately there is no guidance from SAP IoT yet on how much data can be uploaded at once.</span>
+<span class="c1"># The value of _MAX_PAGE_SIZE below was chosen based on local experiments where data ingestion seemed to work well.</span>
+<span class="n">_MAX_PAGE_SIZE</span> <span class="o">=</span> <span class="mi">100000</span>
+
+
+<span class="k">def</span> <span class="nf">_upload_data_single_equipment</span><span class="p">(</span><span class="n">data_subset</span><span class="p">,</span> <span class="n">equipment_id</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Uploading data for equipment </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">equipment_id</span><span class="p">)</span>
+
+    <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;upload_url&#39;</span><span class="p">)</span>
+    <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/Timeseries/extend/Measurements/objectId/</span><span class="si">{</span><span class="n">equipment_id</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">get_oauth_client</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
+
+    <span class="c1"># shape[1] is the number of columns, we want to divide the page size by the number of columns as each column</span>
+    <span class="c1"># contributes to the payload size</span>
+    <span class="n">page_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">_MAX_PAGE_SIZE</span> <span class="o">//</span> <span class="n">data_subset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Uploading </span><span class="si">%d</span><span class="s1"> rows with page size </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_subset</span><span class="p">),</span> <span class="n">page_size</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="p">(</span><span class="n">data_subset</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">page_size</span><span class="p">,</span> <span class="p">:]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_subset</span><span class="p">),</span> <span class="n">page_size</span><span class="p">)):</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Uploading page with size </span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">page</span><span class="p">))</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;Tags&#39;</span><span class="p">:</span> <span class="n">tags</span><span class="p">,</span>
+            <span class="s1">&#39;Values&#39;</span><span class="p">:</span> <span class="n">page</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">oauth_iot</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">request_url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_upload_data_single_indicator_group</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">,</span> <span class="n">group_id</span><span class="p">,</span> <span class="n">template_id</span><span class="p">):</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Starting upload for </span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">group_id</span><span class="p">,</span> <span class="n">template_id</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">indicator_set</span><span class="o">=</span><span class="n">indicator_set</span><span class="p">)</span><span class="o">.</span><span class="n">as_df</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">_time</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">_timestamp_to_isoformat</span><span class="p">,</span> <span class="n">with_zulu</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
+          <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;timestamp&#39;</span><span class="p">)</span>
+          <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">indicator</span><span class="o">.</span><span class="n">_unique_id</span><span class="p">:</span> <span class="n">indicator</span><span class="o">.</span><span class="n">_liot_id</span> <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">indicator_set</span><span class="p">})</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">equipment_set</span><span class="p">:</span>
+        <span class="n">data_subset</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;equipment_id == @equipment.id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;model_id&#39;</span><span class="p">])</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;indicatorGroupId&#39;</span><span class="p">:</span> <span class="n">group_id</span><span class="p">,</span>
+            <span class="s1">&#39;templateId&#39;</span><span class="p">:</span> <span class="n">template_id</span><span class="p">,</span>
+            <span class="s1">&#39;equipmentId&#39;</span><span class="p">:</span> <span class="n">equipment</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s1">&#39;modelId&#39;</span><span class="p">:</span> <span class="n">equipment</span><span class="o">.</span><span class="n">model_id</span>
+        <span class="p">}</span>
+        <span class="n">_upload_data_single_equipment</span><span class="p">(</span><span class="n">data_subset</span><span class="p">,</span> <span class="n">equipment</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="upload_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.write.html#sailor.sap_iot.write.upload_indicator_data">[docs]</a><span class="k">def</span> <span class="nf">upload_indicator_data</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">TimeseriesDataset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Upload a `TimeseriesDataset` to SAP IoT.</span>
+
+<span class="sd">    This functionality is currently in BETA. Please report any bugs at https://github.com/SAP/project-sailor/issues.</span>
+<span class="sd">    The entire dataset will be uploaded. It may not contain any AggregatedIndicators.</span>
+<span class="sd">    Please note that only some indicators from an IndicatorGroup are present in the dataset, SAP IoT will delete</span>
+<span class="sd">    any values for the missing indicators for the uploaded timestamps.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">indicator_set</span><span class="p">,</span> <span class="n">ac_indicators</span><span class="o">.</span><span class="n">AggregatedIndicatorSet</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;TimeseriesDatasets containing aggregated indicators may not be uploaded to SAP IoT&#39;</span><span class="p">)</span>
+
+    <span class="n">query_groups</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">indicator_set</span><span class="p">:</span>
+        <span class="n">query_groups</span><span class="p">[(</span><span class="n">indicator</span><span class="o">.</span><span class="n">_liot_group_id</span><span class="p">,</span> <span class="n">indicator</span><span class="o">.</span><span class="n">template_id</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indicator</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">group_id</span><span class="p">,</span> <span class="n">template_id</span><span class="p">),</span> <span class="n">group_indicators</span> <span class="ow">in</span> <span class="n">query_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">selected_indicator_set</span> <span class="o">=</span> <span class="n">ac_indicators</span><span class="o">.</span><span class="n">IndicatorSet</span><span class="p">(</span><span class="n">group_indicators</span><span class="p">)</span>
+        <span class="n">_upload_data_single_indicator_group</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">selected_indicator_set</span><span class="p">,</span> <span class="n">group_id</span><span class="p">,</span> <span class="n">template_id</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, SAP SE and project &#34;Sailor&#34; contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #e3e3e3;
+      color: #000000;
+    }
+    .wy-side-nav-search>a, .wy-nav-top>a {
+        color: #000000;
+    }
+  </style>
+
+
+</body>
+</html>

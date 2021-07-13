@@ -233,7 +233,7 @@
 
 <span class="k">def</span> <span class="nf">_process_one_file</span><span class="p">(</span><span class="n">ifile</span><span class="p">:</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">:</span> <span class="n">EquipmentSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="c1"># each processed file contains data for some time range (one day it seems), one indicator group and all</span>
-    <span class="c1"># equipment_set holding any data for that group in that time period.</span>
+    <span class="c1"># equipment holding any data for that group in that time period.</span>
     <span class="c1"># Since the user might not have requested all indicators in the group we&#39;ll filter out any results that were not</span>
     <span class="c1"># requested. This is complicated by the fact that it&#39;s possible that the same indicator_id is present in the</span>
     <span class="c1"># indicator_group through two different templates. If it is requested only through one template it needs to be</span>
