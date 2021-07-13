@@ -265,7 +265,7 @@ class TimeseriesDataset(object):
             data.groupby(groupers)
                 .agg('mean')
                 .reset_index()
-                .dropna(1, 'all')
+                .dropna(axis=1, how='all')
                 .melt(id_vars=key_vars, value_vars=feature_vars, var_name='Feature')
                 .assign(**facet_assignment)
                 .replace({'equipment_id': equipment_mapping})

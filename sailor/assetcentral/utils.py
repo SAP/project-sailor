@@ -312,6 +312,11 @@ class AssetcentralEntity:
         """Create a new entity."""
         self.raw = ac_json
 
+    @property
+    def id(self):
+        """Return the ID of the object."""
+        return self.raw.get('id')
+
     def __repr__(self) -> str:
         """Return a very short string representation."""
         name = getattr(self, 'name', getattr(self, 'short_description', None))
@@ -329,7 +334,7 @@ class AssetcentralEntity:
 class ResultSet(Sequence):
     """Baseclass to be used in all Sets of AssetCentral objects."""
 
-    _element_type = None
+    _element_type = AssetcentralEntity
     _method_defaults = {}
 
     def __init__(self, elements, generating_query_params=None):
@@ -339,6 +344,12 @@ class ResultSet(Sequence):
             duplicate_elements = [k for k, v in Counter(elements).items() if v > 1]
             LOG.info(f'Duplicate elements encountered when creating {type(self).__name__}, discarding duplicates. '
                      f'Duplicates of the following elements were discarded: %s', duplicate_elements)
+
+        bad_elements = [element for element in self.elements if not type(element) == self._element_type]
+        if bad_elements:
+            bad_types = ' or '.join({element.__class__.__name__ for element in bad_elements})
+            raise RuntimeError(f'{self.__class__.__name__} may only contain elements of type '
+                               f'{self._element_type.__name__}, not {bad_types}')
 
         self.__generating_query_params = generating_query_params
 

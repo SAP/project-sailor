@@ -1,3 +1,8 @@
+import pytest
+
+from sailor.assetcentral.indicators import AggregatedIndicatorSet, IndicatorSet
+
+
 class TestIndicatorSet:
     def test_get_name_mapping(self, make_indicator_set):
         indicator_set = make_indicator_set(categoryID=['template_id1', 'template_id2', 'template_id3'],
@@ -76,3 +81,15 @@ class TestAggregatedIndicatorSet:
         actual = indicator_set._unique_id_to_constituent_ids()
 
         assert actual == expected
+
+
+@pytest.mark.parametrize('set_class,expected_message', [
+    (IndicatorSet, 'IndicatorSet may only contain elements of type Indicator, not AggregatedIndicator'),
+    (AggregatedIndicatorSet, 'AggregatedIndicatorSet may only contain elements of type AggregatedIndicator'),
+])
+def test_mixed_sets_not_allowed(set_class, expected_message, make_indicator, make_aggregated_indicator):
+    normal_indicator = make_indicator(propertyId='normal_indicator')
+    aggregated_indicator = make_aggregated_indicator(propertyId='aggregated_indicator')
+
+    with pytest.raises(RuntimeError, match=expected_message):
+        set_class([normal_indicator, aggregated_indicator])

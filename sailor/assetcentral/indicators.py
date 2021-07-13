@@ -116,6 +116,8 @@ class IndicatorSet(ResultSet):
 class AggregatedIndicatorSet(IndicatorSet):
     """Class representing a group of AggregatedIndicators."""
 
+    _element_type = AggregatedIndicator
+
     def _unique_id_to_names(self):
         """Get details on an opaque column_id in terms of AssetCentral names and aggregation_function."""
         mapping = {}
