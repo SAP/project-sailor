@@ -69,7 +69,7 @@ def _check_bulk_timeseries_export_status(export_id: str) -> bool:
 
 def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_set: EquipmentSet) -> pd.DataFrame:
     # each processed file contains data for some time range (one day it seems), one indicator group and all
-    # equipment_set holding any data for that group in that time period.
+    # equipment holding any data for that group in that time period.
     # Since the user might not have requested all indicators in the group we'll filter out any results that were not
     # requested. This is complicated by the fact that it's possible that the same indicator_id is present in the
     # indicator_group through two different templates. If it is requested only through one template it needs to be

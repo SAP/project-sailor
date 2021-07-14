@@ -1,40 +1,23 @@
 import math
 
 import pytest
-from numpy.random import default_rng
 import pandas as pd
 
 from sailor.assetcentral.indicators import IndicatorSet
 from sailor.assetcentral.equipment import EquipmentSet
 from sailor.sap_iot.wrappers import TimeseriesDataset
+from ..data_generators import make_dataset
 
 
 @pytest.fixture
-def simple_dataset(make_indicator, make_equipment_set):
-    indicator_1 = make_indicator(propertyId='indicator_id_1', indicatorName='row_id')
-    indicator_2 = make_indicator(propertyId='indicator_id_2', indicatorName='row_id_per_equipment')
-    indicator_set = IndicatorSet([indicator_1, indicator_2])
-    equipment_set = make_equipment_set(equipmentId=('equipment_id_1', 'equipment_id_2'))
-    nominal_start_date = pd.Timestamp('2021-01-01', tz='Etc/UTC')
-    nominal_end_date = pd.Timestamp('2021-01-03', tz='Etc/UTC')
-    rows_per_equipment = 100
+def simple_dataset(make_indicator_set, make_equipment_set):
+    indicator_set = make_indicator_set(propertyId=('indicator_id_1', 'indicator_id_2'))
+    equipment_set = make_equipment_set(
+        equipmentId=('equipment_id_1', 'equipment_id_2'),
+        modelId=('equipment_model_id_1', 'equipment_model_id_1')
+    )
 
-    generator = default_rng(seed=42)
-
-    def make_random_timestamps():
-        start_u = nominal_start_date.value // 10 ** 9
-        end_u = nominal_end_date.value // 10 ** 9
-        epochs = generator.integers(start_u, end_u, rows_per_equipment)
-        return pd.to_datetime(epochs, unit='s', utc=True).tz_convert('Etc/UTC')
-
-    data = pd.DataFrame({
-        'equipment_id': ['equipment_id_1'] * rows_per_equipment + ['equipment_id_2'] * rows_per_equipment,
-        'model_id': ('equipment_model_id_1', ) * rows_per_equipment * 2,
-        'timestamp': [*make_random_timestamps(), *make_random_timestamps()],
-        indicator_1._unique_id: range(rows_per_equipment*2),
-        indicator_2._unique_id: list(range(rows_per_equipment))*2
-    }).sort_values(['equipment_id', 'model_id', 'timestamp'])
-    return TimeseriesDataset(data, indicator_set, equipment_set, nominal_start_date, nominal_end_date)
+    return make_dataset(indicator_set, equipment_set)
 
 
 @pytest.mark.parametrize('description,aggregation_functions,expected_indicator_count', [

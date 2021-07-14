@@ -265,7 +265,7 @@ class TimeseriesDataset(object):
             data.groupby(groupers)
                 .agg('mean')
                 .reset_index()
-                .dropna(1, 'all')
+                .dropna(axis=1, how='all')
                 .melt(id_vars=key_vars, value_vars=feature_vars, var_name='Feature')
                 .assign(**facet_assignment)
                 .replace({'equipment_id': equipment_mapping})
@@ -338,6 +338,7 @@ class TimeseriesDataset(object):
         Parameters
         ----------
         equipment_ids
+            .. deprecated:: 1.4.0
             Optional equipment set ids to filter timeseries data. If equipment_set is also present this
             argument is ignored.
         start

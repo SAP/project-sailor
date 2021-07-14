@@ -14,33 +14,32 @@ from sailor.assetcentral.utils import (
 class TestAssetcentralEntity:
 
     def test_magic_eq_true(self):
-        entity1 = AssetcentralEntity({})
-        entity1.id = '1'
-        entity2 = AssetcentralEntity({})
-        entity2.id = '1'
+        entity1 = AssetcentralEntity({'id': '1'})
+        entity2 = AssetcentralEntity({'id': '1'})
         assert entity1 == entity2
 
     def test_magic_eq_false_id(self):
-        entity1 = AssetcentralEntity({})
-        entity1.id = '1'
-        entity2 = AssetcentralEntity({})
-        entity2.id = '2'
+        entity1 = AssetcentralEntity({'id': '1'})
+        entity2 = AssetcentralEntity({'id': '2'})
         assert entity1 != entity2
 
     @patch('sailor.assetcentral.equipment.Equipment.id', new_callable=PropertyMock, return_value='1')
     def test_magic_eq_false_class(self, id_mock):
-        entity1 = AssetcentralEntity({})
-        entity1.id = '1'
+        entity1 = AssetcentralEntity({'id': '1'})
         entity2 = Equipment({})
         assert entity1 != entity2
 
     def test_get_available_properties_is_not_empty(self):
         # note: __subclasses__ requires that all subclasses are imported
         # currently we ensure this transitively: see __init__.py in test_assetcentral
+        # TODO: after refactoring, this test should be moved up to the new superclass and we must make sure
+        #       that all subclasses are imported
         classes = AssetcentralEntity.__subclasses__()
         classes.remove(sailor.pai.utils.PredictiveAssetInsightsEntity)   # exclude quasi-abstract class from test
         for class_ in classes:
-            assert class_.get_available_properties()
+            actual = class_.get_available_properties()
+            assert actual
+            assert type(actual) == set
 
     def test_integration_with_fields(self):
         def get_extractor(value):
@@ -154,7 +153,7 @@ class TestResultSet:
         assert cls._method_defaults['plot_distribution']['by'] in element_properties
 
     def test_magic_eq_type_not_equal(self):
-        rs1 = ResultSet([1, 2, 3])
+        rs1 = ResultSet([AssetcentralEntity({'id': x}) for x in [1, 2, 3]])
         rs2 = (1, 2, 3)
         assert rs1 != rs2
 
@@ -166,8 +165,8 @@ class TestResultSet:
         ('Two empty sets are equal', [], [], True),
     ])
     def test_magic_eq_content(self, list1, list2, expected_result, testdescription):
-        rs1 = ResultSet(list1)
-        rs2 = ResultSet(list2)
+        rs1 = ResultSet([AssetcentralEntity({'id': i}) for i in list1])
+        rs2 = ResultSet([AssetcentralEntity({'id': i}) for i in list2])
         if expected_result:
             assert rs1 == rs2
         else:

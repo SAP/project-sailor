@@ -25,7 +25,7 @@ class Indicator(AssetcentralEntity):
 
     @classmethod
     def get_available_properties(cls):  # noqa: D102
-        return cls._get_legacy_mapping().keys()
+        return set(cls._get_legacy_mapping().keys())
 
     @classmethod
     def _get_legacy_mapping(cls):
@@ -115,6 +115,8 @@ class IndicatorSet(ResultSet):
 
 class AggregatedIndicatorSet(IndicatorSet):
     """Class representing a group of AggregatedIndicators."""
+
+    _element_type = AggregatedIndicator
 
     def _unique_id_to_names(self):
         """Get details on an opaque column_id in terms of AssetCentral names and aggregation_function."""

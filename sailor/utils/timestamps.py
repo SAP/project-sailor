@@ -43,11 +43,14 @@ def _any_to_timestamp(value, default: pd.Timestamp = None):
     return timestamp
 
 
-def _timestamp_to_isoformat(timestamp: pd.Timestamp):
+def _timestamp_to_isoformat(timestamp: pd.Timestamp, with_zulu=False):
     """Return an iso-format string of a timestamp after conversion to UTC and without the timezone information."""
     if timestamp.tzinfo:
         timestamp = timestamp.tz_convert('UTC')
-    return timestamp.tz_localize(None).isoformat()
+    if with_zulu:
+        return timestamp.tz_localize(None).isoformat() + 'Z'
+    else:
+        return timestamp.tz_localize(None).isoformat()
 
 
 def _timestamp_to_date_string(timestamp: pd.Timestamp):

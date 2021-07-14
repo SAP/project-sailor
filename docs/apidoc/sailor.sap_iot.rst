@@ -9,6 +9,7 @@ Submodules
 
    sailor.sap_iot.fetch
    sailor.sap_iot.wrappers
+   sailor.sap_iot.write
 
 Module contents
 ---------------

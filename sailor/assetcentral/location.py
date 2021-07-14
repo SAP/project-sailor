@@ -19,7 +19,7 @@ class Location(AssetcentralEntity):
 
     @classmethod
     def get_available_properties(cls):  # noqa: D102
-        return cls._get_legacy_mapping().keys()
+        return set(cls._get_legacy_mapping().keys())
 
     @classmethod
     def _get_legacy_mapping(cls):

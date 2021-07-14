@@ -297,7 +297,11 @@ class AssetcentralEntity:
 
     @classmethod
     def get_property_mapping(cls):
-        """Return a mapping from assetcentral terminology to our terminology."""
+        """Return a mapping from assetcentral terminology to our terminology.
+
+        .. deprecated:: 1.4.0
+        Use :meth:`get_available_properties` instead.
+        """
         # TODO: remove method in future version
         msg = ("'get_property_mapping': deprecated. Method will be removed after September 01, 2021. " +
                "use 'get_available_properties' instead")
@@ -311,6 +315,11 @@ class AssetcentralEntity:
     def __init__(self, ac_json: dict):
         """Create a new entity."""
         self.raw = ac_json
+
+    @property
+    def id(self):
+        """Return the ID of the object."""
+        return self.raw.get('id')
 
     def __repr__(self) -> str:
         """Return a very short string representation."""
@@ -329,7 +338,7 @@ class AssetcentralEntity:
 class ResultSet(Sequence):
     """Baseclass to be used in all Sets of AssetCentral objects."""
 
-    _element_type = None
+    _element_type = AssetcentralEntity
     _method_defaults = {}
 
     def __init__(self, elements, generating_query_params=None):
@@ -339,6 +348,12 @@ class ResultSet(Sequence):
             duplicate_elements = [k for k, v in Counter(elements).items() if v > 1]
             LOG.info(f'Duplicate elements encountered when creating {type(self).__name__}, discarding duplicates. '
                      f'Duplicates of the following elements were discarded: %s', duplicate_elements)
+
+        bad_elements = [element for element in self.elements if not type(element) == self._element_type]
+        if bad_elements:
+            bad_types = ' or '.join({element.__class__.__name__ for element in bad_elements})
+            raise RuntimeError(f'{self.__class__.__name__} may only contain elements of type '
+                               f'{self._element_type.__name__}, not {bad_types}')
 
         self.__generating_query_params = generating_query_params
 
@@ -373,8 +388,14 @@ class ResultSet(Sequence):
             prop: [element.__getattribute__(prop) for element in self.elements] for prop in columns
         })
 
-    def filter(self, **kwargs):
-        """Select a subset of the ResultSet based on named filter criteria for the attributes of the elements."""
+    def filter(self, **kwargs) -> 'ResultSet':
+        """Select a subset of the ResultSet based on named filter criteria for the attributes of the elements.
+
+        All keyword arguments are concatenated as filters with OR operator, i.e., only one of the supplied filters
+        must match for an entity to be selected.
+
+        Returns a new ResultSet object.
+        """
         selection = []
 
         for element in self.elements:
