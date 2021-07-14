@@ -47,18 +47,15 @@ jobs:
           mkdir ../reports
 
       - name: Lint (bandit)
-        id: bandit
         run: |
           ./.ci/run_lint.sh bandit "--ini setup.cfg --output ../reports/bandit.json -f json" || true
           ./.ci/run_lint.sh bandit "--ini setup.cfg --silent"
       - name: Lint (flake8)
-        id: flake8
         if: always()
         run: |
           ./.ci/run_lint.sh flake8 "--output-file=../reports/flake8.out" || true
           ./.ci/run_lint.sh flake8
       - name: Lint (pydocstyle)
-        id: pydocstyle
         if: always()
         run: |
           ./.ci/run_lint.sh ./.ci/pydocstyle_wrapper.py > ../reports/pydocstyle.json || true
@@ -81,6 +78,8 @@ jobs:
     needs: [Linting,Tests]
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Get coverage report
         uses: actions/download-artifact@v1
@@ -99,3 +98,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.python.coverage.reportPaths=coverage/coverage.xml
+            -Dsonar.python.flake8.reportPaths=linting-reports/flake8.out
+            -Dsonar.python.bandit.reportPaths=linting-reports/bandit.json
+            -Dsonar.externalIssuesReportPaths=linting-reports/pydocstyle.json
