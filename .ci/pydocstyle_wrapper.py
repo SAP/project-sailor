@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Wrapper script for pydocstyle that is used generate a custom report for SonarCloud."""
 
 import sys
 import json
