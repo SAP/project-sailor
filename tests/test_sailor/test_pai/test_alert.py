@@ -25,8 +25,9 @@ class TestAlert():
         params = get_parameters('alert')
 
         find_params = dict(extended_filters=['integer_param1 < 10'], string_parameter=['Type A', 'Type F'])
-        expected_call_args = (['integer_param1 lt 10'], [["string_parameter eq 'Type A'",
-                               "string_parameter eq 'Type F'"]], 'predictive_asset_insights')
+        expected_call_args = (['integer_param1 lt 10'],
+                              [["string_parameter eq 'Type A'", "string_parameter eq 'Type F'"]],
+                              'predictive_asset_insights')
 
         alert_object = {'d': {'results': [{'AlertId': 'test_id1'}, {'AlertId': 'test_id2'}]}}
         instance_class = params['set_class']._element_type

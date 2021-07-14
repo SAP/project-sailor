@@ -3,6 +3,7 @@ from unittest.mock import PropertyMock, patch
 
 import pytest
 
+import sailor.pai.utils
 from sailor.assetcentral.equipment import Equipment
 from sailor.assetcentral.utils import (
     AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity, ResultSet,
@@ -37,6 +38,7 @@ class TestAssetcentralEntity:
         # note: __subclasses__ requires that all subclasses are imported
         # currently we ensure this transitively: see __init__.py in test_assetcentral
         classes = AssetcentralEntity.__subclasses__()
+        classes.remove(sailor.pai.utils.PredictiveAssetInsightsEntity)   # exclude quasi-abstract class from test
         for class_ in classes:
             assert class_.get_available_properties()
 
