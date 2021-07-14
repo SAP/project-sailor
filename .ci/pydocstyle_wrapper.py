@@ -6,19 +6,14 @@ import json
 from pydocstyle import check
 from pydocstyle.config import ConfigurationParser, IllegalConfiguration
 
-class ReturnCode:
-    no_violations_found = 0
-    violations_found = 1
-    invalid_options = 2
 
 conf = ConfigurationParser()
+
 
 try:
     conf.parse()
 except IllegalConfiguration:
-    sys.exit(ReturnCode.invalid_options)
-
-#run_conf = conf.get_user_run_configuration()
+    sys.exit(2)
 
 errors = []
 try:
@@ -31,12 +26,9 @@ try:
             )
         )
 except IllegalConfiguration as error:
-    # An illegal configuration file was found during file generation.
     sys.stderr.write(error.args[0])
-    sys.exit(ReturnCode.invalid_options)
+    sys.exit(2)
 
-
-count = 0
 
 sonar_issues = []
 
@@ -59,14 +51,10 @@ for error in errors:
                 "effortMinutes": 5,
             }
         )
-    count += 1
 
-
-if count == 0:
-    exit_code = ReturnCode.no_violations_found
-else:
-    exit_code = ReturnCode.violations_found
+exit_code = 0
+if len(errors) > 0:
+    exit_code = 1
 
 json.dump({"issues": sonar_issues}, sys.stdout)
-
 sys.exit(exit_code)
