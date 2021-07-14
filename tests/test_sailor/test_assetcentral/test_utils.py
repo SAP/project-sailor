@@ -38,7 +38,7 @@ class TestAssetcentralEntity:
         classes.remove(sailor.pai.utils.PredictiveAssetInsightsEntity)   # exclude quasi-abstract class from test
         for class_ in classes:
             actual = class_.get_available_properties()
-            assert actual
+            assert actual, f'actual result is empty: {actual}'
             assert type(actual) == set
 
     def test_integration_with_fields(self):
