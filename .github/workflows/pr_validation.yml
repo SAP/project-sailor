@@ -34,7 +34,7 @@ jobs:
 
       - name: prepare
         run: | 
-          pip install -r .ci/requirements_pr.txt
+          pip install -r .ci/requirements_lint.txt
           git fetch --depth 1 origin main
 
       - name: bandit
