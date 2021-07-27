@@ -1,5 +1,7 @@
 .. image:: https://api.reuse.software/badge/github.com/SAP/project-sailor
     :target: https://api.reuse.software/info/github.com/SAP/project-sailor
+.. image:: https://sonarcloud.io/api/project_badges/measure?project=SAP_project-sailor&metric=alert_status
+    :target: https://sonarcloud.io/dashboard?id=SAP_project-sailor
 
 ================
 Project "Sailor"

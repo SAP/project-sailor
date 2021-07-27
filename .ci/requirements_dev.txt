@@ -1,3 +1,4 @@
--r requirements_pr.txt
+-r requirements_lint.txt
+-r requirements_test.txt
 -r docs/requirements_docs.txt
 -r release/requirements_release.txt
