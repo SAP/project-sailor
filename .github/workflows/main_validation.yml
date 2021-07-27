@@ -20,8 +20,42 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pytest
+          pip install -r .ci/requirements_test.txt
           pip install -r requirements.txt
 
       - name: Run pytest
-        run: pytest
+        run: |
+          coverage run -m pytest -q tests
+          coverage xml
+
+      - name: Store coverage for sonar job
+        uses: actions/upload-artifact@v1
+        with:
+          name: coverage
+          path: coverage.xml
+
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    if: always()
+    needs: pytest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Get coverage from pytest job
+        uses: actions/download-artifact@v1
+        with:
+          name: coverage
+        continue-on-error: true
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.python.coverage.reportPaths=coverage/coverage.xml
+
