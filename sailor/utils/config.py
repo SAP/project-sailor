@@ -48,7 +48,7 @@ class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES, defaults=(None,
             SailorConfig.load()
         res = getattr(SailorConfig.config, keys[0])
         if res is None:
-            raise RuntimeError(f"Top-level property '{keys[0]}' not found in config.")
+            raise RuntimeError(f"You have not configured credentials for '{keys[0]}' in config.")
         for k in keys[1:]:
             res = res[k]
         return res
