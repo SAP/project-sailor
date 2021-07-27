@@ -38,11 +38,11 @@ class Alert(PredictiveAssetInsightsEntity):
             'type_description': ('AlertTypeDescription', None, None, None),
             'category': ('Category', None, None, None),
             'changed_by': ('ChangedBy', None, None, None),
-            'changed_on': ('ChangedOn', _odata_to_timestamp_parser('ChangedOn', unit='s'), None, None),
+            'changed_on': ('ChangedOn', _odata_to_timestamp_parser('ChangedOn'), None, None),
             'count': ('Count', None, None, None),
             'country_id': ('CountryID', None, None, None),
             'created_by': ('CreatedBy', None, None, None),
-            'created_on': ('CreatedOn', _odata_to_timestamp_parser('CreatedOn', unit='s'), None, None),
+            'created_on': ('CreatedOn', _odata_to_timestamp_parser('CreatedOn'), None, None),
             'custom_property': ('CustomProperty', None, None, None),
             'description': ('Description', None, None, None),
             'equipment_description': ('EquipmentDescription', None, None, None),
@@ -58,7 +58,7 @@ class Alert(PredictiveAssetInsightsEntity):
             'indicator_group_name': ('IndicatorGroupName', None, None, None),
             'indicator_id': ('IndicatorID', None, None, None),
             'indicator_name': ('IndicatorName', None, None, None),
-            'last_occured_on': ('LastOccuredOn', _odata_to_timestamp_parser('CreatedOn', unit='s'), None, None),
+            'last_occured_on': ('LastOccuredOn', _odata_to_timestamp_parser('CreatedOn'), None, None),
             'maintenance_plant': ('MaintenancePlant', None, None, None),
             'model_description': ('ModelDescription', None, None, None),
             'model_id': ('ModelID', None, None, None),
@@ -82,7 +82,7 @@ class Alert(PredictiveAssetInsightsEntity):
             'top_functional_location_id': ('TopFunctionalLocationID', None, None, None),
             'top_functional_location_name': ('TopFunctionalLocationName', None, None, None),
             'top_functional_location_description': ('TopFunctionalLocationDescription', None, None, None),
-            'triggered_on': ('TriggeredOn', _odata_to_timestamp_parser('TriggeredOn', unit='s'), None, None)
+            'triggered_on': ('TriggeredOn', _odata_to_timestamp_parser('TriggeredOn'), None, None)
         }
 
 
