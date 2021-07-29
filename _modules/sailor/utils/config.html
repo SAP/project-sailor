@@ -178,7 +178,7 @@
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
 
-<span class="n">CONFIG_PROPERTIES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;asset_central&#39;</span><span class="p">,</span> <span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
+<span class="n">CONFIG_PROPERTIES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;asset_central&#39;</span><span class="p">,</span> <span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;predictive_asset_insights&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="try_log"><a class="viewcode-back" href="../../../apidoc/sailor.utils.config.html#sailor.utils.config.try_log">[docs]</a><span class="nd">@contextmanager</span>
@@ -193,7 +193,7 @@
         <span class="k">raise</span></div>
 
 
-<div class="viewcode-block" id="SailorConfig"><a class="viewcode-back" href="../../../apidoc/sailor.utils.config.html#sailor.utils.config.SailorConfig">[docs]</a><span class="k">class</span> <span class="nc">SailorConfig</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;SailorConfig&#39;</span><span class="p">,</span> <span class="n">CONFIG_PROPERTIES</span><span class="p">)):</span>
+<div class="viewcode-block" id="SailorConfig"><a class="viewcode-back" href="../../../apidoc/sailor.utils.config.html#sailor.utils.config.SailorConfig">[docs]</a><span class="k">class</span> <span class="nc">SailorConfig</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;SailorConfig&#39;</span><span class="p">,</span> <span class="n">CONFIG_PROPERTIES</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">CONFIG_PROPERTIES</span><span class="p">))):</span>
     <span class="sd">&quot;&quot;&quot;Stores the config of Sailor.&quot;&quot;&quot;</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="kc">None</span>
@@ -211,6 +211,8 @@
         <span class="k">if</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">SailorConfig</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
         <span class="n">res</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">SailorConfig</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;You have not configured credentials for &#39;</span><span class="si">{</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; in config.&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
             <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">res</span></div>

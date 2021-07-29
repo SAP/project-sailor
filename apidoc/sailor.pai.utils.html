@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>sailor.sap_iot.write &mdash; Project &#34;Sailor&#34;  documentation</title>
+  <title>sailor.pai.utils &mdash; Project &#34;Sailor&#34;  documentation</title>
   
 
   
@@ -43,8 +43,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Contributing" href="../contributing.html" />
-    <link rel="prev" title="sailor.sap_iot.wrappers" href="sailor.sap_iot.wrappers.html" /> 
+    <link rel="next" title="sailor.sap_iot" href="sailor.sap_iot.html" />
+    <link rel="prev" title="sailor.pai.constants" href="sailor.pai.constants.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -98,17 +98,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../filter_language.html">Filter Language</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../apidoc.html">API documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="sailor.pai.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai</span></code></a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="sailor.sap_iot.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="sailor.sap_iot.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="sailor.sap_iot.fetch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="sailor.sap_iot.wrappers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.wrappers</span></code></a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="sailor.pai.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai</span></code></a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sailor.pai.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sailor.pai.alert.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai.alert</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.pai.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai.constants</span></code></a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai.utils</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.html#module-sailor.sap_iot">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.pai.html#module-sailor.pai">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
@@ -162,16 +162,16 @@
         
           <li><a href="../apidoc.html">API documentation</a> &raquo;</li>
         
-          <li><a href="sailor.sap_iot.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></a> &raquo;</li>
+          <li><a href="sailor.pai.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai</span></code></a> &raquo;</li>
         
-      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></li>
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai.utils</span></code></li>
     
     
       <li class="wy-breadcrumbs-aside">
         
           
             
-              <a href="https://github.com/SAP/project-sailor/blob/master/docs/apidoc/sailor.sap_iot.write.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/SAP/project-sailor/blob/master/docs/apidoc/sailor.pai.utils.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -185,22 +185,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-sailor.sap_iot.write">
-<span id="sailor-sap-iot-write"></span><h1><a class="reference internal" href="#module-sailor.sap_iot.write" title="sailor.sap_iot.write"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></a><a class="headerlink" href="#module-sailor.sap_iot.write" title="Permalink to this headline">¶</a></h1>
-<p>Timeseries module can be used to write timeseries data to the SAP iot extension timeseries api.</p>
-<p>Currently only a single function to upload a <cite>TimeseriesDataset</cite> is exposed. It will upload the full dataset,
-indicator and equipment information is taken from the TimeseriesDataset.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="sailor.sap_iot.write.upload_indicator_data">
-<span class="sig-prename descclassname"><span class="pre">sailor.sap_iot.write.</span></span><span class="sig-name descname"><span class="pre">upload_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/write.html#upload_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.write.upload_indicator_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Upload a <cite>TimeseriesDataset</cite> to SAP IoT.</p>
-<p>This functionality is currently in BETA. Please report any bugs at <a class="reference external" href="https://github.com/SAP/project-sailor/issues">https://github.com/SAP/project-sailor/issues</a>.
-The entire dataset will be uploaded. It may not contain any AggregatedIndicators.
-Please note that only some indicators from an IndicatorGroup are present in the dataset, SAP IoT will delete
-any values for the missing indicators for the uploaded timestamps.</p>
+  <div class="section" id="module-sailor.pai.utils">
+<span id="sailor-pai-utils"></span><h1><a class="reference internal" href="#module-sailor.pai.utils" title="sailor.pai.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai.utils</span></code></a><a class="headerlink" href="#module-sailor.pai.utils" title="Permalink to this headline">¶</a></h1>
+<p>Module for various utility functions, in particular those related to fetching data from remote oauth endpoints.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="sailor.pai.utils.PredictiveAssetInsightsEntity">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.pai.utils.</span></span><span class="sig-name descname"><span class="pre">PredictiveAssetInsightsEntity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ac_json</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/pai/utils.html#PredictiveAssetInsightsEntity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.pai.utils.PredictiveAssetInsightsEntity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity" title="sailor.assetcentral.utils.AssetcentralEntity"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.AssetcentralEntity</span></code></a></p>
+<p>Common base class for Pai entities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dataset</strong> (<a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset"><em>sailor.sap_iot.wrappers.TimeseriesDataset</em></a>) – </p>
+<dd class="field-odd"><p><strong>ac_json</strong> (<em>dict</em>) – </p>
 </dd>
 </dl>
 </dd></dl>
@@ -213,8 +208,8 @@ any values for the missing indicators for the uploaded timestamps.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="sailor.sap_iot.wrappers.html" class="btn btn-neutral float-left" title="sailor.sap_iot.wrappers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sailor.sap_iot.html" class="btn btn-neutral float-right" title="sailor.sap_iot" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sailor.pai.constants.html" class="btn btn-neutral float-left" title="sailor.pai.constants" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
