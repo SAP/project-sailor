@@ -123,10 +123,10 @@ def _compose_queries(unbreakable_filters, breakable_filters):
     return filters
 
 
-def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
+def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), client_name='asset_central'):
     """Retrieve data from the AssetCentral service."""
     filters = _compose_queries(unbreakable_filters, breakable_filters)
-    oauth_client = get_oauth_client('asset_central')
+    oauth_client = get_oauth_client(client_name)
 
     if not filters:
         filters = ['']
@@ -310,7 +310,8 @@ class AssetcentralEntity:
 
     @classmethod
     def _get_legacy_mapping(cls):
-        return {field.our_name: (field.their_name_get, None, None, None) for field in cls._field_map.values()}
+        return {field.our_name: (field.their_name_get, None, None, None) for field in cls._field_map.values()
+                if field.is_exposed}
 
     def __init__(self, ac_json: dict):
         """Create a new entity."""
@@ -383,7 +384,7 @@ class ResultSet(Sequence):
 
     def as_df(self, columns=None):
         """Return all information on the objects stored in the ResultSet as a pandas dataframe."""
-        columns = self._element_type.get_available_properties() if columns is None else columns
+        columns = self._element_type._get_legacy_mapping().keys() if columns is None else columns
         return pd.DataFrame({
             prop: [element.__getattribute__(prop) for element in self.elements] for prop in columns
         })

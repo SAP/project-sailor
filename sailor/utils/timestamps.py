@@ -6,8 +6,8 @@ import warnings
 import pandas as pd
 
 
-def _odata_to_timestamp_parser(name):
-    return lambda self: pd.Timestamp(float(self.raw[name][6:-2])/1000, tz='UTC') if self.raw[name] else None
+def _odata_to_timestamp_parser(name, unit='ms'):
+    return lambda self: pd.Timestamp(float(self.raw[name][6:-2]), unit=unit, tz='UTC') if self.raw[name] else None
 
 
 def _string_to_timestamp_parser(name, unit=None):

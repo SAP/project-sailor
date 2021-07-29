@@ -3,6 +3,7 @@ from unittest.mock import PropertyMock, patch
 
 import pytest
 
+import sailor.pai.utils
 from sailor.assetcentral.equipment import Equipment
 from sailor.assetcentral.utils import (
     AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity, ResultSet,
@@ -34,9 +35,10 @@ class TestAssetcentralEntity:
         # TODO: after refactoring, this test should be moved up to the new superclass and we must make sure
         #       that all subclasses are imported
         classes = AssetcentralEntity.__subclasses__()
+        classes.remove(sailor.pai.utils.PredictiveAssetInsightsEntity)   # exclude quasi-abstract class from test
         for class_ in classes:
             actual = class_.get_available_properties()
-            assert actual
+            assert actual, f'actual result is empty: {actual}'
             assert type(actual) == set
 
     def test_integration_with_fields(self):
