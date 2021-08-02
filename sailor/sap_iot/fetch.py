@@ -42,7 +42,7 @@ fixed_timeseries_columns = {
 
 
 def _start_bulk_timeseries_data_export(start_date: str, end_date: str, liot_indicator_group: str) -> str:
-    LOG.debug("Triggering raw indicator data export for indicator group: %s.", liot_indicator_group)
+    LOG.info("Triggering raw indicator data export for indicator group: %s.", liot_indicator_group)
     oauth_iot = get_oauth_client('sap_iot')
     base_url = SailorConfig.get('sap_iot', 'export_url')  # todo: figure out what to do about these urls
     request_url = f'{base_url}/v1/InitiateDataExport/{liot_indicator_group}?timerange={start_date}-{end_date}'
@@ -52,7 +52,7 @@ def _start_bulk_timeseries_data_export(start_date: str, end_date: str, liot_indi
 
 
 def _check_bulk_timeseries_export_status(export_id: str) -> bool:
-    LOG.debug("Checking export status for export id: %s.", export_id)
+    LOG.info("Checking export status for export id: %s.", export_id)
     oauth_iot = get_oauth_client('sap_iot')
     base_url = SailorConfig.get('sap_iot', 'export_url')  # todo: figure out what to do about these urls
     request_url = f'{base_url}/v1/DataExportStatus?requestId={export_id}'

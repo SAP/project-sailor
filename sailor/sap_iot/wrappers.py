@@ -317,7 +317,7 @@ class TimeseriesDataset(object):
         if fitted_scaler is None:
             # normalize the data and save normalization factors to normalization_factors
             fitted_scaler = scaler.fit(self._df[features])
-            LOG.debug('No scaler provided for normalization, fitting scaler to dataset: %s', fitted_scaler)
+            LOG.info('No scaler provided for normalization, fitting scaler to dataset: %s', fitted_scaler)
 
         normalized_df = self._df.copy()
         normalized_df[features] = fitted_scaler.transform(normalized_df[features])
@@ -386,7 +386,7 @@ class TimeseriesDataset(object):
 
         if len(selected_df) == 0:
             warnings.warn('The selected filters removed all data, the resulting TimeseriesDataset is empty.')
-        LOG.debug('Filtered Dataset contains %s rows.', len(selected_df))
+        LOG.info('Filtered Dataset contains %s rows.', len(selected_df))
 
         return TimeseriesDataset(selected_df, selected_indicator_set, selected_equi_set,
                                  start_time, end_time, self.is_normalized)

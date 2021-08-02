@@ -26,7 +26,7 @@ _MAX_PAGE_SIZE = 100000
 
 
 def _upload_data_single_equipment(data_subset, equipment_id, tags):
-    LOG.debug('Uploading data for equipment %s', equipment_id)
+    LOG.info('Uploading data for equipment %s', equipment_id)
 
     base_url = SailorConfig.get('sap_iot', 'upload_url')
     request_url = f'{base_url}/Timeseries/extend/Measurements/objectId/{equipment_id}'
@@ -47,7 +47,7 @@ def _upload_data_single_equipment(data_subset, equipment_id, tags):
 
 
 def _upload_data_single_indicator_group(dataset, indicator_set, group_id, template_id):
-    LOG.debug('Starting upload for %s, %s', group_id, template_id)
+    LOG.info('Starting upload for %s, %s', group_id, template_id)
 
     df = dataset.filter(indicator_set=indicator_set).as_df().reset_index()
     df = (

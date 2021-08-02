@@ -3,6 +3,8 @@ Retrieve Notification information from AssetCentral.
 
 Classes are provided for individual Notifications as well as groups of Notifications (NotificationSet).
 """
+import logging
+
 import pandas as pd
 import plotnine as p9
 
@@ -13,6 +15,9 @@ from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRe
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.timestamps import _string_to_timestamp_parser_new
 from ..utils.plot_helper import _default_plot_theme
+
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
 
 _NOTIFICATION_FIELDS = [
     _AssetcentralField('id', 'notificationId', 'notificationID'),
@@ -260,6 +265,7 @@ def _create_or_update_notification(request, method) -> Notification:
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     oauth_client = get_oauth_client('asset_central')
 
+    LOG.debug("Creating/Updating notification: (request: '%s')", request)
     response = oauth_client.request(method, endpoint_url, json=request.data)
     result = find_notifications(id=response['notificationID'])
     if len(result) != 1:

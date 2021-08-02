@@ -14,6 +14,9 @@ from .scope_config import SCOPE_CONFIG
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
+CHATTY_LOG = logging.getLogger('CHATTY_' + __name__)
+CHATTY_LOG.addHandler(logging.NullHandler())
+CHATTY_LOG.disabled = True
 
 
 class OAuth2Client():
@@ -91,6 +94,13 @@ class OAuth2Client():
 
         LOG.debug('Calling %s with req_kwargs: %s', url, req_kwargs)
         response = session.request(method, url, **req_kwargs)
+        LOG.debug('Response details. status_code: %d, reason: %s, elapsed: %s, encoding: %s, is_redirect: %s',
+                  response.status_code, response.reason, response.elapsed, response.encoding, response.is_redirect)
+        CHATTY_LOG.info('Original request headers: %s. . . Original request body: %s',
+                        response.request.headers, response.request.body)
+        CHATTY_LOG.info('Response headers: %s', response.headers)
+        CHATTY_LOG.debug('Response content: %s', response.content)
+
         if response.ok:
             if response.headers.get('content-type', '').lower() == 'application/json':
                 return response.json()
@@ -128,7 +138,7 @@ class OAuth2Client():
                 except Exception:
                     LOG.exception('Could not close OAuth2Session.')
 
-        LOG.debug('Creating new OAuth session for "%s"', self.name)
+        LOG.info('Creating new OAuth session for "%s"', self.name)
         params = {'grant_type': 'client_credentials', 'scope': scope}
         service = OAuth2Service(name=self.name, client_id=self.client_id, client_secret=self.client_secret,
                                 access_token_url=self.oauth_url)

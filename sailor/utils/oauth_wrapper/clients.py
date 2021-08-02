@@ -14,6 +14,6 @@ def get_oauth_client(name) -> OAuth2Client:
     if name in _clients:
         return _clients[name]
 
-    LOG.debug("Creating new OAuth client for '%s'", name)
+    LOG.info("Creating new OAuth client for '%s'", name)
     _clients[name] = OAuth2Client(name)
     return _clients[name]
