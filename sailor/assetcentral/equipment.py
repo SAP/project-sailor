@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from typing import Union, TYPE_CHECKING
 from datetime import datetime
+import warnings
 
 import pandas as pd
 
@@ -17,9 +18,11 @@ from .indicators import Indicator, IndicatorSet
 from .notification import Notification, find_notifications, _create_or_update_notification
 from .location import Location, find_locations
 from .workorder import find_workorders
-from .utils import (AssetcentralEntity, ResultSet, _AssetcentralWriteRequest, _ac_application_url,
-                    _apply_filters_post_request, _fetch_data, _add_properties, _parse_filter_parameters)
-from ..utils.timestamps import _string_to_timestamp_parser
+from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new, _nested_put_setter,
+                    _apply_filters_post_request)
+from ..utils.oauth_wrapper import get_oauth_client
+from ..utils.timestamps import _string_to_timestamp_parser_new
 
 if TYPE_CHECKING:
     from ..sap_iot import TimeseriesDataset
@@ -27,53 +30,69 @@ if TYPE_CHECKING:
     from .failure_mode import FailureModeSet
     from .workorder import WorkorderSet
 
+_EQUIPMENT_FIELDS = [
+    _AssetcentralField('id', 'equipmentId', 'equipmentId'),
+    _AssetcentralField('name', 'internalId', 'internalId'),  # there is also a native `name`, which we're ignoring
+    _AssetcentralField('status', 'status', is_exposed=False),
+    _AssetcentralField('status_text', 'statusDescription'),
+    _AssetcentralField('version', 'version', 'version', is_exposed=False),
+    _AssetcentralField('in_revision', 'hasInRevision', 'hasInRevision', is_exposed=False),
+    _AssetcentralField('model_id', 'modelId', 'modelId'),
+    _AssetcentralField('model_name', 'modelName', 'modelName'),
+    _AssetcentralField('short_description', 'shortDescription', 'description', is_mandatory=True,
+                       put_setter=_nested_put_setter('description', 'short')),
+    _AssetcentralField('template_id', 'templateId', 'templateId'),
+    _AssetcentralField('subclass', 'subclass', 'subclass', is_exposed=False),
+    _AssetcentralField('model_template', 'modelTemplate', 'modelTemplate', is_exposed=False),
+    _AssetcentralField('location_name', 'location', 'location'),
+    _AssetcentralField('criticality_code', 'criticalityCode', 'criticalityCode', is_exposed=False),
+    _AssetcentralField('criticality_description', 'criticalityDescription', 'criticalityDescription'),
+    _AssetcentralField('manufacturer', 'manufacturer', 'manufacturer'),
+    _AssetcentralField('completeness', 'completeness', 'completeness', is_exposed=False),
+    _AssetcentralField('created_on', 'createdOn', 'createdOn', is_exposed=False),
+    _AssetcentralField('changed_on', 'changedOn', 'changedOn', is_exposed=False),
+    _AssetcentralField('published_on', 'publishedOn', 'publishedOn', is_exposed=False),
+    _AssetcentralField('serial_number', 'serialNumber', 'serialNumber'),
+    _AssetcentralField('batch_number', 'batchNumber', 'batchNumber'),
+    _AssetcentralField('tag_number', 'tagNumber', 'tagNumber', is_exposed=False),
+    _AssetcentralField('lifecycle', 'lifeCycle', 'lifeCycle', is_exposed=False, is_mandatory=True),
+    _AssetcentralField('lifecycle_description', 'lifeCycleDescription', 'lifeCycleDescription'),
+    _AssetcentralField('source', 'source', 'source', is_exposed=False),
+    _AssetcentralField('imageURL', 'imageURL', 'imageURL', is_exposed=False),
+    _AssetcentralField('operator', 'operator', 'operatorID', is_mandatory=False),
+    _AssetcentralField('coordinates', 'coordinates', 'coordinates', is_exposed=False),
+    _AssetcentralField('installation_date', 'installationDate', 'installationDate',
+                       get_extractor=_string_to_timestamp_parser_new('ms')),
+    _AssetcentralField('equipment_status', 'equipmentStatus', 'equipmentStatus', is_exposed=False),
+    _AssetcentralField('build_date', 'buildDate', 'buildDate', get_extractor=_string_to_timestamp_parser_new('ms')),
+    _AssetcentralField('is_operator_valid', 'isOperatorValid', 'isOperatorValid', is_exposed=False),
+    _AssetcentralField('model_version', 'modelVersion', 'modelVersion', is_exposed=False),
+    _AssetcentralField('sold_to', 'soldTo', 'soldTo', is_exposed=False),
+    _AssetcentralField('image', 'image', 'image', is_exposed=False),
+    _AssetcentralField('consume', 'consume', 'consume', is_exposed=False),
+    _AssetcentralField('dealer', 'dealer', 'dealer', is_exposed=False),
+    _AssetcentralField('service_provider', 'serviceProvider', 'serviceProvider', is_exposed=False),
+    _AssetcentralField('primary_external_id', 'primaryExternalId', 'primaryExternalId', is_exposed=False),
+    _AssetcentralField('equipment_search_terms', 'equipmentSearchTerms', 'equipmentSearchTerms', is_exposed=False),
+    _AssetcentralField('source_search_terms', 'sourceSearchTerms', 'sourceSearchTerms', is_exposed=False),
+    _AssetcentralField('manufacturer_search_terms', 'manufacturerSearchTerms', 'manufacturerSearchTerms',
+                       is_exposed=False),
+    _AssetcentralField('operator_search_terms', 'operatorSearchTerms', 'operatorSearchTerms', is_exposed=False),
+    _AssetcentralField('class', 'class', 'class', is_exposed=False),
+]
 
-@_add_properties
+
+@_add_properties_new
 class Equipment(AssetcentralEntity):
     """AssetCentral Equipment Object."""
 
-    # Properties (in AC terminology) are:
-    # equipmentId, name, internalId, status, statusDescription, version, hasInRevision,
-    # modelId, modelName, shortDescription, templateId, subclass, modelTemplate,
-    # location, criticalityCode, criticalityDescription, manufacturer, completeness, createdOn,
-    # changedOn, publishedOn, serialNumber, batchNumber, tagNumber, lifeCycle, lifeCycleDescription,
-    # source, imageURL, operator, coordinates, installationDate, equipmentStatus, buildDate,
-    # isOperatorValid, modelVersion, soldTo, image, consume, dealer, serviceProvider, primaryExternalId,
-    # equipmentSearchTerms, sourceSearchTerms, manufacturerSearchTerms, operatorSearchTerms, class
-
+    _field_map = {field.our_name: field for field in _EQUIPMENT_FIELDS}
     _location = None
-
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return set(cls._get_legacy_mapping().keys())
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        return {
-            'id': ('equipmentId', None, None, None),
-            'name': ('name', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'batch_number': ('batchNumber', None, None, None),
-            'build_date': ('buildDate', _string_to_timestamp_parser('buildDate', 'ms'), None, None),
-            'criticality_description': ('criticalityDescription', None, None, None),
-            'model_id': ('modelId', None, None, None),
-            'model_name': ('modelName', None, None, None),
-            'installation_date': ('installationDate', _string_to_timestamp_parser('installationDate', 'ms'),
-                                  None, None),
-            'lifecycle_description': ('lifeCycleDescription', None, None, None),
-            'location_name': ('location', None, None, None),
-            'manufacturer': ('manufacturer', None, None, None),
-            'operator': ('operator', None, None, None),
-            'serial_number': ('serialNumber', None, None, None),
-            'status_text': ('statusDescription', None, None, None),
-            'template_id': ('templateId', None, None, None),
-        }
 
     @property
     def location(self) -> Location:
         """Return the Location associated with this Equipment."""
-        if self._location is None:
+        if self._location is None and self.location_name is not None:
             locations = find_locations(name=self.location_name)  # why do we have a name here, not an ID???
             assert len(locations) == 1
             self._location = locations[0]
@@ -226,7 +245,10 @@ class Equipment(AssetcentralEntity):
         --------
         :meth:`sailor.assetcentral.notification.create_notification`
         """
-        request = _AssetcentralWriteRequest(Notification._field_map, equipment_id=self.id, location_id=self.location.id)
+        args = {'equipment_id': self.id}
+        if self.location is not None:
+            args['location_id'] = self.location.id
+        request = _AssetcentralWriteRequest(Notification._field_map, **args)
         request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
         return _create_or_update_notification(request, 'POST')
 
