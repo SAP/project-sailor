@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from typing import Union, TYPE_CHECKING
 from datetime import datetime
-import warnings
 
 import pandas as pd
 
@@ -21,7 +20,6 @@ from .workorder import find_workorders
 from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
                     _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new, _nested_put_setter,
                     _apply_filters_post_request)
-from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.timestamps import _string_to_timestamp_parser_new
 
 if TYPE_CHECKING:
