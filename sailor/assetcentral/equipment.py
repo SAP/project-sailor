@@ -98,6 +98,31 @@ class Equipment(AssetcentralEntity):
             self._location = locations[0]
         return self._location
 
+    def _refresh(self):
+        equipment_set = find_equipment(id=self.id)
+        if len(equipment_set) != 1:
+            raise RuntimeError('Unexpected error when refreshing the equipment. Please try again.')
+        self.raw = equipment_set[0].raw
+        return self
+
+    def _create_revision(self):
+        if self.status == '1':
+            warnings.warn('This equipment is already in revision.')
+            return
+        oauth_client = get_oauth_client('asset_central')
+        endpoint_url = _ac_application_url() + VIEW_EQUIPMENT + f'({self.id})/revise'
+        oauth_client.request('PUT', endpoint_url)
+        return self._refresh()
+
+    def _publish(self):
+        if self.status == '2':  # already published
+            warnings.warn('This equipment is already published.')
+            return
+        oauth_client = get_oauth_client('asset_central')
+        endpoint_url = _ac_application_url() + VIEW_EQUIPMENT + f'({self.id})/publish'
+        oauth_client.request('PUT', endpoint_url)
+        return self._refresh()
+
     def find_equipment_indicators(self, *, extended_filters=(), **kwargs) -> IndicatorSet:
         """Find all Indicators assigned to this Equipment.
 
@@ -430,3 +455,90 @@ def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return EquipmentSet([Equipment(obj) for obj in object_list],
                         {'filters': kwargs, 'extended_filters': extended_filters})
+
+
+def _create_or_update_equipment(request, method) -> Equipment:
+    request.validate()
+    endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
+    oauth_client = get_oauth_client('asset_central')
+
+    response = oauth_client.request(method, endpoint_url, json=request.data)
+
+    result = find_equipment(id=response['equipmentId'])
+    if len(result) != 1:
+        raise RuntimeError('Unexpected error when creating or updating the equipment. Please try again.')
+    return result[0]
+
+
+def create_equipment(auto_publish=True, **kwargs) -> Equipment:
+    """Create a new equipment.
+
+    Parameters
+    ----------
+    auto_publish: whether to automatically publish the equipment after creation
+    **kwargs
+        Keyword arguments which names correspond to the available properties.
+
+    Returns
+    -------
+    Equipment
+        A new equipment object as retrieved from AssetCentral after the create succeeded.
+
+    Example
+    -------
+    >>> equipment = create_equipment(name='my equipment', operatorID='OPERATOR', sourceBPRole=1)
+    """
+    if 'operatorID' not in kwargs or 'sourceBPRole' not in kwargs:
+        # not captured by the regular `request.validate`, as these are not in the field_map (not in GET response)
+        raise RuntimeError('"operatorID" and "sourceBPRole" must be provided when creating an equipment.')
+
+    request = _AssetcentralWriteRequest(Equipment._field_map)
+    request.insert_user_input(kwargs, forbidden_fields=['id'])
+    equipment = _create_or_update_equipment(request, 'POST')
+    if auto_publish:
+        equipment._publish()
+
+    return equipment
+
+
+def update_equipment(equipment: Equipment, **kwargs) -> Equipment:
+    """Update an existing equipment.
+
+    Write the current state of the given equipment object to AssetCentral with updated values supplied.
+    This equals a PUT request in the traditional REST programming model.
+
+    Parameters
+    ----------
+    equipment: The equipment that should be updated.
+    **kwargs
+        Keyword arguments which names correspond to the available properties.
+
+    Returns
+    -------
+    Equipment
+        A new equipment object as retrieved from AssetCentral after the update succeeded.
+
+    Examples
+    --------
+    >>> equipment = update_equipment(equipment, status='IPR', long_description='hello world')
+    """
+    request = _AssetcentralWriteRequest.from_object(equipment)
+
+    # there are some entries (`operatorID` and `sourceBPRole`) that are required to be present in the PUT
+    # but are not part of the GET response, and therefore can't be retrieved from the object.
+    # Here we're making a GET to the `/header` endpoint for the equipment to retrieve this information.
+    oauth_client = get_oauth_client('asset_central')
+    endpoint_url = _ac_application_url() + VIEW_EQUIPMENT + f'({equipment.id})/header'
+    header_response = oauth_client.request('GET', endpoint_url)
+    request.insert_user_input({k: header_response[k] for k in ['operatorID', 'sourceBPRole']})
+
+    request.insert_user_input(kwargs, forbidden_fields=['id'])
+    request.validate()
+
+    endpoint_url = _ac_application_url() + VIEW_EQUIPMENT + f'({equipment.id})/header'
+    response = oauth_client.request('PUT', endpoint_url, json=request.data)
+    result = find_equipment(id=response['equipmentId'])
+    if len(result) != 1:
+        raise RuntimeError('Unexpected error when creating or updating the equipment. Please try again.')
+
+    return result[0]
