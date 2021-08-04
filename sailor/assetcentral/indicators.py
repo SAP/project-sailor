@@ -45,6 +45,7 @@ _INDICATOR_FIELDS = [
     _AssetcentralField('_uom_description', 'uomdescription'),  # duplicate
 ]
 
+
 @_add_properties_new
 class Indicator(AssetcentralEntity):
     """AssetCentral Indicator Object."""
