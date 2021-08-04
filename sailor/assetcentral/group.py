@@ -22,15 +22,15 @@ _GROUP_FIELDS = [
     _AssetcentralField('risk_value', 'riskValue'),
     _AssetcentralField('id', 'id'),
     _AssetcentralField('_status', 'status'),
-    _AssetcentralField('_normalizedRiskScore', 'normalizedRiskScore'),
-    _AssetcentralField('_criticalityValue', 'criticalityValue'),
-    _AssetcentralField('_riskColorCode', 'riskColorCode'),
-    _AssetcentralField('_criticalityCode', 'criticalityCode'),
+    _AssetcentralField('_normalized_risk_score', 'normalizedRiskScore'),
+    _AssetcentralField('_criticality_value', 'criticalityValue'),
+    _AssetcentralField('_risk_color_code', 'riskColorCode'),
+    _AssetcentralField('_criticality_code', 'criticalityCode'),
     _AssetcentralField('_version', 'version'),
-    _AssetcentralField('_groupTypeCount', 'groupTypeCount'),
-    _AssetcentralField('_longDescription', 'longDescription'),
-    _AssetcentralField('_lastEditedTime', 'lastEditedTime', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
-    _AssetcentralField('_creationTime', 'creationTime', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+    _AssetcentralField('_group_type_count', 'groupTypeCount'),
+    _AssetcentralField('_long_description', 'longDescription'),
+    _AssetcentralField('_changed_on', 'lastEditedTime', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+    _AssetcentralField('_created_on', 'creationTime', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
 ]
 
 
