@@ -58,7 +58,7 @@ _EQUIPMENT_FIELDS = [
     _AssetcentralField('_created_on', 'createdOn'),
     _AssetcentralField('_changed_on', 'changedOn'),
     _AssetcentralField('_published_on', 'publishedOn'),
-    _AssetcentralField('_imageURL', 'imageURL'),
+    _AssetcentralField('_image_URL', 'imageURL'),
     _AssetcentralField('_coordinates', 'coordinates'),
     _AssetcentralField('_equipment_status', 'equipmentStatus'),
     _AssetcentralField('_is_operator_valid', 'isOperatorValid'),
