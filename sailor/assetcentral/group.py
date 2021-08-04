@@ -7,33 +7,38 @@ Classes are provided for individual Groups as well as groups of Groups (GroupSet
 from functools import cached_property
 import warnings
 
-from .utils import (AssetcentralEntity, ResultSet, _ac_application_url, _fetch_data, _apply_filters_post_request,
-                    _add_properties)
+from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
+                    _apply_filters_post_request, _fetch_data, _ac_application_url, _add_properties_new)
+from ..utils.timestamps import _string_to_timestamp_parser_new
 from .constants import VIEW_GROUPS
 from .equipment import find_equipment, EquipmentSet
 from .location import find_locations, LocationSet
 from .model import find_models, ModelSet
 
+_GROUP_FIELDS = [
+    _AssetcentralField('name', 'displayId'),
+    _AssetcentralField('group_type', 'groupTypeCode'),
+    _AssetcentralField('short_description', 'shortDescription'),
+    _AssetcentralField('risk_value', 'riskValue'),
+    _AssetcentralField('id', 'id'),
+    _AssetcentralField('_status', 'status'),
+    _AssetcentralField('_normalizedRiskScore', 'normalizedRiskScore'),
+    _AssetcentralField('_criticalityValue', 'criticalityValue'),
+    _AssetcentralField('_riskColorCode', 'riskColorCode'),
+    _AssetcentralField('_criticalityCode', 'criticalityCode'),
+    _AssetcentralField('_version', 'version'),
+    _AssetcentralField('_groupTypeCount', 'groupTypeCount'),
+    _AssetcentralField('_longDescription', 'longDescription'),
+    _AssetcentralField('_lastEditedTime', 'lastEditedTime', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+    _AssetcentralField('_creationTime', 'creationTime', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+]
 
-@_add_properties
+
+@_add_properties_new
 class Group(AssetcentralEntity):
     """AssetCentral Location Object."""
 
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return set(cls._get_legacy_mapping().keys())
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        """Return a mapping from assetcentral terminology to our terminology."""
-        return {
-            'id': ('id', None, None, None),
-            'name': ('displayId', None, None, None),
-            'group_type': ('groupTypeCode', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'risk_value': ('riskValue', None, None, None),
-        }
+    _field_map = {field.our_name: field for field in _GROUP_FIELDS}
 
     @cached_property
     def _members_raw(self):
