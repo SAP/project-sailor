@@ -168,37 +168,65 @@
 <span class="sd">Classes are provided for individual FailureModes as well as groups of FailureModes (FailureModeSet).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> \
-    <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_ac_application_url</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span>
+                    <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_add_properties_new</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_FAILUREMODES</span>
 
+<span class="n">_FAILURE_MODE_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;DisplayID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;short_description&#39;</span><span class="p">,</span> <span class="s1">&#39;ShortDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;status_text&#39;</span><span class="p">,</span> <span class="s1">&#39;StatusText&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;long_description&#39;</span><span class="p">,</span> <span class="s1">&#39;LongDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;ID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_client&#39;</span><span class="p">,</span> <span class="s1">&#39;Client&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_subclass&#39;</span><span class="p">,</span> <span class="s1">&#39;SubClass&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_subclass_description&#39;</span><span class="p">,</span> <span class="s1">&#39;SubClassDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_type&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_equipment_count&#39;</span><span class="p">,</span> <span class="s1">&#39;EquipmentsCount&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_models_count&#39;</span><span class="p">,</span> <span class="s1">&#39;ModelsCount&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_spareparts_count&#39;</span><span class="p">,</span> <span class="s1">&#39;SparepartsCount&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_locations_count&#39;</span><span class="p">,</span> <span class="s1">&#39;LocationsCount&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_groups_count&#39;</span><span class="p">,</span> <span class="s1">&#39;GroupsCount&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_systems_count&#39;</span><span class="p">,</span> <span class="s1">&#39;SystemsCount&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_object_count&#39;</span><span class="p">,</span> <span class="s1">&#39;ObjectCount&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_source&#39;</span><span class="p">,</span> <span class="s1">&#39;Source&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_source_id&#39;</span><span class="p">,</span> <span class="s1">&#39;SourceID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_version&#39;</span><span class="p">,</span> <span class="s1">&#39;Version&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_consume&#39;</span><span class="p">,</span> <span class="s1">&#39;Consume&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_category_code&#39;</span><span class="p">,</span> <span class="s1">&#39;CategoryCode&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_category_description&#39;</span><span class="p">,</span> <span class="s1">&#39;CategoryDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_causes&#39;</span><span class="p">,</span> <span class="s1">&#39;Causes&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_status&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_last_change&#39;</span><span class="p">,</span> <span class="s1">&#39;LastChange&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_my_failure_mode&#39;</span><span class="p">,</span> <span class="s1">&#39;MyFailureMode&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_owner&#39;</span><span class="p">,</span> <span class="s1">&#39;Owner&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_object_id&#39;</span><span class="p">,</span> <span class="s1">&#39;ObjectID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_pattern_id&#39;</span><span class="p">,</span> <span class="s1">&#39;PatternID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_pattern_confidence&#39;</span><span class="p">,</span> <span class="s1">&#39;PatternConfidence&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_MTTF_value&#39;</span><span class="p">,</span> <span class="s1">&#39;MTTFValue&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_MTTF_unit&#39;</span><span class="p">,</span> <span class="s1">&#39;MTTFUnit&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_MTTF_confidence&#39;</span><span class="p">,</span> <span class="s1">&#39;MTTFConfidence&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_MTTR_value&#39;</span><span class="p">,</span> <span class="s1">&#39;MTTRValue&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_MTTR_unit&#39;</span><span class="p">,</span> <span class="s1">&#39;MTTRUnit&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_MTTR_confidence&#39;</span><span class="p">,</span> <span class="s1">&#39;MTTRConfidence&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_MTBF_value&#39;</span><span class="p">,</span> <span class="s1">&#39;MTBFValue&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_MTBF_unit&#39;</span><span class="p">,</span> <span class="s1">&#39;MTBFUnit&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_MTBF_confidence&#39;</span><span class="p">,</span> <span class="s1">&#39;MTBFConfidence&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_pattern_name&#39;</span><span class="p">,</span> <span class="s1">&#39;PatternName&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_pattern_image&#39;</span><span class="p">,</span> <span class="s1">&#39;PatternImage&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_image_id&#39;</span><span class="p">,</span> <span class="s1">&#39;ImageID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_primary_external_id&#39;</span><span class="p">,</span> <span class="s1">&#39;PrimaryExternalID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_failure_mode_search_terms&#39;</span><span class="p">,</span> <span class="s1">&#39;FailureModesSearchTerms&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_type_code&#39;</span><span class="p">,</span> <span class="s1">&#39;TypeCode&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_detection_method&#39;</span><span class="p">,</span> <span class="s1">&#39;DetectionMethod&#39;</span><span class="p">),</span>
+<span class="p">]</span>
 
-<div class="viewcode-block" id="FailureMode"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.FailureMode">[docs]</a><span class="nd">@_add_properties</span>
+
+<div class="viewcode-block" id="FailureMode"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.FailureMode">[docs]</a><span class="nd">@_add_properties_new</span>
 <span class="k">class</span> <span class="nc">FailureMode</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral Failure Mode Object.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Properties (in AC terminology) are:</span>
-    <span class="c1"># Client, ID, SubClass, StatusText, SubClassDescription, Type, EquipmentsCount, ModelsCount, SparepartsCount,</span>
-    <span class="c1"># LocationsCount, GroupsCount, SystemsCount, ObjectCount, DisplayID, Source, SourceID, Version, Consume,</span>
-    <span class="c1"># CategoryCode, CategoryDescription, Causes, ShortDescription, LongDescription, Status, LastChange, MyFailureMode,</span>
-    <span class="c1"># Owner, ObjectID, PatternID, PatternConfidence, MTTFValue, MTTFUnit, MTTFConfidence, MTTRValue, MTTRUnit,</span>
-    <span class="c1"># MTTRConfidence, MTBFValue, MTBFUnit, MTBFConfidence, PatternName, PatternImage, ImageID, PrimaryExternalID,</span>
-    <span class="c1"># FailureModesSearchTerms, TypeCode, DetectionMethod</span>
-
-<div class="viewcode-block" id="FailureMode.get_available_properties"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.FailureMode.get_available_properties">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_available_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>  <span class="c1"># noqa: D102</span>
-        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_get_legacy_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="c1"># TODO: remove method in future version after field templates are in used</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;DisplayID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;short_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;ShortDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;long_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;LongDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;status_text&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;StatusText&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="p">}</span></div>
+    <span class="n">_field_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span><span class="p">:</span> <span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">_FAILURE_MODE_FIELDS</span><span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="FailureModeSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.FailureModeSet">[docs]</a><span class="k">class</span> <span class="nc">FailureModeSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>

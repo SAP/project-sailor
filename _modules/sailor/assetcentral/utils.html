@@ -686,12 +686,12 @@
 <span class="k">class</span> <span class="nc">_AssetcentralField</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Specify a field in Assetcentral.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">our_name</span><span class="p">,</span> <span class="n">their_name_get</span><span class="p">,</span> <span class="n">their_name_put</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_exposed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">our_name</span><span class="p">,</span> <span class="n">their_name_get</span><span class="p">,</span> <span class="n">their_name_put</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">get_extractor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">put_setter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">our_name</span> <span class="o">=</span> <span class="n">our_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">their_name_get</span> <span class="o">=</span> <span class="n">their_name_get</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">their_name_put</span> <span class="o">=</span> <span class="n">their_name_put</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_exposed</span> <span class="o">=</span> <span class="n">is_exposed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_exposed</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">our_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_writable</span> <span class="o">=</span> <span class="n">their_name_put</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_mandatory</span> <span class="o">=</span> <span class="n">is_mandatory</span>
 
