@@ -4,33 +4,37 @@ Location module can be used to retrieve Location information from AssetCentral.
 Classes are provided for individual Locations as well as groups of Locations (LocationSet).
 """
 
-from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    _ac_application_url
+from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _parse_filter_parameters,
+                    _fetch_data, _ac_application_url, _add_properties_new)
+from ..utils.timestamps import _string_to_timestamp_parser_new
 from .constants import VIEW_LOCATIONS
 
 
-@_add_properties
+_LOCATION_FIELDS = [
+    _AssetcentralField('name', 'name'),
+    _AssetcentralField('short_description', 'shortDescription'),
+    _AssetcentralField('type_description', 'locationTypeDescription'),
+    _AssetcentralField('id', 'locationId'),
+    _AssetcentralField('type', 'locationType'),
+    _AssetcentralField('_status', 'status'),
+    _AssetcentralField('_version', 'version'),
+    _AssetcentralField('_in_revision', 'hasInRevision'),
+    _AssetcentralField('_location', 'location'),
+    _AssetcentralField('_completeness', 'completeness'),
+    _AssetcentralField('_created_on', 'createdOn', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+    _AssetcentralField('_changed_on', 'changedOn', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+    _AssetcentralField('_published_on', 'publishedOn', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+    _AssetcentralField('_source', 'source'),
+    _AssetcentralField('_image_URL', 'imageURL'),
+    _AssetcentralField('_location_status', 'locationStatus'),
+]
+
+
+@_add_properties_new
 class Location(AssetcentralEntity):
     """AssetCentral Location Object."""
 
-    # Properties (in AC terminology) are:
-    # locationId, name, status, version, hasInRevision, shortDescription, location, completeness, createdOn,
-    # changedOn, publishedOn, source, imageURL, locationStatus, locationTypeDescription, locationType
-
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return set(cls._get_legacy_mapping().keys())
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        return {
-            'id': ('locationId', None, None, None),
-            'name': ('name', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'type': ('locationType', None, None, None),
-            'type_description': ('locationTypeDescription', None, None, None),
-        }
+    _field_map = {field.our_name: field for field in _LOCATION_FIELDS}
 
 
 class LocationSet(ResultSet):
