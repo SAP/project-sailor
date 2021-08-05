@@ -164,7 +164,7 @@ class TestEquipmentSet:
         ]
 
         fieldmap_public_attributes = [
-            field.our_name for field in Equipment._field_map.values() if not field.our_name.startswith('_')
+            field.our_name for field in Equipment._field_map.values() if field.is_exposed
         ]
 
         assert expected_attributes == fieldmap_public_attributes

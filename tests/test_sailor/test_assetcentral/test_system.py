@@ -553,7 +553,7 @@ def test_expected_public_attributes_are_present():
                            'class_name', 'id', 'model_id', 'template_id']
 
     fieldmap_public_attributes = [
-        field.our_name for field in System._field_map.values() if not field.our_name.startswith('_')
+        field.our_name for field in System._field_map.values() if field.is_exposed
     ]
 
     assert expected_attributes == fieldmap_public_attributes
