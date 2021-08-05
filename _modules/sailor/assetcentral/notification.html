@@ -349,6 +349,10 @@
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_df</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;malfunction_start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;malfunction_end_date&#39;</span><span class="p">,</span>
                                    <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;confirmed_failure_mode_description&#39;</span><span class="p">])</span>
 
+        <span class="c1"># if there are any `NA` values in the equipment_name the plot gets messed up.</span>
+        <span class="c1"># this turns the NAs into an &#39;nan&#39; string, which works fine.</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;equipment_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;equipment_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
         <span class="n">aes</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="s1">&#39;malfunction_start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;xend&#39;</span><span class="p">:</span> <span class="s1">&#39;malfunction_end_date&#39;</span><span class="p">,</span>
             <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;yend&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span>
