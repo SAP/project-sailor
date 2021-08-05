@@ -15,8 +15,8 @@ from operator import itemgetter
 import pandas as pd
 
 from sailor import sap_iot
-from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    _ac_application_url
+from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new)
 from .equipment import find_equipment, EquipmentSet
 from .indicators import IndicatorSet
 from .constants import VIEW_SYSTEMS
@@ -24,33 +24,41 @@ from .constants import VIEW_SYSTEMS
 if TYPE_CHECKING:
     from ..sap_iot import TimeseriesDataset
 
+_SYSTEM_FIELDS = [
+    _AssetcentralField('name', 'internalId'),
+    _AssetcentralField('model_name', 'model'),
+    _AssetcentralField('status_text', 'systemStatusDescription'),
+    _AssetcentralField('short_description', 'shortDescription'),
+    _AssetcentralField('class_name', 'className'),
+    _AssetcentralField('id', 'systemId'),
+    _AssetcentralField('model_id', 'modelID'),
+    _AssetcentralField('template_id', 'templateID'),
+    _AssetcentralField('_status', 'status'),
+    _AssetcentralField('_model_version', 'modelVersion'),
+    _AssetcentralField('_system_provider', 'systemProvider'),
+    _AssetcentralField('_system_version', 'systemVersion'),
+    _AssetcentralField('_created_on', 'createdOn'),
+    _AssetcentralField('_changed_on', 'changedOn'),
+    _AssetcentralField('_published_on', 'publishedOn'),
+    _AssetcentralField('_source', 'source'),
+    _AssetcentralField('_image_URL', 'imageURL'),
+    _AssetcentralField('_class_id', 'classID'),
+    _AssetcentralField('_subclass', 'subclass'),
+    _AssetcentralField('_subclass_id', 'subclassID'),
+    _AssetcentralField('_system_provider_id', 'systemProviderID'),
+    _AssetcentralField('_source_search_terms', 'sourceSearchTerms'),
+    _AssetcentralField('_system_provider_search_terms', 'systemProviderSearchTerms'),
+    _AssetcentralField('_operator', 'operator'),
+    _AssetcentralField('_operator_id', 'operatorID'),
+    _AssetcentralField('_completeness', 'completeness'),
+]
 
-@_add_properties
+
+@_add_properties_new
 class System(AssetcentralEntity):
     """AssetCentral System Object."""
 
-    # Properties (in AC terminology) are: systemId, internalId, status, systemStatusDescription, modelID, modelVersion,
-    # model, shortDescription, templateID, systemProvider, systemVersion, createdOn, changedOn, source, imageURL,
-    # className, classID, subclass, subclassID, systemProviderID, sourceSearchTerms, systemProviderSearchTerms,
-    # publishedOn, operator, operatorID, completeness
-
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return set(cls._get_legacy_mapping().keys())
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        return {
-            'id': ('systemId', None, None, None),
-            'name': ('internalId', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'class_name': ('className', None, None, None),
-            'model_id': ('modelID', None, None, None),
-            'model_name': ('model', None, None, None),
-            'status_text': ('systemStatusDescription', None, None, None),
-            'template_id': ('templateID', None, None, None),
-        }
+    _field_map = {field.our_name: field for field in _SYSTEM_FIELDS}
 
     @staticmethod
     def _traverse_components(component, model_order, equipment_ids, system_ids):
