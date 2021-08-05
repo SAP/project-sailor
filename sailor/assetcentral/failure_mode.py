@@ -4,37 +4,65 @@ Failure Mode module can be used to retrieve FailureMode information from AssetCe
 Classes are provided for individual FailureModes as well as groups of FailureModes (FailureModeSet).
 """
 
-from .utils import _fetch_data, _add_properties, _parse_filter_parameters, ResultSet, \
-    AssetcentralEntity, _ac_application_url
+from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new)
 from .constants import VIEW_FAILUREMODES
 
+_FAILURE_MODE_FIELDS = [
+    _AssetcentralField('name', 'DisplayID'),
+    _AssetcentralField('short_description', 'ShortDescription'),
+    _AssetcentralField('status_text', 'StatusText'),
+    _AssetcentralField('long_description', 'LongDescription'),
+    _AssetcentralField('id', 'ID'),
+    _AssetcentralField('_client', 'Client'),
+    _AssetcentralField('_subclass', 'SubClass'),
+    _AssetcentralField('_subclass_description', 'SubClassDescription'),
+    _AssetcentralField('_type', 'Type'),
+    _AssetcentralField('_equipment_count', 'EquipmentsCount'),
+    _AssetcentralField('_models_count', 'ModelsCount'),
+    _AssetcentralField('_spareparts_count', 'SparepartsCount'),
+    _AssetcentralField('_locations_count', 'LocationsCount'),
+    _AssetcentralField('_groups_count', 'GroupsCount'),
+    _AssetcentralField('_systems_count', 'SystemsCount'),
+    _AssetcentralField('_object_count', 'ObjectCount'),
+    _AssetcentralField('_source', 'Source'),
+    _AssetcentralField('_source_id', 'SourceID'),
+    _AssetcentralField('_version', 'Version'),
+    _AssetcentralField('_consume', 'Consume'),
+    _AssetcentralField('_category_code', 'CategoryCode'),
+    _AssetcentralField('_category_description', 'CategoryDescription'),
+    _AssetcentralField('_causes', 'Causes'),
+    _AssetcentralField('_status', 'Status'),
+    _AssetcentralField('_last_change', 'LastChange'),
+    _AssetcentralField('_my_failure_mode', 'MyFailureMode'),
+    _AssetcentralField('_owner', 'Owner'),
+    _AssetcentralField('_object_id', 'ObjectID'),
+    _AssetcentralField('_pattern_id', 'PatternID'),
+    _AssetcentralField('_pattern_confidence', 'PatternConfidence'),
+    _AssetcentralField('_MTTF_value', 'MTTFValue'),
+    _AssetcentralField('_MTTF_unit', 'MTTFUnit'),
+    _AssetcentralField('_MTTF_confidence', 'MTTFConfidence'),
+    _AssetcentralField('_MTTR_value', 'MTTRValue'),
+    _AssetcentralField('_MTTR_unit', 'MTTRUnit'),
+    _AssetcentralField('_MTTR_confidence', 'MTTRConfidence'),
+    _AssetcentralField('_MTBF_value', 'MTBFValue'),
+    _AssetcentralField('_MTBF_unit', 'MTBFUnit'),
+    _AssetcentralField('_MTBF_confidence', 'MTBFConfidence'),
+    _AssetcentralField('_pattern_name', 'PatternName'),
+    _AssetcentralField('_pattern_image', 'PatternImage'),
+    _AssetcentralField('_image_id', 'ImageID'),
+    _AssetcentralField('_primary_external_id', 'PrimaryExternalID'),
+    _AssetcentralField('_failure_mode_search_terms', 'FailureModesSearchTerms'),
+    _AssetcentralField('_type_code', 'TypeCode'),
+    _AssetcentralField('_detection_method', 'DetectionMethod'),
+]
 
-@_add_properties
+
+@_add_properties_new
 class FailureMode(AssetcentralEntity):
     """AssetCentral Failure Mode Object."""
 
-    # Properties (in AC terminology) are:
-    # Client, ID, SubClass, StatusText, SubClassDescription, Type, EquipmentsCount, ModelsCount, SparepartsCount,
-    # LocationsCount, GroupsCount, SystemsCount, ObjectCount, DisplayID, Source, SourceID, Version, Consume,
-    # CategoryCode, CategoryDescription, Causes, ShortDescription, LongDescription, Status, LastChange, MyFailureMode,
-    # Owner, ObjectID, PatternID, PatternConfidence, MTTFValue, MTTFUnit, MTTFConfidence, MTTRValue, MTTRUnit,
-    # MTTRConfidence, MTBFValue, MTBFUnit, MTBFConfidence, PatternName, PatternImage, ImageID, PrimaryExternalID,
-    # FailureModesSearchTerms, TypeCode, DetectionMethod
-
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return set(cls._get_legacy_mapping().keys())
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        return {
-            'id': ('ID', None, None, None),
-            'name': ('DisplayID', None, None, None),
-            'short_description': ('ShortDescription', None, None, None),
-            'long_description': ('LongDescription', None, None, None),
-            'status_text': ('StatusText', None, None, None),
-        }
+    _field_map = {field.our_name: field for field in _FAILURE_MODE_FIELDS}
 
 
 class FailureModeSet(ResultSet):
