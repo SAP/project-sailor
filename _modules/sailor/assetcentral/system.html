@@ -179,8 +179,8 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">sap_iot</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> \
-    <span class="n">_ac_application_url</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span>
+                    <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_add_properties_new</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">find_equipment</span><span class="p">,</span> <span class="n">EquipmentSet</span>
 <span class="kn">from</span> <span class="nn">.indicators</span> <span class="kn">import</span> <span class="n">IndicatorSet</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_SYSTEMS</span>
@@ -188,33 +188,41 @@
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..sap_iot</span> <span class="kn">import</span> <span class="n">TimeseriesDataset</span>
 
+<span class="n">_SYSTEM_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;internalId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;model_name&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;status_text&#39;</span><span class="p">,</span> <span class="s1">&#39;systemStatusDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;short_description&#39;</span><span class="p">,</span> <span class="s1">&#39;shortDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;class_name&#39;</span><span class="p">,</span> <span class="s1">&#39;className&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;systemId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;model_id&#39;</span><span class="p">,</span> <span class="s1">&#39;modelID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;template_id&#39;</span><span class="p">,</span> <span class="s1">&#39;templateID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_status&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_model_version&#39;</span><span class="p">,</span> <span class="s1">&#39;modelVersion&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_system_provider&#39;</span><span class="p">,</span> <span class="s1">&#39;systemProvider&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_system_version&#39;</span><span class="p">,</span> <span class="s1">&#39;systemVersion&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_created_on&#39;</span><span class="p">,</span> <span class="s1">&#39;createdOn&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_changed_on&#39;</span><span class="p">,</span> <span class="s1">&#39;changedOn&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_published_on&#39;</span><span class="p">,</span> <span class="s1">&#39;publishedOn&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_source&#39;</span><span class="p">,</span> <span class="s1">&#39;source&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_image_URL&#39;</span><span class="p">,</span> <span class="s1">&#39;imageURL&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_class_id&#39;</span><span class="p">,</span> <span class="s1">&#39;classID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_subclass&#39;</span><span class="p">,</span> <span class="s1">&#39;subclass&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_subclass_id&#39;</span><span class="p">,</span> <span class="s1">&#39;subclassID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_system_provider_id&#39;</span><span class="p">,</span> <span class="s1">&#39;systemProviderID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_source_search_terms&#39;</span><span class="p">,</span> <span class="s1">&#39;sourceSearchTerms&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_system_provider_search_terms&#39;</span><span class="p">,</span> <span class="s1">&#39;systemProviderSearchTerms&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_operator&#39;</span><span class="p">,</span> <span class="s1">&#39;operator&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_operator_id&#39;</span><span class="p">,</span> <span class="s1">&#39;operatorID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_completeness&#39;</span><span class="p">,</span> <span class="s1">&#39;completeness&#39;</span><span class="p">),</span>
+<span class="p">]</span>
 
-<div class="viewcode-block" id="System"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.System">[docs]</a><span class="nd">@_add_properties</span>
+
+<div class="viewcode-block" id="System"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.System">[docs]</a><span class="nd">@_add_properties_new</span>
 <span class="k">class</span> <span class="nc">System</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral System Object.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Properties (in AC terminology) are: systemId, internalId, status, systemStatusDescription, modelID, modelVersion,</span>
-    <span class="c1"># model, shortDescription, templateID, systemProvider, systemVersion, createdOn, changedOn, source, imageURL,</span>
-    <span class="c1"># className, classID, subclass, subclassID, systemProviderID, sourceSearchTerms, systemProviderSearchTerms,</span>
-    <span class="c1"># publishedOn, operator, operatorID, completeness</span>
-
-<div class="viewcode-block" id="System.get_available_properties"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.System.get_available_properties">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_available_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>  <span class="c1"># noqa: D102</span>
-        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_get_legacy_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="c1"># TODO: remove method in future version after field templates are in used</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;systemId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;internalId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;short_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;shortDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;class_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;className&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;model_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;modelID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;model_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;status_text&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;systemStatusDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;template_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;templateID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="p">}</span>
+    <span class="n">_field_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span><span class="p">:</span> <span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">_SYSTEM_FIELDS</span><span class="p">}</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_traverse_components</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">model_order</span><span class="p">,</span> <span class="n">equipment_ids</span><span class="p">,</span> <span class="n">system_ids</span><span class="p">):</span>

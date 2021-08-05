@@ -168,46 +168,62 @@
 <span class="sd">Classes are provided for individual Workorders as well as groups of Workorders (WorkorderSet).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> \
-    <span class="n">_ac_application_url</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span>
+                    <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_add_properties_new</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser_new</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_WORKORDERS</span>
 
 
-<div class="viewcode-block" id="Workorder"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.Workorder">[docs]</a><span class="nd">@_add_properties</span>
+<span class="n">_WORKORDER_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;internalId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;type_description&#39;</span><span class="p">,</span> <span class="s1">&#39;workOrderTypeDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;priority_description&#39;</span><span class="p">,</span> <span class="s1">&#39;priorityDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;status_text&#39;</span><span class="p">,</span> <span class="s1">&#39;statusDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;short_description&#39;</span><span class="p">,</span> <span class="s1">&#39;shortDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;equipmentName&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;plant&#39;</span><span class="p">,</span> <span class="s1">&#39;plant&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;startDate&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;end_date&#39;</span><span class="p">,</span> <span class="s1">&#39;endDate&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;long_description&#39;</span><span class="p">,</span> <span class="s1">&#39;longDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;workOrderID&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;equipmentId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;model_id&#39;</span><span class="p">,</span> <span class="s1">&#39;modelId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;workOrderType&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_status&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_priority&#39;</span><span class="p">,</span> <span class="s1">&#39;priority&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_workcenter&#39;</span><span class="p">,</span> <span class="s1">&#39;workCenter&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_is_internal&#39;</span><span class="p">,</span> <span class="s1">&#39;isInternal&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_created_by&#39;</span><span class="p">,</span> <span class="s1">&#39;createdBy&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_created_on&#39;</span><span class="p">,</span> <span class="s1">&#39;creationDateTime&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_lastChangedBy&#39;</span><span class="p">,</span> <span class="s1">&#39;lastChangedBy&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_changed_on&#39;</span><span class="p">,</span> <span class="s1">&#39;lastChangeDateTime&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_basic_start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;basicStartDate&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_basic_end_date&#39;</span><span class="p">,</span> <span class="s1">&#39;basicEndDate&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_actual_start_date&#39;</span><span class="p">,</span> <span class="s1">&#39;actualStartDate&#39;</span><span class="p">,</span>
+                       <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_actual_end_date&#39;</span><span class="p">,</span> <span class="s1">&#39;actualEndDate&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_progress_status&#39;</span><span class="p">,</span> <span class="s1">&#39;progressStatus&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_progress_status_description&#39;</span><span class="p">,</span> <span class="s1">&#39;progressStatusDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_root_equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;rootEquipmentId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_root_equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;rootEquipmentName&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_person_responsible&#39;</span><span class="p">,</span> <span class="s1">&#39;personResponsible&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_location_id&#39;</span><span class="p">,</span> <span class="s1">&#39;locationId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_coordinates&#39;</span><span class="p">,</span> <span class="s1">&#39;coordinates&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_source&#39;</span><span class="p">,</span> <span class="s1">&#39;source&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_source_id&#39;</span><span class="p">,</span> <span class="s1">&#39;sourceId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_operator_id&#39;</span><span class="p">,</span> <span class="s1">&#39;operatorId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_is_source_active&#39;</span><span class="p">,</span> <span class="s1">&#39;isSourceActive&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_asset_core_equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;assetCoreEquipmentId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_operator&#39;</span><span class="p">,</span> <span class="s1">&#39;operator&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="Workorder"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.Workorder">[docs]</a><span class="nd">@_add_properties_new</span>
 <span class="k">class</span> <span class="nc">Workorder</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral Workorder Object.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Properties (in AC terminology) are:</span>
-    <span class="c1"># workOrderID, shortDescription, status, statusDescription, workOrderType, workOrderTypeDescription, priority,</span>
-    <span class="c1"># priorityDescription, isInternal, createdBy, creationDateTime, lastChangedBy, lastChangeDateTime, longDescription,</span>
-    <span class="c1"># startDate, endDate, progressStatus, progressStatusDescription, equipmentId, equipmentName, rootEquipmentId,</span>
-    <span class="c1"># rootEquipmentName, locationId, coordinates, source, sourceId, operatorId, location, isSourceActive,</span>
-    <span class="c1"># assetCoreEquipmentId, operator, internalId, modelId, plant, workCenter, basicStartDate, basicEndDate,</span>
-    <span class="c1"># actualStartDate, actualEndDate, personResponsible</span>
-
-<div class="viewcode-block" id="Workorder.get_available_properties"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.Workorder.get_available_properties">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_available_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>  <span class="c1"># noqa: D102</span>
-        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_get_legacy_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="c1"># TODO: remove method in future version after field templates are in used</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;workOrderID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;internalId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;short_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;shortDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;long_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;longDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;equipmentId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;equipment_name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;equipmentName&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;endDate&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;end_date&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;location&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;plant&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;plant&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;priority_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;priorityDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;start_date&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;startDate&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;status_text&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;statusDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;workOrderType&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;type_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;workOrderTypeDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="p">}</span></div>
+    <span class="n">_field_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span><span class="p">:</span> <span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">_WORKORDER_FIELDS</span><span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="WorkorderSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.workorder.html#sailor.assetcentral.WorkorderSet">[docs]</a><span class="k">class</span> <span class="nc">WorkorderSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>

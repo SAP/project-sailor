@@ -168,33 +168,37 @@
 <span class="sd">Classes are provided for individual Locations as well as groups of Locations (LocationSet).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> \
-    <span class="n">_ac_application_url</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span>
+                    <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_add_properties_new</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser_new</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_LOCATIONS</span>
 
 
-<div class="viewcode-block" id="Location"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.location.html#sailor.assetcentral.Location">[docs]</a><span class="nd">@_add_properties</span>
+<span class="n">_LOCATION_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;short_description&#39;</span><span class="p">,</span> <span class="s1">&#39;shortDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;type_description&#39;</span><span class="p">,</span> <span class="s1">&#39;locationTypeDescription&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;locationId&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;locationType&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_status&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_version&#39;</span><span class="p">,</span> <span class="s1">&#39;version&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_in_revision&#39;</span><span class="p">,</span> <span class="s1">&#39;hasInRevision&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_location&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_completeness&#39;</span><span class="p">,</span> <span class="s1">&#39;completeness&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_created_on&#39;</span><span class="p">,</span> <span class="s1">&#39;createdOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_changed_on&#39;</span><span class="p">,</span> <span class="s1">&#39;changedOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_published_on&#39;</span><span class="p">,</span> <span class="s1">&#39;publishedOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_source&#39;</span><span class="p">,</span> <span class="s1">&#39;source&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_image_URL&#39;</span><span class="p">,</span> <span class="s1">&#39;imageURL&#39;</span><span class="p">),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_location_status&#39;</span><span class="p">,</span> <span class="s1">&#39;locationStatus&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="Location"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.location.html#sailor.assetcentral.Location">[docs]</a><span class="nd">@_add_properties_new</span>
 <span class="k">class</span> <span class="nc">Location</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral Location Object.&quot;&quot;&quot;</span>
 
-    <span class="c1"># Properties (in AC terminology) are:</span>
-    <span class="c1"># locationId, name, status, version, hasInRevision, shortDescription, location, completeness, createdOn,</span>
-    <span class="c1"># changedOn, publishedOn, source, imageURL, locationStatus, locationTypeDescription, locationType</span>
-
-<div class="viewcode-block" id="Location.get_available_properties"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.location.html#sailor.assetcentral.Location.get_available_properties">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_available_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>  <span class="c1"># noqa: D102</span>
-        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_get_legacy_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="c1"># TODO: remove method in future version after field templates are in used</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;locationId&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;short_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;shortDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;locationType&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="s1">&#39;type_description&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;locationTypeDescription&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-        <span class="p">}</span></div>
+    <span class="n">_field_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span><span class="p">:</span> <span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">_LOCATION_FIELDS</span><span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="LocationSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.location.html#sailor.assetcentral.LocationSet">[docs]</a><span class="k">class</span> <span class="nc">LocationSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
