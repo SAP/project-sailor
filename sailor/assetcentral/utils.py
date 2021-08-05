@@ -522,12 +522,12 @@ class AssetcentralRequestValidationError(Exception):  # noqa: D101 (self-explana
 class _AssetcentralField:
     """Specify a field in Assetcentral."""
 
-    def __init__(self, our_name, their_name_get, their_name_put=None, is_exposed=True, is_mandatory=False,
+    def __init__(self, our_name, their_name_get, their_name_put=None, is_mandatory=False,
                  get_extractor=None, put_setter=None):
         self.our_name = our_name
         self.their_name_get = their_name_get
         self.their_name_put = their_name_put
-        self.is_exposed = is_exposed
+        self.is_exposed = not our_name.startswith('_')
         self.is_writable = their_name_put is not None
         self.is_mandatory = is_mandatory
 

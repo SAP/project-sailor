@@ -17,9 +17,10 @@ from .indicators import Indicator, IndicatorSet
 from .notification import Notification, find_notifications, _create_or_update_notification
 from .location import Location, find_locations
 from .workorder import find_workorders
-from .utils import (AssetcentralEntity, ResultSet, _AssetcentralWriteRequest, _ac_application_url,
-                    _apply_filters_post_request, _fetch_data, _add_properties, _parse_filter_parameters)
-from ..utils.timestamps import _string_to_timestamp_parser
+from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new,
+                    _apply_filters_post_request)
+from ..utils.timestamps import _string_to_timestamp_parser_new
 
 if TYPE_CHECKING:
     from ..sap_iot import TimeseriesDataset
@@ -27,53 +28,66 @@ if TYPE_CHECKING:
     from .failure_mode import FailureModeSet
     from .workorder import WorkorderSet
 
+_EQUIPMENT_FIELDS = [
+    _AssetcentralField('name', 'internalId'),  # there is also a native `name`, which we're ignoring
+    _AssetcentralField('model_name', 'modelName'),
+    _AssetcentralField('location_name', 'location'),
+    _AssetcentralField('status_text', 'statusDescription'),
+    _AssetcentralField('short_description', 'shortDescription'),
+    _AssetcentralField('manufacturer', 'manufacturer'),
+    _AssetcentralField('operator', 'operator'),
+    _AssetcentralField('installation_date', 'installationDate', get_extractor=_string_to_timestamp_parser_new('ms')),
+    _AssetcentralField('build_date', 'buildDate', get_extractor=_string_to_timestamp_parser_new('ms')),
+    _AssetcentralField('criticality_description', 'criticalityDescription'),
+    _AssetcentralField('id', 'equipmentId'),
+    _AssetcentralField('model_id', 'modelId'),
+    _AssetcentralField('template_id', 'templateId'),
+    _AssetcentralField('serial_number', 'serialNumber'),
+    _AssetcentralField('batch_number', 'batchNumber'),
+    _AssetcentralField('_tag_number', 'tagNumber'),
+    _AssetcentralField('_lifecycle', 'lifeCycle'),
+    _AssetcentralField('_lifecycle_description', 'lifeCycleDescription'),
+    _AssetcentralField('_source', 'source'),
+    _AssetcentralField('_status', 'status'),
+    _AssetcentralField('_version', 'version'),
+    _AssetcentralField('_in_revision', 'hasInRevision'),
+    _AssetcentralField('_subclass', 'subclass'),
+    _AssetcentralField('_model_template', 'modelTemplate'),
+    _AssetcentralField('_criticality_code', 'criticalityCode'),
+    _AssetcentralField('_completeness', 'completeness'),
+    _AssetcentralField('_created_on', 'createdOn'),
+    _AssetcentralField('_changed_on', 'changedOn'),
+    _AssetcentralField('_published_on', 'publishedOn'),
+    _AssetcentralField('_image_URL', 'imageURL'),
+    _AssetcentralField('_coordinates', 'coordinates'),
+    _AssetcentralField('_equipment_status', 'equipmentStatus'),
+    _AssetcentralField('_is_operator_valid', 'isOperatorValid'),
+    _AssetcentralField('_model_version', 'modelVersion'),
+    _AssetcentralField('_sold_to', 'soldTo'),
+    _AssetcentralField('_image', 'image'),
+    _AssetcentralField('_consume', 'consume'),
+    _AssetcentralField('_dealer', 'dealer'),
+    _AssetcentralField('_service_provider', 'serviceProvider'),
+    _AssetcentralField('_primary_external_id', 'primaryExternalId'),
+    _AssetcentralField('_equipment_search_terms', 'equipmentSearchTerms'),
+    _AssetcentralField('_source_search_terms', 'sourceSearchTerms'),
+    _AssetcentralField('_manufacturer_search_terms', 'manufacturerSearchTerms'),
+    _AssetcentralField('_operator_search_terms', 'operatorSearchTerms'),
+    _AssetcentralField('_class', 'class'),
+]
 
-@_add_properties
+
+@_add_properties_new
 class Equipment(AssetcentralEntity):
     """AssetCentral Equipment Object."""
 
-    # Properties (in AC terminology) are:
-    # equipmentId, name, internalId, status, statusDescription, version, hasInRevision,
-    # modelId, modelName, shortDescription, templateId, subclass, modelTemplate,
-    # location, criticalityCode, criticalityDescription, manufacturer, completeness, createdOn,
-    # changedOn, publishedOn, serialNumber, batchNumber, tagNumber, lifeCycle, lifeCycleDescription,
-    # source, imageURL, operator, coordinates, installationDate, equipmentStatus, buildDate,
-    # isOperatorValid, modelVersion, soldTo, image, consume, dealer, serviceProvider, primaryExternalId,
-    # equipmentSearchTerms, sourceSearchTerms, manufacturerSearchTerms, operatorSearchTerms, class
-
+    _field_map = {field.our_name: field for field in _EQUIPMENT_FIELDS}
     _location = None
-
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return set(cls._get_legacy_mapping().keys())
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        return {
-            'id': ('equipmentId', None, None, None),
-            'name': ('name', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'batch_number': ('batchNumber', None, None, None),
-            'build_date': ('buildDate', _string_to_timestamp_parser('buildDate', 'ms'), None, None),
-            'criticality_description': ('criticalityDescription', None, None, None),
-            'model_id': ('modelId', None, None, None),
-            'model_name': ('modelName', None, None, None),
-            'installation_date': ('installationDate', _string_to_timestamp_parser('installationDate', 'ms'),
-                                  None, None),
-            'lifecycle_description': ('lifeCycleDescription', None, None, None),
-            'location_name': ('location', None, None, None),
-            'manufacturer': ('manufacturer', None, None, None),
-            'operator': ('operator', None, None, None),
-            'serial_number': ('serialNumber', None, None, None),
-            'status_text': ('statusDescription', None, None, None),
-            'template_id': ('templateId', None, None, None),
-        }
 
     @property
     def location(self) -> Location:
         """Return the Location associated with this Equipment."""
-        if self._location is None:
+        if self._location is None and self.location_name is not None:
             locations = find_locations(name=self.location_name)  # why do we have a name here, not an ID???
             assert len(locations) == 1
             self._location = locations[0]
@@ -226,7 +240,10 @@ class Equipment(AssetcentralEntity):
         --------
         :meth:`sailor.assetcentral.notification.create_notification`
         """
-        request = _AssetcentralWriteRequest(Notification._field_map, equipment_id=self.id, location_id=self.location.id)
+        args = {'equipment_id': self.id}
+        if self.location is not None:
+            args['location_id'] = self.location.id
+        request = _AssetcentralWriteRequest(Notification._field_map, **args)
         request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
         return _create_or_update_notification(request, 'POST')
 

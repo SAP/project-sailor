@@ -2,6 +2,7 @@ from unittest.mock import patch, Mock, call
 
 import pytest
 
+from sailor.assetcentral.equipment import Equipment
 from sailor.assetcentral.location import Location, LocationSet
 from sailor.assetcentral import constants
 
@@ -154,3 +155,16 @@ class TestEquipmentSet:
         actual_result = equipment_set.find_common_indicators()
 
         assert expected_result == actual_result
+
+    def test_expected_public_attributes_are_present(self):
+        expected_attributes = [
+            'name', 'model_name', 'location_name', 'status_text', 'short_description', 'manufacturer',
+            'operator', 'installation_date', 'build_date', 'criticality_description', 'id', 'model_id',
+            'template_id', 'serial_number', 'batch_number',
+        ]
+
+        fieldmap_public_attributes = [
+            field.our_name for field in Equipment._field_map.values() if not field.our_name.startswith('_')
+        ]
+
+        assert expected_attributes == fieldmap_public_attributes
