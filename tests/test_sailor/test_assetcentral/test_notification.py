@@ -157,7 +157,7 @@ def test_expected_public_attributes_are_present():
     ]
 
     fieldmap_public_attributes = [
-        field.our_name for field in Notification._field_map.values() if not field.our_name.startswith('_')
+        field.our_name for field in Notification._field_map.values() if field.is_exposed
     ]
 
     assert expected_attributes == fieldmap_public_attributes

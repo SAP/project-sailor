@@ -84,7 +84,7 @@ class TestGroupSet:
         expected_attributes = ['name', 'group_type', 'short_description', 'risk_value', 'id']
 
         fieldmap_public_attributes = [
-            field.our_name for field in Group._field_map.values() if not field.our_name.startswith('_')
+            field.our_name for field in Group._field_map.values() if field.is_exposed
         ]
 
         assert expected_attributes == fieldmap_public_attributes
