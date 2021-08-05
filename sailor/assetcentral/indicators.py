@@ -9,45 +9,48 @@ is no support for unrealized 'Indicator Templates'.
 import hashlib
 from functools import cached_property
 
-from .utils import _add_properties, AssetcentralEntity, ResultSet
+from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _add_properties_new)
+
+_INDICATOR_FIELDS = [
+    _AssetcentralField('name', 'indicatorName'),
+    _AssetcentralField('indicator_group_name', 'indicatorGroupName'),
+    _AssetcentralField('type', 'indicatorType'),
+    _AssetcentralField('uom_description', 'UOMDescription'),
+    _AssetcentralField('dimension_description', 'dimensionDesc'),
+    _AssetcentralField('description', 'indicatorDesc'),
+    _AssetcentralField('indicator_group_description', 'indicatorGroupDesc'),
+    _AssetcentralField('uom', 'UOM'),
+    _AssetcentralField('dimension', 'dimension'),
+    _AssetcentralField('datatype', 'dataType'),
+    _AssetcentralField('id', 'propertyId'),
+    _AssetcentralField('dimension_id', 'Dimension'),
+    _AssetcentralField('model_id', 'objectId'),
+    _AssetcentralField('indicator_group_id', 'pstid'),
+    _AssetcentralField('template_id', 'categoryID'),
+    _AssetcentralField('_liot_id', 'propertyId', get_extractor=lambda v: 'I_' + v),
+    _AssetcentralField('_liot_group_id', 'pstid', get_extractor=lambda v: 'IG_' + v),
+    _AssetcentralField('_indicator_source', 'indicatorSource'),
+    _AssetcentralField('_aggregate_update_timestamp', 'aggUpdatedTimestamp'),
+    _AssetcentralField('_indicator_category', 'indicatorCategory'),
+    _AssetcentralField('_color_code', 'colorCode'),
+    _AssetcentralField('_threshold_description', 'thresholdDescription'),
+    _AssetcentralField('_converted_aggregate_value', 'convertedAggregatedValue'),
+    _AssetcentralField('_trend', 'trend'),
+    _AssetcentralField('_converted_UOM_description', 'convertedUOMDesc'),
+    _AssetcentralField('_converted_UOM', 'convertedUOM'),
+    _AssetcentralField('_indicator_color_code', 'indicatorColorCode'),
+    _AssetcentralField('_is_favorite', 'isFavorite'),
+    _AssetcentralField('_dimension_description', 'DimensionDesc'),  # duplicate
+    _AssetcentralField('_uom', 'uom'),  # duplicate
+    _AssetcentralField('_uom_description', 'uomdescription'),  # duplicate
+]
 
 
-@_add_properties
+@_add_properties_new
 class Indicator(AssetcentralEntity):
     """AssetCentral Indicator Object."""
 
-    # Properties (in AC terminology) are: categoryID, propertyId, indicatorGroupName, indicatorName,
-    # indicatorGroupDesc, objectId, indicatorSource, aggUpdatedTimestamp, indicatorCategory, colorCode,
-    # thresholdDescription, convertedAggregatedValue, trend, dataType, indicatorType, convertedUOMDesc,
-    # UOM, convertedUOM, indicatorDesc, indicatorColorCode, isFavorite, UOMDescription, Dimension, DimensionDesc,
-    # uomdescription, dimension, dimensionDesc, pstid, uom
-    # TODO update field list - I think e.g. template id is also part of hte API response
-
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return set(cls._get_legacy_mapping().keys())
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        # TODO: There is still some weird stuff here, e.g. UOM vs. uom or convertedXXX
-        return {
-            'id': ('propertyId', None, None, None),
-            'name': ('indicatorName', None, None, None),
-            'description': ('indicatorDesc', None, None, None),
-            'dimension_description': ('DimensionDescription', None, None, None),
-            'dimension_id': ('Dimension', None, None, None),
-            'indicator_group_description': ('indicatorGroupDesc', None, None, None),
-            'indicator_group_id': ('pstid', None, None, None),
-            'indicator_group_name': ('indicatorGroupName', None, None, None),
-            'model_id': ('objectId', None, None, None),
-            'template_id': ('categoryID', None, None, None),
-            'type': ('indicatorType', None, None, None),
-            'uom': ('UOM', None, None, None),
-            'uom_description': ('UOMDescription', None, None, None),
-            '_liot_id': ('propertyId', lambda self: 'I_' + self.raw.get('propertyId', None), None, None),
-            '_liot_group_id': ('pstid', lambda self: 'IG_' + self.raw.get('pstid', None), None, None),
-        }
+    _field_map = {field.our_name: field for field in _INDICATOR_FIELDS}
 
     @cached_property
     def _unique_id(self):
