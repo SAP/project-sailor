@@ -5,8 +5,8 @@ Classes are provided for individual Locations as well as groups of Locations (Lo
 """
 
 from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _parse_filter_parameters,
-                    _fetch_data, _ac_application_url, _add_properties_new)
-from ..utils.timestamps import _string_to_timestamp_parser_new
+                    _fetch_data, _ac_application_url, _add_properties)
+from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_LOCATIONS
 
 
@@ -21,16 +21,16 @@ _LOCATION_FIELDS = [
     _AssetcentralField('_in_revision', 'hasInRevision'),
     _AssetcentralField('_location', 'location'),
     _AssetcentralField('_completeness', 'completeness'),
-    _AssetcentralField('_created_on', 'createdOn', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
-    _AssetcentralField('_changed_on', 'changedOn', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
-    _AssetcentralField('_published_on', 'publishedOn', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+    _AssetcentralField('_created_on', 'createdOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_changed_on', 'changedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_published_on', 'publishedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('_source', 'source'),
     _AssetcentralField('_image_URL', 'imageURL'),
     _AssetcentralField('_location_status', 'locationStatus'),
 ]
 
 
-@_add_properties_new
+@_add_properties
 class Location(AssetcentralEntity):
     """AssetCentral Location Object."""
 

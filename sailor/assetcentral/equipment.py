@@ -18,9 +18,9 @@ from .notification import Notification, find_notifications, _create_or_update_no
 from .location import Location, find_locations
 from .workorder import find_workorders
 from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties,
                     _apply_filters_post_request)
-from ..utils.timestamps import _string_to_timestamp_parser_new
+from ..utils.timestamps import _string_to_timestamp_parser
 
 if TYPE_CHECKING:
     from ..sap_iot import TimeseriesDataset
@@ -36,8 +36,8 @@ _EQUIPMENT_FIELDS = [
     _AssetcentralField('short_description', 'shortDescription'),
     _AssetcentralField('manufacturer', 'manufacturer'),
     _AssetcentralField('operator', 'operator'),
-    _AssetcentralField('installation_date', 'installationDate', get_extractor=_string_to_timestamp_parser_new('ms')),
-    _AssetcentralField('build_date', 'buildDate', get_extractor=_string_to_timestamp_parser_new('ms')),
+    _AssetcentralField('installation_date', 'installationDate', get_extractor=_string_to_timestamp_parser('ms')),
+    _AssetcentralField('build_date', 'buildDate', get_extractor=_string_to_timestamp_parser('ms')),
     _AssetcentralField('criticality_description', 'criticalityDescription'),
     _AssetcentralField('id', 'equipmentId'),
     _AssetcentralField('model_id', 'modelId'),
@@ -77,7 +77,7 @@ _EQUIPMENT_FIELDS = [
 ]
 
 
-@_add_properties_new
+@_add_properties
 class Equipment(AssetcentralEntity):
     """AssetCentral Equipment Object."""
 

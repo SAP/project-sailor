@@ -8,8 +8,8 @@ from functools import cached_property
 import warnings
 
 from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
-                    _apply_filters_post_request, _fetch_data, _ac_application_url, _add_properties_new)
-from ..utils.timestamps import _string_to_timestamp_parser_new
+                    _apply_filters_post_request, _fetch_data, _ac_application_url, _add_properties)
+from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_GROUPS
 from .equipment import find_equipment, EquipmentSet
 from .location import find_locations, LocationSet
@@ -29,12 +29,12 @@ _GROUP_FIELDS = [
     _AssetcentralField('_version', 'version'),
     _AssetcentralField('_group_type_count', 'groupTypeCount'),
     _AssetcentralField('_long_description', 'longDescription'),
-    _AssetcentralField('_changed_on', 'lastEditedTime', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
-    _AssetcentralField('_created_on', 'creationTime', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+    _AssetcentralField('_changed_on', 'lastEditedTime', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_created_on', 'creationTime', get_extractor=_string_to_timestamp_parser(unit='ms')),
 ]
 
 
-@_add_properties_new
+@_add_properties
 class Group(AssetcentralEntity):
     """AssetCentral Location Object."""
 

@@ -9,9 +9,9 @@ import plotnine as p9
 import sailor.assetcentral.equipment
 from .constants import VIEW_NOTIFICATIONS
 from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new, _nested_put_setter)
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties, _nested_put_setter)
 from ..utils.oauth_wrapper import get_oauth_client
-from ..utils.timestamps import _string_to_timestamp_parser_new
+from ..utils.timestamps import _string_to_timestamp_parser
 from ..utils.plot_helper import _default_plot_theme
 
 _NOTIFICATION_FIELDS = [
@@ -22,9 +22,9 @@ _NOTIFICATION_FIELDS = [
     _AssetcentralField('short_description', 'shortDescription', 'description', is_mandatory=True,
                        put_setter=_nested_put_setter('description', 'shortDescription')),
     _AssetcentralField('malfunction_start_date', 'malfunctionStartDate', 'malfunctionStartDate',
-                       get_extractor=_string_to_timestamp_parser_new()),
+                       get_extractor=_string_to_timestamp_parser()),
     _AssetcentralField('malfunction_end_date', 'malfunctionEndDate', 'malfunctionEndDate',
-                       get_extractor=_string_to_timestamp_parser_new()),
+                       get_extractor=_string_to_timestamp_parser()),
     _AssetcentralField('breakdown', 'breakdown', 'breakdown', get_extractor=lambda v: bool(int(v))),
     _AssetcentralField('confirmed_failure_mode_description', 'confirmedFailureModeDesc'),
     _AssetcentralField('cause_description', 'causeDesc'),
@@ -46,7 +46,7 @@ _NOTIFICATION_FIELDS = [
     _AssetcentralField('operator_id', 'operatorId', 'operator'),  # setting 'operator' has no effect
     _AssetcentralField('confirmed_failure_mode_id', 'confirmedFailureModeID', 'confirmedFailureModeID'),
     _AssetcentralField('confirmed_failure_mode_name', 'confirmedFailureModeDisplayID'),
-    _AssetcentralField('end_date', 'endDate', 'endDate', get_extractor=_string_to_timestamp_parser_new()),
+    _AssetcentralField('end_date', 'endDate', 'endDate', get_extractor=_string_to_timestamp_parser()),
     _AssetcentralField('functional_location_id', 'functionalLocationID', 'functionalLocationID'),
     _AssetcentralField('location_id', 'locationId', 'locationID'),
     _AssetcentralField('location_name', 'location'),
@@ -55,7 +55,7 @@ _NOTIFICATION_FIELDS = [
     _AssetcentralField('root_equipment_id', 'rootEquipmentId'),
     _AssetcentralField('root_equipment_name', 'rootEquipmentName'),
     _AssetcentralField('start_date', 'startDate', 'startDate',
-                       get_extractor=_string_to_timestamp_parser_new()),
+                       get_extractor=_string_to_timestamp_parser()),
     _AssetcentralField('system_failure_mode_id', 'systemProposedFailureModeID', 'systemProposedFailureModeID'),
     _AssetcentralField('system_failure_mode_description', 'systemProposedFailureModeDesc'),
     _AssetcentralField('system_failure_mode_name', 'systemProposedFailureModeDisplayID'),
@@ -76,7 +76,7 @@ _NOTIFICATION_FIELDS = [
 ]
 
 
-@_add_properties_new
+@_add_properties
 class Notification(AssetcentralEntity):
     """AssetCentral Notification Object."""
 

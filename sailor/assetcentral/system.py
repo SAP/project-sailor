@@ -16,7 +16,7 @@ import pandas as pd
 
 from sailor import sap_iot
 from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new)
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties)
 from .equipment import find_equipment, EquipmentSet
 from .indicators import IndicatorSet
 from .constants import VIEW_SYSTEMS
@@ -54,7 +54,7 @@ _SYSTEM_FIELDS = [
 ]
 
 
-@_add_properties_new
+@_add_properties
 class System(AssetcentralEntity):
     """AssetCentral System Object."""
 

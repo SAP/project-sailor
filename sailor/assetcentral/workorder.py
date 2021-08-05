@@ -5,8 +5,8 @@ Classes are provided for individual Workorders as well as groups of Workorders (
 """
 
 from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new)
-from ..utils.timestamps import _string_to_timestamp_parser_new
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties)
+from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_WORKORDERS
 
 
@@ -34,11 +34,11 @@ _WORKORDER_FIELDS = [
     _AssetcentralField('_created_on', 'creationDateTime'),
     _AssetcentralField('_lastChangedBy', 'lastChangedBy'),
     _AssetcentralField('_changed_on', 'lastChangeDateTime'),
-    _AssetcentralField('_basic_start_date', 'basicStartDate', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
-    _AssetcentralField('_basic_end_date', 'basicEndDate', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+    _AssetcentralField('_basic_start_date', 'basicStartDate', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_basic_end_date', 'basicEndDate', get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('_actual_start_date', 'actualStartDate',
-                       get_extractor=_string_to_timestamp_parser_new(unit='ms')),
-    _AssetcentralField('_actual_end_date', 'actualEndDate', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+                       get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_actual_end_date', 'actualEndDate', get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('_progress_status', 'progressStatus'),
     _AssetcentralField('_progress_status_description', 'progressStatusDescription'),
     _AssetcentralField('_root_equipment_id', 'rootEquipmentId'),
@@ -55,7 +55,7 @@ _WORKORDER_FIELDS = [
 ]
 
 
-@_add_properties_new
+@_add_properties
 class Workorder(AssetcentralEntity):
     """AssetCentral Workorder Object."""
 

@@ -5,7 +5,7 @@ Classes are provided for individual FailureModes as well as groups of FailureMod
 """
 
 from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new)
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties)
 from .constants import VIEW_FAILUREMODES
 
 _FAILURE_MODE_FIELDS = [
@@ -58,7 +58,7 @@ _FAILURE_MODE_FIELDS = [
 ]
 
 
-@_add_properties_new
+@_add_properties
 class FailureMode(AssetcentralEntity):
     """AssetCentral Failure Mode Object."""
 

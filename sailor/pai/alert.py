@@ -7,9 +7,9 @@ Classes are provided for individual Alert as well as groups of Alerts (AlertSet)
 
 from .constants import ALERTS_READ_PATH
 from .utils import PredictiveAssetInsightsEntity, _pai_application_url
-from ..assetcentral.utils import (_fetch_data, _add_properties_new, _parse_filter_parameters,
+from ..assetcentral.utils import (_fetch_data, _add_properties, _parse_filter_parameters,
                                   ResultSet, _AssetcentralField)
-from ..utils.timestamps import _odata_to_timestamp_parser_new
+from ..utils.timestamps import _odata_to_timestamp_parser
 
 
 _ALERT_FIELDS = [
@@ -23,8 +23,8 @@ _ALERT_FIELDS = [
     _AssetcentralField('template_name', 'TemplateName'),
     _AssetcentralField('count', 'Count'),
     _AssetcentralField('status_code', 'StatusCode'),
-    _AssetcentralField('triggered_on', 'TriggeredOn', get_extractor=_odata_to_timestamp_parser_new()),
-    _AssetcentralField('last_occured_on', 'LastOccuredOn', get_extractor=_odata_to_timestamp_parser_new()),
+    _AssetcentralField('triggered_on', 'TriggeredOn', get_extractor=_odata_to_timestamp_parser()),
+    _AssetcentralField('last_occured_on', 'LastOccuredOn', get_extractor=_odata_to_timestamp_parser()),
     _AssetcentralField('type_description', 'AlertTypeDescription'),
     _AssetcentralField('error_code_description', 'ErrorCodeDescription'),
     _AssetcentralField('type', 'AlertType'),
@@ -47,7 +47,7 @@ _ALERT_FIELDS = [
     _AssetcentralField('_created_by', 'CreatedBy'),
     _AssetcentralField('_changed_by', 'ChangedBy'),
     _AssetcentralField('_serial_number', 'SerialNumber'),
-    _AssetcentralField('_changed_on', 'ChangedOn', get_extractor=_odata_to_timestamp_parser_new()),
+    _AssetcentralField('_changed_on', 'ChangedOn', get_extractor=_odata_to_timestamp_parser()),
     _AssetcentralField('_processor', 'Processor'),
     _AssetcentralField('_top_equipment_id', 'TopEquipmentID'),
     _AssetcentralField('_planning_plant', 'PlanningPlant'),
@@ -55,7 +55,7 @@ _ALERT_FIELDS = [
     _AssetcentralField('_operator_id', 'OperatorID'),
     _AssetcentralField('_source', 'Source'),
     _AssetcentralField('_top_equipment_name', 'TopEquipmentName'),
-    _AssetcentralField('_created_on', 'CreatedOn', get_extractor=_odata_to_timestamp_parser_new()),
+    _AssetcentralField('_created_on', 'CreatedOn', get_extractor=_odata_to_timestamp_parser()),
     _AssetcentralField('_model_description', 'ModelDescription'),
     _AssetcentralField('_top_equipment_description', 'TopEquipmentDescription'),
     _AssetcentralField('_functional_location_name', 'FunctionalLocationName'),
@@ -65,7 +65,7 @@ _ALERT_FIELDS = [
 ]
 
 
-@_add_properties_new
+@_add_properties
 class Alert(PredictiveAssetInsightsEntity):
     """PredictiveAssetInsights Alert Object."""
 
