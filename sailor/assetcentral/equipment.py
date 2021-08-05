@@ -116,7 +116,7 @@ class Equipment(AssetcentralEntity):
         object_list = _fetch_data(endpoint_url)
 
         filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                       Indicator._get_legacy_mapping())
+                                                       Indicator._field_map)
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
     def find_notifications(self, *, extended_filters=(), **kwargs) -> NotificationSet:
@@ -419,7 +419,7 @@ def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
                         location_name='London')
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Equipment._get_legacy_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Equipment._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)

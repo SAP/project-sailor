@@ -1,5 +1,5 @@
 from typing import Iterable
-from unittest.mock import PropertyMock, patch
+from unittest.mock import PropertyMock, patch, Mock
 
 import pytest
 
@@ -149,7 +149,7 @@ class TestResultSet:
 
     @pytest.mark.parametrize('cls', ResultSet.__subclasses__())
     def test_resultset_method_defaults(self, cls):
-        element_properties = cls._element_type._get_legacy_mapping()
+        element_properties = cls._element_type._field_map
         assert cls._method_defaults['plot_distribution']['by'] in element_properties
 
     def test_magic_eq_type_not_equal(self):
@@ -232,15 +232,15 @@ class TestQueryParsers:
         assert filters == [('a', 'eq', "'b'")]
 
     def test_unify_filters_property_mapping_kwargs_key_field(self):
-        filters = _unify_filters({'my_term': 'some_value'}, None, {'my_term': ['their_term']})
+        filters = _unify_filters({'my_term': 'some_value'}, None, {'my_term': Mock(their_name_get='their_term')})
         assert filters[0][0] == 'their_term'
 
     def test_unify_filters_property_mapping_extended_key_field(self):
-        filters = _unify_filters(None, ['my_term == "foo"'], {'my_term': ['their_term']})
+        filters = _unify_filters(None, ['my_term == "foo"'], {'my_term': Mock(their_name_get='their_term')})
         assert filters[0][0] == 'their_term'
 
     def test_unify_filters_property_mapping_extended_value_field(self):
-        filters = _unify_filters(None, ['some_field == my_term'], {'my_term': ['their_term']})
+        filters = _unify_filters(None, ['some_field == my_term'], {'my_term': Mock(their_name_get='their_term')})
         assert filters[0][2] == 'their_term'
 
     @pytest.mark.parametrize('testdescription,equality_filters,expected_unbreakable,expected_breakable', [
@@ -287,12 +287,12 @@ class TestQueryParsers:
     def test_parse_filter_parameters_with_property_mapping(self):
         equality_filters = {'location_name': ['Paris', 'London'], 'serial_number': 1234}
         extended_filters = ["start_date > '2020-01-01'"]
-        property_mapping = {'location_name': ('location', None, None, None),
-                            'serial_number': ('serialNumber', None, None, None),
-                            'start_date': ('startDate', None, None, None)}
+        field_map = {'location_name': Mock(their_name_get='location'),
+                     'serial_number': Mock(their_name_get='serialNumber'),
+                     'start_date': Mock(their_name_get='startDate')}
 
         actual_unbreakable, actual_breakable = \
-            _parse_filter_parameters(equality_filters, extended_filters, property_mapping)
+            _parse_filter_parameters(equality_filters, extended_filters, field_map)
 
         assert actual_unbreakable == ["serialNumber eq 1234", "startDate gt '2020-01-01'"]
         assert actual_breakable == [["location eq 'Paris'", "location eq 'London'"]]
@@ -313,7 +313,7 @@ def test_apply_filters_post_request_filtering(equality_filters, extended_filters
             {'id': 'indicator_id2', 'type': 'yellow', 'dimension': 'three', 'categoryID': 'aa'},
             {'id': 'indicator_id3', 'type': 'brown', 'dimension': 'three', 'categoryID': 'aaaa'}]
 
-    actual = _apply_filters_post_request(data, equality_filters, extended_filters, property_mapping=None)
+    actual = _apply_filters_post_request(data, equality_filters, extended_filters, field_map=None)
 
     assert [item['id'] for item in actual] == expected_ids
 
@@ -322,14 +322,14 @@ def test_apply_filters_post_request_property_mapping():
     data = [{'propertyId': 'indicator_id1', 'indicatorType': 'yellow', 'categoryID': 'aa'},
             {'propertyId': 'indicator_id2', 'indicatorType': 'yellow', 'categoryID': 'aa'},
             {'propertyId': 'indicator_id3', 'indicatorType': 'brown', 'categoryID': 'aaaa'}]
-    property_mapping = {'type': ('indicatorType', None, None, None),
-                        'template_id': ('categoryID', None, None, None)}
+    field_map = {'type': Mock(their_name_get='indicatorType'),
+                 'template_id': Mock(their_name_get='categoryID')}
     equality_filters = dict(type='yellow')
     extended_filters = ['template_id > a']
     expected_result = [{'propertyId': 'indicator_id1', 'indicatorType': 'yellow', 'categoryID': 'aa'},
                        {'propertyId': 'indicator_id2', 'indicatorType': 'yellow', 'categoryID': 'aa'}]
 
-    actual = _apply_filters_post_request(data, equality_filters, extended_filters, property_mapping)
+    actual = _apply_filters_post_request(data, equality_filters, extended_filters, field_map)
 
     assert actual == expected_result
 
