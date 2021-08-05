@@ -4,6 +4,7 @@ import pytest
 
 from sailor.pai import constants
 from sailor import pai
+from sailor.pai.alert import Alert
 
 
 def get_parameters(test_object):
@@ -44,3 +45,17 @@ class TestAlert():
         assert params['endpoint'] in mock_fetch.call_args.args[0]
         assert mock_fetch.call_args.args[1:] == expected_call_args
         assert actual_result == expected_result
+
+    def test_expected_public_attributes_are_present(self):
+        expected_attributes = [
+            'description', 'severity_code', 'category', 'equipment_name', 'model_name', 'indicator_name',
+            'indicator_group_name', 'template_name', 'count', 'status_code', 'triggered_on', 'last_occured_on',
+            'type_description', 'error_code_description', 'type', 'id', 'equipment_id', 'model_id', 'template_id',
+            'indicator_id', 'indicator_group_id', 'notification_id',
+        ]
+
+        fieldmap_public_attributes = [
+            field.our_name for field in Alert._field_map.values() if not field.our_name.startswith('_')
+        ]
+
+        assert expected_attributes == fieldmap_public_attributes

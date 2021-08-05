@@ -14,6 +14,10 @@ def _string_to_timestamp_parser(name, unit=None):
     return lambda self: pd.Timestamp(self.raw[name], unit=unit, tz='UTC') if self.raw[name] else None
 
 
+def _odata_to_timestamp_parser_new(unit='ms'):
+    return lambda value: pd.Timestamp(float(value[6:-2]), unit=unit, tz='UTC')
+
+
 def _string_to_timestamp_parser_new(unit=None):
     return lambda value: pd.Timestamp(value, unit=unit, tz='UTC')
 
