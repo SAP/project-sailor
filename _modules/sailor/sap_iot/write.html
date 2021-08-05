@@ -193,7 +193,7 @@
     <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Uploading data for equipment </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">equipment_id</span><span class="p">)</span>
 
     <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;upload_url&#39;</span><span class="p">)</span>
-    <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/Timeseries/extend/Measurements/objectId/</span><span class="si">{</span><span class="n">equipment_id</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/Timeseries/extend/Measurements/equipmentId/</span><span class="si">{</span><span class="n">equipment_id</span><span class="si">}</span><span class="s1">&#39;</span>
     <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">get_oauth_client</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
 
     <span class="c1"># shape[1] is the number of columns, we want to divide the page size by the number of columns as each column</span>
