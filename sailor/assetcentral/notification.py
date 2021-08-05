@@ -186,7 +186,8 @@ class NotificationSet(ResultSet):
                                    'equipment_name', 'confirmed_failure_mode_description'])
 
         # if there are any `NA` values in the equipment_name the plot gets messed up.
-        data = data.dropna(axis=0, subset=['equipment_name'])
+        # this turns the NAs into an 'nan' string, which works fine.
+        data['equipment_name'] = data['equipment_name'].astype(str)
 
         aes = {
             'x': 'malfunction_start_date', 'xend': 'malfunction_end_date',
