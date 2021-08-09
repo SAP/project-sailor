@@ -8,7 +8,7 @@ from sailor.assetcentral.equipment import Equipment
 from sailor.assetcentral.utils import (
     AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity, ResultSet,
     _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data,
-    _add_properties_new)
+    _add_properties)
 
 
 class TestAssetcentralEntity:
@@ -46,7 +46,7 @@ class TestAssetcentralEntity:
             return pow(value, 2)
         fields = [_AssetcentralField('our_name', 'their_name_get', 'their_name_put', get_extractor=get_extractor)]
 
-        @_add_properties_new
+        @_add_properties
         class FieldTestEntity(AssetcentralEntity):
             _field_map = {f.our_name: f for f in fields}
         entity = FieldTestEntity({'their_name_get': 9})

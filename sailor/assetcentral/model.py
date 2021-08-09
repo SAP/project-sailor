@@ -12,8 +12,8 @@ from .constants import VIEW_MODEL_INDICATORS, VIEW_MODELS
 from .indicators import Indicator, IndicatorSet
 from .equipment import find_equipment
 from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _parse_filter_parameters,
-                    _apply_filters_post_request, _fetch_data, _ac_application_url, _add_properties_new)
-from ..utils.timestamps import _string_to_timestamp_parser_new
+                    _apply_filters_post_request, _fetch_data, _ac_application_url, _add_properties)
+from ..utils.timestamps import _string_to_timestamp_parser
 
 if TYPE_CHECKING:
     from .equipment import EquipmentSet
@@ -24,9 +24,9 @@ _MODEL_FIELDS = [
     _AssetcentralField('manufacturer', 'manufacturer'),
     _AssetcentralField('short_description', 'shortDescription'),
     _AssetcentralField('service_expiration_date', 'serviceExpirationDate',
-                       get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+                       get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('model_expiration_date', 'modelExpirationDate',
-                       get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+                       get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('generation', 'generation'),
     _AssetcentralField('long_description', 'longDescription'),
     _AssetcentralField('id', 'modelId'),
@@ -37,13 +37,13 @@ _MODEL_FIELDS = [
     _AssetcentralField('_in_revision', 'hasInRevision'),
     _AssetcentralField('_subclass', 'subclass'),
     _AssetcentralField('_completeness', 'completeness'),
-    _AssetcentralField('_created_on', 'createdOn', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
-    _AssetcentralField('_changed_on', 'changedOn', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
-    _AssetcentralField('_published_on', 'publishedOn', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+    _AssetcentralField('_created_on', 'createdOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_changed_on', 'changedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_published_on', 'publishedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('_image_URL', 'imageURL'),
     _AssetcentralField('_source', 'source'),
     _AssetcentralField('_equipment_tracking', 'equipmentTracking'),
-    _AssetcentralField('_release_date', 'releaseDate', get_extractor=_string_to_timestamp_parser_new(unit='ms')),
+    _AssetcentralField('_release_date', 'releaseDate', get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('_is_manufacturer_valid', 'isManufacturerValid'),
     _AssetcentralField('_image', 'image'),
     _AssetcentralField('_is_client_valid', 'isClientValid'),
@@ -56,7 +56,7 @@ _MODEL_FIELDS = [
 ]
 
 
-@_add_properties_new
+@_add_properties
 class Model(AssetcentralEntity):
     """AssetCentral Model object."""
 

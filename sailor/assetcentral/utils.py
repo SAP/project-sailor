@@ -148,23 +148,6 @@ def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), clie
     return result
 
 
-def _add_properties(cls):
-    """Add AssetCentral properties to a class based on the property mapping defined in the class."""
-    property_map = cls._get_legacy_mapping()
-    for our_name, v in property_map.items():
-        their_name, getter, setter, deleter = v
-
-        # the assignment of the default value (`key=their_name`)
-        # is necessary due to the closure rules in loops
-        def _getter(self, key=their_name):
-            return self.raw.get(key, None)
-        if getter is None:
-            getter = _getter
-
-        setattr(cls, our_name, property(getter, setter, deleter))
-    return cls
-
-
 def _unify_filters(equality_filters, extended_filters, property_mapping):
     operator_map = {
         '>': 'gt',
@@ -553,7 +536,7 @@ def _nested_put_setter(*nested_names):
     return setter
 
 
-def _add_properties_new(cls):
+def _add_properties(cls):
     """Add properties to the entity class based on the field template defined by the request mapper."""
     # This is the new function to be used for all AssetcentralEntities.
     # TODO: remove this comment block once everything is refactored

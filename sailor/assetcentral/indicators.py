@@ -9,7 +9,7 @@ is no support for unrealized 'Indicator Templates'.
 import hashlib
 from functools import cached_property
 
-from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _add_properties_new)
+from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _add_properties)
 
 _INDICATOR_FIELDS = [
     _AssetcentralField('name', 'indicatorName'),
@@ -46,7 +46,7 @@ _INDICATOR_FIELDS = [
 ]
 
 
-@_add_properties_new
+@_add_properties
 class Indicator(AssetcentralEntity):
     """AssetCentral Indicator Object."""
 
