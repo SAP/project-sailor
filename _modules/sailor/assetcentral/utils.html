@@ -312,23 +312,6 @@
     <span class="k">return</span> <span class="n">result</span>
 
 
-<span class="k">def</span> <span class="nf">_add_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Add AssetCentral properties to a class based on the property mapping defined in the class.&quot;&quot;&quot;</span>
-    <span class="n">property_map</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">our_name</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">property_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">their_name</span><span class="p">,</span> <span class="n">getter</span><span class="p">,</span> <span class="n">setter</span><span class="p">,</span> <span class="n">deleter</span> <span class="o">=</span> <span class="n">v</span>
-
-        <span class="c1"># the assignment of the default value (`key=their_name`)</span>
-        <span class="c1"># is necessary due to the closure rules in loops</span>
-        <span class="k">def</span> <span class="nf">_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">their_name</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">getter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">getter</span> <span class="o">=</span> <span class="n">_getter</span>
-
-        <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">our_name</span><span class="p">,</span> <span class="nb">property</span><span class="p">(</span><span class="n">getter</span><span class="p">,</span> <span class="n">setter</span><span class="p">,</span> <span class="n">deleter</span><span class="p">))</span>
-    <span class="k">return</span> <span class="bp">cls</span>
-
-
 <span class="k">def</span> <span class="nf">_unify_filters</span><span class="p">(</span><span class="n">equality_filters</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">property_mapping</span><span class="p">):</span>
     <span class="n">operator_map</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span> <span class="s1">&#39;gt&#39;</span><span class="p">,</span>
@@ -717,7 +700,7 @@
     <span class="k">return</span> <span class="n">setter</span>
 
 
-<span class="k">def</span> <span class="nf">_add_properties_new</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_add_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Add properties to the entity class based on the field template defined by the request mapper.&quot;&quot;&quot;</span>
     <span class="c1"># This is the new function to be used for all AssetcentralEntities.</span>
     <span class="c1"># TODO: remove this comment block once everything is refactored</span>

@@ -182,9 +182,9 @@
 <span class="kn">from</span> <span class="nn">.location</span> <span class="kn">import</span> <span class="n">Location</span><span class="p">,</span> <span class="n">find_locations</span>
 <span class="kn">from</span> <span class="nn">.workorder</span> <span class="kn">import</span> <span class="n">find_workorders</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">_AssetcentralWriteRequest</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span>
-                    <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_add_properties_new</span><span class="p">,</span>
+                    <span class="n">_parse_filter_parameters</span><span class="p">,</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">,</span>
                     <span class="n">_apply_filters_post_request</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser_new</span>
+<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..sap_iot</span> <span class="kn">import</span> <span class="n">TimeseriesDataset</span>
@@ -200,8 +200,8 @@
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;short_description&#39;</span><span class="p">,</span> <span class="s1">&#39;shortDescription&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;manufacturer&#39;</span><span class="p">,</span> <span class="s1">&#39;manufacturer&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;operator&#39;</span><span class="p">,</span> <span class="s1">&#39;operator&#39;</span><span class="p">),</span>
-    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;installation_date&#39;</span><span class="p">,</span> <span class="s1">&#39;installationDate&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
-    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;build_date&#39;</span><span class="p">,</span> <span class="s1">&#39;buildDate&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;installation_date&#39;</span><span class="p">,</span> <span class="s1">&#39;installationDate&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;build_date&#39;</span><span class="p">,</span> <span class="s1">&#39;buildDate&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;criticality_description&#39;</span><span class="p">,</span> <span class="s1">&#39;criticalityDescription&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;equipmentId&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;model_id&#39;</span><span class="p">,</span> <span class="s1">&#39;modelId&#39;</span><span class="p">),</span>
@@ -241,7 +241,7 @@
 <span class="p">]</span>
 
 
-<div class="viewcode-block" id="Equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.Equipment">[docs]</a><span class="nd">@_add_properties_new</span>
+<div class="viewcode-block" id="Equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.Equipment">[docs]</a><span class="nd">@_add_properties</span>
 <span class="k">class</span> <span class="nc">Equipment</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral Equipment Object.&quot;&quot;&quot;</span>
 

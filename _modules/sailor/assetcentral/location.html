@@ -169,8 +169,8 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span>
-                    <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_add_properties_new</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser_new</span>
+                    <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_LOCATIONS</span>
 
 
@@ -185,16 +185,16 @@
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_in_revision&#39;</span><span class="p">,</span> <span class="s1">&#39;hasInRevision&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_location&#39;</span><span class="p">,</span> <span class="s1">&#39;location&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_completeness&#39;</span><span class="p">,</span> <span class="s1">&#39;completeness&#39;</span><span class="p">),</span>
-    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_created_on&#39;</span><span class="p">,</span> <span class="s1">&#39;createdOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
-    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_changed_on&#39;</span><span class="p">,</span> <span class="s1">&#39;changedOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
-    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_published_on&#39;</span><span class="p">,</span> <span class="s1">&#39;publishedOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser_new</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_created_on&#39;</span><span class="p">,</span> <span class="s1">&#39;createdOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_changed_on&#39;</span><span class="p">,</span> <span class="s1">&#39;changedOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+    <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_published_on&#39;</span><span class="p">,</span> <span class="s1">&#39;publishedOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_source&#39;</span><span class="p">,</span> <span class="s1">&#39;source&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_image_URL&#39;</span><span class="p">,</span> <span class="s1">&#39;imageURL&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_location_status&#39;</span><span class="p">,</span> <span class="s1">&#39;locationStatus&#39;</span><span class="p">),</span>
 <span class="p">]</span>
 
 
-<div class="viewcode-block" id="Location"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.location.html#sailor.assetcentral.Location">[docs]</a><span class="nd">@_add_properties_new</span>
+<div class="viewcode-block" id="Location"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.location.html#sailor.assetcentral.Location">[docs]</a><span class="nd">@_add_properties</span>
 <span class="k">class</span> <span class="nc">Location</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral Location Object.&quot;&quot;&quot;</span>
 
