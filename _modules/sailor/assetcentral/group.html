@@ -388,8 +388,7 @@
     <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_GROUPS</span>
     <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
 
-    <span class="n">filtered_objects</span> <span class="o">=</span> <span class="n">_apply_filters_post_request</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span>
-                                                   <span class="n">Group</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">())</span>
+    <span class="n">filtered_objects</span> <span class="o">=</span> <span class="n">_apply_filters_post_request</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Group</span><span class="o">.</span><span class="n">_field_map</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">GroupSet</span><span class="p">([</span><span class="n">Group</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">filtered_objects</span><span class="p">])</span></div>
 </pre></div>
 

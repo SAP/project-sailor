@@ -276,7 +276,7 @@
         <span class="c1"># AC-BUG: this api doesn&#39;t support filters (thank you AC) so we have to fetch all of them and then filter below</span>
         <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">)</span>
         <span class="n">filtered_objects</span> <span class="o">=</span> <span class="n">_apply_filters_post_request</span><span class="p">(</span><span class="n">object_list</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span>
-                                                       <span class="n">Indicator</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">())</span>
+                                                       <span class="n">Indicator</span><span class="o">.</span><span class="n">_field_map</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">IndicatorSet</span><span class="p">([</span><span class="n">Indicator</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">filtered_objects</span><span class="p">])</span></div></div>
 
@@ -338,7 +338,7 @@
 <span class="sd">        find_models(extended_filters=[&#39;model_expiration_date &lt; &quot;2018-01-01&quot;&#39;])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span> <span class="o">=</span> \
-        <span class="n">_parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Model</span><span class="o">.</span><span class="n">_get_legacy_mapping</span><span class="p">())</span>
+        <span class="n">_parse_filter_parameters</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">Model</span><span class="o">.</span><span class="n">_field_map</span><span class="p">)</span>
 
     <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_MODELS</span>
     <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
