@@ -251,7 +251,7 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
                            equipment_id=['id1', 'id2'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Notification._get_legacy_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Notification._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)

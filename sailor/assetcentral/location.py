@@ -97,7 +97,7 @@ def find_locations(*, extended_filters=(), **kwargs) -> LocationSet:
         find_locations(extended_filters=['short_description != "Location 1"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Location._get_legacy_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Location._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_LOCATIONS
 

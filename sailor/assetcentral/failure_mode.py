@@ -124,7 +124,7 @@ def find_failure_modes(*, extended_filters=(), **kwargs) -> FailureModeSet:
         find_failure_modes(extended_filters=['equipments_count >= 5'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, FailureMode._get_legacy_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, FailureMode._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_FAILUREMODES
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)

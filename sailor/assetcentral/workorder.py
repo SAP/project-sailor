@@ -123,7 +123,7 @@ def find_workorders(*, extended_filters=(), **kwargs) -> WorkorderSet:
         find_workorders(extended_filters=['start_date >= "2020-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Workorder._get_legacy_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Workorder._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_WORKORDERS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)

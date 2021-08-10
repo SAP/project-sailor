@@ -107,7 +107,7 @@ def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
         find_equipment(severity_code=[10, 1])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Alert._get_legacy_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Alert._field_map)
 
     endpoint_url = _pai_application_url() + ALERTS_READ_PATH
     objects = []

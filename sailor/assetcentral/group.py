@@ -224,6 +224,5 @@ def find_groups(*, extended_filters=(), **kwargs) -> GroupSet:
     endpoint_url = _ac_application_url() + VIEW_GROUPS
     object_list = _fetch_data(endpoint_url)
 
-    filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                   Group._get_legacy_mapping())
+    filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters, Group._field_map)
     return GroupSet([Group(obj) for obj in filtered_objects])
