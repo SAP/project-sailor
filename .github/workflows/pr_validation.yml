@@ -59,6 +59,7 @@ jobs:
         if: always()
         run: |
           ./.ci/run_lint.sh ./.ci/pydocstyle_wrapper.py > ../reports/pydocstyle.json || true
+          [[ -s ../reports/pydocstyle.json ]] && echo "abc"
           ./.ci/run_lint.sh pydocstyle
 
       - name: Store reports for sonar job
