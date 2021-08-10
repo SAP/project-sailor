@@ -27,6 +27,7 @@ if [[ -n "${pyfiles}" ]]; then
   eval "${run_command}" >&3 || ret_code=1
 else
   echo 'No py file changes detected. Skipping linting.'
+  [[ "${linter}" == *pydocstyle_wrapper* ]] && echo '{"issues": []}' >&3
 fi
 
 if [ ${ret_code} -eq 0 ]; then
