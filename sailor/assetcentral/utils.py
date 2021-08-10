@@ -162,11 +162,13 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         equality_filters = {}
     if extended_filters is None:
         extended_filters = []
+    if field_map is None:
+        field_map = {}
 
     unified_filters = []
     not_our_term = []
     for k, v in equality_filters.items():
-        if field_map and k in field_map:
+        if k in field_map:
             key = field_map[k].their_name_get
         else:
             key = k
@@ -193,12 +195,12 @@ def _unify_filters(equality_filters, extended_filters, field_map):
             v = f"'{v}'"  # we always need single quotes, but want to accept double quotes as well, hence re-writing.
         elif match := unquoted_pattern.fullmatch(filter_entry):
             k, o, v = match.groups()
-            if field_map and v in field_map:
+            if v in field_map:
                 v = field_map[v].their_name_get
         else:
             raise RuntimeError(f'Failed to parse filter entry {filter_entry}')
 
-        if field_map and k in field_map:
+        if k in field_map:
             key = field_map[k].their_name_get
         else:
             key = k
