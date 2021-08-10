@@ -4,46 +4,62 @@ Workorder module can be used to retrieve Workorder information from AssetCentral
 Classes are provided for individual Workorders as well as groups of Workorders (WorkorderSet).
 """
 
-from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    _ac_application_url
+from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties)
+from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_WORKORDERS
+
+
+_WORKORDER_FIELDS = [
+    _AssetcentralField('name', 'internalId'),
+    _AssetcentralField('type_description', 'workOrderTypeDescription'),
+    _AssetcentralField('priority_description', 'priorityDescription'),
+    _AssetcentralField('status_text', 'statusDescription'),
+    _AssetcentralField('short_description', 'shortDescription'),
+    _AssetcentralField('equipment_name', 'equipmentName'),
+    _AssetcentralField('location', 'location'),
+    _AssetcentralField('plant', 'plant'),
+    _AssetcentralField('start_date', 'startDate'),
+    _AssetcentralField('end_date', 'endDate'),
+    _AssetcentralField('long_description', 'longDescription'),
+    _AssetcentralField('id', 'workOrderID'),
+    _AssetcentralField('equipment_id', 'equipmentId'),
+    _AssetcentralField('model_id', 'modelId'),
+    _AssetcentralField('type', 'workOrderType'),
+    _AssetcentralField('_status', 'status'),
+    _AssetcentralField('_priority', 'priority'),
+    _AssetcentralField('_workcenter', 'workCenter'),
+    _AssetcentralField('_is_internal', 'isInternal'),
+    _AssetcentralField('_created_by', 'createdBy'),
+    _AssetcentralField('_created_on', 'creationDateTime'),
+    _AssetcentralField('_lastChangedBy', 'lastChangedBy'),
+    _AssetcentralField('_changed_on', 'lastChangeDateTime'),
+    _AssetcentralField('_basic_start_date', 'basicStartDate', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_basic_end_date', 'basicEndDate', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_actual_start_date', 'actualStartDate',
+                       get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_actual_end_date', 'actualEndDate', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_progress_status', 'progressStatus'),
+    _AssetcentralField('_progress_status_description', 'progressStatusDescription'),
+    _AssetcentralField('_root_equipment_id', 'rootEquipmentId'),
+    _AssetcentralField('_root_equipment_name', 'rootEquipmentName'),
+    _AssetcentralField('_person_responsible', 'personResponsible'),
+    _AssetcentralField('_location_id', 'locationId'),
+    _AssetcentralField('_coordinates', 'coordinates'),
+    _AssetcentralField('_source', 'source'),
+    _AssetcentralField('_source_id', 'sourceId'),
+    _AssetcentralField('_operator_id', 'operatorId'),
+    _AssetcentralField('_is_source_active', 'isSourceActive'),
+    _AssetcentralField('_asset_core_equipment_id', 'assetCoreEquipmentId'),
+    _AssetcentralField('_operator', 'operator'),
+]
 
 
 @_add_properties
 class Workorder(AssetcentralEntity):
     """AssetCentral Workorder Object."""
 
-    # Properties (in AC terminology) are:
-    # workOrderID, shortDescription, status, statusDescription, workOrderType, workOrderTypeDescription, priority,
-    # priorityDescription, isInternal, createdBy, creationDateTime, lastChangedBy, lastChangeDateTime, longDescription,
-    # startDate, endDate, progressStatus, progressStatusDescription, equipmentId, equipmentName, rootEquipmentId,
-    # rootEquipmentName, locationId, coordinates, source, sourceId, operatorId, location, isSourceActive,
-    # assetCoreEquipmentId, operator, internalId, modelId, plant, workCenter, basicStartDate, basicEndDate,
-    # actualStartDate, actualEndDate, personResponsible
-
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return set(cls._get_legacy_mapping().keys())
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        return {
-            'id': ('workOrderID', None, None, None),
-            'name': ('internalId', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'long_description': ('longDescription', None, None, None),
-            'equipment_id': ('equipmentId', None, None, None),
-            'equipment_name': ('equipmentName', None, None, None),
-            'endDate': ('end_date', None, None, None),
-            'location': ('location', None, None, None),
-            'plant': ('plant', None, None, None),
-            'priority_description': ('priorityDescription', None, None, None),
-            'start_date': ('startDate', None, None, None),
-            'status_text': ('statusDescription', None, None, None),
-            'type': ('workOrderType', None, None, None),
-            'type_description': ('workOrderTypeDescription', None, None, None),
-        }
+    _field_map = {field.our_name: field for field in _WORKORDER_FIELDS}
 
 
 class WorkorderSet(ResultSet):
@@ -107,7 +123,7 @@ def find_workorders(*, extended_filters=(), **kwargs) -> WorkorderSet:
         find_workorders(extended_filters=['start_date >= "2020-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Workorder._get_legacy_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Workorder._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_WORKORDERS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)

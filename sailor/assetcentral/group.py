@@ -7,33 +7,38 @@ Classes are provided for individual Groups as well as groups of Groups (GroupSet
 from functools import cached_property
 import warnings
 
-from .utils import (AssetcentralEntity, ResultSet, _ac_application_url, _fetch_data, _apply_filters_post_request,
-                    _add_properties)
+from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
+                    _apply_filters_post_request, _fetch_data, _ac_application_url, _add_properties)
+from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_GROUPS
 from .equipment import find_equipment, EquipmentSet
 from .location import find_locations, LocationSet
 from .model import find_models, ModelSet
+
+_GROUP_FIELDS = [
+    _AssetcentralField('name', 'displayId'),
+    _AssetcentralField('group_type', 'groupTypeCode'),
+    _AssetcentralField('short_description', 'shortDescription'),
+    _AssetcentralField('risk_value', 'riskValue'),
+    _AssetcentralField('id', 'id'),
+    _AssetcentralField('_status', 'status'),
+    _AssetcentralField('_normalized_risk_score', 'normalizedRiskScore'),
+    _AssetcentralField('_criticality_value', 'criticalityValue'),
+    _AssetcentralField('_risk_color_code', 'riskColorCode'),
+    _AssetcentralField('_criticality_code', 'criticalityCode'),
+    _AssetcentralField('_version', 'version'),
+    _AssetcentralField('_group_type_count', 'groupTypeCount'),
+    _AssetcentralField('_long_description', 'longDescription'),
+    _AssetcentralField('_changed_on', 'lastEditedTime', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_created_on', 'creationTime', get_extractor=_string_to_timestamp_parser(unit='ms')),
+]
 
 
 @_add_properties
 class Group(AssetcentralEntity):
     """AssetCentral Location Object."""
 
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return set(cls._get_legacy_mapping().keys())
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        """Return a mapping from assetcentral terminology to our terminology."""
-        return {
-            'id': ('id', None, None, None),
-            'name': ('displayId', None, None, None),
-            'group_type': ('groupTypeCode', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'risk_value': ('riskValue', None, None, None),
-        }
+    _field_map = {field.our_name: field for field in _GROUP_FIELDS}
 
     @cached_property
     def _members_raw(self):
@@ -219,6 +224,5 @@ def find_groups(*, extended_filters=(), **kwargs) -> GroupSet:
     endpoint_url = _ac_application_url() + VIEW_GROUPS
     object_list = _fetch_data(endpoint_url)
 
-    filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                   Group._get_legacy_mapping())
+    filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters, Group._field_map)
     return GroupSet([Group(obj) for obj in filtered_objects])

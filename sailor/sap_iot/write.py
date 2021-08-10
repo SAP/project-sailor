@@ -29,7 +29,7 @@ def _upload_data_single_equipment(data_subset, equipment_id, tags):
     LOG.debug('Uploading data for equipment %s', equipment_id)
 
     base_url = SailorConfig.get('sap_iot', 'upload_url')
-    request_url = f'{base_url}/Timeseries/extend/Measurements/objectId/{equipment_id}'
+    request_url = f'{base_url}/Timeseries/extend/Measurements/equipmentId/{equipment_id}'
     oauth_iot = get_oauth_client('sap_iot')
 
     # shape[1] is the number of columns, we want to divide the page size by the number of columns as each column

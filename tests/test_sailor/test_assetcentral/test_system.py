@@ -546,3 +546,14 @@ def test_map_component_information(make_indicator_set, selection_dictionary, moc
                           ('A5E0E42A344F422C8663206E61848FBF', ind2[1])]}
     act_sys_inds = system_set._map_component_information(selection_dictionary)
     assert act_sys_inds == exp_sys_inds
+
+
+def test_expected_public_attributes_are_present():
+    expected_attributes = ['name', 'model_name', 'status_text', 'short_description',
+                           'class_name', 'id', 'model_id', 'template_id']
+
+    fieldmap_public_attributes = [
+        field.our_name for field in System._field_map.values() if field.is_exposed
+    ]
+
+    assert expected_attributes == fieldmap_public_attributes

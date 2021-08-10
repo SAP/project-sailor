@@ -1,6 +1,6 @@
 import pytest
 
-from sailor.assetcentral.indicators import AggregatedIndicatorSet, IndicatorSet
+from sailor.assetcentral.indicators import Indicator, AggregatedIndicatorSet, IndicatorSet
 
 
 class TestIndicatorSet:
@@ -93,3 +93,17 @@ def test_mixed_sets_not_allowed(set_class, expected_message, make_indicator, mak
 
     with pytest.raises(RuntimeError, match=expected_message):
         set_class([normal_indicator, aggregated_indicator])
+
+
+def test_expected_public_attributes_are_present():
+    expected_attributes = [
+        'name', 'indicator_group_name', 'type', 'uom_description', 'dimension_description',
+        'description', 'indicator_group_description', 'uom', 'dimension', 'datatype', 'id',
+        'dimension_id', 'model_id', 'indicator_group_id', 'template_id',
+    ]
+
+    fieldmap_public_attributes = [
+        field.our_name for field in Indicator._field_map.values() if field.is_exposed
+    ]
+
+    assert expected_attributes == fieldmap_public_attributes

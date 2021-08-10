@@ -78,7 +78,7 @@ def test_each_equipment_one_request(mock_oauth, mock_config, make_indicator_set,
     indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'])
     equipment_set = make_equipment_set(equipmentId=['equipment_A', 'equipment_B'])
     dataset = make_dataset(indicator_set, equipment_set)
-    request_base = 'UPLOAD_BASE_URL/Timeseries/extend/Measurements/objectId/'
+    request_base = 'UPLOAD_BASE_URL/Timeseries/extend/Measurements/equipmentId/'
 
     upload_indicator_data(dataset)
     urls = {args[0][1] for args in mock_oauth.call_args_list}

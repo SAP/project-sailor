@@ -148,24 +148,7 @@ def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), clie
     return result
 
 
-def _add_properties(cls):
-    """Add AssetCentral properties to a class based on the property mapping defined in the class."""
-    property_map = cls._get_legacy_mapping()
-    for our_name, v in property_map.items():
-        their_name, getter, setter, deleter = v
-
-        # the assignment of the default value (`key=their_name`)
-        # is necessary due to the closure rules in loops
-        def _getter(self, key=their_name):
-            return self.raw.get(key, None)
-        if getter is None:
-            getter = _getter
-
-        setattr(cls, our_name, property(getter, setter, deleter))
-    return cls
-
-
-def _unify_filters(equality_filters, extended_filters, property_mapping):
+def _unify_filters(equality_filters, extended_filters, field_map):
     operator_map = {
         '>': 'gt',
         '<': 'lt',
@@ -179,14 +162,14 @@ def _unify_filters(equality_filters, extended_filters, property_mapping):
         equality_filters = {}
     if extended_filters is None:
         extended_filters = []
-    if property_mapping is None:
-        property_mapping = {}
+    if field_map is None:
+        field_map = {}
 
     unified_filters = []
     not_our_term = []
     for k, v in equality_filters.items():
-        if k in property_mapping:
-            key = property_mapping[k][0]
+        if k in field_map:
+            key = field_map[k].their_name_get
         else:
             key = k
             not_our_term.append(key)
@@ -212,13 +195,13 @@ def _unify_filters(equality_filters, extended_filters, property_mapping):
             v = f"'{v}'"  # we always need single quotes, but want to accept double quotes as well, hence re-writing.
         elif match := unquoted_pattern.fullmatch(filter_entry):
             k, o, v = match.groups()
-            if v in property_mapping:
-                v = property_mapping[v][0]
+            if v in field_map:
+                v = field_map[v].their_name_get
         else:
             raise RuntimeError(f'Failed to parse filter entry {filter_entry}')
 
-        if k in property_mapping:
-            key = property_mapping[k][0]
+        if k in field_map:
+            key = field_map[k].their_name_get
         else:
             key = k
             not_our_term.append(key)
@@ -231,7 +214,7 @@ def _unify_filters(equality_filters, extended_filters, property_mapping):
     return unified_filters
 
 
-def _parse_filter_parameters(equality_filters=None, extended_filters=(), property_mapping=None):
+def _parse_filter_parameters(equality_filters=None, extended_filters=(), field_map=None):
     """
     Parse equality and extended filters into breakable and unbreakable filters.
 
@@ -240,7 +223,7 @@ def _parse_filter_parameters(equality_filters=None, extended_filters=(), propert
     header size. This allows breaking a query into multiple queries of shorter length while still retrieving the
     minimal result set the filters requested.
     """
-    unified_filters = _unify_filters(equality_filters, extended_filters, property_mapping)
+    unified_filters = _unify_filters(equality_filters, extended_filters, field_map)
 
     breakable_filters = []      # always required
     unbreakable_filters = []    # can be broken into sub-filters if length is exceeded
@@ -254,9 +237,9 @@ def _parse_filter_parameters(equality_filters=None, extended_filters=(), propert
     return unbreakable_filters, breakable_filters
 
 
-def _apply_filters_post_request(data, equality_filters, extended_filters, property_mapping):
+def _apply_filters_post_request(data, equality_filters, extended_filters, field_map):
     """Allow filtering of the results returned by an AssetCentral query if the endpoint doesn't implement `filter`."""
-    unified_filters = _unify_filters(equality_filters, extended_filters, property_mapping)
+    unified_filters = _unify_filters(equality_filters, extended_filters, field_map)
     result = []
 
     def strip_quote_marks(value):
@@ -306,10 +289,6 @@ class AssetcentralEntity:
         msg = ("'get_property_mapping': deprecated. Method will be removed after September 01, 2021. " +
                "use 'get_available_properties' instead")
         warnings.warn(msg, FutureWarning)
-        return cls._get_legacy_mapping()
-
-    @classmethod
-    def _get_legacy_mapping(cls):
         return {field.our_name: (field.their_name_get, None, None, None) for field in cls._field_map.values()
                 if field.is_exposed}
 
@@ -384,7 +363,8 @@ class ResultSet(Sequence):
 
     def as_df(self, columns=None):
         """Return all information on the objects stored in the ResultSet as a pandas dataframe."""
-        columns = self._element_type._get_legacy_mapping().keys() if columns is None else columns
+        if columns is None:
+            columns = [field.our_name for field in self._element_type._field_map.values() if field.is_exposed]
         return pd.DataFrame({
             prop: [element.__getattribute__(prop) for element in self.elements] for prop in columns
         })
@@ -522,12 +502,12 @@ class AssetcentralRequestValidationError(Exception):  # noqa: D101 (self-explana
 class _AssetcentralField:
     """Specify a field in Assetcentral."""
 
-    def __init__(self, our_name, their_name_get, their_name_put=None, is_exposed=True, is_mandatory=False,
+    def __init__(self, our_name, their_name_get, their_name_put=None, is_mandatory=False,
                  get_extractor=None, put_setter=None):
         self.our_name = our_name
         self.their_name_get = their_name_get
         self.their_name_put = their_name_put
-        self.is_exposed = is_exposed
+        self.is_exposed = not our_name.startswith('_')
         self.is_writable = their_name_put is not None
         self.is_mandatory = is_mandatory
 
@@ -553,7 +533,7 @@ def _nested_put_setter(*nested_names):
     return setter
 
 
-def _add_properties_new(cls):
+def _add_properties(cls):
     """Add properties to the entity class based on the field template defined by the request mapper."""
     # This is the new function to be used for all AssetcentralEntities.
     # TODO: remove this comment block once everything is refactored

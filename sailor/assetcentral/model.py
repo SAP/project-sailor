@@ -11,51 +11,61 @@ from typing import TYPE_CHECKING
 from .constants import VIEW_MODEL_INDICATORS, VIEW_MODELS
 from .indicators import Indicator, IndicatorSet
 from .equipment import find_equipment
-from .utils import _fetch_data, _add_properties, _parse_filter_parameters, \
-    _apply_filters_post_request, _ac_application_url, AssetcentralEntity, ResultSet
+from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _parse_filter_parameters,
+                    _apply_filters_post_request, _fetch_data, _ac_application_url, _add_properties)
 from ..utils.timestamps import _string_to_timestamp_parser
 
 if TYPE_CHECKING:
     from .equipment import EquipmentSet
+
+_MODEL_FIELDS = [
+    _AssetcentralField('name', 'internalId'),  # there is also a native `name`, which we're ignoring
+    _AssetcentralField('model_type', 'modelType'),
+    _AssetcentralField('manufacturer', 'manufacturer'),
+    _AssetcentralField('short_description', 'shortDescription'),
+    _AssetcentralField('service_expiration_date', 'serviceExpirationDate',
+                       get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('model_expiration_date', 'modelExpirationDate',
+                       get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('generation', 'generation'),
+    _AssetcentralField('long_description', 'longDescription'),
+    _AssetcentralField('id', 'modelId'),
+    _AssetcentralField('template_id', 'templateId'),
+    _AssetcentralField('model_template_id', 'modelTemplate'),
+    _AssetcentralField('_status', 'status'),
+    _AssetcentralField('_version', 'version'),
+    _AssetcentralField('_in_revision', 'hasInRevision'),
+    _AssetcentralField('_subclass', 'subclass'),
+    _AssetcentralField('_completeness', 'completeness'),
+    _AssetcentralField('_created_on', 'createdOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_changed_on', 'changedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_published_on', 'publishedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_image_URL', 'imageURL'),
+    _AssetcentralField('_source', 'source'),
+    _AssetcentralField('_equipment_tracking', 'equipmentTracking'),
+    _AssetcentralField('_release_date', 'releaseDate', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_is_manufacturer_valid', 'isManufacturerValid'),
+    _AssetcentralField('_image', 'image'),
+    _AssetcentralField('_is_client_valid', 'isClientValid'),
+    _AssetcentralField('_consume', 'consume'),
+    _AssetcentralField('_primary_external_id', 'primaryExternalId'),
+    _AssetcentralField('_model_search_terms', 'modelSearchTerms'),
+    _AssetcentralField('_source_search_terms', 'sourceSearchTerms'),
+    _AssetcentralField('_manufacturer_search_terms', 'manufacturerSearchTerms'),
+    _AssetcentralField('_class', 'class'),
+]
 
 
 @_add_properties
 class Model(AssetcentralEntity):
     """AssetCentral Model object."""
 
-    # Properties (in AC terminology) are:  # as returned by 'models'-api, not model-details
-    # modelId, name, internalId, status, version, hasInRevision, templateId, modelTemplate, subclass,
-    # generation, manufacturer, shortDescription, longDescription, completeness, createdOn, changedOn,
-    # imageURL, publishedOn, source, equipmentTracking, serviceExpirationDate, modelExpirationDate,
-    # releaseDate, isManufacturerValid, image, isClientValid, consume, primaryExternalId, modelSearchTerms,
-    # sourceSearchTerms, manufacturerSearchTerms, class
-
-    # Additional properties returned in model-details (again ac terminology, some have sub-structure):
+    # Additional properties returned in model-details (ac terminology, some have sub-structure):
     # organizationID, calibrationDate, orderStopDate, noSparePartsDate, globalId, keywords, safetyRiskCode,
     # description, descriptions[], gtin, brand, isFirmwareCompatible, templates[], classId, subclassId, adminData{},
     # sectionCompleteness{}, modelType, countryCode, referenceId, metadata, templatesDetails[]
 
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return set(cls._get_legacy_mapping().keys())
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        return {
-            'id': ('modelId', None, None, None),
-            'name': ('name', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'long_description': ('longDescription', None, None, None),
-            'generation': ('generation', None, None, None),
-            'manufacturer': ('manufacturer', None, None, None),
-            'model_expiration_date': ('modelExpirationDate',
-                                      _string_to_timestamp_parser('modelExpirationDate', 'ms'), None, None),
-            'model_template_id': ('modelTemplate', None, None, None),
-            'service_expiration_date': ('serviceExpirationDate',
-                                        _string_to_timestamp_parser('serviceExpirationDate', 'ms'), None, None),
-            'template_id': ('templateId', None, None, None),
-        }
+    _field_map = {field.our_name: field for field in _MODEL_FIELDS}
 
     def find_equipment(self, *, extended_filters=(), **kwargs) -> EquipmentSet:
         """
@@ -102,7 +112,7 @@ class Model(AssetcentralEntity):
         # AC-BUG: this api doesn't support filters (thank you AC) so we have to fetch all of them and then filter below
         object_list = _fetch_data(endpoint_url)
         filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                       Indicator._get_legacy_mapping())
+                                                       Indicator._field_map)
 
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
@@ -164,7 +174,7 @@ def find_models(*, extended_filters=(), **kwargs) -> ModelSet:
         find_models(extended_filters=['model_expiration_date < "2018-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Model._get_legacy_mapping())
+        _parse_filter_parameters(kwargs, extended_filters, Model._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_MODELS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)

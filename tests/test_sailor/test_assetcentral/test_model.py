@@ -51,3 +51,15 @@ class TestModel:
         assert constants.VIEW_MODEL_INDICATORS in mock_fetch.call_args.args[0]
         assert mock_apply.call_args.args[:-1] == (object_list, filter_kwargs, extended_filters)
         assert actual == expected_result
+
+    def test_expected_public_attributes_are_present(self):
+        expected_attributes = [
+            'name', 'model_type', 'manufacturer', 'short_description', 'service_expiration_date',
+            'model_expiration_date', 'generation', 'long_description', 'id', 'template_id', 'model_template_id'
+        ]
+
+        fieldmap_public_attributes = [
+            field.our_name for field in Model._field_map.values() if field.is_exposed
+        ]
+
+        assert expected_attributes == fieldmap_public_attributes

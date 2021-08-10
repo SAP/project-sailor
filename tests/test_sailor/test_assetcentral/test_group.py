@@ -79,3 +79,12 @@ class TestGroupSet:
             group_set._generic_get_members('MATCH', element_class, None, None, id='some_id')
 
         assert str(excinfo.value) == 'Cannot specify `id` when retrieving "ElementName" from a group.'
+
+    def test_expected_public_attributes_are_present(self):
+        expected_attributes = ['name', 'group_type', 'short_description', 'risk_value', 'id']
+
+        fieldmap_public_attributes = [
+            field.our_name for field in Group._field_map.values() if field.is_exposed
+        ]
+
+        assert expected_attributes == fieldmap_public_attributes

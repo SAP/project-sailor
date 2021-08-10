@@ -141,3 +141,23 @@ def test_update_notification_integration(mock_url, mock_request, is_object_metho
         assert actual == notification
     else:
         assert actual != notification
+
+
+def test_expected_public_attributes_are_present():
+    expected_attributes = [
+        'name', 'equipment_name', 'priority_description', 'status_text', 'short_description',
+        'malfunction_start_date', 'malfunction_end_date', 'breakdown', 'confirmed_failure_mode_description',
+        'cause_description', 'effect_description', 'notification_type', 'status', 'long_description',
+        'id', 'priority', 'equipment_id', 'cause_id', 'cause_display_id', 'effect_id', 'effect_display_id',
+        'instruction_id', 'instruction_title', 'operator_id', 'confirmed_failure_mode_id',
+        'confirmed_failure_mode_name', 'end_date', 'functional_location_id', 'location_id', 'location_name',
+        'model_id', 'notification_type_description', 'root_equipment_id', 'root_equipment_name', 'start_date',
+        'system_failure_mode_id', 'system_failure_mode_description', 'system_failure_mode_name',
+        'user_failure_mode_id', 'user_failure_mode_description', 'user_failure_mode_name',
+    ]
+
+    fieldmap_public_attributes = [
+        field.our_name for field in Notification._field_map.values() if field.is_exposed
+    ]
+
+    assert expected_attributes == fieldmap_public_attributes
