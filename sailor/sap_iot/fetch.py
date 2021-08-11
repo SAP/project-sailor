@@ -102,7 +102,6 @@ def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_se
           .rename(columns=columns_to_keep)
           .rename(columns=fixed_timeseries_columns)
           .query('equipment_id in @selected_equipment_ids')
-          .astype({'equipment_id': 'object', 'model_id': 'object'})
     )
     return df
 
@@ -223,8 +222,6 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
                         warning = DataNotFoundWarning(f'Could not find any data for indicator {indicator}')
                         warnings.warn(warning)
 
-                if request_ids:
-                    print('Waiting for data export:')
                 results = pd.merge(results, data, on=['model_id', 'equipment_id', 'timestamp'], how='outer')
 
         if request_ids:
