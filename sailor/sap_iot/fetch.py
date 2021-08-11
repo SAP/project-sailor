@@ -101,6 +101,7 @@ def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_se
           .rename(columns=columns_to_keep)
           .rename(columns=fixed_timeseries_columns)
           .query('equipment_id in @selected_equipment_ids')
+          .astype({'equipment_id': 'object', 'model_id': 'object'})
     )
     return df
 
