@@ -81,12 +81,13 @@ def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_se
 
     selected_equipment_ids = [equipment.id for equipment in equipment_set]  # noqa: F841
     dtypes = {indicator._liot_id: float for indicator in indicator_set if indicator.datatype in float_types}
-    dtypes.update({'equipmentId': 'object', 'modelId': 'object', 'indicatorGroupId': 'object', 'templateId': 'object'})
+    dtypes.update({'equipmentId': 'object', 'indicatorGroupId': 'object', 'templateId': 'object'})
     df = pd.read_csv(ifile,
+                     usecols=lambda x: x != 'modelId',
                      parse_dates=['_TIME'], date_parser=partial(pd.to_datetime, utc=True, unit='ms', errors='coerce'),
                      dtype=dtypes)
 
-    df = df.pivot(index=['_TIME', 'equipmentId', 'modelId'], columns=['indicatorGroupId', 'templateId'])
+    df = df.pivot(index=['_TIME', 'equipmentId'], columns=['indicatorGroupId', 'templateId'])
 
     columns_to_keep = {}
     columns_flat = df.columns.to_flat_index()
@@ -200,11 +201,11 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
     LOG.info('Data export triggered for %s indicator groups.', len(query_groups))
     print(f'Data export triggered for {len(query_groups)} indicator groups.')
 
-    # string (or really uuid?) might be better data types for model_id and equipment_id
+    # string (or really uuid?) might be better data types for equipment_id
     # unfortunately, support for native string datatypes in pandas is still experimental
     # and if we cast to string right when reading the csv files it gets 'upcast' back to object
     # in `pivot` and `merge`. Hence we'll just stick with object for now.
-    schema = {'model_id': 'object', 'equipment_id': 'object', 'timestamp': pd.DatetimeTZDtype(tz='UTC')}
+    schema = {'equipment_id': 'object', 'timestamp': pd.DatetimeTZDtype(tz='UTC')}
     results = pd.DataFrame(columns=schema.keys()).astype(schema)
 
     print('Waiting for data export:')
@@ -222,7 +223,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
                         warning = DataNotFoundWarning(f'Could not find any data for indicator {indicator}')
                         warnings.warn(warning)
 
-                results = pd.merge(results, data, on=['model_id', 'equipment_id', 'timestamp'], how='outer')
+                results = pd.merge(results, data, on=['equipment_id', 'timestamp'], how='outer')
 
         if request_ids:
             print('Waiting for data export:')

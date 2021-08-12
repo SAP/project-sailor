@@ -49,14 +49,14 @@ def _upload_data_single_equipment(data_subset, equipment_id, tags):
 def _upload_data_single_indicator_group(dataset, indicator_set, group_id, template_id):
     LOG.debug('Starting upload for %s, %s', group_id, template_id)
 
-    df = dataset.filter(indicator_set=indicator_set).as_df().reset_index()
+    df = dataset.filter(indicator_set=indicator_set).as_df(include_model=False).reset_index()
     df = (
         df.assign(_time=df['timestamp'].apply(partial(_timestamp_to_isoformat, with_zulu=True)))
           .drop(columns='timestamp')
           .rename(columns={indicator._unique_id: indicator._liot_id for indicator in indicator_set})
     )
     for equipment in dataset.equipment_set:
-        data_subset = df.query('equipment_id == @equipment.id').drop(columns=['equipment_id', 'model_id'])
+        data_subset = df.query('equipment_id == @equipment.id').drop(columns=['equipment_id'])
         tags = {
             'indicatorGroupId': group_id,
             'templateId': template_id,
