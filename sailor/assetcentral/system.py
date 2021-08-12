@@ -158,7 +158,8 @@ class System(AssetcentralEntity):
                 return comp_tree['child_nodes'][child]['id'], level
             else:
                 if (level + 1) < equi_level:
-                    equi_id, equi_level = System._find_first_equipment(comp_tree['child_nodes'][child], level+1, equi_level)
+                    equi_id, equi_level = System._find_first_equipment(comp_tree['child_nodes'][child], level+1,
+                                                                       equi_level)
         return equi_id, equi_level
 
     def get_leading_equipment(self, path):
@@ -248,7 +249,7 @@ class SystemSet(ResultSet):
         """Map selection dictionary against component dictionary recursively."""
         for node in sel_nodes:
             if node['object_type'] == 'EQU':
-                if (node['key'] in sys_nodes.keys()): 
+                if (node['key'] in sys_nodes.keys()):
                     equipment[sys_nodes[node['key']]['id']] = equi_counter
                 equi_counter += 1
                 for indicator in node['indicators']:
@@ -279,7 +280,7 @@ class SystemSet(ResultSet):
             indicator_list = []
             equipment = {}
             equi_counter = 0
-            equi_counter = SystemSet._map_comp_info(selection['child_nodes'], 
+            equi_counter = SystemSet._map_comp_info(selection['child_nodes'],
                                                     system._hierarchy['component_tree']['child_nodes'],
                                                     indicator_list, none_positions, equipment, equi_counter)
             system_indicators[system.id] = indicator_list
@@ -293,13 +294,13 @@ class SystemSet(ResultSet):
         return system_indicators, system_equipment
 
     def lead_eq_and_counter(self, ec):
-        '''Get leading equipment and equipment counter.'''    
+        """Get leading equipment and equipment counter."""
 
         def equi_counter(equi_id, sys):
-            '''Get equipment counter (function makes apply() nicer).'''
+            """Get equipment counter (function makes apply() nicer)."""
             if equi_id in ec[sys].keys():
                 return ec[sys][equi_id]
-            else: 
+            else:
                 return -1
 
         # get leading piece of equipment for every piece of equipment in the hierarchy trees of a system set
@@ -371,7 +372,7 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
 
 
 def create_analysis_table(indicator_data, equi_info):
-    '''Create analysis table for a system set.'''
+    """Create analysis table for a system set."""
     indicator_data.reset_index(inplace=True)
     # join with leading equipment
     data = indicator_data.merge(equi_info)
