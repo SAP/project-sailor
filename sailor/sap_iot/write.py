@@ -14,7 +14,7 @@ import sailor.assetcentral.indicators as ac_indicators
 from .wrappers import TimeseriesDataset
 from ..utils.timestamps import _timestamp_to_isoformat
 from ..utils.oauth_wrapper import get_oauth_client
-from ..utils.config import SailorConfig
+from ._common import format_upload_url
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -28,8 +28,7 @@ _MAX_PAGE_SIZE = 100000
 def _upload_data_single_equipment(data_subset, equipment_id, tags):
     LOG.debug('Uploading data for equipment %s', equipment_id)
 
-    base_url = SailorConfig.get('sap_iot', 'upload_url')
-    request_url = f'{base_url}/Timeseries/extend/Measurements/equipmentId/{equipment_id}'
+    request_url = format_upload_url(equipment_id)
     oauth_iot = get_oauth_client('sap_iot')
 
     # shape[1] is the number of columns, we want to divide the page size by the number of columns as each column
