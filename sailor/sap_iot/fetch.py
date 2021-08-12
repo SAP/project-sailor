@@ -8,6 +8,7 @@ to interact with the data in AssetCentral terms (see wrappers.py for the conveni
 from __future__ import annotations
 
 from collections import defaultdict
+from functools import partial
 from datetime import datetime
 from typing import TYPE_CHECKING, Union, BinaryIO
 import logging
@@ -76,23 +77,25 @@ def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_se
     # filtered out after parsing the csv into a pandas dataframe, and converting to a
     # columnar format (one column for each (indicator_id, indicator_group_id, template_id)).
 
-    selected_equipment_ids = [equipment.id for equipment in equipment_set]  # noqa: F841
-    df = pd.read_csv(ifile)
+    float_types = ['numeric', 'numericflexible']
 
-    df['_TIME'] = pd.to_datetime(df['_TIME'], utc=True, unit='ms', errors='coerce')
-    df = df.astype({'equipmentId': str, 'modelId': str, 'indicatorGroupId': str, 'templateId': str})
+    selected_equipment_ids = [equipment.id for equipment in equipment_set]  # noqa: F841
+    dtypes = {indicator._liot_id: float for indicator in indicator_set if indicator.datatype in float_types}
+    dtypes.update({'equipmentId': 'object', 'modelId': 'object', 'indicatorGroupId': 'object', 'templateId': 'object'})
+    df = pd.read_csv(ifile,
+                     parse_dates=['_TIME'], date_parser=partial(pd.to_datetime, utc=True, unit='ms', errors='coerce'),
+                     dtype=dtypes)
+
     df = df.pivot(index=['_TIME', 'equipmentId', 'modelId'], columns=['indicatorGroupId', 'templateId'])
 
     columns_to_keep = {}
+    columns_flat = df.columns.to_flat_index()
     for indicator in indicator_set:
         id_tuple = (indicator._liot_id, indicator._liot_group_id, indicator.template_id)
-        if id_tuple in df.columns.to_flat_index():
+        if id_tuple in columns_flat:
             columns_to_keep[id_tuple] = indicator._unique_id
-        else:
-            warning = DataNotFoundWarning(f'Could not find any data for indicator {indicator}')
-            warnings.warn(warning)
 
-    df.columns = df.columns.to_flat_index()
+    df.columns = columns_flat
     df = (
         df.filter(items=columns_to_keep.keys())
           .reset_index()
@@ -119,7 +122,9 @@ def _get_exported_bulk_timeseries_data(export_id: str,
         raise RuntimeError('Downloaded file is corrupted, can not process contents.')
 
     frames = []
-    for inner_file in zip_content.filelist:
+    for i, inner_file in enumerate(zip_content.filelist):
+        # the end marker below allows us to keep updating the current line for a nicer 'progress update'
+        print(f'processing compressed file {i + 1}/{len(zip_content.filelist)}', end='\x1b[2K\r')
         gzip_file = zip_content.read(inner_file)
         if not gzip_file:
             continue
@@ -193,23 +198,39 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
                 raise e
 
     LOG.info('Data export triggered for %s indicator groups.', len(query_groups))
+    print(f'Data export triggered for {len(query_groups)} indicator groups.')
 
-    results = pd.DataFrame(columns=['model_id', 'equipment_id', 'timestamp'])
-    results.timestamp = results.timestamp.astype(pd.DatetimeTZDtype(tz='UTC'))
+    # string (or really uuid?) might be better data types for model_id and equipment_id
+    # unfortunately, support for native string datatypes in pandas is still experimental
+    # and if we cast to string right when reading the csv files it gets 'upcast' back to object
+    # in `pivot` and `merge`. Hence we'll just stick with object for now.
+    schema = {'model_id': 'object', 'equipment_id': 'object', 'timestamp': pd.DatetimeTZDtype(tz='UTC')}
+    results = pd.DataFrame(columns=schema.keys()).astype(schema)
 
-    print('Waiting for data export', end='')
+    print('Waiting for data export:')
     while True:
-        print('.', end='')
         for request_id in list(request_ids):
             if _check_bulk_timeseries_export_status(request_id):
                 indicator_subset = ac_indicators.IndicatorSet(request_ids.pop(request_id))
+
+                print(f'\nNow downloading export for indicator group {indicator_subset[0].indicator_group_name}.')
                 data = _get_exported_bulk_timeseries_data(request_id, indicator_subset, equipment_set)
+                print('\nDownload complete')
+
+                for indicator in indicator_subset:
+                    if indicator._unique_id not in data.columns:
+                        warning = DataNotFoundWarning(f'Could not find any data for indicator {indicator}')
+                        warnings.warn(warning)
+
                 results = pd.merge(results, data, on=['model_id', 'equipment_id', 'timestamp'], how='outer')
 
-        if not request_ids:
+        if request_ids:
+            print('Waiting for data export:')
+        else:
             break
 
         time.sleep(5)
+        print('.', end='')
     print()
 
     wrapper = TimeseriesDataset(results, indicator_set, equipment_set, start_date, end_date)

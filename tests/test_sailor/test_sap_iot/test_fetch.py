@@ -151,17 +151,6 @@ class TestRawDataAsyncFunctions:
         assert len(data) == expected_rows
         assert set(data['equipment_id'].unique()) == expected_equipments
 
-    def test_process_one_file_missing_indicator_warning(self, make_csv_bytes, make_indicator_set, make_equipment_set):
-        indicator_set = make_indicator_set(propertyId=[f'indicator_id_{x}' for x in [1, 2, 3]],
-                                           categoryID=[f'template_id_{x}' for x in [1, 1, 1]],
-                                           pstid=['indicator_group_id_1'] * 3)
-        equipment_set = make_equipment_set(equipmentId=[f'equipment_id_{x}' for x in [1, 2]])
-        expected_columns = ['timestamp', 'equipment_id', 'model_id']
-        expected_columns += [indicator._unique_id for indicator in indicator_set]
-
-        with pytest.warns(DataNotFoundWarning, match='Could not find any data for indicator.*indicator_id_3.*'):
-            _process_one_file(BytesIO(make_csv_bytes()), indicator_set, equipment_set)
-
 
 class TestRawDataWrapperFunction:
     @patch('sailor.sap_iot.fetch.gzip.GzipFile')
@@ -266,3 +255,26 @@ class TestRawDataWrapperFunction:
             get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, EquipmentSet([]))
 
         assert str(exception_info.value) == content
+
+    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
+    @patch('sailor.sap_iot.fetch.zipfile')
+    def test_get_indicator_data_missing_indicator_warning(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
+                                                          make_indicator_set, make_equipment_set, make_csv_bytes):
+
+        mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_URL', download_url='DOWNLOAD_URL')
+
+        indicator_set = make_indicator_set(propertyId=[f'indicator_id_{x}' for x in [1, 2, 3]],
+                                           categoryID=[f'template_id_{x}' for x in [1, 1, 1]],
+                                           pstid=['indicator_group_id_1'] * 3)
+        equipment_set = make_equipment_set(equipmentId=[f'equipment_id_{x}' for x in [1, 2]])
+
+        mock_fetch.side_effect = [
+            {'RequestId': 'test_request_id_1'},
+            {'Status': 'The file is available for download.'}, b'mock_zip_content',
+        ]
+        mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1']
+        mock_zipfile.ZipFile.return_value.read.return_value = b'mock_gzip_content'
+        mock_gzip.side_effect = [BytesIO(make_csv_bytes())]
+
+        with pytest.warns(DataNotFoundWarning, match='Could not find any data for indicator.*indicator_id_3.*'):
+            get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set)
