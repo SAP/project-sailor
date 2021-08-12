@@ -5,6 +5,7 @@ Classes are provided for individual Systems as well as groups of Systems (System
 """
 from __future__ import annotations
 
+import math
 import itertools
 import warnings
 from typing import TYPE_CHECKING, Union
@@ -148,6 +149,32 @@ class System(AssetcentralEntity):
                 selection['child_nodes'].append(sel)
         return selection
 
+    @staticmethod
+    def _find_first_equipment(comp_tree, level, equi_level):
+        """Find first equipment on highest level of a tree recursively."""
+        equi_id = 0
+        for child in comp_tree['child_nodes']:
+            if comp_tree['child_nodes'][child]['object_type'] == 'EQU':
+                return comp_tree['child_nodes'][child]['id'], level
+            else:
+                if (level + 1) < equi_level:
+                    equi_id, equi_level = System._find_first_equipment(comp_tree['child_nodes'][child], level+1, equi_level)
+        return equi_id, equi_level
+
+    def get_leading_equipment(self, path):
+        """Get leading piece of equipment (by path or default)."""
+        if path:
+            child_nodes = self._hierarchy['component_tree']['child_nodes']
+            for p in path:
+                object_id = child_nodes[p]['id']
+                child_nodes = child_nodes[p]['child_nodes']
+            return object_id
+        else:
+            # no path given: find first equipment on highest level
+            # looks like a breadth-first search problem, but DFS is more efficient
+            equi_id, equi_level = System._find_first_equipment(self._hierarchy['component_tree'], 0, math.inf)
+            return equi_id
+
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> TimeseriesDataset:
         """
@@ -217,10 +244,13 @@ class SystemSet(ResultSet):
                 SystemSet._fill_nones(node['child_nodes'], indicator_list, none_positions)
 
     @staticmethod
-    def _map_comp_info(sel_nodes, sys_nodes, indicator_list, none_positions):
+    def _map_comp_info(sel_nodes, sys_nodes, indicator_list, none_positions, equipment, equi_counter):
         """Map selection dictionary against component dictionary recursively."""
         for node in sel_nodes:
             if node['object_type'] == 'EQU':
+                if (node['key'] in sys_nodes.keys()): 
+                    equipment[sys_nodes[node['key']]['id']] = equi_counter
+                equi_counter += 1
                 for indicator in node['indicators']:
                     if (node['key'] in sys_nodes.keys()) and (indicator in sys_nodes[node['key']]['indicators']):
                         indicator_list.append((sys_nodes[node['key']]['id'], indicator))
@@ -229,14 +259,16 @@ class SystemSet(ResultSet):
                         indicator_list.append(None)
             if 'child_nodes' in node.keys():
                 if node['key'] in sys_nodes.keys():
-                    SystemSet._map_comp_info(node['child_nodes'], sys_nodes[node['key']]['child_nodes'],
-                                             indicator_list, none_positions)
+                    equi_counter = SystemSet._map_comp_info(node['child_nodes'], sys_nodes[node['key']]['child_nodes'],
+                                                            indicator_list, none_positions, equipment, equi_counter)
                 else:
                     SystemSet._fill_nones(node['child_nodes'], indicator_list, none_positions)
+        return equi_counter
 
     def _map_component_information(self, selection):
         """Map selection dictionary against component dictionary of systems in a system set."""
         system_indicators = {}
+        system_equipment = {}
         none_positions = set()
         intersection = False
         if len(selection) == 0:
@@ -245,16 +277,43 @@ class SystemSet(ResultSet):
             selection = System._create_selection_dictionary(self[0]._hierarchy['component_tree'])
         for system in self:
             indicator_list = []
-            SystemSet._map_comp_info(selection['child_nodes'], system._hierarchy['component_tree']['child_nodes'],
-                                     indicator_list, none_positions)
+            equipment = {}
+            equi_counter = 0
+            equi_counter = SystemSet._map_comp_info(selection['child_nodes'], 
+                                                    system._hierarchy['component_tree']['child_nodes'],
+                                                    indicator_list, none_positions, equipment, equi_counter)
             system_indicators[system.id] = indicator_list
+            system_equipment[system.id] = equipment
         if intersection:
             # keep only indicators that appear for all systems
             none_positions = list(none_positions)[::-1]
             for system in self:
                 for p in none_positions:
                     del system_indicators[system.id][p]
-        return system_indicators
+        return system_indicators, system_equipment
+
+    def lead_eq_and_counter(self, ec):
+        '''Get leading equipment and equipment counter.'''    
+
+        def equi_counter(equi_id, sys):
+            '''Get equipment counter (function makes apply() nicer).'''
+            if equi_id in ec[sys].keys():
+                return ec[sys][equi_id]
+            else: 
+                return -1
+
+        # get leading piece of equipment for every piece of equipment in the hierarchy trees of a system set
+        for i in range(len(self)):
+            eq = self[i]._hierarchy['equipment'].as_df()[['id']]
+            eq.rename(columns={"id": "equipment_id"}, inplace=True)
+            eq['leading_equipment'] = self[i].get_leading_equipment([])
+            eq['equi_counter'] = eq.equipment_id.apply(equi_counter, sys=self[i].id)
+            if i == 0:
+                equi_info = eq
+            else:
+                equi_info = equi_info.append(eq)
+        # category gets lost in append(), so we have to do it here, copy = False does not work
+        return equi_info.astype({'equipment_id': 'category', 'leading_equipment': 'category'})
 
 
 def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
@@ -309,3 +368,18 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
 
     return SystemSet([System(obj) for obj in object_list],
                      {'filters': kwargs, 'extended_filters': extended_filters})
+
+
+def create_analysis_table(indicator_data, equi_info):
+    '''Create analysis table for a system set.'''
+    indicator_data.reset_index(inplace=True)
+    # join with leading equipment
+    data = indicator_data.merge(equi_info)
+    # drop model id and equipment id
+    data.drop(['model_id', 'equipment_id'], axis=1, inplace=True)
+    # create really long format
+    long = data.melt(id_vars=['timestamp', 'leading_equipment', 'equi_counter'])
+    long = long[long.equi_counter >= 0]
+    # get rid of NAs
+    long = long.dropna(subset=['value'])
+    return long.pivot(index=['leading_equipment', 'timestamp'], columns=['variable', 'equi_counter'])
