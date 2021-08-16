@@ -7,3 +7,4 @@ pyyaml
 rauth
 requests
 scikit-learn
+cachetools
