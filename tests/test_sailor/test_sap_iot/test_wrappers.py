@@ -123,14 +123,28 @@ def test_filter_indicator_set(simple_dataset):
     assert len(filtered_dataset.equipment_set) == 2
     assert len(filtered_dataset._df) == len(simple_dataset._df)
     assert filtered_dataset.indicator_set == selected_indicators
-    assert len(filtered_dataset._df.columns) == 4
-    assert all(filtered_dataset._df.columns == (filtered_dataset.get_index_columns() +
+    assert len(filtered_dataset._df.columns) == 3
+    assert all(filtered_dataset._df.columns == (filtered_dataset.get_index_columns(include_model=False) +
                                                 [indicator._unique_id for indicator in selected_indicators]))
 
 
-def test_as_df_no_indicators():
-    df = pd.DataFrame({'equipment_id': [], 'model_id': [], 'timestamp': pd.to_datetime([], utc=True)})
+@pytest.mark.parametrize('include_model', [True, False])
+def test_as_df_no_indicators(include_model):
+    df = pd.DataFrame({'equipment_id': [], 'timestamp': pd.to_datetime([], utc=True)})
+    df = df.astype({'equipment_id': 'object'})
     data = TimeseriesDataset(df, IndicatorSet([]), EquipmentSet([]),
                              pd.Timestamp('2021-01-01', tz='Etc/UTC'), pd.Timestamp('2021-01-03', tz='Etc/UTC'))
 
-    data.as_df(speaking_names=True)  # this used to lead to a TypeError, we're effectively testing that doesn't happen.
+    data.as_df(speaking_names=True, include_model=include_model)
+    # this used to lead to a TypeError, we're effectively testing that doesn't happen.
+
+
+def test_plotting_happy_path(simple_dataset):
+    simple_dataset.plot()
+
+
+def test_normalize_happy_path(simple_dataset):
+    normalized_dataset, _ = simple_dataset.normalize()
+
+    assert all(normalized_dataset._df.columns == simple_dataset._df.columns)
+    assert len(normalized_dataset._df) == len(simple_dataset._df)
