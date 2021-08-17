@@ -225,9 +225,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
 
                 results = pd.merge(results, data, on=['equipment_id', 'timestamp'], how='outer')
 
-        if request_ids:
-            print('Waiting for data export:')
-        else:
+        if not request_ids:
             break
 
         time.sleep(5)
