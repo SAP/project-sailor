@@ -5,7 +5,8 @@ Classes are provided for individual Locations as well as groups of Locations (Lo
 """
 
 from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _parse_filter_parameters,
-                    _fetch_data, _ac_application_url, _add_properties)
+                    _fetch_data, _ac_application_url)
+from .._base.masterdata import add_properties
 from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_LOCATIONS
 
@@ -30,7 +31,7 @@ _LOCATION_FIELDS = [
 ]
 
 
-@_add_properties
+@add_properties
 class Location(AssetcentralEntity):
     """AssetCentral Location Object."""
 

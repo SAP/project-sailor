@@ -12,8 +12,9 @@ from .constants import VIEW_MODEL_INDICATORS, VIEW_MODELS
 from .indicators import Indicator, IndicatorSet
 from .equipment import find_equipment
 from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _parse_filter_parameters,
-                    _apply_filters_post_request, _fetch_data, _ac_application_url, _add_properties)
+                    _apply_filters_post_request, _fetch_data, _ac_application_url)
 from ..utils.timestamps import _string_to_timestamp_parser
+from .._base.masterdata import add_properties
 
 if TYPE_CHECKING:
     from .equipment import EquipmentSet
@@ -56,7 +57,7 @@ _MODEL_FIELDS = [
 ]
 
 
-@_add_properties
+@add_properties
 class Model(AssetcentralEntity):
     """AssetCentral Model object."""
 

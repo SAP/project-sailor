@@ -1,57 +1,11 @@
 from typing import Iterable
-from unittest.mock import PropertyMock, patch, Mock
+from unittest.mock import patch, Mock
 
 import pytest
 
-import sailor.pai.utils
-from sailor.assetcentral.equipment import Equipment
 from sailor.assetcentral.utils import (
     AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity, ResultSet,
-    _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data,
-    _add_properties)
-
-
-class TestAssetcentralEntity:
-
-    def test_magic_eq_true(self):
-        entity1 = AssetcentralEntity({'id': '1'})
-        entity2 = AssetcentralEntity({'id': '1'})
-        assert entity1 == entity2
-
-    def test_magic_eq_false_id(self):
-        entity1 = AssetcentralEntity({'id': '1'})
-        entity2 = AssetcentralEntity({'id': '2'})
-        assert entity1 != entity2
-
-    @patch('sailor.assetcentral.equipment.Equipment.id', new_callable=PropertyMock, return_value='1')
-    def test_magic_eq_false_class(self, id_mock):
-        entity1 = AssetcentralEntity({'id': '1'})
-        entity2 = Equipment({})
-        assert entity1 != entity2
-
-    def test_get_available_properties_is_not_empty(self):
-        # note: __subclasses__ requires that all subclasses are imported
-        # currently we ensure this transitively: see __init__.py in test_assetcentral
-        # TODO: after refactoring, this test should be moved up to the new superclass and we must make sure
-        #       that all subclasses are imported
-        classes = AssetcentralEntity.__subclasses__()
-        classes.remove(sailor.pai.utils.PredictiveAssetInsightsEntity)   # exclude quasi-abstract class from test
-        for class_ in classes:
-            actual = class_.get_available_properties()
-            assert actual, f'actual result is empty: {actual}'
-            assert type(actual) == set
-
-    def test_integration_with_fields(self):
-        def get_extractor(value):
-            return pow(value, 2)
-        fields = [_AssetcentralField('our_name', 'their_name_get', 'their_name_put', get_extractor=get_extractor)]
-
-        @_add_properties
-        class FieldTestEntity(AssetcentralEntity):
-            _field_map = {f.our_name: f for f in fields}
-        entity = FieldTestEntity({'their_name_get': 9})
-
-        assert entity.our_name == 81
+    _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data)
 
 
 class TestAssetcentralRequest:

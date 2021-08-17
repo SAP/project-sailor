@@ -18,9 +18,9 @@ from .notification import Notification, find_notifications, _create_or_update_no
 from .location import Location, find_locations
 from .workorder import find_workorders
 from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties,
-                    _apply_filters_post_request)
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _apply_filters_post_request)
 from ..utils.timestamps import _string_to_timestamp_parser
+from .._base.masterdata import add_properties
 
 if TYPE_CHECKING:
     from ..sap_iot import TimeseriesDataset
@@ -77,7 +77,7 @@ _EQUIPMENT_FIELDS = [
 ]
 
 
-@_add_properties
+@add_properties
 class Equipment(AssetcentralEntity):
     """AssetCentral Equipment Object."""
 

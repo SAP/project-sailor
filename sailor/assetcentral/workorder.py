@@ -5,7 +5,8 @@ Classes are provided for individual Workorders as well as groups of Workorders (
 """
 
 from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties)
+                    _parse_filter_parameters, _fetch_data, _ac_application_url)
+from .._base.masterdata import add_properties
 from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_WORKORDERS
 
@@ -55,7 +56,7 @@ _WORKORDER_FIELDS = [
 ]
 
 
-@_add_properties
+@add_properties
 class Workorder(AssetcentralEntity):
     """AssetCentral Workorder Object."""
 

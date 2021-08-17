@@ -8,7 +8,8 @@ from functools import cached_property
 import warnings
 
 from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
-                    _apply_filters_post_request, _fetch_data, _ac_application_url, _add_properties)
+                    _apply_filters_post_request, _fetch_data, _ac_application_url)
+from .._base.masterdata import add_properties
 from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_GROUPS
 from .equipment import find_equipment, EquipmentSet
@@ -34,7 +35,7 @@ _GROUP_FIELDS = [
 ]
 
 
-@_add_properties
+@add_properties
 class Group(AssetcentralEntity):
     """AssetCentral Location Object."""
 
