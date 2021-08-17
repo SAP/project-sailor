@@ -317,5 +317,4 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
     endpoint_url = _ac_application_url() + VIEW_SYSTEMS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
 
-    return SystemSet([System(obj) for obj in object_list],
-                     {'filters': kwargs, 'extended_filters': extended_filters})
+    return SystemSet([System(obj) for obj in object_list])

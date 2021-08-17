@@ -116,5 +116,4 @@ def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
     for odata_result in object_list:
         for element in odata_result['d']['results']:
             objects.append(element)
-    return AlertSet([Alert(obj) for obj in objects],
-                    {'filters': kwargs, 'extended_filters': extended_filters})
+    return AlertSet([Alert(obj) for obj in objects])

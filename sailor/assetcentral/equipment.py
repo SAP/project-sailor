@@ -423,5 +423,4 @@ def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
 
     endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return EquipmentSet([Equipment(obj) for obj in object_list],
-                        {'filters': kwargs, 'extended_filters': extended_filters})
+    return EquipmentSet([Equipment(obj) for obj in object_list])

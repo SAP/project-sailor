@@ -33,7 +33,6 @@ class MasterDataField:
 
     def _default_put_setter(self, payload, value):
         payload[self.their_name_put] = value
-        return
 
     def _default_get_extractor(self, value):
         return value
@@ -92,7 +91,7 @@ class MasterDataEntityCollection(Sequence):
     _element_type = MasterDataEntity
     _method_defaults = {}
 
-    def __init__(self, elements, generating_query_params=None):
+    def __init__(self, elements):
         """Create a new MasterDataEntityCollection from the passed elements."""
         self.elements = list(set(elements))
         if len(self.elements) != len(elements):
@@ -105,8 +104,6 @@ class MasterDataEntityCollection(Sequence):
             bad_types = ' or '.join({element.__class__.__name__ for element in bad_elements})
             raise RuntimeError(f'{self.__class__.__name__} may only contain elements of type '
                                f'{self._element_type.__name__}, not {bad_types}')
-
-        self.__generating_query_params = generating_query_params
 
     def __len__(self) -> int:
         """Return the number of objects stored in the collection to implement the `Sequence` interface."""

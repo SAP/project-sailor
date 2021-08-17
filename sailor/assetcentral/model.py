@@ -179,5 +179,4 @@ def find_models(*, extended_filters=(), **kwargs) -> ModelSet:
 
     endpoint_url = _ac_application_url() + VIEW_MODELS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return ModelSet([Model(obj) for obj in object_list],
-                    {'filters': kwargs, 'extended_filters': extended_filters})
+    return ModelSet([Model(obj) for obj in object_list])

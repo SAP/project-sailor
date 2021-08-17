@@ -256,8 +256,7 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return NotificationSet([Notification(obj) for obj in object_list],
-                           {'filters': kwargs, 'extended_filters': extended_filters})
+    return NotificationSet([Notification(obj) for obj in object_list])
 
 
 def _create_or_update_notification(request, method) -> Notification:

@@ -128,5 +128,4 @@ def find_workorders(*, extended_filters=(), **kwargs) -> WorkorderSet:
 
     endpoint_url = _ac_application_url() + VIEW_WORKORDERS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return WorkorderSet([Workorder(obj) for obj in object_list],
-                        {'filters': kwargs, 'extended_filters': extended_filters})
+    return WorkorderSet([Workorder(obj) for obj in object_list])
