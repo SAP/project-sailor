@@ -17,7 +17,7 @@ from .indicators import Indicator, IndicatorSet
 from .notification import Notification, find_notifications, _create_or_update_notification
 from .location import Location, find_locations
 from .workorder import find_workorders
-from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
+from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntityCollection,
                     _parse_filter_parameters, _fetch_data, _ac_application_url, _apply_filters_post_request)
 from ..utils.timestamps import _string_to_timestamp_parser
 from .._base.masterdata import add_properties
@@ -248,7 +248,7 @@ class Equipment(AssetcentralEntity):
         return _create_or_update_notification(request, 'POST')
 
 
-class EquipmentSet(ResultSet):
+class EquipmentSet(AssetcentralEntityCollection):
     """Class representing a group of Equipment."""
 
     _element_type = Equipment

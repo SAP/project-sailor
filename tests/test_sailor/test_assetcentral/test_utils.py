@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 import pytest
 
 from sailor.assetcentral.utils import (
-    AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity, ResultSet,
+    AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity,
     _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data)
 
 
@@ -90,41 +90,6 @@ class TestAssetcentralRequest:
                 actual.validate()
         else:
             actual.validate()
-
-
-class TestResultSet:
-
-    @patch('sailor.assetcentral.utils.p9')
-    @pytest.mark.parametrize('cls', ResultSet.__subclasses__())
-    def test_integration_with_subclasses(self, mock_p9, cls):
-        result_set_obj = cls([])
-        result_set_obj.as_df()
-        result_set_obj.plot_distribution()
-
-    @pytest.mark.parametrize('cls', ResultSet.__subclasses__())
-    def test_resultset_method_defaults(self, cls):
-        element_properties = cls._element_type._field_map
-        assert cls._method_defaults['plot_distribution']['by'] in element_properties
-
-    def test_magic_eq_type_not_equal(self):
-        rs1 = ResultSet([AssetcentralEntity({'id': x}) for x in [1, 2, 3]])
-        rs2 = (1, 2, 3)
-        assert rs1 != rs2
-
-    @pytest.mark.parametrize('testdescription,list1,list2,expected_result', [
-        ('Order does not matter', [1, 2, 3], [2, 3, 1], True),
-        ('Different content', [1, 2, 3], [1, 2, 4], False),
-        ('Different size', [1, 2, 3, 4], [1, 2, 3], False),
-        ('Equal content and order', [1, 2, 3], [1, 2, 3], True),
-        ('Two empty sets are equal', [], [], True),
-    ])
-    def test_magic_eq_content(self, list1, list2, expected_result, testdescription):
-        rs1 = ResultSet([AssetcentralEntity({'id': i}) for i in list1])
-        rs2 = ResultSet([AssetcentralEntity({'id': i}) for i in list2])
-        if expected_result:
-            assert rs1 == rs2
-        else:
-            assert rs1 != rs2
 
 
 @pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')

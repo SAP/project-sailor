@@ -15,7 +15,7 @@ from operator import itemgetter
 import pandas as pd
 
 from sailor import sap_iot
-from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntityCollection,
                     _parse_filter_parameters, _fetch_data, _ac_application_url)
 from .._base.masterdata import add_properties
 from .equipment import find_equipment, EquipmentSet
@@ -182,7 +182,7 @@ class System(AssetcentralEntity):
         return sap_iot.get_indicator_data(start, end, all_indicators, self._hierarchy['equipment'])
 
 
-class SystemSet(ResultSet):
+class SystemSet(AssetcentralEntityCollection):
     """Class representing a group of Systems."""
 
     _element_type = System

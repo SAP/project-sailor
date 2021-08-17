@@ -7,7 +7,7 @@ Classes are provided for individual Groups as well as groups of Groups (GroupSet
 from functools import cached_property
 import warnings
 
-from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntityCollection,
                     _apply_filters_post_request, _fetch_data, _ac_application_url)
 from .._base.masterdata import add_properties
 from ..utils.timestamps import _string_to_timestamp_parser
@@ -114,7 +114,7 @@ class Group(AssetcentralEntity):
         return self._generic_get_members('MOD', ModelSet, find_models, extended_filters, **kwargs)
 
 
-class GroupSet(ResultSet):
+class GroupSet(AssetcentralEntityCollection):
     """Class representing a group of Groups."""
 
     _element_type = Group

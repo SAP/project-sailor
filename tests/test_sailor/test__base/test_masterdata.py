@@ -1,4 +1,8 @@
-from sailor._base.masterdata import MasterDataEntity, MasterDataField, add_properties
+from unittest.mock import patch
+
+import pytest
+
+from sailor._base.masterdata import MasterDataField, MasterDataEntity, MasterDataEntityCollection, add_properties
 from sailor.assetcentral.utils import AssetcentralEntity
 from sailor.pai.utils import PredictiveAssetInsightsEntity
 
@@ -31,6 +35,42 @@ class TestMasterDataEntity:
         entity = FieldTestEntity({'their_name_get': 9})
 
         assert entity.our_name == 81
+
+
+class TestMasterDataEntityCollection:
+    test_classes = sum((class_.__subclasses__() for class_ in MasterDataEntityCollection.__subclasses__()), start=[])
+
+    @patch('sailor._base.masterdata.p9')
+    @pytest.mark.parametrize('cls', test_classes)
+    def test_integration_with_subclasses(self, mock_p9, cls):
+        result_set_obj = cls([])
+        result_set_obj.as_df()
+        result_set_obj.plot_distribution()
+
+    @pytest.mark.parametrize('cls', test_classes)
+    def test_resultset_method_defaults(self, cls):
+        element_properties = cls._element_type._field_map
+        assert cls._method_defaults['plot_distribution']['by'] in element_properties
+
+    def test_magic_eq_type_not_equal(self):
+        rs1 = MasterDataEntityCollection([MasterDataEntity({'id': x}) for x in [1, 2, 3]])
+        rs2 = (1, 2, 3)
+        assert rs1 != rs2
+
+    @pytest.mark.parametrize('testdescription,list1,list2,expected_result', [
+        ('Order does not matter', [1, 2, 3], [2, 3, 1], True),
+        ('Different content', [1, 2, 3], [1, 2, 4], False),
+        ('Different size', [1, 2, 3, 4], [1, 2, 3], False),
+        ('Equal content and order', [1, 2, 3], [1, 2, 3], True),
+        ('Two empty sets are equal', [], [], True),
+    ])
+    def test_magic_eq_content(self, list1, list2, expected_result, testdescription):
+        rs1 = MasterDataEntityCollection([MasterDataEntity({'id': i}) for i in list1])
+        rs2 = MasterDataEntityCollection([MasterDataEntity({'id': i}) for i in list2])
+        if expected_result:
+            assert rs1 == rs2
+        else:
+            assert rs1 != rs2
 
 
 def test_get_available_properties_is_not_empty():

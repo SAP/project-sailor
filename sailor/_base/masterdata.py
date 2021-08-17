@@ -1,4 +1,42 @@
 import warnings
+import logging
+from collections import Counter
+from collections.abc import Sequence
+from typing import Union
+
+import pandas as pd
+import plotnine as p9
+
+from ..utils.plot_helper import _default_plot_theme
+from ..utils.utils import _is_non_string_iterable
+
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+
+
+class MasterDataField:
+    """Common base class for all masterdata fields."""
+
+    def __init__(self, our_name, their_name_get, their_name_put=None, is_mandatory=False,
+                 get_extractor=None, put_setter=None):
+        self.our_name = our_name
+        self.their_name_get = their_name_get
+        self.their_name_put = their_name_put
+        self.is_exposed = not our_name.startswith('_')
+        self.is_writable = their_name_put is not None
+        self.is_mandatory = is_mandatory
+
+        self.names = (our_name, their_name_get, their_name_put)
+
+        self.get_extractor = get_extractor or self._default_get_extractor
+        self.put_setter = put_setter or self._default_put_setter
+
+    def _default_put_setter(self, payload, value):
+        payload[self.their_name_put] = value
+        return
+
+    def _default_get_extractor(self, value):
+        return value
 
 
 class MasterDataEntity:
@@ -48,29 +86,116 @@ class MasterDataEntity:
         return self.id.__hash__()
 
 
-class MasterDataField:
-    """Common base class for all masterdata fields."""
+class MasterDataEntityCollection(Sequence):
+    """Baseclass to be used in all Sets of MasterData objects."""
 
-    def __init__(self, our_name, their_name_get, their_name_put=None, is_mandatory=False,
-                 get_extractor=None, put_setter=None):
-        self.our_name = our_name
-        self.their_name_get = their_name_get
-        self.their_name_put = their_name_put
-        self.is_exposed = not our_name.startswith('_')
-        self.is_writable = their_name_put is not None
-        self.is_mandatory = is_mandatory
+    _element_type = MasterDataEntity
+    _method_defaults = {}
 
-        self.names = (our_name, their_name_get, their_name_put)
+    def __init__(self, elements, generating_query_params=None):
+        """Create a new MasterDataEntityCollection from the passed elements."""
+        self.elements = list(set(elements))
+        if len(self.elements) != len(elements):
+            duplicate_elements = [k for k, v in Counter(elements).items() if v > 1]
+            LOG.info(f'Duplicate elements encountered when creating {type(self).__name__}, discarding duplicates. '
+                     f'Duplicates of the following elements were discarded: %s', duplicate_elements)
 
-        self.get_extractor = get_extractor or self._default_get_extractor
-        self.put_setter = put_setter or self._default_put_setter
+        bad_elements = [element for element in self.elements if not type(element) == self._element_type]
+        if bad_elements:
+            bad_types = ' or '.join({element.__class__.__name__ for element in bad_elements})
+            raise RuntimeError(f'{self.__class__.__name__} may only contain elements of type '
+                               f'{self._element_type.__name__}, not {bad_types}')
 
-    def _default_put_setter(self, payload, value):
-        payload[self.their_name_put] = value
-        return
+        self.__generating_query_params = generating_query_params
 
-    def _default_get_extractor(self, value):
-        return value
+    def __len__(self) -> int:
+        """Return the number of objects stored in the collection to implement the `Sequence` interface."""
+        return self.elements.__len__()
+
+    def __eq__(self, other):
+        """Two ResultSets are equal if all of their elements are equal (order is ignored)."""
+        if isinstance(self, other.__class__):
+            return set(self.elements) == set(other.elements)
+        return False
+
+    def __getitem__(self, arg: Union[int, slice]):
+        """Return a subset of the MasterDataEntityCollection to implement the `Sequence` interface."""
+        selection = self.elements.__getitem__(arg)
+        if isinstance(arg, int):
+            return selection
+        else:
+            return self.__class__(selection)
+
+    def __add__(self, other):
+        """Combine two ResultSets as the sum of all elements, required to implement the `Sequence` interface."""
+        if not isinstance(other, type(self)):
+            raise TypeError('Only ResultSets of the same type can be added.')
+        return self.__class__(self.elements + other.elements, 'set-summation')
+
+    def as_df(self, columns=None):
+        """Return all information on the objects stored in the MasterDataEntityCollection as a pandas dataframe."""
+        if columns is None:
+            columns = [field.our_name for field in self._element_type._field_map.values() if field.is_exposed]
+        return pd.DataFrame({
+            prop: [element.__getattribute__(prop) for element in self.elements] for prop in columns
+        })
+
+    def filter(self, **kwargs) -> 'MasterDataEntityCollection':
+        """Select a subset of the collection based on named filter criteria for the attributes of the elements.
+
+        All keyword arguments are concatenated as filters with OR operator, i.e., only one of the supplied filters
+        must match for an entity to be selected.
+
+        Returns a new AssetcentralEntityCollection object.
+        """
+        selection = []
+
+        for element in self.elements:
+            for attribute, value in kwargs.items():
+                if _is_non_string_iterable(value) and getattr(element, attribute) not in value:
+                    break
+                elif not _is_non_string_iterable(value) and getattr(element, attribute) != value:
+                    break
+            else:
+                selection.append(element)
+        return self.__class__(selection)
+
+    def plot_distribution(self, by=None, fill=None, dropna=False):
+        """
+        Plot the distribution of elements of a MasterDataEntityCollection based on their properties.
+
+        This effectively creates a histogram with the number of elements per group on the y-axis, and the group
+        (given by the `by` parameter) on the x-axis. Additionally, the fill colour of the bar can be used to
+        distinguish a second dimension.
+        """
+        by = self._method_defaults['plot_distribution']['by'] if by is None else by
+        display_name = self._element_type.__name__ + 's'
+
+        columns = [by]
+        aes = {'x': by}
+        if fill is not None:
+            columns.append(fill)
+            aes['fill'] = fill
+
+        data = self.as_df(columns)
+        if dropna:
+            data = data.dropna(subset=[by])
+            if len(data) == 0:
+                raise RuntimeError(f'No {display_name} with non-empty "{by}" found. Can not create plot.')
+
+        data = data.fillna('NA')
+        if data.dtypes[by] == 'O':  # strings/objects, we treat these as categorical
+            plot_function = p9.geom_bar()
+        else:
+            plot_function = p9.geom_histogram(color='white', bins=20)  # anything else, treated as continuous
+
+        plot = (
+                p9.ggplot(data, p9.aes(**aes)) +
+                plot_function +
+                _default_plot_theme() +
+                p9.ggtitle(f'Number of {display_name} per {by}')
+                )
+        return plot
 
 
 def add_properties(cls):

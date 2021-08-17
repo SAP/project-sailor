@@ -8,7 +8,7 @@ import plotnine as p9
 
 import sailor.assetcentral.equipment
 from .constants import VIEW_NOTIFICATIONS
-from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
+from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntityCollection,
                     _parse_filter_parameters, _fetch_data, _ac_application_url, _nested_put_setter)
 from .._base.masterdata import add_properties
 from ..utils.oauth_wrapper import get_oauth_client
@@ -160,7 +160,7 @@ class Notification(AssetcentralEntity):
         return plot
 
 
-class NotificationSet(ResultSet):
+class NotificationSet(AssetcentralEntityCollection):
     """Class representing a group of Notifications."""
 
     _element_type = Notification

@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 from .constants import VIEW_MODEL_INDICATORS, VIEW_MODELS
 from .indicators import Indicator, IndicatorSet
 from .equipment import find_equipment
-from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _parse_filter_parameters,
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntityCollection, _parse_filter_parameters,
                     _apply_filters_post_request, _fetch_data, _ac_application_url)
 from ..utils.timestamps import _string_to_timestamp_parser
 from .._base.masterdata import add_properties
@@ -118,7 +118,7 @@ class Model(AssetcentralEntity):
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
 
-class ModelSet(ResultSet):
+class ModelSet(AssetcentralEntityCollection):
     """Class representing a group of Models."""
 
     _element_type = Model

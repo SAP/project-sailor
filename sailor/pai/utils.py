@@ -2,7 +2,7 @@
 
 
 from ..utils.config import SailorConfig
-from .._base.masterdata import MasterDataEntity, MasterDataField
+from .._base.masterdata import MasterDataField, MasterDataEntity, MasterDataEntityCollection
 
 
 def _pai_application_url():
@@ -10,13 +10,19 @@ def _pai_application_url():
     return SailorConfig.get('predictive_asset_insights', 'application_url')
 
 
+class _PredictiveAssetInsightsField(MasterDataField):
+    pass
+
+
 class PredictiveAssetInsightsEntity(MasterDataEntity):
-    """Common base class for Pai entities."""
+    """Common base class for PAI entities."""
 
     def __repr__(self) -> str:
         """Return a very short string representation."""
         return f'"{self.__class__.__name__}(id="{self.id}")'
 
 
-class _PredictiveAssetInsightsField(MasterDataField):
+class PredictiveAssetInsightsEntityCollection(MasterDataEntityCollection):
+    """Common base class for PAI entity collections."""
+
     pass

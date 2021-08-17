@@ -4,7 +4,7 @@ Workorder module can be used to retrieve Workorder information from AssetCentral
 Classes are provided for individual Workorders as well as groups of Workorders (WorkorderSet).
 """
 
-from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntityCollection,
                     _parse_filter_parameters, _fetch_data, _ac_application_url)
 from .._base.masterdata import add_properties
 from ..utils.timestamps import _string_to_timestamp_parser
@@ -63,7 +63,7 @@ class Workorder(AssetcentralEntity):
     _field_map = {field.our_name: field for field in _WORKORDER_FIELDS}
 
 
-class WorkorderSet(ResultSet):
+class WorkorderSet(AssetcentralEntityCollection):
     """Class representing a group of Workorders."""
 
     _element_type = Workorder

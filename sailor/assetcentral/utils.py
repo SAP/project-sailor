@@ -1,23 +1,18 @@
 """Module for various utility functions, in particular those related to fetching data from remote oauth endpoints."""
 
 from copy import deepcopy
-from typing import Union
-from collections.abc import Sequence, Iterable
-from collections import Counter, UserDict
+from collections import UserDict
 from itertools import product
 import operator
 import logging
 import warnings
 import re
 
-import pandas as pd
-import plotnine as p9
 
 from ..utils.oauth_wrapper import get_oauth_client
-from ..utils.plot_helper import _default_plot_theme
 from ..utils.config import SailorConfig
-from ..utils.utils import DataNotFoundWarning
-from .._base.masterdata import MasterDataEntity, MasterDataField
+from ..utils.utils import DataNotFoundWarning, _is_non_string_iterable
+from .._base.masterdata import MasterDataEntity, MasterDataField, MasterDataEntityCollection
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -275,122 +270,10 @@ class AssetcentralEntity(MasterDataEntity):
     pass
 
 
-class ResultSet(Sequence):
+class AssetcentralEntityCollection(MasterDataEntityCollection):
     """Baseclass to be used in all Sets of AssetCentral objects."""
 
-    _element_type = AssetcentralEntity
-    _method_defaults = {}
-
-    def __init__(self, elements, generating_query_params=None):
-        """Create a new ResultSet from the passed elements."""
-        self.elements = list(set(elements))
-        if len(self.elements) != len(elements):
-            duplicate_elements = [k for k, v in Counter(elements).items() if v > 1]
-            LOG.info(f'Duplicate elements encountered when creating {type(self).__name__}, discarding duplicates. '
-                     f'Duplicates of the following elements were discarded: %s', duplicate_elements)
-
-        bad_elements = [element for element in self.elements if not type(element) == self._element_type]
-        if bad_elements:
-            bad_types = ' or '.join({element.__class__.__name__ for element in bad_elements})
-            raise RuntimeError(f'{self.__class__.__name__} may only contain elements of type '
-                               f'{self._element_type.__name__}, not {bad_types}')
-
-        self.__generating_query_params = generating_query_params
-
-    def __len__(self) -> int:
-        """Return the number of objects stored in the ResultSet to implement the `Sequence` interface."""
-        return self.elements.__len__()
-
-    def __eq__(self, other):
-        """Two ResultSets are equal if all of their elements are equal (order is ignored)."""
-        if isinstance(self, other.__class__):
-            return set(self.elements) == set(other.elements)
-        return False
-
-    def __getitem__(self, arg: Union[int, slice]):
-        """Return a subset of the ResultSet to implement the `Sequence` interface."""
-        selection = self.elements.__getitem__(arg)
-        if isinstance(arg, int):
-            return selection
-        else:
-            return self.__class__(selection)
-
-    def __add__(self, other):
-        """Combine two ResultSets as the sum of all elements, required to implement the `Sequence` interface."""
-        if not isinstance(other, type(self)):
-            raise TypeError('Only ResultSets of the same type can be added.')
-        return self.__class__(self.elements + other.elements, 'set-summation')
-
-    def as_df(self, columns=None):
-        """Return all information on the objects stored in the ResultSet as a pandas dataframe."""
-        if columns is None:
-            columns = [field.our_name for field in self._element_type._field_map.values() if field.is_exposed]
-        return pd.DataFrame({
-            prop: [element.__getattribute__(prop) for element in self.elements] for prop in columns
-        })
-
-    def filter(self, **kwargs) -> 'ResultSet':
-        """Select a subset of the ResultSet based on named filter criteria for the attributes of the elements.
-
-        All keyword arguments are concatenated as filters with OR operator, i.e., only one of the supplied filters
-        must match for an entity to be selected.
-
-        Returns a new ResultSet object.
-        """
-        selection = []
-
-        for element in self.elements:
-            for attribute, value in kwargs.items():
-                if _is_non_string_iterable(value) and getattr(element, attribute) not in value:
-                    break
-                elif not _is_non_string_iterable(value) and getattr(element, attribute) != value:
-                    break
-            else:
-                selection.append(element)
-        return self.__class__(selection)
-
-    def plot_distribution(self, by=None, fill=None, dropna=False):
-        """
-        Plot the distribution of elements of a ResultSet based on their properties.
-
-        This effectively creates a histogram with the number of elements per group on the y-axis, and the group
-        (given by the `by` parameter) on the x-axis. Additionally, the fill colour of the bar can be used to
-        distinguish a second dimension.
-        """
-        by = self._method_defaults['plot_distribution']['by'] if by is None else by
-        display_name = self._element_type.__name__ + 's'
-
-        columns = [by]
-        aes = {'x': by}
-        if fill is not None:
-            columns.append(fill)
-            aes['fill'] = fill
-
-        data = self.as_df(columns)
-        if dropna:
-            data = data.dropna(subset=[by])
-            if len(data) == 0:
-                raise RuntimeError(f'No {display_name} with non-empty "{by}" found. Can not create plot.')
-
-        data = data.fillna('NA')
-        if data.dtypes[by] == 'O':  # strings/objects, we treat these as categorical
-            plot_function = p9.geom_bar()
-        else:
-            plot_function = p9.geom_histogram(color='white', bins=20)  # anything else, treated as continuous
-
-        plot = (
-                p9.ggplot(data, p9.aes(**aes)) +
-                plot_function +
-                _default_plot_theme() +
-                p9.ggtitle(f'Number of {display_name} per {by}')
-                )
-        return plot
-
-
-def _is_non_string_iterable(obj):
-    if issubclass(obj.__class__, str):
-        return False
-    return isinstance(obj, Iterable)
+    pass
 
 
 class _AssetcentralWriteRequest(UserDict):

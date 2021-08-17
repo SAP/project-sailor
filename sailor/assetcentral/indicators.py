@@ -9,7 +9,7 @@ is no support for unrealized 'Indicator Templates'.
 import hashlib
 from functools import cached_property
 
-from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet)
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntityCollection)
 from .._base.masterdata import add_properties
 
 _INDICATOR_FIELDS = [
@@ -84,7 +84,7 @@ class AggregatedIndicator(Indicator):
         return m.hexdigest()
 
 
-class IndicatorSet(ResultSet):
+class IndicatorSet(AssetcentralEntityCollection):
     """Class representing a group of Indicators."""
 
     _element_type = Indicator

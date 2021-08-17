@@ -4,7 +4,7 @@ Failure Mode module can be used to retrieve FailureMode information from AssetCe
 Classes are provided for individual FailureModes as well as groups of FailureModes (FailureModeSet).
 """
 
-from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntityCollection,
                     _parse_filter_parameters, _fetch_data, _ac_application_url)
 from .._base.masterdata import add_properties
 from .constants import VIEW_FAILUREMODES
@@ -66,7 +66,7 @@ class FailureMode(AssetcentralEntity):
     _field_map = {field.our_name: field for field in _FAILURE_MODE_FIELDS}
 
 
-class FailureModeSet(ResultSet):
+class FailureModeSet(AssetcentralEntityCollection):
     """Class representing a group of FailureModes."""
 
     _element_type = FailureMode
