@@ -99,3 +99,16 @@ def test_request_aggregates_url_happy_path(mock_oauth, mock_config):
     url = request_aggregates_url('indicator_group_id', 'start', 'end')
 
     assert url == 'http://aggregate_service_url/indicator_group_id/aggregates?fromTime=start&toTime=end'
+
+
+@patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')
+def test_replace_is_independent_of_format_arg_name(mock_oauth, mock_config):
+    mock_oauth.return_value = {
+        'Extensions': [
+            {'Description': 'Write time-series data', 'Service URL': 'http://upload_service_url/{arg_name}'},
+        ]
+    }
+
+    url = request_upload_url('equipment_id')
+
+    assert url == 'http://upload_service_url/equipment_id'

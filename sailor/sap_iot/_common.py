@@ -6,6 +6,13 @@ from ..utils.config import SailorConfig
 from ..utils.oauth_wrapper import get_oauth_client
 
 
+class _CustomFormatter(string.Formatter):
+    # Since the URL returned by the extension service contains the same format string key twice
+    # this formatter can be used to fill those sequentially from an iterable
+    def get_value(self, key, args, kwargs):
+        return kwargs['replace'].pop(0)
+
+
 @ttl_cache(maxsize=8, ttl=600)
 def _request_extension_url(service):
     """
@@ -18,6 +25,8 @@ def _request_extension_url(service):
     propagated to users who don't actually need any extension services.
     Unfortunately the extension metadata API does not provide any keys to identify the different services, so we
     need to match the correct service based on the service description.
+    This is currently hard-coded to the ASSETCNTRL schema of SAP IoT, because we don't know any other schemas yet.
+    If we need access to other schemas in the future I expect this functionality to become generic.
     """
     service_description_map = {
         'upload': 'Write time-series data',
@@ -37,21 +46,14 @@ def _request_extension_url(service):
 
 def request_upload_url(equipment_id):
     """Return the correctly formatted URL for uploading timeseries data for the specified equipment."""
+    fmt = _CustomFormatter()
     url = _request_extension_url('upload')
-    return url.format(ID=equipment_id)
+    return fmt.format(url, replace=[equipment_id])
 
 
 def request_aggregates_url(indicator_group_id, start_timestamp, end_timestamp):
     """Return the correctly formatted URL for downloading aggregate timeseries data."""
-    class CustomFormatter(string.Formatter):
-        # Since the URL returned by the extension service contains the same format string key twice
-        # this formatter can be used to fill those sequentially from an iterable
-        def get_value(self, key, args, kwargs):
-            if isinstance(key, int):
-                return args[key]
-            else:
-                return kwargs[key].pop(0)
-    fmt = CustomFormatter()
+    fmt = _CustomFormatter()
 
     url = _request_extension_url('read_aggregates')
-    return fmt.format(url, indicatorGroupId=[indicator_group_id], timestamp=[start_timestamp, end_timestamp])
+    return fmt.format(url, replace=[indicator_group_id, start_timestamp, end_timestamp])
