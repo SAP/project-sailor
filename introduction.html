@@ -226,11 +226,18 @@ You have two options of specifying the configuration:</p>
     <span class="s1">&#39;sap_iot&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s1">&#39;client_id&#39;</span><span class="p">:</span> <span class="s1">&#39;IoTexampleId&#39;</span><span class="p">,</span>
         <span class="s1">&#39;client_secret&#39;</span><span class="p">:</span> <span class="s1">&#39;IoTexampleSecret&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;application_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://iot-ts-access-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;extension_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://iot-extension-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com&#39;</span><span class="p">,</span>
         <span class="s1">&#39;export_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://coldstore-export-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com&#39;</span><span class="p">,</span>
         <span class="s1">&#39;download_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://coldstore-downloader-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com&#39;</span><span class="p">,</span>
         <span class="s1">&#39;access_token_url&#39;</span><span class="p">:</span> <span class="s1">&#39;https://authentication.&lt;landscape&gt;.hana.ondemand.com/oauth/token&#39;</span><span class="p">,</span>
         <span class="s1">&#39;subdomain&#39;</span><span class="p">:</span> <span class="s1">&#39;account-name&#39;</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;predictive_asset_insights&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;client_id&#39;</span><span class="p">:</span> <span class="s1">&#39;PAIexampleId&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;client_secret&#39;</span><span class="p">:</span> <span class="s1">&#39;PAIexampleSecret&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;application_url&#39;</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//&lt;</span><span class="n">system</span><span class="o">&gt;.</span><span class="n">cfapps</span><span class="o">.&lt;</span><span class="n">landscape</span><span class="o">&gt;.</span><span class="n">hana</span><span class="o">.</span><span class="n">ondemand</span><span class="o">.</span><span class="n">com</span><span class="p">,</span>
+        <span class="s1">&#39;access_token_url&#39;</span><span class="p">:</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">authentication</span><span class="o">.&lt;</span><span class="n">landscape</span><span class="o">&gt;.</span><span class="n">hana</span><span class="o">.</span><span class="n">ondemand</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">oauth</span><span class="o">/</span><span class="n">token</span><span class="p">,</span>
+        <span class="s1">&#39;subdomain&#39;</span><span class="p">:</span> <span class="s1">&#39;account-name&#39;</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">})</span>
 </pre></div>
@@ -248,9 +255,15 @@ You have two options of specifying the configuration:</p>
 <span class="nt">sap_iot</span><span class="p">:</span>
   <span class="nt">client_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">IoTexampleId</span>
   <span class="nt">client_secret</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">IoTexampleSecret</span>
-  <span class="nt">application_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://iot-ts-access-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com</span>
+  <span class="nt">extension_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://iot-extension-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com</span>
   <span class="nt">export_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://coldstore-export-sap-&lt;space&gt;.cfapps.sap.&lt;landscape&gt;.ondemand.com</span>
   <span class="nt">download_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://coldstore-downloader-sap-&lt;space&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com</span>
+  <span class="nt">access_token_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://authentication.&lt;landscape&gt;.hana.ondemand.com/oauth/token</span>
+  <span class="nt">subdomain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">account-name</span>
+<span class="nt">predictive_asset_insights</span><span class="p">:</span>
+  <span class="nt">client_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">PAIexampleId</span>
+  <span class="nt">client_secret</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">PAIexampleSecret</span>
+  <span class="nt">application_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://&lt;system&gt;.cfapps.&lt;landscape&gt;.hana.ondemand.com</span>
   <span class="nt">access_token_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://authentication.&lt;landscape&gt;.hana.ondemand.com/oauth/token</span>
   <span class="nt">subdomain</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">account-name</span>
 </pre></div>

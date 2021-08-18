@@ -178,7 +178,7 @@
 <span class="kn">from</span> <span class="nn">.wrappers</span> <span class="kn">import</span> <span class="n">TimeseriesDataset</span>
 <span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_timestamp_to_isoformat</span>
 <span class="kn">from</span> <span class="nn">..utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span>
-<span class="kn">from</span> <span class="nn">..utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
+<span class="kn">from</span> <span class="nn">._common</span> <span class="kn">import</span> <span class="n">request_upload_url</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
@@ -192,8 +192,7 @@
 <span class="k">def</span> <span class="nf">_upload_data_single_equipment</span><span class="p">(</span><span class="n">data_subset</span><span class="p">,</span> <span class="n">equipment_id</span><span class="p">,</span> <span class="n">tags</span><span class="p">):</span>
     <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Uploading data for equipment </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">equipment_id</span><span class="p">)</span>
 
-    <span class="n">base_url</span> <span class="o">=</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">,</span> <span class="s1">&#39;upload_url&#39;</span><span class="p">)</span>
-    <span class="n">request_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/Timeseries/extend/Measurements/equipmentId/</span><span class="si">{</span><span class="n">equipment_id</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">request_url</span> <span class="o">=</span> <span class="n">request_upload_url</span><span class="p">(</span><span class="n">equipment_id</span><span class="p">)</span>
     <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">get_oauth_client</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
 
     <span class="c1"># shape[1] is the number of columns, we want to divide the page size by the number of columns as each column</span>
