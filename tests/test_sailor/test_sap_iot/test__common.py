@@ -13,8 +13,8 @@ def test__request_extension_url_is_cached(mock_oauth, mock_config):
         ]
     }
 
-    _request_extension_url('upload')
-    _request_extension_url('upload')
+    _request_extension_url('upload', 'ASSETCNTRL')
+    _request_extension_url('upload', 'ASSETCNTRL')
 
     assert mock_oauth.call_count == 1
 
@@ -33,7 +33,7 @@ def test__request_extension_url_matches_on_description(mock_oauth, mock_config):
     }
 
     _request_extension_url.cache_clear()
-    path = _request_extension_url('upload')
+    path = _request_extension_url('upload', 'ASSETCNTRL')
 
     assert path == expected_path
 
@@ -53,8 +53,8 @@ def test__request_extension_url_different_services_caching(mock_oauth, mock_conf
     }
 
     _request_extension_url.cache_clear()
-    first_path = _request_extension_url('upload')
-    second_path = _request_extension_url('read_aggregates')
+    first_path = _request_extension_url('upload', 'ASSETCNTRL')
+    second_path = _request_extension_url('read_aggregates', 'ASSETCNTRL')
 
     assert first_path == first_expected_path
     assert second_path == second_expected_path
@@ -71,7 +71,7 @@ def test__request_extension_url_raises_on_missing_description(mock_oauth, mock_c
 
     _request_extension_url.cache_clear()
     with pytest.raises(RuntimeError, match='Could not find extension url for service read_aggregates'):
-        _request_extension_url('read_aggregates')
+        _request_extension_url('read_aggregates', 'ASSETCNTRL')
 
 
 @patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')

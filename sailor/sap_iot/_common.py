@@ -14,7 +14,7 @@ class _CustomFormatter(string.Formatter):
 
 
 @ttl_cache(maxsize=8, ttl=600)
-def _request_extension_url(service):
+def _request_extension_url(service, schema):
     """
     Parse the IoT extension metadata endpoint for the ASSETCNTRL schema.
 
@@ -35,7 +35,7 @@ def _request_extension_url(service):
 
     extension_service_url = SailorConfig.get('sap_iot', 'extension_url')
     oauth_iot = get_oauth_client('sap_iot')
-    extension_config = oauth_iot.request('GET', f'{extension_service_url}/Extensions?schemaId=ASSETCNTRL')
+    extension_config = oauth_iot.request('GET', f'{extension_service_url}/Extensions?schemaId={schema}')
     for entry in extension_config['Extensions']:
         if entry['Description'] == service_description_map[service]:  # there is no key, we have to match on description
             return entry['Service URL']
@@ -44,16 +44,16 @@ def _request_extension_url(service):
                        f'{service_description_map[service]}')
 
 
-def request_upload_url(equipment_id):
+def request_upload_url(equipment_id, schema='ASSETCNTRL'):
     """Return the correctly formatted URL for uploading timeseries data for the specified equipment."""
     fmt = _CustomFormatter()
-    url = _request_extension_url('upload')
+    url = _request_extension_url('upload', schema)
     return fmt.format(url, replace=[equipment_id])
 
 
-def request_aggregates_url(indicator_group_id, start_timestamp, end_timestamp):
+def request_aggregates_url(indicator_group_id, start_timestamp, end_timestamp, schema='ASSETCNTRL'):
     """Return the correctly formatted URL for downloading aggregate timeseries data."""
     fmt = _CustomFormatter()
 
-    url = _request_extension_url('read_aggregates')
+    url = _request_extension_url('read_aggregates', schema)
     return fmt.format(url, replace=[indicator_group_id, start_timestamp, end_timestamp])
