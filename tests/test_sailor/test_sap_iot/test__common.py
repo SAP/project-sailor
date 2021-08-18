@@ -5,8 +5,7 @@ import pytest
 from sailor.sap_iot._common import _request_extension_url, request_aggregates_url, request_upload_url
 
 
-@patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')
-def test__request_extension_url_is_cached(mock_oauth, mock_config):
+def test__request_extension_url_is_cached(mock_oauth):
     mock_oauth.return_value = {
         'Extensions': [
             {'Description': 'Write time-series data', 'Service URL': 'some_path'},
@@ -19,8 +18,7 @@ def test__request_extension_url_is_cached(mock_oauth, mock_config):
     assert mock_oauth.call_count == 1
 
 
-@patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')
-def test__request_extension_url_matches_on_description(mock_oauth, mock_config):
+def test__request_extension_url_matches_on_description(mock_oauth):
     expected_path = 'http://upload_service_url'
     other_path = 'http://wrong_service_url'
 
@@ -38,8 +36,7 @@ def test__request_extension_url_matches_on_description(mock_oauth, mock_config):
     assert path == expected_path
 
 
-@patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')
-def test__request_extension_url_different_services_caching(mock_oauth, mock_config):
+def test__request_extension_url_different_services_caching(mock_oauth):
     first_expected_path = 'http://upload_service_url'
     second_expected_path = 'http://aggregate_service_url'
     other_path = 'http://wrong_service_url'
@@ -60,8 +57,7 @@ def test__request_extension_url_different_services_caching(mock_oauth, mock_conf
     assert second_path == second_expected_path
 
 
-@patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')
-def test__request_extension_url_raises_on_missing_description(mock_oauth, mock_config):
+def test__request_extension_url_raises_on_missing_description(mock_oauth):
     mock_oauth.return_value = {
         'Extensions': [
             {'Description': 'Write time-series data', 'Service URL': 'http://upload_service_url'},
@@ -74,8 +70,7 @@ def test__request_extension_url_raises_on_missing_description(mock_oauth, mock_c
         _request_extension_url('read_aggregates', 'ASSETCNTRL')
 
 
-@patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')
-def test_request_upload_url_happy_path(mock_oauth, mock_config):
+def test_request_upload_url_happy_path(mock_oauth):
     mock_oauth.return_value = {
         'Extensions': [
             {'Description': 'Write time-series data', 'Service URL': 'http://upload_service_url/{ID}'},
@@ -87,8 +82,7 @@ def test_request_upload_url_happy_path(mock_oauth, mock_config):
     assert url == 'http://upload_service_url/equipment_id'
 
 
-@patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')
-def test_request_aggregates_url_happy_path(mock_oauth, mock_config):
+def test_request_aggregates_url_happy_path(mock_oauth):
     service_url = 'http://aggregate_service_url/{indicatorGroupId}/aggregates?fromTime={timestamp}&toTime={timestamp}'
     mock_oauth.return_value = {
         'Extensions': [
@@ -101,8 +95,7 @@ def test_request_aggregates_url_happy_path(mock_oauth, mock_config):
     assert url == 'http://aggregate_service_url/indicator_group_id/aggregates?fromTime=start&toTime=end'
 
 
-@patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')
-def test_replace_is_independent_of_format_arg_name(mock_oauth, mock_config):
+def test_replace_is_independent_of_format_arg_name(mock_oauth):
     mock_oauth.return_value = {
         'Extensions': [
             {'Description': 'Write time-series data', 'Service URL': 'http://upload_service_url/{arg_name}'},

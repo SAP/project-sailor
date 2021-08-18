@@ -33,12 +33,6 @@ def make_csv_bytes():
     return maker
 
 
-@pytest.fixture
-def mock_fetch(mock_config):
-    with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request') as mock:
-        yield mock
-
-
 class TestRawDataAsyncFunctions:
     def test_export_start_request_delegate_call(self, mock_fetch, mock_config):
         mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_BASE_URL')
@@ -57,8 +51,7 @@ class TestRawDataAsyncFunctions:
 
         mock_fetch.assert_called_once_with('GET', expected_url)
 
-    @patch('sailor.sap_iot.fetch.zipfile.ZipFile')
-    def test_export_get_data_request_delegate_call(self, mock_zipfile, mock_fetch, mock_config):
+    def test_export_get_data_request_delegate_call(self, mock_fetch, mock_config):
         mock_config.config.sap_iot = defaultdict(str, download_url='DOWNLOAD_BASE_URL')
         expected_url = "DOWNLOAD_BASE_URL/v1/DownloadData('export_id')"
         mock_fetch.return_value = b''
@@ -84,7 +77,6 @@ class TestRawDataAsyncFunctions:
 
         assert str(exception_info.value) == 'Downloaded File did not have any content.'
 
-    @patch('sailor.sap_iot.fetch.zipfile')
     def test_export_get_data_request_empty_gzip_content(self, mock_zipfile, mock_fetch):
         mock_fetch.return_value = b''
         mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1', 'inner_file_2']
@@ -95,7 +87,6 @@ class TestRawDataAsyncFunctions:
 
         assert str(exception_info.value) == 'Downloaded File did not have any content.'
 
-    @patch('sailor.sap_iot.fetch.zipfile')
     def test_export_get_data_request_invalid_gzip_content(self, mock_zipfile, mock_fetch):
         mock_fetch.return_value = b''
         mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1', 'inner_file_2']
@@ -153,8 +144,6 @@ class TestRawDataAsyncFunctions:
 
 
 class TestRawDataWrapperFunction:
-    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
-    @patch('sailor.sap_iot.fetch.zipfile')
     def test_get_indicator_data_two_indicator_groups(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
                                                      make_indicator_set, make_equipment_set, make_csv_bytes):
         mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_URL', download_url='DOWNLOAD_URL')
@@ -195,8 +184,6 @@ class TestRawDataWrapperFunction:
         assert len(wrapper._df) == 4
         assert set(wrapper._df['equipment_id'].unique()) == {'equipment_id_1', 'equipment_id_2'}
 
-    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
-    @patch('sailor.sap_iot.fetch.zipfile')
     @pytest.mark.parametrize('description,equipment_id', [
         ('equipment_id matches', 'equipment_id_1'),
         ('equipment_id does not match', 'equipment_id_4'),
@@ -256,8 +243,6 @@ class TestRawDataWrapperFunction:
 
         assert str(exception_info.value) == content
 
-    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
-    @patch('sailor.sap_iot.fetch.zipfile')
     def test_get_indicator_data_missing_indicator_warning(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
                                                           make_indicator_set, make_equipment_set, make_csv_bytes):
 
@@ -283,9 +268,12 @@ class TestRawDataWrapperFunction:
 @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
 @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators')
 class TestPrintProgressUpdates:
-    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
-    @patch('sailor.sap_iot.fetch.zipfile')
-    def test_print_one_group_no_export(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
+    @pytest.fixture(autouse=True)
+    def mock_time(self):
+        with patch('sailor.sap_iot.fetch.time') as mock:
+            yield mock
+
+    def test_print_one_group_no_export(self, mock_zipfile, mock_gzip, mock_fetch,
                                        make_indicator_set, make_equipment_set, make_csv_bytes,
                                        capfd):
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
@@ -315,9 +303,7 @@ class TestPrintProgressUpdates:
             '\n'
         )
 
-    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
-    @patch('sailor.sap_iot.fetch.zipfile')
-    def test_print_two_groups_no_export(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
+    def test_print_two_groups_no_export(self, mock_zipfile, mock_gzip, mock_fetch,
                                         make_indicator_set, make_equipment_set, make_csv_bytes,
                                         capfd):
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
@@ -354,10 +340,7 @@ class TestPrintProgressUpdates:
             '\n'
         )
 
-    @patch('sailor.sap_iot.fetch.time')
-    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
-    @patch('sailor.sap_iot.fetch.zipfile')
-    def test_print_one_group_with_export(self, mock_zipfile, mock_gzip, mock_time, mock_config, mock_fetch,
+    def test_print_one_group_with_export(self, mock_zipfile, mock_gzip, mock_fetch,
                                          make_indicator_set, make_equipment_set, make_csv_bytes,
                                          capfd):
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
@@ -389,10 +372,7 @@ class TestPrintProgressUpdates:
             '\n'
         )
 
-    @patch('sailor.sap_iot.fetch.time')
-    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
-    @patch('sailor.sap_iot.fetch.zipfile')
-    def test_print_two_groups_with_export(self, mock_zipfile, mock_gzip, mock_time, mock_config, mock_fetch,
+    def test_print_two_groups_with_export(self, mock_zipfile, mock_gzip, mock_fetch,
                                           make_indicator_set, make_equipment_set, make_csv_bytes,
                                           capfd):
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
