@@ -278,3 +278,157 @@ class TestRawDataWrapperFunction:
 
         with pytest.warns(DataNotFoundWarning, match='Could not find any data for indicator.*indicator_id_3.*'):
             get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set)
+
+
+class TestPrintProgressUpdates:
+    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
+    @patch('sailor.sap_iot.fetch.zipfile')
+    def test_print_one_group_no_export(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
+                                       make_indicator_set, make_equipment_set, make_csv_bytes,
+                                       capfd):
+        indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
+                                           pstid=['group_id_1', 'group_id_1'],
+                                           indicatorGroupName=['group1', 'group1'])
+        equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'])
+
+        mock_fetch.side_effect = [
+            {'RequestId': 'test_request_id_1'},
+            {'Status': 'The file is available for download.'},
+            b'mock_zip_content',
+        ]
+        mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1']
+        mock_zipfile.ZipFile.return_value.read.return_value = b'mock_gzip_content'
+        mock_gzip.side_effect = [BytesIO(make_csv_bytes())]
+
+        get_indicator_data('2020-10-01T00:00:00Z', '2020-11-01T00:00:00Z', indicator_set, equipment_set)
+        captured_output, _ = capfd.readouterr()
+
+        assert captured_output == (
+            'Data export triggered for 1 indicator group(s).\n'
+            'Waiting for data export:\n'
+            '\n'
+            'Now downloading export for indicator group group1.\n'
+            'processing compressed file 1/1\x1b[2K\r\n'
+            'Download complete\n'
+            '\n'
+        )
+
+    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
+    @patch('sailor.sap_iot.fetch.zipfile')
+    def test_print_two_groups_no_export(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
+                                        make_indicator_set, make_equipment_set, make_csv_bytes,
+                                        capfd):
+        indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
+                                           pstid=['group_id_1', 'group_id_2'],
+                                           indicatorGroupName=['group1', 'group2'])
+        equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'])
+
+        mock_fetch.side_effect = [
+            {'RequestId': 'test_request_id_1'},
+            {'RequestId': 'test_request_id_2'},
+            {'Status': 'The file is available for download.'},
+            b'mock_zip_content',
+            {'Status': 'The file is available for download.'},
+            b'mock_zip_content',
+        ]
+        mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1']
+        mock_zipfile.ZipFile.return_value.read.return_value = b'mock_gzip_content'
+        mock_gzip.side_effect = [BytesIO(make_csv_bytes(1)), BytesIO(make_csv_bytes(2))]
+
+        get_indicator_data('2020-10-01T00:00:00Z', '2020-11-01T00:00:00Z', indicator_set, equipment_set)
+        captured_output, _ = capfd.readouterr()
+
+        assert captured_output == (
+            'Data export triggered for 2 indicator group(s).\n'
+            'Waiting for data export:\n'
+            '\n'
+            'Now downloading export for indicator group group1.\n'
+            'processing compressed file 1/1\x1b[2K\r\n'
+            'Download complete\n'
+            '\n'
+            'Now downloading export for indicator group group2.\n'
+            'processing compressed file 1/1\x1b[2K\r\n'
+            'Download complete\n'
+            '\n'
+        )
+
+    @patch('sailor.sap_iot.fetch.time')
+    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
+    @patch('sailor.sap_iot.fetch.zipfile')
+    def test_print_one_group_with_export(self, mock_zipfile, mock_gzip, mock_time, mock_config, mock_fetch,
+                                         make_indicator_set, make_equipment_set, make_csv_bytes,
+                                         capfd):
+        indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
+                                           pstid=['group_id_1', 'group_id_1'],
+                                           indicatorGroupName=['group1', 'group1'])
+        equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'])
+
+        mock_fetch.side_effect = [
+            {'RequestId': 'test_request_id_1'},
+            {'Status': 'Request for data download is initiated.'},
+            {'Status': 'Request for data download is initiated.'},
+            {'Status': 'The file is available for download.'},
+            b'mock_zip_content',
+        ]
+        mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1']
+        mock_zipfile.ZipFile.return_value.read.return_value = b'mock_gzip_content'
+        mock_gzip.side_effect = [BytesIO(make_csv_bytes(1))]
+
+        get_indicator_data('2020-10-01T00:00:00Z', '2020-11-01T00:00:00Z', indicator_set, equipment_set)
+        captured_output, _ = capfd.readouterr()
+
+        assert captured_output == (
+            'Data export triggered for 1 indicator group(s).\n'
+            'Waiting for data export:\n'
+            '..\n'
+            'Now downloading export for indicator group group1.\n'
+            'processing compressed file 1/1\x1b[2K\r\n'
+            'Download complete\n'
+            '\n'
+        )
+
+    @patch('sailor.sap_iot.fetch.time')
+    @patch('sailor.sap_iot.fetch.gzip.GzipFile')
+    @patch('sailor.sap_iot.fetch.zipfile')
+    def test_print_two_groups_with_export(self, mock_zipfile, mock_gzip, mock_time, mock_config, mock_fetch,
+                                          make_indicator_set, make_equipment_set, make_csv_bytes,
+                                          capfd):
+        indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
+                                           pstid=['group_id_1', 'group_id_2'],
+                                           indicatorGroupName=['group1', 'group2'])
+        equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'])
+
+        mock_fetch.side_effect = [
+            {'RequestId': 'test_request_id_1'},
+            {'RequestId': 'test_request_id_2'},
+            {'Status': 'Request for data download is initiated.'},
+            {'Status': 'Request for data download is initiated.'},
+            {'Status': 'Request for data download is initiated.'},
+            {'Status': 'Request for data download is initiated.'},
+            {'Status': 'The file is available for download.'},
+            b'mock_zip_content',
+            {'Status': 'Request for data download is initiated.'},
+            {'Status': 'Request for data download is initiated.'},
+            {'Status': 'The file is available for download.'},
+            b'mock_zip_content',
+        ]
+        mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1']
+        mock_zipfile.ZipFile.return_value.read.return_value = b'mock_gzip_content'
+        mock_gzip.side_effect = [BytesIO(make_csv_bytes(1)), BytesIO(make_csv_bytes(2))]
+
+        get_indicator_data('2020-10-01T00:00:00Z', '2020-11-01T00:00:00Z', indicator_set, equipment_set)
+        captured_output, _ = capfd.readouterr()
+
+        assert captured_output == (
+            'Data export triggered for 2 indicator group(s).\n'
+            'Waiting for data export:\n'
+            '..\n'
+            'Now downloading export for indicator group group1.\n'
+            'processing compressed file 1/1\x1b[2K\r\n'
+            'Download complete\n'
+            '..\n'
+            'Now downloading export for indicator group group2.\n'
+            'processing compressed file 1/1\x1b[2K\r\n'
+            'Download complete\n'
+            '\n'
+        )

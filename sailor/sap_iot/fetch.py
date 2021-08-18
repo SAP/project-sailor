@@ -198,8 +198,8 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
             else:
                 raise e
 
-    LOG.info('Data export triggered for %s indicator groups.', len(query_groups))
-    print(f'Data export triggered for {len(query_groups)} indicator groups.')
+    LOG.info('Data export triggered for %s indicator group(s).', len(query_groups))
+    print(f'Data export triggered for {len(query_groups)} indicator group(s).')
 
     # string (or really uuid?) might be better data types for equipment_id
     # unfortunately, support for native string datatypes in pandas is still experimental
@@ -225,8 +225,9 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
 
                 results = pd.merge(results, data, on=['equipment_id', 'timestamp'], how='outer')
 
-        time.sleep(5)
-        print('.', end='')
+        if request_ids:
+            time.sleep(5)
+            print('.', end='')
     print()
 
     wrapper = TimeseriesDataset(results, indicator_set, equipment_set, start_date, end_date)
