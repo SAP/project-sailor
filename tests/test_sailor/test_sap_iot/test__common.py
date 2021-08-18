@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import pytest
 
 from sailor.sap_iot._common import _request_extension_url, request_aggregates_url, request_upload_url
