@@ -140,7 +140,7 @@ class TestRawDataAsyncFunctions:
                                            categoryID=[f'template_id_{x}' for x in template_ids],
                                            pstid=['indicator_group_id_1'] * len(indicator_ids))
         equipment_set = make_equipment_set(equipmentId=[f'equipment_id_{x}' for x in equipment_ids])
-        expected_columns = ['timestamp', 'equipment_id', 'model_id']
+        expected_columns = ['timestamp', 'equipment_id']
         expected_columns += [indicator._unique_id for indicator in indicator_set]
         expected_equipments = {equipment.id for equipment in equipment_set}
 
@@ -184,7 +184,7 @@ class TestRawDataWrapperFunction:
                                                                             'Accept': 'application/octet-stream'}),
         ]
 
-        expected_columns = ['timestamp', 'equipment_id', 'model_id']
+        expected_columns = ['timestamp', 'equipment_id']
         expected_columns += [indicator._unique_id for indicator in indicator_set]
 
         wrapper = get_indicator_data('2020-10-01T00:00:00Z', '2020-11-01T00:00:00Z', indicator_set, equipment_set)

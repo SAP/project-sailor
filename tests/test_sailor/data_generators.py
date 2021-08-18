@@ -16,13 +16,11 @@ def make_dataset(indicator_set, equipment_set, rows_per_equipment=100,
         return pd.to_datetime(epochs, unit='s', utc=True).tz_convert('Etc/UTC')
 
     equipment_ids = [equipment.id for equipment in equipment_set]
-    model_ids = [equipment.model_id for equipment in equipment_set]
 
     data = pd.DataFrame({
         'equipment_id': equipment_ids * rows_per_equipment,
-        'model_id': model_ids * rows_per_equipment,
         'timestamp': make_random_timestamps(),
-    }).sort_values(['equipment_id', 'model_id', 'timestamp']).reset_index(drop=True)
+    }).sort_values(['equipment_id', 'timestamp']).reset_index(drop=True)
     for indicator in indicator_set:
         data[indicator._unique_id] = generator.uniform(size=len(data))
     return TimeseriesDataset(data, indicator_set, equipment_set, nominal_start_date, nominal_end_date)

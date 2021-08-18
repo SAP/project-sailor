@@ -59,7 +59,7 @@ class TimeseriesDataset(object):
             warnings.warn('There is no data in the dataframe for some of the equipments in the equipment set.')
             self._equipment_set = self._equipment_set.filter(id=df_equipment_ids)
 
-        df_indicator_ids = set(df.columns) - set(self.get_index_columns())
+        df_indicator_ids = set(df.columns) - set(self.get_index_columns(include_model=False))
         set_indicator_ids = set(indicator._unique_id for indicator in indicator_set)
         if df_indicator_ids - set_indicator_ids:
             raise RuntimeError('Not all indicator ids in the data are provided in the indicator set.')
@@ -77,7 +77,7 @@ class TimeseriesDataset(object):
         """Return all equipment present in the TimeseriesDataset."""
         return self._equipment_set
 
-    def get_key_columns(self, speaking_names=False):
+    def get_key_columns(self, speaking_names=False, include_model=None):
         """
         Return those columns of the data that identify the asset.
 
@@ -99,10 +99,22 @@ class TimeseriesDataset(object):
         if self.type != 'EQUIPMENT':
             raise NotImplementedError('Currently only Equipment is supported as base object for timeseries data.')
 
-        if speaking_names:
-            return ['equipment_name', 'model_name']
+        if include_model is None:
+            warnings.warn('Model information will be removed from the dataset after December 1 2021 as the '
+                          'equipment is fully identified by the equipment_id. If you require model information '
+                          'specify `include_model=True` explicitly.', FutureWarning)
+            include_model = True
+
+        if include_model:
+            if speaking_names:
+                return ['equipment_name', 'model_name']
+            else:
+                return ['equipment_id', 'model_id']
         else:
-            return ['equipment_id', 'model_id']
+            if speaking_names:
+                return ['equipment_name']
+            else:
+                return ['equipment_id']
 
     @staticmethod
     def get_time_column():
@@ -131,11 +143,11 @@ class TimeseriesDataset(object):
             return list(self._indicator_set._unique_id_to_names().values())
         return list(self._indicator_set._unique_id_to_constituent_ids().keys())
 
-    def get_index_columns(self, speaking_names=False) -> list:
+    def get_index_columns(self, speaking_names=False, include_model=None) -> list:
         """Return the names of all index columns (key columns and time column)."""
-        return [*self.get_key_columns(speaking_names), self.get_time_column()]
+        return [*self.get_key_columns(speaking_names, include_model), self.get_time_column()]
 
-    def as_df(self, speaking_names=False):
+    def as_df(self, speaking_names=False, include_model=None):
         """
         Return the data stored within this TimeseriesDataset object as a pandas dataframe.
 
@@ -144,22 +156,42 @@ class TimeseriesDataset(object):
         column headers are replaced by a hierarchical index of template_id, indicator_group_name, indicator_name and
         aggregation_function.
         """
-        if speaking_names:
-            return self._transform(self._df)
+        if include_model is None:
+            warnings.warn('Model information will be removed from the dataset after December 1 2021 as the '
+                          'equipment is fully identified by the equipment_id. If you require model information '
+                          'specify `include_model=True` explicitly.', FutureWarning)
+            include_model = True
+
+        if include_model:
+            model_ids = pd.DataFrame(
+                [(equi.id, equi.model_id) for equi in self._equipment_set], columns=['equipment_id', 'model_id']
+            )
+            df = pd.merge(self._df, model_ids, on='equipment_id')
         else:
-            return self._df.set_index(self.get_index_columns())
+            df = self._df
 
-    def _transform(self, df):
-        translator = {'equipment_id': {}, 'model_id': {}}
-        for equipment in self._equipment_set:
-            translator['equipment_id'][equipment.id] = equipment.name
-            translator['model_id'][equipment.model_id] = equipment.model_name
+        if speaking_names:
+            return self._transform(df, include_model=include_model)
+        else:
+            return df.set_index(self.get_index_columns(include_model=include_model))
 
-        static_column_mapping = {'equipment_id': 'equipment_name', 'model_id': 'model_name'}
+    def _transform(self, df, include_model):
+        if include_model:
+            static_column_mapping = {'equipment_id': 'equipment_name', 'model_id': 'model_name'}
+            translator = {'equipment_id': {}, 'model_id': {}}
+            for equipment in self._equipment_set:
+                translator['equipment_id'][equipment.id] = equipment.name
+                translator['model_id'][equipment.model_id] = equipment.model_name
+        else:
+            static_column_mapping = {'equipment_id': 'equipment_name'}
+            translator = {'equipment_id': {}}
+            for equipment in self._equipment_set:
+                translator['equipment_id'][equipment.id] = equipment.name
+
         data = (
             df.replace(translator)
               .rename(columns=static_column_mapping)
-              .set_index(self.get_index_columns(speaking_names=True))
+              .set_index(self.get_index_columns(speaking_names=True, include_model=include_model))
               .rename(columns=self._indicator_set._unique_id_to_names())
         )
         if len(data.columns) > 0:
@@ -197,7 +229,7 @@ class TimeseriesDataset(object):
 
             my_indicator_data.plot('2020-07-02','2020-09-01')
         """
-        key_vars = self.get_index_columns()
+        key_vars = self.get_index_columns(include_model=False)
         time_column = self.get_time_column()
 
         if indicator_set is None:
@@ -260,7 +292,7 @@ class TimeseriesDataset(object):
             facet_assignment['aggregation'] = lambda x: x.Feature.apply(lambda row: name_mapping[row][3])
 
         aggregation_interval = _calculate_nice_sub_intervals(query_timedelta, 100)  # at leat 100 data points
-        groupers = [*self.get_key_columns(), pd.Grouper(key=time_column, freq=aggregation_interval)]
+        groupers = [*self.get_key_columns(include_model=False), pd.Grouper(key=time_column, freq=aggregation_interval)]
         molten_data = (
             data.groupby(groupers)
                 .agg('mean')
@@ -311,7 +343,7 @@ class TimeseriesDataset(object):
 
             My_indicator_data.normalize()[0]
         """
-        features = [column for column in self._df.columns if column not in self.get_index_columns()]
+        features = [column for column in self._df.columns if column not in self.get_index_columns(include_model=False)]
         if fitted_scaler is None and self.is_normalized:
             raise RuntimeError("There is no fitted scaler but dataset is already normalized.")
         if fitted_scaler is None:
@@ -379,7 +411,7 @@ class TimeseriesDataset(object):
 
         if indicator_set is not None:
             selected_column_ids = [indicator._unique_id for indicator in indicator_set]
-            selected_df = selected_df[self.get_index_columns() + selected_column_ids]
+            selected_df = selected_df[self.get_index_columns(include_model=False) + selected_column_ids]
             selected_indicator_set = indicator_set
         else:
             selected_indicator_set = self._indicator_set
@@ -427,7 +459,7 @@ class TimeseriesDataset(object):
                 aggregation_definition[new_indicator._unique_id] = (indicator._unique_id, aggregation_function)
         new_indicator_set = ac_indicators.AggregatedIndicatorSet(new_indicators)
 
-        grouper = [*self.get_key_columns(),
+        grouper = [*self.get_key_columns(include_model=False),
                    pd.Grouper(key=self.get_time_column(), closed='left', freq=aggregation_interval)]
         df = self._df.groupby(grouper).agg(**aggregation_definition)
 
@@ -475,9 +507,9 @@ class TimeseriesDataset(object):
 
         df = (
             self._df
-                .groupby(self.get_key_columns())
+                .groupby(self.get_key_columns(include_model=False))
                 .apply(_fill_group)
-                .drop(columns=self.get_key_columns())
+                .drop(columns=self.get_key_columns(include_model=False))
                 .reset_index()
         )
         return TimeseriesDataset(df, self._indicator_set, self._equipment_set,
