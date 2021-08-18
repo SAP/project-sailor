@@ -209,7 +209,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
     results = pd.DataFrame(columns=schema.keys()).astype(schema)
 
     print('Waiting for data export:')
-    while True:
+    while request_ids:
         for request_id in list(request_ids):
             if _check_bulk_timeseries_export_status(request_id):
                 indicator_subset = ac_indicators.IndicatorSet(request_ids.pop(request_id))
@@ -224,9 +224,6 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
                         warnings.warn(warning)
 
                 results = pd.merge(results, data, on=['equipment_id', 'timestamp'], how='outer')
-
-        if not request_ids:
-            break
 
         time.sleep(5)
         print('.', end='')
