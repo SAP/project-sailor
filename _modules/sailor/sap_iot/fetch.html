@@ -362,8 +362,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">e</span>
 
-    <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data export triggered for </span><span class="si">%s</span><span class="s1"> indicator groups.&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">query_groups</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Data export triggered for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">query_groups</span><span class="p">)</span><span class="si">}</span><span class="s1"> indicator groups.&#39;</span><span class="p">)</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Data export triggered for </span><span class="si">%s</span><span class="s1"> indicator group(s).&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">query_groups</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Data export triggered for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">query_groups</span><span class="p">)</span><span class="si">}</span><span class="s1"> indicator group(s).&#39;</span><span class="p">)</span>
 
     <span class="c1"># string (or really uuid?) might be better data types for equipment_id</span>
     <span class="c1"># unfortunately, support for native string datatypes in pandas is still experimental</span>
@@ -373,7 +373,7 @@
     <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">schema</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Waiting for data export:&#39;</span><span class="p">)</span>
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="k">while</span> <span class="n">request_ids</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">request_id</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">request_ids</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">_check_bulk_timeseries_export_status</span><span class="p">(</span><span class="n">request_id</span><span class="p">):</span>
                 <span class="n">indicator_subset</span> <span class="o">=</span> <span class="n">ac_indicators</span><span class="o">.</span><span class="n">IndicatorSet</span><span class="p">(</span><span class="n">request_ids</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">request_id</span><span class="p">))</span>
@@ -390,12 +390,8 @@
                 <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">request_ids</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Waiting for data export:&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">break</span>
-
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">()</span>
 
     <span class="n">wrapper</span> <span class="o">=</span> <span class="n">TimeseriesDataset</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
