@@ -280,11 +280,11 @@ class TestRawDataWrapperFunction:
             get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set)
 
 
+@pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
+@pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators')
 class TestPrintProgressUpdates:
     @patch('sailor.sap_iot.fetch.gzip.GzipFile')
     @patch('sailor.sap_iot.fetch.zipfile')
-    @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
-    @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators')
     def test_print_one_group_no_export(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
                                        make_indicator_set, make_equipment_set, make_csv_bytes,
                                        capfd):
@@ -317,8 +317,6 @@ class TestPrintProgressUpdates:
 
     @patch('sailor.sap_iot.fetch.gzip.GzipFile')
     @patch('sailor.sap_iot.fetch.zipfile')
-    @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
-    @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators')
     def test_print_two_groups_no_export(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
                                         make_indicator_set, make_equipment_set, make_csv_bytes,
                                         capfd):
@@ -359,8 +357,6 @@ class TestPrintProgressUpdates:
     @patch('sailor.sap_iot.fetch.time')
     @patch('sailor.sap_iot.fetch.gzip.GzipFile')
     @patch('sailor.sap_iot.fetch.zipfile')
-    @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
-    @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators')
     def test_print_one_group_with_export(self, mock_zipfile, mock_gzip, mock_time, mock_config, mock_fetch,
                                          make_indicator_set, make_equipment_set, make_csv_bytes,
                                          capfd):
@@ -396,8 +392,6 @@ class TestPrintProgressUpdates:
     @patch('sailor.sap_iot.fetch.time')
     @patch('sailor.sap_iot.fetch.gzip.GzipFile')
     @patch('sailor.sap_iot.fetch.zipfile')
-    @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
-    @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators')
     def test_print_two_groups_with_export(self, mock_zipfile, mock_gzip, mock_time, mock_config, mock_fetch,
                                           make_indicator_set, make_equipment_set, make_csv_bytes,
                                           capfd):
