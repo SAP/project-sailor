@@ -4,10 +4,11 @@ Workorder module can be used to retrieve Workorder information from AssetCentral
 Classes are provided for individual Workorders as well as groups of Workorders (WorkorderSet).
 """
 
-from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties)
+from sailor import _base
 from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_WORKORDERS
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url)
 
 
 _WORKORDER_FIELDS = [
@@ -55,14 +56,14 @@ _WORKORDER_FIELDS = [
 ]
 
 
-@_add_properties
+@_base.add_properties
 class Workorder(AssetcentralEntity):
     """AssetCentral Workorder Object."""
 
     _field_map = {field.our_name: field for field in _WORKORDER_FIELDS}
 
 
-class WorkorderSet(ResultSet):
+class WorkorderSet(AssetcentralEntitySet):
     """Class representing a group of Workorders."""
 
     _element_type = Workorder
@@ -127,5 +128,4 @@ def find_workorders(*, extended_filters=(), **kwargs) -> WorkorderSet:
 
     endpoint_url = _ac_application_url() + VIEW_WORKORDERS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return WorkorderSet([Workorder(obj) for obj in object_list],
-                        {'filters': kwargs, 'extended_filters': extended_filters})
+    return WorkorderSet([Workorder(obj) for obj in object_list])

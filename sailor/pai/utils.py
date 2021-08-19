@@ -1,8 +1,8 @@
 """Module for various utility functions, in particular those related to fetching data from remote oauth endpoints."""
 
 
+from sailor import _base
 from ..utils.config import SailorConfig
-from ..assetcentral.utils import AssetcentralEntity
 
 
 def _pai_application_url():
@@ -10,9 +10,19 @@ def _pai_application_url():
     return SailorConfig.get('predictive_asset_insights', 'application_url')
 
 
-class PredictiveAssetInsightsEntity(AssetcentralEntity):
-    """Common base class for Pai entities."""
+class _PredictiveAssetInsightsField(_base.MasterDataField):
+    pass
+
+
+class PredictiveAssetInsightsEntity(_base.MasterDataEntity):
+    """Common base class for PAI entities."""
 
     def __repr__(self) -> str:
         """Return a very short string representation."""
         return f'"{self.__class__.__name__}(id="{self.id}")'
+
+
+class PredictiveAssetInsightsEntitySet(_base.MasterDataEntitySet):
+    """Common base class for PAI entity collections."""
+
+    pass

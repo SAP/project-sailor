@@ -10,23 +10,23 @@ from datetime import datetime
 
 import pandas as pd
 
+from sailor import _base
 from sailor import sap_iot
+from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_EQUIPMENT, VIEW_OBJECTS
 from .failure_mode import find_failure_modes
 from .indicators import Indicator, IndicatorSet
 from .notification import Notification, find_notifications, _create_or_update_notification
 from .location import Location, find_locations
 from .workorder import find_workorders
-from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties,
-                    _apply_filters_post_request)
-from ..utils.timestamps import _string_to_timestamp_parser
+from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntitySet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _apply_filters_post_request)
 
 if TYPE_CHECKING:
-    from ..sap_iot import TimeseriesDataset
     from .notification import NotificationSet
     from .failure_mode import FailureModeSet
     from .workorder import WorkorderSet
+    from ..sap_iot import TimeseriesDataset
 
 _EQUIPMENT_FIELDS = [
     _AssetcentralField('name', 'internalId'),  # there is also a native `name`, which we're ignoring
@@ -77,7 +77,7 @@ _EQUIPMENT_FIELDS = [
 ]
 
 
-@_add_properties
+@_base.add_properties
 class Equipment(AssetcentralEntity):
     """AssetCentral Equipment Object."""
 
@@ -248,7 +248,7 @@ class Equipment(AssetcentralEntity):
         return _create_or_update_notification(request, 'POST')
 
 
-class EquipmentSet(ResultSet):
+class EquipmentSet(AssetcentralEntitySet):
     """Class representing a group of Equipment."""
 
     _element_type = Equipment
@@ -423,5 +423,4 @@ def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
 
     endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return EquipmentSet([Equipment(obj) for obj in object_list],
-                        {'filters': kwargs, 'extended_filters': extended_filters})
+    return EquipmentSet([Equipment(obj) for obj in object_list])

@@ -4,11 +4,11 @@ Location module can be used to retrieve Location information from AssetCentral.
 Classes are provided for individual Locations as well as groups of Locations (LocationSet).
 """
 
-from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _parse_filter_parameters,
-                    _fetch_data, _ac_application_url, _add_properties)
+from sailor import _base
 from ..utils.timestamps import _string_to_timestamp_parser
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet, _parse_filter_parameters,
+                    _fetch_data, _ac_application_url)
 from .constants import VIEW_LOCATIONS
-
 
 _LOCATION_FIELDS = [
     _AssetcentralField('name', 'name'),
@@ -30,14 +30,14 @@ _LOCATION_FIELDS = [
 ]
 
 
-@_add_properties
+@_base.add_properties
 class Location(AssetcentralEntity):
     """AssetCentral Location Object."""
 
     _field_map = {field.our_name: field for field in _LOCATION_FIELDS}
 
 
-class LocationSet(ResultSet):
+class LocationSet(AssetcentralEntitySet):
     """Class representing a group of Locations."""
 
     _element_type = Location
@@ -102,5 +102,4 @@ def find_locations(*, extended_filters=(), **kwargs) -> LocationSet:
     endpoint_url = _ac_application_url() + VIEW_LOCATIONS
 
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return LocationSet([Location(obj) for obj in object_list],
-                       {'filters': kwargs, 'extended_filters': extended_filters})
+    return LocationSet([Location(obj) for obj in object_list])

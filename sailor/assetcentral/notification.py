@@ -7,12 +7,13 @@ import pandas as pd
 import plotnine as p9
 
 import sailor.assetcentral.equipment
-from .constants import VIEW_NOTIFICATIONS
-from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties, _nested_put_setter)
+from sailor import _base
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.timestamps import _string_to_timestamp_parser
 from ..utils.plot_helper import _default_plot_theme
+from .constants import VIEW_NOTIFICATIONS
+from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntitySet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _nested_put_setter)
 
 _NOTIFICATION_FIELDS = [
     _AssetcentralField('name', 'internalId'),
@@ -76,7 +77,7 @@ _NOTIFICATION_FIELDS = [
 ]
 
 
-@_add_properties
+@_base.add_properties
 class Notification(AssetcentralEntity):
     """AssetCentral Notification Object."""
 
@@ -159,7 +160,7 @@ class Notification(AssetcentralEntity):
         return plot
 
 
-class NotificationSet(ResultSet):
+class NotificationSet(AssetcentralEntitySet):
     """Class representing a group of Notifications."""
 
     _element_type = Notification
@@ -255,8 +256,7 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return NotificationSet([Notification(obj) for obj in object_list],
-                           {'filters': kwargs, 'extended_filters': extended_filters})
+    return NotificationSet([Notification(obj) for obj in object_list])
 
 
 def _create_or_update_notification(request, method) -> Notification:

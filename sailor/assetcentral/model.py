@@ -8,12 +8,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from sailor import _base
+from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_MODEL_INDICATORS, VIEW_MODELS
 from .indicators import Indicator, IndicatorSet
 from .equipment import find_equipment
-from .utils import (AssetcentralEntity, _AssetcentralField, ResultSet, _parse_filter_parameters,
-                    _apply_filters_post_request, _fetch_data, _ac_application_url, _add_properties)
-from ..utils.timestamps import _string_to_timestamp_parser
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet, _parse_filter_parameters,
+                    _apply_filters_post_request, _fetch_data, _ac_application_url)
 
 if TYPE_CHECKING:
     from .equipment import EquipmentSet
@@ -56,7 +57,7 @@ _MODEL_FIELDS = [
 ]
 
 
-@_add_properties
+@_base.add_properties
 class Model(AssetcentralEntity):
     """AssetCentral Model object."""
 
@@ -117,7 +118,7 @@ class Model(AssetcentralEntity):
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
 
-class ModelSet(ResultSet):
+class ModelSet(AssetcentralEntitySet):
     """Class representing a group of Models."""
 
     _element_type = Model
@@ -178,5 +179,4 @@ def find_models(*, extended_filters=(), **kwargs) -> ModelSet:
 
     endpoint_url = _ac_application_url() + VIEW_MODELS
     object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return ModelSet([Model(obj) for obj in object_list],
-                    {'filters': kwargs, 'extended_filters': extended_filters})
+    return ModelSet([Model(obj) for obj in object_list])
