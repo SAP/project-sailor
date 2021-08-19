@@ -13,7 +13,6 @@ import logging
 import sailor.assetcentral.indicators as ac_indicators
 from ..utils.timestamps import _timestamp_to_isoformat
 from ..utils.oauth_wrapper import get_oauth_client
-from ..utils.config import SailorConfig
 from .wrappers import TimeseriesDataset
 from ._common import request_upload_url
 
