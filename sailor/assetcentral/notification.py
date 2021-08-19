@@ -7,13 +7,13 @@ import pandas as pd
 import plotnine as p9
 
 import sailor.assetcentral.equipment
-from .constants import VIEW_NOTIFICATIONS
-from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntitySet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _nested_put_setter)
-from .. import _base
+from sailor import _base
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.timestamps import _string_to_timestamp_parser
 from ..utils.plot_helper import _default_plot_theme
+from .constants import VIEW_NOTIFICATIONS
+from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntitySet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url, _nested_put_setter)
 
 _NOTIFICATION_FIELDS = [
     _AssetcentralField('name', 'internalId'),

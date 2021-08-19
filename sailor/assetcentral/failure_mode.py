@@ -4,9 +4,9 @@ Failure Mode module can be used to retrieve FailureMode information from AssetCe
 Classes are provided for individual FailureModes as well as groups of FailureModes (FailureModeSet).
 """
 
+from sailor import _base
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _parse_filter_parameters, _fetch_data, _ac_application_url)
-from .. import _base
 from .constants import VIEW_FAILUREMODES
 
 _FAILURE_MODE_FIELDS = [

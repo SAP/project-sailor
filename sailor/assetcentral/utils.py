@@ -8,11 +8,10 @@ import logging
 import warnings
 import re
 
-
+from sailor import _base
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.config import SailorConfig
 from ..utils.utils import DataNotFoundWarning, _is_non_string_iterable
-from .. import _base
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())

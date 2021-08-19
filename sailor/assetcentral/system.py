@@ -14,10 +14,10 @@ from operator import itemgetter
 
 import pandas as pd
 
+from sailor import _base
 from sailor import sap_iot
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _parse_filter_parameters, _fetch_data, _ac_application_url)
-from .. import _base
 from .equipment import find_equipment, EquipmentSet
 from .indicators import IndicatorSet
 from .constants import VIEW_SYSTEMS

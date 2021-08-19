@@ -8,13 +8,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from sailor import _base
+from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_MODEL_INDICATORS, VIEW_MODELS
 from .indicators import Indicator, IndicatorSet
 from .equipment import find_equipment
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet, _parse_filter_parameters,
                     _apply_filters_post_request, _fetch_data, _ac_application_url)
-from ..utils.timestamps import _string_to_timestamp_parser
-from .. import _base
 
 if TYPE_CHECKING:
     from .equipment import EquipmentSet

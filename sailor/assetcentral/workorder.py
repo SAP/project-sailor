@@ -4,11 +4,11 @@ Workorder module can be used to retrieve Workorder information from AssetCentral
 Classes are provided for individual Workorders as well as groups of Workorders (WorkorderSet).
 """
 
-from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url)
-from .. import _base
+from sailor import _base
 from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_WORKORDERS
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
+                    _parse_filter_parameters, _fetch_data, _ac_application_url)
 
 
 _WORKORDER_FIELDS = [

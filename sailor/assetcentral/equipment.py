@@ -10,7 +10,9 @@ from datetime import datetime
 
 import pandas as pd
 
+from sailor import _base
 from sailor import sap_iot
+from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_EQUIPMENT, VIEW_OBJECTS
 from .failure_mode import find_failure_modes
 from .indicators import Indicator, IndicatorSet
@@ -19,14 +21,12 @@ from .location import Location, find_locations
 from .workorder import find_workorders
 from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntitySet,
                     _parse_filter_parameters, _fetch_data, _ac_application_url, _apply_filters_post_request)
-from ..utils.timestamps import _string_to_timestamp_parser
-from .. import _base
 
 if TYPE_CHECKING:
-    from ..sap_iot import TimeseriesDataset
     from .notification import NotificationSet
     from .failure_mode import FailureModeSet
     from .workorder import WorkorderSet
+    from ..sap_iot import TimeseriesDataset
 
 _EQUIPMENT_FIELDS = [
     _AssetcentralField('name', 'internalId'),  # there is also a native `name`, which we're ignoring

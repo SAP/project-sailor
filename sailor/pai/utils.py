@@ -1,8 +1,8 @@
 """Module for various utility functions, in particular those related to fetching data from remote oauth endpoints."""
 
 
+from sailor import _base
 from ..utils.config import SailorConfig
-from .. import _base
 
 
 def _pai_application_url():

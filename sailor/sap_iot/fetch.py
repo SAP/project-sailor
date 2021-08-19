@@ -25,8 +25,8 @@ import sailor.assetcentral.indicators as ac_indicators
 from ..utils.oauth_wrapper import get_oauth_client, RequestError
 from ..utils.timestamps import _any_to_timestamp, _timestamp_to_date_string
 from ..utils.config import SailorConfig
-from .wrappers import TimeseriesDataset
 from ..utils.utils import DataNotFoundWarning
+from .wrappers import TimeseriesDataset
 
 if TYPE_CHECKING:
     from ..assetcentral.indicators import IndicatorSet

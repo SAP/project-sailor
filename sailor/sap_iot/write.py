@@ -11,10 +11,10 @@ from collections import defaultdict
 import logging
 
 import sailor.assetcentral.indicators as ac_indicators
-from .wrappers import TimeseriesDataset
 from ..utils.timestamps import _timestamp_to_isoformat
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.config import SailorConfig
+from .wrappers import TimeseriesDataset
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())

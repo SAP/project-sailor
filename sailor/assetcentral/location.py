@@ -4,12 +4,11 @@ Location module can be used to retrieve Location information from AssetCentral.
 Classes are provided for individual Locations as well as groups of Locations (LocationSet).
 """
 
+from sailor import _base
+from ..utils.timestamps import _string_to_timestamp_parser
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet, _parse_filter_parameters,
                     _fetch_data, _ac_application_url)
-from .. import _base
-from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_LOCATIONS
-
 
 _LOCATION_FIELDS = [
     _AssetcentralField('name', 'name'),

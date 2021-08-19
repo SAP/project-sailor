@@ -4,14 +4,12 @@ Retrieve Alert information from the alert re-use service.
 Classes are provided for individual Alert as well as groups of Alerts (AlertSet).
 """
 
-
+from sailor import _base
+from ..assetcentral.utils import (_fetch_data, _parse_filter_parameters)
+from ..utils.timestamps import _odata_to_timestamp_parser
 from .constants import ALERTS_READ_PATH
 from .utils import (PredictiveAssetInsightsEntity, _PredictiveAssetInsightsField,
                     PredictiveAssetInsightsEntitySet, _pai_application_url)
-from ..assetcentral.utils import (_fetch_data, _parse_filter_parameters)
-from .. import _base
-from ..utils.timestamps import _odata_to_timestamp_parser
-
 
 _ALERT_FIELDS = [
     _PredictiveAssetInsightsField('description', 'Description'),

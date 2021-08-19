@@ -7,10 +7,10 @@ Classes are provided for individual Groups as well as groups of Groups (GroupSet
 from functools import cached_property
 import warnings
 
+from sailor import _base
+from ..utils.timestamps import _string_to_timestamp_parser
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _apply_filters_post_request, _fetch_data, _ac_application_url)
-from .. import _base
-from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_GROUPS
 from .equipment import find_equipment, EquipmentSet
 from .location import find_locations, LocationSet
