@@ -7,9 +7,9 @@ Classes are provided for individual Groups as well as groups of Groups (GroupSet
 from functools import cached_property
 import warnings
 
-from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntityCollection,
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _apply_filters_post_request, _fetch_data, _ac_application_url)
-from .._base.masterdata import add_properties
+from .. import _base
 from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_GROUPS
 from .equipment import find_equipment, EquipmentSet
@@ -35,7 +35,7 @@ _GROUP_FIELDS = [
 ]
 
 
-@add_properties
+@_base.add_properties
 class Group(AssetcentralEntity):
     """AssetCentral Location Object."""
 
@@ -114,7 +114,7 @@ class Group(AssetcentralEntity):
         return self._generic_get_members('MOD', ModelSet, find_models, extended_filters, **kwargs)
 
 
-class GroupSet(AssetcentralEntityCollection):
+class GroupSet(AssetcentralEntitySet):
     """Class representing a group of Groups."""
 
     _element_type = Group

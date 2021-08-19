@@ -12,7 +12,7 @@ import re
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.config import SailorConfig
 from ..utils.utils import DataNotFoundWarning, _is_non_string_iterable
-from .._base.masterdata import MasterDataEntity, MasterDataField, MasterDataEntityCollection
+from .. import _base
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -264,13 +264,19 @@ def _ac_application_url():
     return SailorConfig.get('asset_central', 'application_url')
 
 
-class AssetcentralEntity(MasterDataEntity):
+class _AssetcentralField(_base.MasterDataField):
+    """Specify a field in Assetcentral."""
+
+    pass
+
+
+class AssetcentralEntity(_base.MasterDataEntity):
     """Common base class for AssetCentral entities."""
 
     pass
 
 
-class AssetcentralEntityCollection(MasterDataEntityCollection):
+class AssetcentralEntitySet(_base.MasterDataEntitySet):
     """Baseclass to be used in all Sets of AssetCentral objects."""
 
     pass
@@ -339,12 +345,6 @@ class _AssetcentralWriteRequest(UserDict):
 
 
 class AssetcentralRequestValidationError(Exception):  # noqa: D101 (self-explanatory)
-    pass
-
-
-class _AssetcentralField(MasterDataField):
-    """Specify a field in Assetcentral."""
-
     pass
 
 

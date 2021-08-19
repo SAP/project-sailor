@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from sailor._base.masterdata import MasterDataField, MasterDataEntity, MasterDataEntityCollection, add_properties
+import sailor._base as _base
 from sailor.assetcentral.utils import AssetcentralEntity
 from sailor.pai.utils import PredictiveAssetInsightsEntity
 
@@ -10,13 +10,13 @@ from sailor.pai.utils import PredictiveAssetInsightsEntity
 class TestMasterDataEntity:
 
     def test_magic_eq_true(self):
-        entity1 = MasterDataEntity({'id': '1'})
-        entity2 = MasterDataEntity({'id': '1'})
+        entity1 = _base.MasterDataEntity({'id': '1'})
+        entity2 = _base.MasterDataEntity({'id': '1'})
         assert entity1 == entity2
 
     def test_magic_eq_false_id(self):
-        entity1 = MasterDataEntity({'id': '1'})
-        entity2 = MasterDataEntity({'id': '2'})
+        entity1 = _base.MasterDataEntity({'id': '1'})
+        entity2 = _base.MasterDataEntity({'id': '2'})
         assert entity1 != entity2
 
     def test_magic_eq_false_class(self):
@@ -27,18 +27,18 @@ class TestMasterDataEntity:
     def test_integration_with_fields(self):
         def get_extractor(value):
             return pow(value, 2)
-        fields = [MasterDataField('our_name', 'their_name_get', 'their_name_put', get_extractor=get_extractor)]
+        fields = [_base.MasterDataField('our_name', 'their_name_get', 'their_name_put', get_extractor=get_extractor)]
 
-        @add_properties
-        class FieldTestEntity(MasterDataEntity):
+        @_base.add_properties
+        class FieldTestEntity(_base.MasterDataEntity):
             _field_map = {f.our_name: f for f in fields}
         entity = FieldTestEntity({'their_name_get': 9})
 
         assert entity.our_name == 81
 
 
-class TestMasterDataEntityCollection:
-    test_classes = sum((class_.__subclasses__() for class_ in MasterDataEntityCollection.__subclasses__()), start=[])
+class TestMasterDataEntitySet:
+    test_classes = sum((class_.__subclasses__() for class_ in _base.MasterDataEntitySet.__subclasses__()), start=[])
 
     @patch('sailor._base.masterdata.p9')
     @pytest.mark.parametrize('cls', test_classes)
@@ -53,7 +53,7 @@ class TestMasterDataEntityCollection:
         assert cls._method_defaults['plot_distribution']['by'] in element_properties
 
     def test_magic_eq_type_not_equal(self):
-        rs1 = MasterDataEntityCollection([MasterDataEntity({'id': x}) for x in [1, 2, 3]])
+        rs1 = _base.MasterDataEntitySet([_base.MasterDataEntity({'id': x}) for x in [1, 2, 3]])
         rs2 = (1, 2, 3)
         assert rs1 != rs2
 
@@ -65,8 +65,8 @@ class TestMasterDataEntityCollection:
         ('Two empty sets are equal', [], [], True),
     ])
     def test_magic_eq_content(self, list1, list2, expected_result, testdescription):
-        rs1 = MasterDataEntityCollection([MasterDataEntity({'id': i}) for i in list1])
-        rs2 = MasterDataEntityCollection([MasterDataEntity({'id': i}) for i in list2])
+        rs1 = _base.MasterDataEntitySet([_base.MasterDataEntity({'id': i}) for i in list1])
+        rs2 = _base.MasterDataEntitySet([_base.MasterDataEntity({'id': i}) for i in list2])
         if expected_result:
             assert rs1 == rs2
         else:
@@ -76,7 +76,7 @@ class TestMasterDataEntityCollection:
 def test_get_available_properties_is_not_empty():
     # note: __subclasses__ requires that all subclasses are imported
     # currently we ensure this transitively: see __init__.py in test_base
-    abstract_classes = MasterDataEntity.__subclasses__()
+    abstract_classes = _base.MasterDataEntity.__subclasses__()
     classes = sum((class_.__subclasses__() for class_ in abstract_classes), start=list())
     for class_ in classes:
         actual = class_.get_available_properties()

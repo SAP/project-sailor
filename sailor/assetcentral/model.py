@@ -11,10 +11,10 @@ from typing import TYPE_CHECKING
 from .constants import VIEW_MODEL_INDICATORS, VIEW_MODELS
 from .indicators import Indicator, IndicatorSet
 from .equipment import find_equipment
-from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntityCollection, _parse_filter_parameters,
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet, _parse_filter_parameters,
                     _apply_filters_post_request, _fetch_data, _ac_application_url)
 from ..utils.timestamps import _string_to_timestamp_parser
-from .._base.masterdata import add_properties
+from .. import _base
 
 if TYPE_CHECKING:
     from .equipment import EquipmentSet
@@ -57,7 +57,7 @@ _MODEL_FIELDS = [
 ]
 
 
-@add_properties
+@_base.add_properties
 class Model(AssetcentralEntity):
     """AssetCentral Model object."""
 
@@ -118,7 +118,7 @@ class Model(AssetcentralEntity):
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
 
-class ModelSet(AssetcentralEntityCollection):
+class ModelSet(AssetcentralEntitySet):
     """Class representing a group of Models."""
 
     _element_type = Model

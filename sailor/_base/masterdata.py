@@ -85,14 +85,14 @@ class MasterDataEntity:
         return self.id.__hash__()
 
 
-class MasterDataEntityCollection(Sequence):
+class MasterDataEntitySet(Sequence):
     """Baseclass to be used in all Sets of MasterData objects."""
 
     _element_type = MasterDataEntity
     _method_defaults = {}
 
     def __init__(self, elements):
-        """Create a new MasterDataEntityCollection from the passed elements."""
+        """Create a new MasterDataEntitySet from the passed elements."""
         self.elements = list(set(elements))
         if len(self.elements) != len(elements):
             duplicate_elements = [k for k, v in Counter(elements).items() if v > 1]
@@ -116,7 +116,7 @@ class MasterDataEntityCollection(Sequence):
         return False
 
     def __getitem__(self, arg: Union[int, slice]):
-        """Return a subset of the MasterDataEntityCollection to implement the `Sequence` interface."""
+        """Return a subset of the MasterDataEntitySet to implement the `Sequence` interface."""
         selection = self.elements.__getitem__(arg)
         if isinstance(arg, int):
             return selection
@@ -130,20 +130,20 @@ class MasterDataEntityCollection(Sequence):
         return self.__class__(self.elements + other.elements, 'set-summation')
 
     def as_df(self, columns=None):
-        """Return all information on the objects stored in the MasterDataEntityCollection as a pandas dataframe."""
+        """Return all information on the objects stored in the MasterDataEntitySet as a pandas dataframe."""
         if columns is None:
             columns = [field.our_name for field in self._element_type._field_map.values() if field.is_exposed]
         return pd.DataFrame({
             prop: [element.__getattribute__(prop) for element in self.elements] for prop in columns
         })
 
-    def filter(self, **kwargs) -> 'MasterDataEntityCollection':
+    def filter(self, **kwargs) -> 'MasterDataEntitySet':
         """Select a subset of the collection based on named filter criteria for the attributes of the elements.
 
         All keyword arguments are concatenated as filters with OR operator, i.e., only one of the supplied filters
         must match for an entity to be selected.
 
-        Returns a new AssetcentralEntityCollection object.
+        Returns a new AssetcentralEntitySet object.
         """
         selection = []
 
@@ -159,7 +159,7 @@ class MasterDataEntityCollection(Sequence):
 
     def plot_distribution(self, by=None, fill=None, dropna=False):
         """
-        Plot the distribution of elements of a MasterDataEntityCollection based on their properties.
+        Plot the distribution of elements of a MasterDataEntitySet based on their properties.
 
         This effectively creates a histogram with the number of elements per group on the y-axis, and the group
         (given by the `by` parameter) on the x-axis. Additionally, the fill colour of the bar can be used to

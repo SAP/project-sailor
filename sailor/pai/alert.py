@@ -7,9 +7,9 @@ Classes are provided for individual Alert as well as groups of Alerts (AlertSet)
 
 from .constants import ALERTS_READ_PATH
 from .utils import (PredictiveAssetInsightsEntity, _PredictiveAssetInsightsField,
-                    PredictiveAssetInsightsEntityCollection, _pai_application_url)
+                    PredictiveAssetInsightsEntitySet, _pai_application_url)
 from ..assetcentral.utils import (_fetch_data, _parse_filter_parameters)
-from .._base.masterdata import add_properties
+from .. import _base
 from ..utils.timestamps import _odata_to_timestamp_parser
 
 
@@ -66,14 +66,14 @@ _ALERT_FIELDS = [
 ]
 
 
-@add_properties
+@_base.add_properties
 class Alert(PredictiveAssetInsightsEntity):
     """PredictiveAssetInsights Alert Object."""
 
     _field_map = {field.our_name: field for field in _ALERT_FIELDS}
 
 
-class AlertSet(PredictiveAssetInsightsEntityCollection):
+class AlertSet(PredictiveAssetInsightsEntitySet):
     """Class representing a group of Alerts."""
 
     _element_type = Alert
