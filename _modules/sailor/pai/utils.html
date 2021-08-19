@@ -165,8 +165,8 @@
 <span></span><span class="sd">&quot;&quot;&quot;Module for various utility functions, in particular those related to fetching data from remote oauth endpoints.&quot;&quot;&quot;</span>
 
 
+<span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
 <span class="kn">from</span> <span class="nn">..utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
-<span class="kn">from</span> <span class="nn">..assetcentral.utils</span> <span class="kn">import</span> <span class="n">AssetcentralEntity</span>
 
 
 <span class="k">def</span> <span class="nf">_pai_application_url</span><span class="p">():</span>
@@ -174,12 +174,22 @@
     <span class="k">return</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;predictive_asset_insights&#39;</span><span class="p">,</span> <span class="s1">&#39;application_url&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="PredictiveAssetInsightsEntity"><a class="viewcode-back" href="../../../apidoc/sailor.pai.utils.html#sailor.pai.utils.PredictiveAssetInsightsEntity">[docs]</a><span class="k">class</span> <span class="nc">PredictiveAssetInsightsEntity</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Common base class for Pai entities.&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="n">_base</span><span class="o">.</span><span class="n">MasterDataField</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="PredictiveAssetInsightsEntity"><a class="viewcode-back" href="../../../apidoc/sailor.pai.utils.html#sailor.pai.utils.PredictiveAssetInsightsEntity">[docs]</a><span class="k">class</span> <span class="nc">PredictiveAssetInsightsEntity</span><span class="p">(</span><span class="n">_base</span><span class="o">.</span><span class="n">MasterDataEntity</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Common base class for PAI entities.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return a very short string representation.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(id=&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">&quot;)&#39;</span></div>
+
+
+<div class="viewcode-block" id="PredictiveAssetInsightsEntitySet"><a class="viewcode-back" href="../../../apidoc/sailor.pai.utils.html#sailor.pai.utils.PredictiveAssetInsightsEntitySet">[docs]</a><span class="k">class</span> <span class="nc">PredictiveAssetInsightsEntitySet</span><span class="p">(</span><span class="n">_base</span><span class="o">.</span><span class="n">MasterDataEntitySet</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Common base class for PAI entity collections.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
 </pre></div>
 
            </div>

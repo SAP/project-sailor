@@ -168,11 +168,11 @@
 <span class="sd">Classes are provided for individual Locations as well as groups of Locations (LocationSet).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span>
-                    <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
 <span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">AssetcentralEntitySet</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">,</span>
+                    <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_LOCATIONS</span>
-
 
 <span class="n">_LOCATION_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">),</span>
@@ -194,14 +194,14 @@
 <span class="p">]</span>
 
 
-<div class="viewcode-block" id="Location"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.location.html#sailor.assetcentral.Location">[docs]</a><span class="nd">@_add_properties</span>
+<div class="viewcode-block" id="Location"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.location.html#sailor.assetcentral.Location">[docs]</a><span class="nd">@_base</span><span class="o">.</span><span class="n">add_properties</span>
 <span class="k">class</span> <span class="nc">Location</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral Location Object.&quot;&quot;&quot;</span>
 
     <span class="n">_field_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span><span class="p">:</span> <span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">_LOCATION_FIELDS</span><span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="LocationSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.location.html#sailor.assetcentral.LocationSet">[docs]</a><span class="k">class</span> <span class="nc">LocationSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+<div class="viewcode-block" id="LocationSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.location.html#sailor.assetcentral.LocationSet">[docs]</a><span class="k">class</span> <span class="nc">LocationSet</span><span class="p">(</span><span class="n">AssetcentralEntitySet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class representing a group of Locations.&quot;&quot;&quot;</span>
 
     <span class="n">_element_type</span> <span class="o">=</span> <span class="n">Location</span>
@@ -266,8 +266,7 @@
     <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_LOCATIONS</span>
 
     <span class="n">object_list</span> <span class="o">=</span> <span class="n">_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">LocationSet</span><span class="p">([</span><span class="n">Location</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">],</span>
-                       <span class="p">{</span><span class="s1">&#39;filters&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;extended_filters&#39;</span><span class="p">:</span> <span class="n">extended_filters</span><span class="p">})</span></div>
+    <span class="k">return</span> <span class="n">LocationSet</span><span class="p">([</span><span class="n">Location</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">])</span></div>
 </pre></div>
 
            </div>

@@ -171,9 +171,10 @@
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">ResultSet</span><span class="p">,</span>
-                    <span class="n">_apply_filters_post_request</span><span class="p">,</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_add_properties</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
 <span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">AssetcentralEntitySet</span><span class="p">,</span>
+                    <span class="n">_apply_filters_post_request</span><span class="p">,</span> <span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_ac_application_url</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_GROUPS</span>
 <span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">find_equipment</span><span class="p">,</span> <span class="n">EquipmentSet</span>
 <span class="kn">from</span> <span class="nn">.location</span> <span class="kn">import</span> <span class="n">find_locations</span><span class="p">,</span> <span class="n">LocationSet</span>
@@ -198,7 +199,7 @@
 <span class="p">]</span>
 
 
-<div class="viewcode-block" id="Group"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.group.html#sailor.assetcentral.Group">[docs]</a><span class="nd">@_add_properties</span>
+<div class="viewcode-block" id="Group"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.group.html#sailor.assetcentral.Group">[docs]</a><span class="nd">@_base</span><span class="o">.</span><span class="n">add_properties</span>
 <span class="k">class</span> <span class="nc">Group</span><span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;AssetCentral Location Object.&quot;&quot;&quot;</span>
 
@@ -277,7 +278,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_get_members</span><span class="p">(</span><span class="s1">&#39;MOD&#39;</span><span class="p">,</span> <span class="n">ModelSet</span><span class="p">,</span> <span class="n">find_models</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="GroupSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.group.html#sailor.assetcentral.GroupSet">[docs]</a><span class="k">class</span> <span class="nc">GroupSet</span><span class="p">(</span><span class="n">ResultSet</span><span class="p">):</span>
+<div class="viewcode-block" id="GroupSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.group.html#sailor.assetcentral.GroupSet">[docs]</a><span class="k">class</span> <span class="nc">GroupSet</span><span class="p">(</span><span class="n">AssetcentralEntitySet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class representing a group of Groups.&quot;&quot;&quot;</span>
 
     <span class="n">_element_type</span> <span class="o">=</span> <span class="n">Group</span>

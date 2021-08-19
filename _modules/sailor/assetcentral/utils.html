@@ -165,22 +165,17 @@
 <span></span><span class="sd">&quot;&quot;&quot;Module for various utility functions, in particular those related to fetching data from remote oauth endpoints.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Iterable</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">UserDict</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">UserDict</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
 <span class="kn">import</span> <span class="nn">operator</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">plotnine</span> <span class="k">as</span> <span class="nn">p9</span>
-
+<span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
 <span class="kn">from</span> <span class="nn">..utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span>
-<span class="kn">from</span> <span class="nn">..utils.plot_helper</span> <span class="kn">import</span> <span class="n">_default_plot_theme</span>
 <span class="kn">from</span> <span class="nn">..utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
-<span class="kn">from</span> <span class="nn">..utils.utils</span> <span class="kn">import</span> <span class="n">DataNotFoundWarning</span>
+<span class="kn">from</span> <span class="nn">..utils.utils</span> <span class="kn">import</span> <span class="n">DataNotFoundWarning</span><span class="p">,</span> <span class="n">_is_non_string_iterable</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
@@ -432,169 +427,22 @@
     <span class="k">return</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;asset_central&#39;</span><span class="p">,</span> <span class="s1">&#39;application_url&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="AssetcentralEntity"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity">[docs]</a><span class="k">class</span> <span class="nc">AssetcentralEntity</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Common base class for Assetcentral entities.&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">_AssetcentralField</span><span class="p">(</span><span class="n">_base</span><span class="o">.</span><span class="n">MasterDataField</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Specify a field in Assetcentral.&quot;&quot;&quot;</span>
 
-    <span class="n">_field_map</span> <span class="o">=</span> <span class="p">{}</span>
-
-<div class="viewcode-block" id="AssetcentralEntity.get_available_properties"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity.get_available_properties">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_available_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the available Assetcentral properties for this class.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">set</span><span class="p">([</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_field_map</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">is_exposed</span><span class="p">])</span></div>
-
-<div class="viewcode-block" id="AssetcentralEntity.get_property_mapping"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity.get_property_mapping">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_property_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a mapping from assetcentral terminology to our terminology.</span>
-
-<span class="sd">        .. deprecated:: 1.4.0</span>
-<span class="sd">        Use :meth:`get_available_properties` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO: remove method in future version</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&#39;get_property_mapping&#39;: deprecated. Method will be removed after September 01, 2021. &quot;</span> <span class="o">+</span>
-               <span class="s2">&quot;use &#39;get_available_properties&#39; instead&quot;</span><span class="p">)</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="ne">FutureWarning</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span><span class="p">:</span> <span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">their_name_get</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_field_map</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">is_exposed</span><span class="p">}</span></div>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ac_json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a new entity.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">ac_json</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the ID of the object.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return a very short string representation.&quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;short_description&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(name=&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;, id=&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">&quot;)&#39;</span>
-
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Compare two objects based on instance type and id.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
-
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Hash of an asset central object is the hash of it&#39;s id.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span></div>
+    <span class="k">pass</span>
 
 
-<div class="viewcode-block" id="ResultSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet">[docs]</a><span class="k">class</span> <span class="nc">ResultSet</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
+<div class="viewcode-block" id="AssetcentralEntity"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity">[docs]</a><span class="k">class</span> <span class="nc">AssetcentralEntity</span><span class="p">(</span><span class="n">_base</span><span class="o">.</span><span class="n">MasterDataEntity</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Common base class for AssetCentral entities.&quot;&quot;&quot;</span>
+
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AssetcentralEntitySet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntitySet">[docs]</a><span class="k">class</span> <span class="nc">AssetcentralEntitySet</span><span class="p">(</span><span class="n">_base</span><span class="o">.</span><span class="n">MasterDataEntitySet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Baseclass to be used in all Sets of AssetCentral objects.&quot;&quot;&quot;</span>
 
-    <span class="n">_element_type</span> <span class="o">=</span> <span class="n">AssetcentralEntity</span>
-    <span class="n">_method_defaults</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="p">,</span> <span class="n">generating_query_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a new ResultSet from the passed elements.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">elements</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">):</span>
-            <span class="n">duplicate_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">Counter</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Duplicate elements encountered when creating </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">, discarding duplicates. &#39;</span>
-                     <span class="sa">f</span><span class="s1">&#39;Duplicates of the following elements were discarded: %s&#39;</span><span class="p">,</span> <span class="n">duplicate_elements</span><span class="p">)</span>
-
-        <span class="n">bad_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">element</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element_type</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">bad_elements</span><span class="p">:</span>
-            <span class="n">bad_types</span> <span class="o">=</span> <span class="s1">&#39; or &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">({</span><span class="n">element</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">bad_elements</span><span class="p">})</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> may only contain elements of type &#39;</span>
-                               <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_element_type</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">, not </span><span class="si">{</span><span class="n">bad_types</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">__generating_query_params</span> <span class="o">=</span> <span class="n">generating_query_params</span>
-
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Return the number of objects stored in the ResultSet to implement the `Sequence` interface.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Two ResultSets are equal if all of their elements are equal (order is ignored).&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">]):</span>
-        <span class="sd">&quot;&quot;&quot;Return a subset of the ResultSet to implement the `Sequence` interface.&quot;&quot;&quot;</span>
-        <span class="n">selection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">selection</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">selection</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Combine two ResultSets as the sum of all elements, required to implement the `Sequence` interface.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Only ResultSets of the same type can be added.&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">elements</span><span class="p">,</span> <span class="s1">&#39;set-summation&#39;</span><span class="p">)</span>
-
-<div class="viewcode-block" id="ResultSet.as_df"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.as_df">[docs]</a>    <span class="k">def</span> <span class="nf">as_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return all information on the objects stored in the ResultSet as a pandas dataframe.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">our_name</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element_type</span><span class="o">.</span><span class="n">_field_map</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">is_exposed</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-            <span class="n">prop</span><span class="p">:</span> <span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">]</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">columns</span>
-        <span class="p">})</span></div>
-
-<div class="viewcode-block" id="ResultSet.filter"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ResultSet&#39;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Select a subset of the ResultSet based on named filter criteria for the attributes of the elements.</span>
-
-<span class="sd">        All keyword arguments are concatenated as filters with OR operator, i.e., only one of the supplied filters</span>
-<span class="sd">        must match for an entity to be selected.</span>
-
-<span class="sd">        Returns a new ResultSet object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">selection</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">_is_non_string_iterable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
-                    <span class="k">break</span>
-                <span class="k">elif</span> <span class="ow">not</span> <span class="n">_is_non_string_iterable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span> <span class="o">!=</span> <span class="n">value</span><span class="p">:</span>
-                    <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">selection</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">selection</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ResultSet.plot_distribution"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.ResultSet.plot_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">plot_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Plot the distribution of elements of a ResultSet based on their properties.</span>
-
-<span class="sd">        This effectively creates a histogram with the number of elements per group on the y-axis, and the group</span>
-<span class="sd">        (given by the `by` parameter) on the x-axis. Additionally, the fill colour of the bar can be used to</span>
-<span class="sd">        distinguish a second dimension.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">by</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method_defaults</span><span class="p">[</span><span class="s1">&#39;plot_distribution&#39;</span><span class="p">][</span><span class="s1">&#39;by&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">by</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">by</span>
-        <span class="n">display_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element_type</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;s&#39;</span>
-
-        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">by</span><span class="p">]</span>
-        <span class="n">aes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">by</span><span class="p">}</span>
-        <span class="k">if</span> <span class="n">fill</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fill</span><span class="p">)</span>
-            <span class="n">aes</span><span class="p">[</span><span class="s1">&#39;fill&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fill</span>
-
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_df</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">dropna</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">by</span><span class="p">])</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No </span><span class="si">{</span><span class="n">display_name</span><span class="si">}</span><span class="s1"> with non-empty &quot;</span><span class="si">{</span><span class="n">by</span><span class="si">}</span><span class="s1">&quot; found. Can not create plot.&#39;</span><span class="p">)</span>
-
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;NA&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="n">by</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>  <span class="c1"># strings/objects, we treat these as categorical</span>
-            <span class="n">plot_function</span> <span class="o">=</span> <span class="n">p9</span><span class="o">.</span><span class="n">geom_bar</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">plot_function</span> <span class="o">=</span> <span class="n">p9</span><span class="o">.</span><span class="n">geom_histogram</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># anything else, treated as continuous</span>
-
-        <span class="n">plot</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">p9</span><span class="o">.</span><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">p9</span><span class="o">.</span><span class="n">aes</span><span class="p">(</span><span class="o">**</span><span class="n">aes</span><span class="p">))</span> <span class="o">+</span>
-                <span class="n">plot_function</span> <span class="o">+</span>
-                <span class="n">_default_plot_theme</span><span class="p">()</span> <span class="o">+</span>
-                <span class="n">p9</span><span class="o">.</span><span class="n">ggtitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Number of </span><span class="si">{</span><span class="n">display_name</span><span class="si">}</span><span class="s1"> per </span><span class="si">{</span><span class="n">by</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="p">)</span>
-        <span class="k">return</span> <span class="n">plot</span></div></div>
-
-
-<span class="k">def</span> <span class="nf">_is_non_string_iterable</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span>
+    <span class="k">pass</span></div>
 
 
 <span class="k">class</span> <span class="nc">_AssetcentralWriteRequest</span><span class="p">(</span><span class="n">UserDict</span><span class="p">):</span>
@@ -663,31 +511,6 @@
     <span class="k">pass</span></div>
 
 
-<span class="k">class</span> <span class="nc">_AssetcentralField</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Specify a field in Assetcentral.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">our_name</span><span class="p">,</span> <span class="n">their_name_get</span><span class="p">,</span> <span class="n">their_name_put</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">get_extractor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">put_setter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">our_name</span> <span class="o">=</span> <span class="n">our_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">their_name_get</span> <span class="o">=</span> <span class="n">their_name_get</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">their_name_put</span> <span class="o">=</span> <span class="n">their_name_put</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_exposed</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">our_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_writable</span> <span class="o">=</span> <span class="n">their_name_put</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_mandatory</span> <span class="o">=</span> <span class="n">is_mandatory</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">(</span><span class="n">our_name</span><span class="p">,</span> <span class="n">their_name_get</span><span class="p">,</span> <span class="n">their_name_put</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">get_extractor</span> <span class="o">=</span> <span class="n">get_extractor</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_get_extractor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">put_setter</span> <span class="o">=</span> <span class="n">put_setter</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_put_setter</span>
-
-    <span class="k">def</span> <span class="nf">_default_put_setter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="n">payload</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">their_name_put</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="k">return</span>
-
-    <span class="k">def</span> <span class="nf">_default_get_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">value</span>
-
-
 <span class="k">def</span> <span class="nf">_nested_put_setter</span><span class="p">(</span><span class="o">*</span><span class="n">nested_names</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">setter</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="n">next_dict</span> <span class="o">=</span> <span class="n">payload</span>
@@ -695,21 +518,6 @@
             <span class="n">next_dict</span> <span class="o">=</span> <span class="n">next_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">nested_name</span><span class="p">,</span> <span class="p">{})</span>
         <span class="n">next_dict</span><span class="p">[</span><span class="n">nested_names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
     <span class="k">return</span> <span class="n">setter</span>
-
-
-<span class="k">def</span> <span class="nf">_add_properties</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Add properties to the entity class based on the field template defined by the request mapper.&quot;&quot;&quot;</span>
-    <span class="c1"># This is the new function to be used for all AssetcentralEntities.</span>
-    <span class="c1"># TODO: remove this comment block once everything is refactored</span>
-    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_field_map</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-
-        <span class="c1"># the assignment of the default value (`field=field`)</span>
-        <span class="c1"># is necessary due to the closure rules in loops</span>
-        <span class="k">def</span> <span class="nf">getter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">field</span><span class="o">.</span><span class="n">get_extractor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">their_name_get</span><span class="p">))</span>
-
-        <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">field</span><span class="o">.</span><span class="n">our_name</span><span class="p">,</span> <span class="nb">property</span><span class="p">(</span><span class="n">getter</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
-    <span class="k">return</span> <span class="bp">cls</span>
 </pre></div>
 
            </div>
