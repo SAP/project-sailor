@@ -6,10 +6,13 @@ from sailor.sap_iot.write import upload_indicator_data
 from ..data_generators import make_dataset
 
 
-@patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')
-@patch('sailor.sap_iot.write.request_upload_url')
-def test_upload_is_split_by_indicator_group_and_template(mock_upload_url, mock_oauth,
-                                                         make_indicator_set, make_equipment_set):
+@pytest.fixture(autouse=True)
+def mock_upload_url():
+    with patch('sailor.sap_iot.write.request_upload_url') as mock:
+        yield mock
+
+
+def test_upload_is_split_by_indicator_group_and_template(mock_oauth, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(
         propertyId=['indicator_id_A', 'indicator_id_B', 'indicator_id_A'],
         pstid=['indicator_group_A', 'indicator_group_A', 'indicator_group_B'],
@@ -39,9 +42,7 @@ def test_upload_is_split_by_indicator_group_and_template(mock_upload_url, mock_o
         assert all(value.keys() == {'_time', indicator._liot_id} for value in matching_payload['Values'])
 
 
-@patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')
-@patch('sailor.sap_iot.write.request_upload_url')
-def test_upload_one_group_in_one_request(mock_upload_url, mock_oauth, make_indicator_set, make_equipment_set):
+def test_upload_one_group_in_one_request(mock_oauth, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(
         propertyId=['indicator_id_A', 'indicator_id_B', 'indicator_id_A'],
         pstid=['indicator_group_A', 'indicator_group_A', 'indicator_group_B'],
@@ -73,9 +74,7 @@ def test_upload_one_group_in_one_request(mock_upload_url, mock_oauth, make_indic
         assert all(value.keys() == expected_keys for value in matching_payload['Values'])
 
 
-@patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request')
-@patch('sailor.sap_iot.write.request_upload_url')
-def test_each_equipment_one_request(mock_upload_url, mock_oauth, make_indicator_set, make_equipment_set):
+def test_each_equipment_one_request(mock_oauth, mock_upload_url, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'])
     equipment_set = make_equipment_set(equipmentId=['equipment_A', 'equipment_B'])
     dataset = make_dataset(indicator_set, equipment_set)
