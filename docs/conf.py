@@ -19,6 +19,8 @@
 #
 import os
 import sys
+import inspect
+import collections.abc
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -39,7 +41,13 @@ extensions = ['sphinx.ext.autodoc',
               ]
 
 autodoc_typehints = 'description'
-autodoc_member_order = 'groupwise'
+autodoc_default_options = {
+    'member-order': 'groupwise',
+    'show-inheritance': True,
+    'inherited-members': True,
+    #'undoc-members': True      # TODO: all properties vs only documented ones, e.g. Equipment.location
+}
+custom_autodoc_skip_classes = [collections.abc.Sequence, BaseException]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -179,3 +187,25 @@ texinfo_documents = [
      author, 'sailor', 'One line description of project.',
      'Miscellaneous'),
 ]
+
+
+# it's not perfect, but it works for inherited functions in most cases
+def _skip_helper_get_class_of_method(meth):
+    if inspect.isfunction(meth):
+        cls_name = meth.__qualname__.split('.')[0]
+        cls = getattr(inspect.getmodule(meth), cls_name, None)
+        if isinstance(cls, type):
+            return cls
+    return getattr(meth, '__objclass__', None)
+
+# function that skips collections.abc.Sequence method
+def skip_classes(classes_to_skip):
+    def skip_func(app, what, name, obj, skip, options):
+        getclass = _skip_helper_get_class_of_method(obj)
+        if getclass in classes_to_skip:
+            return True
+        return skip
+    return skip_func
+
+def setup(app):
+    app.connect('autodoc-skip-member', skip_classes(custom_autodoc_skip_classes))
