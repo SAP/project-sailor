@@ -170,6 +170,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
             key = k
             not_our_term.append(key)
             timeoffset_function = None
+
         def quote_if_string(x):
             if isinstance(x, str):
                 return f"'{x}'"
@@ -180,7 +181,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         else:
             v = quote_if_string(v)
 
-        if timeoffset_function: 
+        if timeoffset_function:
             v = timeoffset_function(v)
 
         unified_filters.append((key, 'eq', v))
