@@ -70,3 +70,9 @@ def _calculate_nice_sub_intervals(interval, n_breaks):
     target_break_interval = max(target_break_interval, min(good_intervals))
     freq = max(filter(lambda x: x <= target_break_interval, good_intervals))
     return freq
+
+def _add_timestampoffset(value):
+    timestamp = _any_to_timestamp(value)
+    timestamp = _timestamp_to_isoformat(timestamp, with_zulu=True)
+    timestamp = 'datetimeoffset' + "'" + timestamp + "'"
+    return timestamp
