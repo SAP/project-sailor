@@ -206,7 +206,7 @@ class TestQueryParsers:
     def test_parse_filter_parameters_with_property_mapping(self):
         equality_filters = {'location_name': ['Paris', 'London'], 'serial_number': 1234}
         extended_filters = ["start_date > '2020-01-01'"]
-        field_map = {'location_name': Mock(their_name_get='location'),
+        field_map = {'location_name': Mock(their_name_get='location', query_transformer = None),
                      'serial_number': Mock(their_name_get='serialNumber'),
                      'start_date': Mock(their_name_get='startDate')}
 
