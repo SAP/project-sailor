@@ -3,7 +3,7 @@ import datetime
 import pytest
 import pandas as pd
 
-from sailor.utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals
+from sailor.utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals, _add_timestampoffset
 
 
 @pytest.mark.parametrize('testdescription,input,expected', [
@@ -32,7 +32,8 @@ def test_calculate_nice_sub_intervals_short_interval_does_not_raise():
 
 def test_calculate_nice_sub_intervals_single_break_does_not_raise():
     _calculate_nice_sub_intervals(pd.Timedelta('1D'), 1)
-    
+
+
 def test_add_timestampoffset_prefix_added():
     datetime = '2021-01-01 18:00:00'
     expected = "datetimeoffset'2021-01-01T18:00:00Z'"
