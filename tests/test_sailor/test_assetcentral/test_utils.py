@@ -206,9 +206,9 @@ class TestQueryParsers:
     def test_parse_filter_parameters_with_property_mapping(self):
         equality_filters = {'location_name': ['Paris', 'London'], 'serial_number': 1234}
         extended_filters = ["start_date > '2020-01-01'"]
-        field_map = {'location_name': Mock(their_name_get='location', query_transformer = None),
-                     'serial_number': Mock(their_name_get='serialNumber', query_transformer = None),
-                     'start_date': Mock(their_name_get='startDate', query_transformer = None)}
+        field_map = {'location_name': Mock(their_name_get='location', query_transformer=None),
+                     'serial_number': Mock(their_name_get='serialNumber', query_transformer=None),
+                     'start_date': Mock(their_name_get='startDate', query_transformer=None)}
 
         actual_unbreakable, actual_breakable = \
             _parse_filter_parameters(equality_filters, extended_filters, field_map)
@@ -241,8 +241,8 @@ def test_apply_filters_post_request_property_mapping():
     data = [{'propertyId': 'indicator_id1', 'indicatorType': 'yellow', 'categoryID': 'aa'},
             {'propertyId': 'indicator_id2', 'indicatorType': 'yellow', 'categoryID': 'aa'},
             {'propertyId': 'indicator_id3', 'indicatorType': 'brown', 'categoryID': 'aaaa'}]
-    field_map = {'type': Mock(their_name_get='indicatorType',query_transformer = None),
-                 'template_id': Mock(their_name_get='categoryID', query_transformer = None)}
+    field_map = {'type': Mock(their_name_get='indicatorType', query_transformer=None),
+                 'template_id': Mock(their_name_get='categoryID', query_transformer=None)}
     equality_filters = dict(type='yellow')
     extended_filters = ['template_id > a']
     expected_result = [{'propertyId': 'indicator_id1', 'indicatorType': 'yellow', 'categoryID': 'aa'},
