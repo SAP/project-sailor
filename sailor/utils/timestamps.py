@@ -73,7 +73,7 @@ def _calculate_nice_sub_intervals(interval, n_breaks):
 
 
 def _add_timestampoffset(value):
-    """ Return a timestamp in format 'datetimeoffset'yyyy-mm-ddThh:mm:ssZ'."""
+    """Return a timestamp in format 'datetimeoffset'yyyy-mm-ddThh:mm:ssZ'."""
     timestamp = _any_to_timestamp(value)
     timestamp = _timestamp_to_isoformat(timestamp, with_zulu=True)
     timestamp = 'datetimeoffset' + "'" + timestamp + "'"
