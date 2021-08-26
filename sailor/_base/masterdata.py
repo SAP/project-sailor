@@ -41,6 +41,7 @@ class MasterDataField:
     def _default_query_transformer(self, value):
         return value
 
+
 class MasterDataEntity:
     """Common base class for Masterdata entities."""
 

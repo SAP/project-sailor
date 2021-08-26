@@ -3,7 +3,7 @@ import datetime
 import pytest
 import pandas as pd
 
-from sailor.utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals, _add_timestampoffset
+from sailor.utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals, _to_odata_datetimeoffset
 
 
 @pytest.mark.parametrize('testdescription,input,expected', [
@@ -37,5 +37,5 @@ def test_calculate_nice_sub_intervals_single_break_does_not_raise():
 def test_to_odata_datetimeoffset_prefix_added():
     datetime = '2021-01-06T12:01:00Z'
     expected = "datetimeoffset'2021-01-01T18:00:00Z'"
-    actual = _add_timestampoffset(datetime)
+    actual = _to_odata_datetimeoffset(datetime)
     assert actual == expected
