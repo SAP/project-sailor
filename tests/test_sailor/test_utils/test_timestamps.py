@@ -36,6 +36,6 @@ def test_calculate_nice_sub_intervals_single_break_does_not_raise():
 
 def test_to_odata_datetimeoffset_prefix_added():
     datetime = '2021-01-06T12:01:00Z'
-    expected = "datetimeoffset'2021-01-01T18:00:00Z'"
+    expected = "datetimeoffset'2021-01-06T12:01:00Z'"
     actual = _to_odata_datetimeoffset(datetime)
     assert actual == expected
