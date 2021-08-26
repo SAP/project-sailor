@@ -72,9 +72,9 @@ def _calculate_nice_sub_intervals(interval, n_breaks):
     return freq
 
 
-def _add_timestampoffset(value):
+def _to_odata_datetimeoffset(value):
     """Return a timestamp in format 'datetimeoffset'yyyy-mm-ddThh:mm:ssZ'."""
     timestamp = _any_to_timestamp(value)
     timestamp = _timestamp_to_isoformat(timestamp, with_zulu=True)
-    timestamp = 'datetimeoffset' + "'" + timestamp + "'"
+    timestamp = f"datetimeoffset'{timestamp}'"
     return timestamp

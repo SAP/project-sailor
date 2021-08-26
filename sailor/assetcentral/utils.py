@@ -165,11 +165,11 @@ def _unify_filters(equality_filters, extended_filters, field_map):
     for k, v in equality_filters.items():
         if k in field_map:
             key = field_map[k].their_name_get
-            timeoffset_function = field_map[k].query_transformer
+            query_transformer = field_map[k].query_transformer
         else:
             key = k
             not_our_term.append(key)
-            timeoffset_function = None
+            query_transformer = None
 
         def quote_if_string(x):
             if isinstance(x, str):
@@ -181,8 +181,8 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         else:
             v = quote_if_string(v)
 
-        if timeoffset_function:
-            v = timeoffset_function(v)
+        if query_transformer:
+            v = query_transformer(v)
 
         unified_filters.append((key, 'eq', v))
 
@@ -201,14 +201,14 @@ def _unify_filters(equality_filters, extended_filters, field_map):
 
         if k in field_map:
             key = field_map[k].their_name_get
-            timeoffset_function = field_map[k].query_transformer
+            query_transformer = field_map[k].query_transformer
         else:
             key = k
             not_our_term.append(key)
-            timeoffset_function = None
+            query_transformer = None
 
-        if timeoffset_function:
-            v = timeoffset_function(v)
+        if query_transformer:
+            v = query_transformer(v)
 
         unified_filters.append((key, operator_map[o], v))
 

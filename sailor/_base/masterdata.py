@@ -28,7 +28,7 @@ class MasterDataField:
 
         self.names = (our_name, their_name_get, their_name_put)
 
-        self.query_transformer = query_transformer or self._default_get_extractor
+        self.query_transformer = query_transformer or self._default_query_transformer
         self.get_extractor = get_extractor or self._default_get_extractor
         self.put_setter = put_setter or self._default_put_setter
 
@@ -38,6 +38,8 @@ class MasterDataField:
     def _default_get_extractor(self, value):
         return value
 
+    def _default_query_transformer(self, value):
+        return value
 
 class MasterDataEntity:
     """Common base class for Masterdata entities."""

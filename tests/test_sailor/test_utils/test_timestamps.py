@@ -34,8 +34,8 @@ def test_calculate_nice_sub_intervals_single_break_does_not_raise():
     _calculate_nice_sub_intervals(pd.Timedelta('1D'), 1)
 
 
-def test_add_timestampoffset_prefix_added():
-    datetime = '2021-01-01 18:00:00'
+def test_to_odata_datetimeoffset_prefix_added():
+    datetime = '2021-01-06T12:01:00Z'
     expected = "datetimeoffset'2021-01-01T18:00:00Z'"
     actual = _add_timestampoffset(datetime)
     assert actual == expected
