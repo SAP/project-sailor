@@ -37,6 +37,7 @@ class MasterDataField:
     def _default_put_setter(self, payload, value):
         payload[self.their_name_put] = value
 
+
 def _default_get_extractor(value):
     return value
 

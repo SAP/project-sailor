@@ -216,7 +216,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         # since all extended filter values are strings we do not know the intended type of 'v', e.g. (int, double,..).
         # therefore we can only be sure to quote the value if it was quoted before
         if query_transformer is None:
-            v = f"'{v}'"  if quoted else v
+            v = f"'{v}'" if quoted else v
         else:
             v = query_transformer(v)
 
