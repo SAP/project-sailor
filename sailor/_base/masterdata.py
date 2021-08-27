@@ -28,18 +28,17 @@ class MasterDataField:
 
         self.names = (our_name, their_name_get, their_name_put)
 
-        self.query_transformer = query_transformer or self._default_query_transformer
-        self.get_extractor = get_extractor or self._default_get_extractor
+        # a query transformer is a function that takes a filter value as input and outputs the formatted query value
+        # e.g.: 2020-01-01 -> datetimeoffset'2020-01-01T00:00:00Z'
+        self.query_transformer = query_transformer
+        self.get_extractor = get_extractor or _default_get_extractor
         self.put_setter = put_setter or self._default_put_setter
 
     def _default_put_setter(self, payload, value):
         payload[self.their_name_put] = value
 
-    def _default_get_extractor(self, value):
-        return value
-
-    def _default_query_transformer(self, value):
-        return value
+def _default_get_extractor(value):
+    return value
 
 
 class MasterDataEntity:

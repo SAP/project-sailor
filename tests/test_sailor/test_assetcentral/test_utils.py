@@ -1,8 +1,9 @@
 from typing import Iterable
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 import pytest
 
+from sailor import _base
 from sailor.assetcentral.utils import (
     AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity,
     _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data)
@@ -151,15 +152,15 @@ class TestQueryParsers:
         assert filters == [('a', 'eq', "'b'")]
 
     def test_unify_filters_property_mapping_kwargs_key_field(self):
-        filters = _unify_filters({'my_term': 'some_value'}, None, {'my_term': Mock(their_name_get='their_term')})
+        filters = _unify_filters({'my_term': 'some_value'}, None, {'my_term': _base.MasterDataField('my_term', 'their_term')})
         assert filters[0][0] == 'their_term'
 
     def test_unify_filters_property_mapping_extended_key_field(self):
-        filters = _unify_filters(None, ['my_term == "foo"'], {'my_term': Mock(their_name_get='their_term')})
+        filters = _unify_filters(None, ['my_term == "foo"'], {'my_term': _base.MasterDataField('my_term', 'their_term')})
         assert filters[0][0] == 'their_term'
 
     def test_unify_filters_property_mapping_extended_value_field(self):
-        filters = _unify_filters(None, ['some_field == my_term'], {'my_term': Mock(their_name_get='their_term')})
+        filters = _unify_filters(None, ['some_field == my_term'], {'my_term': _base.MasterDataField('my_term', 'their_term')})
         assert filters[0][2] == 'their_term'
 
     @pytest.mark.parametrize('testdescription,equality_filters,expected_unbreakable,expected_breakable', [
@@ -206,15 +207,34 @@ class TestQueryParsers:
     def test_parse_filter_parameters_with_property_mapping(self):
         equality_filters = {'location_name': ['Paris', 'London'], 'serial_number': 1234}
         extended_filters = ["start_date > '2020-01-01'"]
-        field_map = {'location_name': Mock(their_name_get='location', query_transformer=None),
-                     'serial_number': Mock(their_name_get='serialNumber', query_transformer=None),
-                     'start_date': Mock(their_name_get='startDate', query_transformer=None)}
+        field_map = {'location_name': _base.MasterDataField('location_name', 'location'),
+                     'serial_number': _base.MasterDataField('serial_number', 'serialNumber'),
+                     'start_date': _base.MasterDataField('start_date', 'startDate')}
 
         actual_unbreakable, actual_breakable = \
             _parse_filter_parameters(equality_filters, extended_filters, field_map)
 
         assert actual_unbreakable == ["serialNumber eq 1234", "startDate gt '2020-01-01'"]
         assert actual_breakable == [["location eq 'Paris'", "location eq 'London'"]]
+
+    @pytest.mark.parametrize('testdescr,equality_filters,extended_filters', [
+        ('equality', {'field_str': 'PaloAlto', 'field_str_qt': 'Walldorf', 'field_int': 1234, 'field_int_qt': 1234}, []),
+        ('extended', {}, ["field_str == 'PaloAlto'", "field_str_qt == 'Walldorf'", "field_int == 1234", 'field_int_qt == 1234'])
+    ])
+    @pytest.mark.filterwarnings('ignore:Trying to parse non-timezone-aware timestamp, assuming UTC.')
+    def test_parse_filter_parameters_with_query_transformer(self, equality_filters, extended_filters, testdescr):
+        expected_unbreakable = ["FieldStr eq 'PaloAlto'", "FieldStrQT eq 'PREFIX_Walldorf'", "FieldInt eq 1234", "FieldIntQT eq 2468"]
+        field_map = {'field_str': _base.MasterDataField('field_str', 'FieldStr',),
+                     'field_str_qt': _base.MasterDataField('field_str_qt', 'FieldStrQT', query_transformer=lambda x: f"'PREFIX_{str(x)}'"),
+                     'field_int': _base.MasterDataField('field_int', 'FieldInt'),
+                     'field_int_qt': _base.MasterDataField('field_int_qt', 'FieldIntQT', query_transformer=lambda x: int(x)*2)
+                     }
+
+        actual_unbreakable, _ = \
+            _parse_filter_parameters(equality_filters, extended_filters, field_map)
+
+        assert actual_unbreakable == expected_unbreakable
+
 
 
 @pytest.mark.parametrize('testdescription,equality_filters,extended_filters,expected_ids', [
@@ -241,8 +261,8 @@ def test_apply_filters_post_request_property_mapping():
     data = [{'propertyId': 'indicator_id1', 'indicatorType': 'yellow', 'categoryID': 'aa'},
             {'propertyId': 'indicator_id2', 'indicatorType': 'yellow', 'categoryID': 'aa'},
             {'propertyId': 'indicator_id3', 'indicatorType': 'brown', 'categoryID': 'aaaa'}]
-    field_map = {'type': Mock(their_name_get='indicatorType', query_transformer=None),
-                 'template_id': Mock(their_name_get='categoryID', query_transformer=None)}
+    field_map = {'type': _base.masterdata.MasterDataField('type', 'indicatorType'),
+                 'template_id': _base.masterdata.MasterDataField('template_id', 'categoryID')}
     equality_filters = dict(type='yellow')
     extended_filters = ['template_id > a']
     expected_result = [{'propertyId': 'indicator_id1', 'indicatorType': 'yellow', 'categoryID': 'aa'},

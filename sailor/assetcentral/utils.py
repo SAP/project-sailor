@@ -176,23 +176,29 @@ def _unify_filters(equality_filters, extended_filters, field_map):
                 return f"'{x}'"
             else:
                 return str(x)
-        if _is_non_string_iterable(v):
-            v = [quote_if_string(x) for x in v]
-        else:
-            v = quote_if_string(v)
 
-        if query_transformer:
+        if query_transformer is None:
+            query_transformer = quote_if_string
+
+        # values in equality_filters might not be strings (!)
+        if _is_non_string_iterable(v):
+            v = [query_transformer(x) for x in v]
+        else:
             v = query_transformer(v)
 
         unified_filters.append((key, 'eq', v))
 
+    # TODO: patterns do not support typical quoted odata types, e.g.: geography'POINT(-122.131577 47.678581)'.
+    #       same with datetimeoffset. should those data types only be implemented by query transformers?
     quoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?([\"\'])((?:\\?.)*?)\3$')
     unquoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?([+-]?[\w.]+)$')
+    # values in extended filters are always strings (!)
     for filter_entry in extended_filters:
         if match := quoted_pattern.fullmatch(filter_entry):
+            quoted = True
             k, o, _, v = match.groups()
-            v = f"'{v}'"  # we always need single quotes, but want to accept double quotes as well, hence re-writing.
         elif match := unquoted_pattern.fullmatch(filter_entry):
+            quoted = False
             k, o, v = match.groups()
             if v in field_map:
                 v = field_map[v].their_name_get
@@ -207,7 +213,11 @@ def _unify_filters(equality_filters, extended_filters, field_map):
             not_our_term.append(key)
             query_transformer = None
 
-        if query_transformer:
+        # since all extended filter values are strings we do not know the intended type of 'v', e.g. (int, double,..).
+        # therefore we can only be sure to quote the value if it was quoted before
+        if query_transformer is None:
+            v = f"'{v}'"  if quoted else v
+        else:
             v = query_transformer(v)
 
         unified_filters.append((key, operator_map[o], v))
