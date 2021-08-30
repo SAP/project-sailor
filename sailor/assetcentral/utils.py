@@ -162,7 +162,8 @@ def _unify_filters(equality_filters, extended_filters, field_map):
 
     unified_filters = []
     not_our_term = []
-    for k, v in equality_filters.items():
+
+    def get_key_and_query_transformer(k):
         if k in field_map:
             key = field_map[k].their_name_get
             query_transformer = field_map[k].query_transformer
@@ -170,14 +171,17 @@ def _unify_filters(equality_filters, extended_filters, field_map):
             key = k
             not_our_term.append(key)
             query_transformer = None
+        return (key, query_transformer)
 
-        def quote_if_string(x):
-            if isinstance(x, str):
-                return f"'{x}'"
-            else:
-                return str(x)
+    for k, v in equality_filters.items():
+        key, query_transformer = get_key_and_query_transformer(k)
 
         if query_transformer is None:
+            def quote_if_string(x):
+                if isinstance(x, str):
+                    return f"'{x}'"
+                else:
+                    return str(x)
             query_transformer = quote_if_string
 
         # values in equality_filters might not be strings (!)
@@ -192,7 +196,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
     #       same with datetimeoffset. should those data types only be implemented by query transformers?
     quoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?([\"\'])((?:\\?.)*?)\3$')
     unquoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?([+-]?[\w.]+)$')
-    # values in extended filters are always strings (!)
+
     for filter_entry in extended_filters:
         if match := quoted_pattern.fullmatch(filter_entry):
             quoted = True
@@ -205,15 +209,10 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         else:
             raise RuntimeError(f'Failed to parse filter entry {filter_entry}')
 
-        if k in field_map:
-            key = field_map[k].their_name_get
-            query_transformer = field_map[k].query_transformer
-        else:
-            key = k
-            not_our_term.append(key)
-            query_transformer = None
+        key, query_transformer = get_key_and_query_transformer(k)
 
-        # since all extended filter values are strings we do not know the intended type of 'v', e.g. (int, double,..).
+        # values in extended filters are always strings (!)
+        # => we do not know the intended type of 'v' when it was not quoted, e.g. (int, double,..),
         # therefore we can only be sure to quote the value if it was quoted before
         if query_transformer is None:
             v = f"'{v}'" if quoted else v
