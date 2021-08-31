@@ -162,8 +162,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
 
     unified_filters = []
     not_our_term = []
-
-    def get_key_and_query_transformer(k):
+    for k, v in equality_filters.items():
         if k in field_map:
             key = field_map[k].their_name_get
             query_transformer = field_map[k].query_transformer
@@ -171,52 +170,44 @@ def _unify_filters(equality_filters, extended_filters, field_map):
             key = k
             not_our_term.append(key)
             query_transformer = None
-        return (key, query_transformer)
 
-    for k, v in equality_filters.items():
-        key, query_transformer = get_key_and_query_transformer(k)
-
-        if query_transformer is None:
-            def quote_if_string(x):
-                if isinstance(x, str):
-                    return f"'{x}'"
-                else:
-                    return str(x)
-            query_transformer = quote_if_string
-
-        # values in equality_filters might not be strings (!)
+        def quote_if_string(x):
+            if isinstance(x, str):
+                return f"'{x}'"
+            else:
+                return str(x)
         if _is_non_string_iterable(v):
-            v = [query_transformer(x) for x in v]
+            v = [quote_if_string(x) for x in v]
         else:
+            v = quote_if_string(v)
+
+        if query_transformer:
             v = query_transformer(v)
 
         unified_filters.append((key, 'eq', v))
 
-    # TODO: patterns do not support typical quoted odata types, e.g.: geography'POINT(-122.131577 47.678581)'.
-    #       same with datetimeoffset. should those data types only be implemented by query transformers?
     quoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?([\"\'])((?:\\?.)*?)\3$')
     unquoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?([+-]?[\w.]+)$')
-
     for filter_entry in extended_filters:
         if match := quoted_pattern.fullmatch(filter_entry):
-            quoted = True
             k, o, _, v = match.groups()
+            v = f"'{v}'"  # we always need single quotes, but want to accept double quotes as well, hence re-writing.
         elif match := unquoted_pattern.fullmatch(filter_entry):
-            quoted = False
             k, o, v = match.groups()
             if v in field_map:
                 v = field_map[v].their_name_get
         else:
             raise RuntimeError(f'Failed to parse filter entry {filter_entry}')
 
-        key, query_transformer = get_key_and_query_transformer(k)
-
-        # values in extended filters are always strings (!)
-        # => we do not know the intended type of 'v' when it was not quoted, e.g. (int, double,..),
-        # therefore we can only be sure to quote the value if it was quoted before
-        if query_transformer is None:
-            v = f"'{v}'" if quoted else v
+        if k in field_map:
+            key = field_map[k].their_name_get
+            query_transformer = field_map[k].query_transformer
         else:
+            key = k
+            not_our_term.append(key)
+            query_transformer = None
+
+        if query_transformer:
             v = query_transformer(v)
 
         unified_filters.append((key, operator_map[o], v))
