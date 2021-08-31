@@ -224,15 +224,21 @@ class TestQueryParsers:
         ('equality', {'field_str': 'PaloAlto', 'field_str_qt': 'Walldorf', 'field_int': 1234, 'field_int_qt': 1234},
             []),
         ('extended', {},
-            ["field_str == 'PaloAlto'", "field_str_qt == 'Walldorf'", "field_int == 1234", 'field_int_qt == 1234'])
+            ["field_str == 'PaloAlto'", "field_str_qt == 'Walldorf'", "field_int == 1234", 'field_int_qt == 1234']),
+        ('extended_2_with_double_quotes', {},
+            ["field_str == \"PaloAlto\"", "field_str_qt == \"Walldorf\"", "field_int == 1234", 'field_int_qt == 1234'])
     ])
     @pytest.mark.filterwarnings('ignore:Trying to parse non-timezone-aware timestamp, assuming UTC.')
     def test_parse_filter_parameters_with_query_transformer(self, equality_filters, extended_filters, testdescr):
         expected_unbreakable = ["FieldStr eq 'PaloAlto'", "FieldStrQT eq 'PREFIX_Walldorf'",
                                 "FieldInt eq 1234", "FieldIntQT eq 2468"]
+
+        def add_prefix(x):
+            return "'PREFIX_" + str(x).strip('\'\"') + "'"
+
         field_map = {'field_str': _base.MasterDataField('field_str', 'FieldStr',),
                      'field_str_qt': _base.MasterDataField('field_str_qt', 'FieldStrQT',
-                                                           query_transformer=lambda x: f"'PREFIX_{str(x)}'"),
+                                                           query_transformer=add_prefix),
                      'field_int': _base.MasterDataField('field_int', 'FieldInt'),
                      'field_int_qt': _base.MasterDataField('field_int_qt', 'FieldIntQT',
                                                            query_transformer=lambda x: int(x)*2)
