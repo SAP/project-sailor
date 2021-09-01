@@ -18,7 +18,7 @@ class MasterDataField:
     """Common base class for all masterdata fields."""
 
     def __init__(self, our_name, their_name_get, their_name_put=None, is_mandatory=False,
-                 get_extractor=None, put_setter=None):
+                 get_extractor=None, put_setter=None, query_transformer=None):
         self.our_name = our_name
         self.their_name_get = their_name_get
         self.their_name_put = their_name_put
@@ -28,6 +28,7 @@ class MasterDataField:
 
         self.names = (our_name, their_name_get, their_name_put)
 
+        self.query_transformer = query_transformer or self._default_query_transformer
         self.get_extractor = get_extractor or self._default_get_extractor
         self.put_setter = put_setter or self._default_put_setter
 
@@ -35,6 +36,9 @@ class MasterDataField:
         payload[self.their_name_put] = value
 
     def _default_get_extractor(self, value):
+        return value
+
+    def _default_query_transformer(self, value):
         return value
 
 
