@@ -6,8 +6,8 @@ Classes are provided for individual Locations as well as groups of Locations (Lo
 
 from sailor import _base
 from ..utils.timestamps import _string_to_timestamp_parser
-from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet, _parse_filter_parameters,
-                    _fetch_data, _ac_application_url)
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
+                    _ac_application_url, _ac_fetch_data)
 from .constants import VIEW_LOCATIONS
 
 _LOCATION_FIELDS = [
@@ -97,9 +97,9 @@ def find_locations(*, extended_filters=(), **kwargs) -> LocationSet:
         find_locations(extended_filters=['short_description != "Location 1"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Location._field_map)
+        _base.parse_filter_parameters(kwargs, extended_filters, Location._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_LOCATIONS
 
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return LocationSet([Location(obj) for obj in object_list])

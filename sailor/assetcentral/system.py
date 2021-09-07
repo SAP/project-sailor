@@ -17,7 +17,7 @@ import pandas as pd
 from sailor import _base
 from sailor import sap_iot
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url)
+                    _ac_application_url, _ac_fetch_data)
 from .equipment import find_equipment, EquipmentSet
 from .indicators import IndicatorSet
 from .constants import VIEW_SYSTEMS
@@ -109,7 +109,7 @@ class System(AssetcentralEntity):
     def _hierarchy(self):
         """Prepare component tree and cache it."""
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
-        comps = _fetch_data(endpoint_url)[0]
+        comps = _ac_fetch_data(endpoint_url)[0]
         self.__hierarchy = {}
         self.__hierarchy['component_tree'], equipment_ids, system_ids = System._traverse_components(comps, 0, [], [])
         if system_ids:
@@ -312,9 +312,9 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
         find_systems(extended_filters=['created_on >= "2020-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, System._field_map)
+        _base.parse_filter_parameters(kwargs, extended_filters, System._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_SYSTEMS
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
 
     return SystemSet([System(obj) for obj in object_list])

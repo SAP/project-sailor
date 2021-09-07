@@ -20,7 +20,7 @@ from .notification import Notification, find_notifications, _create_or_update_no
 from .location import Location, find_locations
 from .workorder import find_workorders
 from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntitySet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _apply_filters_post_request)
+                    _ac_application_url, _ac_fetch_data)
 
 if TYPE_CHECKING:
     from .notification import NotificationSet
@@ -113,10 +113,10 @@ class Equipment(AssetcentralEntity):
         """
         # AC-BUG: this endpoint just silently ignores filter parameters, so we can't really support them...
         endpoint_url = _ac_application_url() + VIEW_EQUIPMENT + f'({self.id})' + '/indicatorvalues'
-        object_list = _fetch_data(endpoint_url)
+        object_list = _ac_fetch_data(endpoint_url)
 
-        filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                       Indicator._field_map)
+        filtered_objects = _base.apply_filters_post_request(object_list, kwargs, extended_filters,
+                                                            Indicator._field_map)
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
     def find_notifications(self, *, extended_filters=(), **kwargs) -> NotificationSet:
@@ -167,7 +167,7 @@ class Equipment(AssetcentralEntity):
         if 'id' in kwargs or 'ID' in kwargs:
             raise RuntimeError('Can not manually filter for FailureMode ID when using this method.')
         endpoint_url = _ac_application_url() + VIEW_OBJECTS + 'EQU/' + self.id + '/failuremodes'
-        object_list = _fetch_data(endpoint_url)
+        object_list = _ac_fetch_data(endpoint_url)
         kwargs['id'] = [element['ID'] for element in object_list]
         return find_failure_modes(extended_filters=extended_filters, **kwargs)
 
@@ -419,8 +419,8 @@ def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
                         location_name='London')
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Equipment._field_map)
+        _base.parse_filter_parameters(kwargs, extended_filters, Equipment._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return EquipmentSet([Equipment(obj) for obj in object_list])

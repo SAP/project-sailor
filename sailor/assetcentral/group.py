@@ -10,7 +10,7 @@ import warnings
 from sailor import _base
 from ..utils.timestamps import _string_to_timestamp_parser
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
-                    _apply_filters_post_request, _fetch_data, _ac_application_url)
+                    _ac_application_url, _ac_fetch_data)
 from .constants import VIEW_GROUPS
 from .equipment import find_equipment, EquipmentSet
 from .location import find_locations, LocationSet
@@ -44,7 +44,7 @@ class Group(AssetcentralEntity):
     @cached_property
     def _members_raw(self):
         endpoint_url = _ac_application_url() + VIEW_GROUPS + f'/{self.id}/businessobjects'
-        object_list = _fetch_data(endpoint_url)
+        object_list = _ac_fetch_data(endpoint_url)
         return object_list
 
     def _generic_get_members(self, business_object_type, set_class, find_function, extended_filters, **kwargs):
@@ -223,7 +223,7 @@ def find_groups(*, extended_filters=(), **kwargs) -> GroupSet:
         groups = find_groups(extended_filters=['risk_value > 0'])
     """
     endpoint_url = _ac_application_url() + VIEW_GROUPS
-    object_list = _fetch_data(endpoint_url)
+    object_list = _ac_fetch_data(endpoint_url)
 
-    filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters, Group._field_map)
+    filtered_objects = _base.apply_filters_post_request(object_list, kwargs, extended_filters, Group._field_map)
     return GroupSet([Group(obj) for obj in filtered_objects])

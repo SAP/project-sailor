@@ -8,7 +8,7 @@ from sailor import _base
 from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_WORKORDERS
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url)
+                    _ac_application_url, _ac_fetch_data)
 
 
 _WORKORDER_FIELDS = [
@@ -124,8 +124,8 @@ def find_workorders(*, extended_filters=(), **kwargs) -> WorkorderSet:
         find_workorders(extended_filters=['start_date >= "2020-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Workorder._field_map)
+        _base.parse_filter_parameters(kwargs, extended_filters, Workorder._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_WORKORDERS
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return WorkorderSet([Workorder(obj) for obj in object_list])
