@@ -1,9 +1,6 @@
-from unittest.mock import patch
-
 import pytest
 
-from sailor.assetcentral.system import find_systems, SystemSet, System
-from sailor.assetcentral import constants
+from sailor.assetcentral.system import SystemSet, System
 
 # expected result of _traverse_components and input for _update_components
 systemcomponents_global = {'key': ('SY0', 0),
