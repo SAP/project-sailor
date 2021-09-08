@@ -45,7 +45,7 @@ autodoc_default_options = {
     'member-order': 'groupwise',
     'show-inheritance': True,
     'inherited-members': True,
-    #'undoc-members': True      # TODO: all properties vs only documented ones, e.g. Equipment.location
+    # 'undoc-members': True      # TODO: all properties vs only documented ones, e.g. Equipment.location
 }
 custom_autodoc_skip_classes = [collections.abc.Sequence, BaseException]
 
@@ -198,8 +198,12 @@ def _skip_helper_get_class_of_method(meth):
             return cls
     return getattr(meth, '__objclass__', None)
 
-# function that skips collections.abc.Sequence method
+
 def skip_classes(classes_to_skip):
+    """Return a function that can be used to skip documentation of specified class members.
+
+    To be used together with the 'autodoc-skip-member' event.
+    """
     def skip_func(app, what, name, obj, skip, options):
         getclass = _skip_helper_get_class_of_method(obj)
         if getclass in classes_to_skip:
@@ -207,5 +211,6 @@ def skip_classes(classes_to_skip):
         return skip
     return skip_func
 
-def setup(app):
+
+def setup(app):  # noqa: D103 (documented by sphinx itself)
     app.connect('autodoc-skip-member', skip_classes(custom_autodoc_skip_classes))
