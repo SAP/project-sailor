@@ -40,13 +40,13 @@ _FAILURE_MODE_FIELDS = [
     _AssetcentralField('_object_id', 'ObjectID'),
     _AssetcentralField('_pattern_id', 'PatternID'),
     _AssetcentralField('_pattern_confidence', 'PatternConfidence'),
-    _AssetcentralField('_MTTF_value', 'MTTFValue'),
+    _AssetcentralField('_MTTF_value', 'MTTFValue'),  # TODO: can this be queried? (number)
     _AssetcentralField('_MTTF_unit', 'MTTFUnit'),
     _AssetcentralField('_MTTF_confidence', 'MTTFConfidence'),
-    _AssetcentralField('_MTTR_value', 'MTTRValue'),
+    _AssetcentralField('_MTTR_value', 'MTTRValue'),  # TODO: can this be queried? (number)
     _AssetcentralField('_MTTR_unit', 'MTTRUnit'),
     _AssetcentralField('_MTTR_confidence', 'MTTRConfidence'),
-    _AssetcentralField('_MTBF_value', 'MTBFValue'),
+    _AssetcentralField('_MTBF_value', 'MTBFValue'),  # TODO: can this be queried? (number)
     _AssetcentralField('_MTBF_unit', 'MTBFUnit'),
     _AssetcentralField('_MTBF_confidence', 'MTBFConfidence'),
     _AssetcentralField('_pattern_name', 'PatternName'),

@@ -169,19 +169,11 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         else:
             key = k
             not_our_term.append(key)
-            query_transformer = None
+            query_transformer = _base.MasterDataField._default_query_transformer
 
-        def quote_if_string(x):
-            if isinstance(x, str):
-                return f"'{x}'"
-            else:
-                return str(x)
         if _is_non_string_iterable(v):
-            v = [quote_if_string(x) for x in v]
+            v = [query_transformer(x) for x in v]
         else:
-            v = quote_if_string(v)
-
-        if query_transformer:
             v = query_transformer(v)
 
         unified_filters.append((key, 'eq', v))
@@ -191,7 +183,6 @@ def _unify_filters(equality_filters, extended_filters, field_map):
     for filter_entry in extended_filters:
         if match := quoted_pattern.fullmatch(filter_entry):
             k, o, _, v = match.groups()
-            v = f"'{v}'"  # we always need single quotes, but want to accept double quotes as well, hence re-writing.
         elif match := unquoted_pattern.fullmatch(filter_entry):
             k, o, v = match.groups()
             if v in field_map:
@@ -205,7 +196,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         else:
             key = k
             not_our_term.append(key)
-            query_transformer = None
+            query_transformer = _base.MasterDataField._default_query_transformer
 
         if query_transformer:
             v = query_transformer(v)

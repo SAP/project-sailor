@@ -42,19 +42,19 @@ _EQUIPMENT_FIELDS = [
     _AssetcentralField('id', 'equipmentId'),
     _AssetcentralField('model_id', 'modelId'),
     _AssetcentralField('template_id', 'templateId'),
-    _AssetcentralField('serial_number', 'serialNumber'),
+    _AssetcentralField('serial_number', 'serialNumber'),  # TODO: query testing required. is it number or str?
     _AssetcentralField('batch_number', 'batchNumber'),
     _AssetcentralField('_tag_number', 'tagNumber'),
     _AssetcentralField('_lifecycle', 'lifeCycle'),
     _AssetcentralField('_lifecycle_description', 'lifeCycleDescription'),
     _AssetcentralField('_source', 'source'),
     _AssetcentralField('_status', 'status'),
-    _AssetcentralField('_version', 'version'),
+    _AssetcentralField('_version', 'version'),  # TODO: query testing required (API: number)
     _AssetcentralField('_in_revision', 'hasInRevision'),
     _AssetcentralField('_subclass', 'subclass'),
     _AssetcentralField('_model_template', 'modelTemplate'),
     _AssetcentralField('_criticality_code', 'criticalityCode'),
-    _AssetcentralField('_completeness', 'completeness'),
+    _AssetcentralField('_completeness', 'completeness'),  # TODO: query testing required (API: integer)
     _AssetcentralField('_created_on', 'createdOn'),
     _AssetcentralField('_changed_on', 'changedOn'),
     _AssetcentralField('_published_on', 'publishedOn'),
@@ -62,7 +62,7 @@ _EQUIPMENT_FIELDS = [
     _AssetcentralField('_coordinates', 'coordinates'),
     _AssetcentralField('_equipment_status', 'equipmentStatus'),
     _AssetcentralField('_is_operator_valid', 'isOperatorValid'),
-    _AssetcentralField('_model_version', 'modelVersion'),
+    _AssetcentralField('_model_version', 'modelVersion'),  # TODO: query testing required (API: number)
     _AssetcentralField('_sold_to', 'soldTo'),
     _AssetcentralField('_image', 'image'),
     _AssetcentralField('_consume', 'consume'),

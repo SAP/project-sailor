@@ -35,11 +35,13 @@ class MasterDataField:
     def _default_put_setter(self, payload, value):
         payload[self.their_name_put] = value
 
-    def _default_get_extractor(self, value):
+    @staticmethod
+    def _default_get_extractor(value):
         return value
 
-    def _default_query_transformer(self, value):
-        return value
+    @staticmethod
+    def _default_query_transformer(value):
+        return f"'{str(value)}'"
 
 
 class MasterDataEntity:

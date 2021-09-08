@@ -25,9 +25,9 @@ _MODEL_FIELDS = [
     _AssetcentralField('manufacturer', 'manufacturer'),
     _AssetcentralField('short_description', 'shortDescription'),
     _AssetcentralField('service_expiration_date', 'serviceExpirationDate',
-                       get_extractor=_string_to_timestamp_parser(unit='ms')),
+                       get_extractor=_string_to_timestamp_parser(unit='ms')),  # TODO: query testing required (epoch)
     _AssetcentralField('model_expiration_date', 'modelExpirationDate',
-                       get_extractor=_string_to_timestamp_parser(unit='ms')),
+                       get_extractor=_string_to_timestamp_parser(unit='ms')),  # TODO: query testing required (epoch)
     _AssetcentralField('generation', 'generation'),
     _AssetcentralField('long_description', 'longDescription'),
     _AssetcentralField('id', 'modelId'),

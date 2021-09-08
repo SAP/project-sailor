@@ -2,8 +2,10 @@ from unittest.mock import patch
 
 import pytest
 
+from sailor import _base
 from sailor.assetcentral import constants
 from sailor import assetcentral
+
 
 test_params = {
     'equipment': {
@@ -36,6 +38,12 @@ test_params = {
         'id_field': 'notificationId',
         'endpoint': constants.VIEW_NOTIFICATIONS
     },
+    'system': {
+        'function': assetcentral.find_systems,
+        'set_class': assetcentral.system.SystemSet,
+        'id_field': 'systemId',
+        'endpoint': constants.VIEW_SYSTEMS
+    },
     'workorder': {
         'function': assetcentral.find_workorders,
         'set_class': assetcentral.workorder.WorkorderSet,
@@ -47,7 +55,7 @@ test_params = {
 
 @pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
 @pytest.mark.parametrize('test_object', list(test_params))
-def test_find_functions_expect_fetch_call_args(test_object):
+def test_find_functions_expect_fetch_call_args(test_object, monkeypatch):
     find_params = dict(extended_filters=['integer_param1 < 10'], string_parameter=['Type A', 'Type F'])
     expected_call_args = (['integer_param1 lt 10'], [["string_parameter eq 'Type A'", "string_parameter eq 'Type F'"]])
 
@@ -55,6 +63,10 @@ def test_find_functions_expect_fetch_call_args(test_object):
     instance_class = params['set_class']._element_type
     objects = [instance_class({params['id_field']: x}) for x in ['test_id1', 'test_id2']]
     expected_result = params['set_class'](objects)
+
+    monkeypatch.setitem(instance_class._field_map,
+                        'integer_param1', _base.MasterDataField('integer_param1', 'integer_param1',
+                                                                query_transformer=lambda x: str(x)))
 
     with patch(f'sailor.assetcentral.{test_object}._ac_application_url') as mock:
         mock.return_value = 'base_url'
