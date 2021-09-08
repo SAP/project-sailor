@@ -185,8 +185,6 @@ def _unify_filters(equality_filters, extended_filters, field_map):
             k, o, _, v = match.groups()
         elif match := unquoted_pattern.fullmatch(filter_entry):
             k, o, v = match.groups()
-            if v in field_map:
-                v = field_map[v].their_name_get
         else:
             raise RuntimeError(f'Failed to parse filter entry {filter_entry}')
 
