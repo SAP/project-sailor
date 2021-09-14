@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.assetcentral.workorder
    :members:
-   :show-inheritance:

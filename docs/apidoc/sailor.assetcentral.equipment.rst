@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.assetcentral.equipment
    :members:
-   :show-inheritance:

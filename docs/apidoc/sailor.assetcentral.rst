@@ -24,4 +24,3 @@ Module contents
 
 .. automodule:: sailor.assetcentral
    :members:
-   :show-inheritance:

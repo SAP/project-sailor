@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.utils.oauth_wrapper.OAuthServiceImpl
    :members:
-   :show-inheritance:

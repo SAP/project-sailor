@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.utils.timestamps
    :members:
-   :show-inheritance:
