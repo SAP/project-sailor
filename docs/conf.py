@@ -45,7 +45,6 @@ autodoc_default_options = {
     'member-order': 'groupwise',
     'show-inheritance': True,
     'inherited-members': True,
-    # 'undoc-members': True      # TODO: all properties vs only documented ones, e.g. Equipment.location
 }
 custom_autodoc_skip_classes = [collections.abc.Sequence, BaseException]
 
