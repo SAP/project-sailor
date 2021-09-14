@@ -115,7 +115,7 @@ html_context = {
   'display_github': True,
   'github_user': 'SAP',
   'github_repo': 'project-sailor',
-  'github_version': 'master/docs/',
+  'github_version': 'main/docs/',
 }
 
 
