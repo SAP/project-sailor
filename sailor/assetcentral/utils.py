@@ -169,7 +169,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         else:
             key = k
             not_our_term.append(key)
-            query_transformer = _base.MasterDataField._default_query_transformer
+            query_transformer = str     # equals identity, since end result is always a string
 
         if _is_non_string_iterable(v):
             v = [query_transformer(x) for x in v]
@@ -179,10 +179,11 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         unified_filters.append((key, 'eq', v))
 
     quoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?([\"\'])((?:\\?.)*?)\3$')
-    unquoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?([+-]?[\w.]+)$')
+    unquoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?(\S+)$')
     for filter_entry in extended_filters:
+        quote_char = None
         if match := quoted_pattern.fullmatch(filter_entry):
-            k, o, _, v = match.groups()
+            k, o, quote_char, v = match.groups()
         elif match := unquoted_pattern.fullmatch(filter_entry):
             k, o, v = match.groups()
         else:
@@ -190,14 +191,28 @@ def _unify_filters(equality_filters, extended_filters, field_map):
 
         if k in field_map:
             key = field_map[k].their_name_get
-            query_transformer = field_map[k].query_transformer
+            if not quote_char and v in field_map:
+                v = field_map[v].their_name_get
+                query_transformer = str     # equals identity, since end result is always a string
+            else:
+                query_transformer = field_map[k].query_transformer
         else:
             key = k
             not_our_term.append(key)
-            query_transformer = _base.MasterDataField._default_query_transformer
 
-        if query_transformer:
-            v = query_transformer(v)
+            if quote_char:
+                def quote_same(x, q=quote_char):
+                    return f'{q}{x}{q}'
+                query_transformer = quote_same
+            else:
+                # anything else... put it through completely unchanged. Examples:
+                # abc == 3.4
+                # abc == null
+                # abc == some-string-value-but-user-forgot-to-quote-it.  their fault.
+                # abc == datetimeoffset'blub'
+                query_transformer = str     # equals identity, since end result is always a string
+
+        v = query_transformer(v)
 
         unified_filters.append((key, operator_map[o], v))
 
