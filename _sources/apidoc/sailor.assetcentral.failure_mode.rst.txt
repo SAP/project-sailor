@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.assetcentral.failure_mode
    :members:
-   :show-inheritance:

@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.pai.constants
    :members:
-   :show-inheritance:

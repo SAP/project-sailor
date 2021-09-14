@@ -179,7 +179,7 @@
         
           
             
-              <a href="https://github.com/SAP/project-sailor/blob/master/docs/apidoc/sailor.assetcentral.model.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/SAP/project-sailor/blob/main/docs/apidoc/sailor.assetcentral.model.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -255,6 +255,22 @@ Models can be of type Equipment, System or FunctionalLocation, but the type is n
 </div>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.assetcentral.model.Model.get_available_properties">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_available_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sailor.assetcentral.model.Model.get_available_properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the available properties for this class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.assetcentral.model.Model.get_property_mapping">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_property_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sailor.assetcentral.model.Model.get_property_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a mapping from our terminology to remote API terminology.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 1.4.0.</span></p>
+</div>
+<p>Use <a class="reference internal" href="#sailor.assetcentral.model.Model.get_available_properties" title="sailor.assetcentral.model.Model.get_available_properties"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_available_properties()</span></code></a> instead.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -262,6 +278,35 @@ Models can be of type Equipment, System or FunctionalLocation, but the type is n
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.model.</span></span><span class="sig-name descname"><span class="pre">ModelSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/model.html#ModelSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.model.ModelSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntitySet" title="sailor.assetcentral.utils.AssetcentralEntitySet"><code class="xref py py-class docutils literal notranslate"><span class="pre">sailor.assetcentral.utils.AssetcentralEntitySet</span></code></a></p>
 <p>Class representing a group of Models.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.assetcentral.model.ModelSet.as_df">
+<span class="sig-name descname"><span class="pre">as_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.assetcentral.model.ModelSet.as_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all information on the objects stored in the MasterDataEntitySet as a pandas dataframe.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.assetcentral.model.ModelSet.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.assetcentral.model.ModelSet.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select a subset of the collection based on named filter criteria for the attributes of the elements.</p>
+<p>All keyword arguments are concatenated as filters with OR operator, i.e., only one of the supplied filters
+must match for an entity to be selected.</p>
+<p>Returns a new AssetcentralEntitySet object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>sailor._base.masterdata.MasterDataEntitySet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.assetcentral.model.ModelSet.plot_distribution">
+<span class="sig-name descname"><span class="pre">plot_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.assetcentral.model.ModelSet.plot_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the distribution of elements of a MasterDataEntitySet based on their properties.</p>
+<p>This effectively creates a histogram with the number of elements per group on the y-axis, and the group
+(given by the <cite>by</cite> parameter) on the x-axis. Additionally, the fill colour of the bar can be used to
+distinguish a second dimension.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">

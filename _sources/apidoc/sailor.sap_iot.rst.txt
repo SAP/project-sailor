@@ -16,4 +16,3 @@ Module contents
 
 .. automodule:: sailor.sap_iot
    :members:
-   :show-inheritance:

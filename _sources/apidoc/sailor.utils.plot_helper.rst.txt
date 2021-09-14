@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.utils.plot_helper
    :members:
-   :show-inheritance:

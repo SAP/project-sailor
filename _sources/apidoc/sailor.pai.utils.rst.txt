@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.pai.utils
    :members:
-   :show-inheritance:
