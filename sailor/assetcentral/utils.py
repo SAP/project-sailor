@@ -163,6 +163,8 @@ def _unify_filters(equality_filters, extended_filters, field_map):
     def quote_if_string(x):
         if isinstance(x, str):
             return f"'{x}'"
+        elif x is None:
+            return 'null'
         else:
             return str(x)
 
@@ -208,6 +210,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
             not_our_term.append(key)
 
             if quote_char:
+                # if quoted, then the user must mean that it is a string
                 def quote_same(x, q=quote_char):
                     return f'{q}{x}{q}'
                 query_transformer = quote_same

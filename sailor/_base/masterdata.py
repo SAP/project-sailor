@@ -41,6 +41,9 @@ class MasterDataField:
 
     @staticmethod
     def _default_query_transformer(value):
+         # with this, it is not possible to specify a string value of "'null'"
+        if value in [None, 'null']:
+            return 'null'
         return f"'{str(value)}'"
 
 
