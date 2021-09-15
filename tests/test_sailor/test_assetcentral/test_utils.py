@@ -106,7 +106,7 @@ class TestQueryParsers:
         ('list of floats', [3.4, 4.5], ["'3.4'", "'4.5'"]),
         ('mixed type list', ['value 1', 18., 'value2', 5, None], ["'value 1'", "'18.0'", "'value2'", "'5'", 'null']),
     ])
-    def test_unify_filters_only_equality_different_types_known_fields(self, value, expected_values, test_description):
+    def test_unify_filters_only_equality_known_fields(self, value, expected_values, test_description):
         expected_filters = [('filtered_term', 'eq', expected_values)]
         field_map = {'filtered_term': _base.MasterDataField('filtered_term', 'filtered_term')}
 
@@ -114,32 +114,35 @@ class TestQueryParsers:
 
         assert filters == expected_filters
 
+    # values of unknown fields are never modified. the user must have it right
     @pytest.mark.parametrize('test_description,value,expected_values', [
-        ('single value', 'value', "'value'"),
-        ('list of values', ['value1', 'value2'], ["'value1'", "'value2'"]),
-        ('null value', None, 'null'),
+        ('single value', 'value', 'value'),  # this includes the null value
+        ('quoted value single-quote', "'value'", "'value'"),
+        ('quoted value double-quote', '"value"', '"value"'),
+        ('list of values', ['value1', 'value2'], ["value1", "value2"]),
         ('single integer', 7, "7"),
         ('list of integers', [3, 6, 1], ["3", "6", "1"]),
         ('single float', 3.14, "3.14"),
         ('list of floats', [3.4, 4.5], ["3.4", "4.5"]),
-        ('mixed type list', ['value 1', 18., 'value2', 5, None], ["'value 1'", "18.0", "'value2'", "5", "null"]),
+        ('mixed type list', ['null', 18., "'value2'", 5], ["null", "18.0", "'value2'", "5"]),
     ])
-    def test_unify_filters_only_equality_different_types_unknown_fields(self, value, expected_values, test_description):
+    def test_unify_filters_only_equality_unknown_fields(self, value, expected_values, test_description):
         expected_filters = [('filtered_term', 'eq', expected_values)]
 
         filters = _unify_filters({'filtered_term': value}, None, None)
 
         assert filters == expected_filters
 
+    # values of known fields are put through the default QT => single quote everything with the exception of the 'null'
     @pytest.mark.parametrize('test_description,value,expected_value', [
-        ('quoted value single-quote', "'value'", "'value'"),                         # values of known fields are put through the default QT => single quptes
-        ('quoted value double-quote', '"value"', "'value'"),                         # values of known fields are put through the default QT => single quotes
-        ('other string', "datetimeoffset'2020-01-01'", "'datetimeoffset'2020-01-01''"),     # nonsensical example => a QT should handle this datatype
+        ('quoted value single-quote', "'value'", "'value'"),
+        ('quoted value double-quote', '"value"', "'value'"),
+        ('other string', "datetimeoffset'2020-01-01'", "'datetimeoffset'2020-01-01''"),  # nonsensical example => a QT should handle this datatype
         ('null value', 'null', 'null'),
         ('single integer', 7, "'7'"),
         ('single float', 3.14, "'3.14'"),
     ])
-    def test_unify_filters_only_extended_different_types_known_fields(self, value, expected_value, test_description):
+    def test_unify_filters_only_extended_known_fields(self, value, expected_value, test_description):
         expected_filters = [('filtered_term', 'eq', expected_value)]
         field_map = {'filtered_term': _base.MasterDataField('filtered_term', 'filtered_term')}
 
@@ -148,14 +151,14 @@ class TestQueryParsers:
         assert filters == expected_filters
 
     @pytest.mark.parametrize('test_description,value,expected_value', [
-        ('quoted value single-quote', "'value'", "'value'"),                    # values of unknown fields are not modified by default
-        ('quoted value double-quote', '"value"', '"value"'),                    # values of unknown fields are not modified by default
+        ('quoted value single-quote', "'value'", "'value'"),
+        ('quoted value double-quote', '"value"', '"value"'),
         ('other string', "datetimeoffset'2020-01-01'", "datetimeoffset'2020-01-01'"),
         ('null value', 'null', 'null'),
         ('single integer', 7, '7'),
         ('single float', 3.14, '3.14'),
     ])
-    def test_unify_filters_only_extended_different_types_unknown_fields(self, value, expected_value, test_description):
+    def test_unify_filters_only_extended_unknown_fields(self, value, expected_value, test_description):
         expected_filters = [('filtered_term', 'eq', expected_value)]
 
         filters = _unify_filters(None, ['filtered_term == {}'.format(value)], None)
@@ -163,9 +166,9 @@ class TestQueryParsers:
         assert filters == expected_filters
 
     @pytest.mark.parametrize('test_description,equality_value,extended_value', [
-        ('quoted value single-quote', 'value', "'value'"),                         # values of known fields are put through the (default) QT
-        ('quoted value double-quote', 'value', '"value"'),                         # values of known fields are put through the (default) QT
-        ('other string', "datetimeoffset'2020-01-01'", "datetimeoffset'2020-01-01'"),       # nonsensical example => a QT should handle this datatype
+        ('quoted value single-quote', 'value', "'value'"),
+        ('quoted value double-quote', 'value', '"value"'),
+        ('other string', "datetimeoffset'2020-01-01'", "datetimeoffset'2020-01-01'"),
         ('null value', None, 'null'),
         ('single integer', 7, '7'),
         ('single float', 3.14, '3.14'),
@@ -180,14 +183,15 @@ class TestQueryParsers:
         assert equality_filters == extended_filters
 
     @pytest.mark.parametrize('test_description,equality_value,extended_value', [
-        ('quoted value single-quote', 'value', "'value'"),
-        ('null value', None, 'null'),
+        ('quoted value single-quote', "'value'", "'value'"),
+        ('quoted value double-quote', '"value"', '"value"'),
+        ('other string', "datetimeoffset'2020-01-01'", "datetimeoffset'2020-01-01'"),
+        ('null value', 'null', 'null'),
         ('single integer', 7, '7'),
         ('single float', 3.14, '3.14'),
     ])
     def test_extended_equals_equality_different_types_unknown_fields(self, equality_value, extended_value,
                                                                      test_description):
-
         equality_filters = _unify_filters({'filtered_term': equality_value}, None, None)
         extended_filters = _unify_filters(None, ['filtered_term == {}'.format(extended_value)], None)
 
@@ -261,9 +265,27 @@ class TestQueryParsers:
             {'location': ['Paris', 'London'], 'name': 'test'}, ["name eq 'test'"],
                                                                [["location eq 'Paris'", "location eq 'London'"]]),
     ])
+    def test_parse_filter_parameters_equality_filters_known_fields(self, equality_filters, expected_unbreakable, expected_breakable,
+                                                                     testdescription):
+        field_map = {'location': _base.MasterDataField('location', 'location'),
+                     'name': _base.MasterDataField('name', 'name')}
+        actual_unbreakable, actual_breakable = _parse_filter_parameters(equality_filters, None, field_map)
+        assert actual_unbreakable == expected_unbreakable
+        assert actual_breakable == expected_breakable
+
+    @pytest.mark.parametrize('testdescription,equality_filters,expected_unbreakable,expected_breakable', [
+        ('no args returns empty', {}, [], []),
+        ('single valued filters are unbreakable',
+            {'location': "'Paris'", 'name': "'test'"}, ["location eq 'Paris'", "name eq 'test'"], []),
+        ('multi valued filters are breakable',
+            {'location': ["'Paris'", "'London'"]}, [], [["location eq 'Paris'", "location eq 'London'"]]),
+        ('single and multi are correctly broken',
+            {'location': ["'Paris'", "'London'"], 'name': "'test'"}, ["name eq 'test'"],
+                                                               [["location eq 'Paris'", "location eq 'London'"]]),
+    ])
     def test_parse_filter_parameters_equality_filters_unknown_fields(self, equality_filters, expected_unbreakable, expected_breakable,
                                                                      testdescription):
-        actual_unbreakable, actual_breakable = _parse_filter_parameters(equality_filters=equality_filters)
+        actual_unbreakable, actual_breakable = _parse_filter_parameters(equality_filters, None, None)
         assert actual_unbreakable == expected_unbreakable
         assert actual_breakable == expected_breakable
 
@@ -282,8 +304,8 @@ class TestQueryParsers:
         assert actual_unbreakable == expected_unbreakable
         assert actual_breakable == []
 
-    def test_parse_filter_parameters_with_combined_filters(self):
-        equality_filters = {'location': ['Paris', 'London']}
+    def test_parse_filter_parameters_with_combined_filters_unknown_fields(self):
+        equality_filters = {'location': ["'Paris'", "'London'"]}
         extended_filters = ["startDate > '2020-01-01'", "endDate < '2020-02-01'"]
 
         actual_unbreakable, actual_breakable = \

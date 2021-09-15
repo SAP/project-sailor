@@ -55,7 +55,7 @@ test_params = {
 @pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
 @pytest.mark.parametrize('test_object', list(test_params))
 def test_find_functions_expect_fetch_call_args(test_object):
-    find_params = dict(extended_filters=['unknown_integer_param < 10'], unknown_string_param=['Type A', 'Type F'])
+    find_params = dict(extended_filters=['unknown_integer_param < 10'], unknown_string_param=["'Type A'", "'Type F'"])
     expected_call_args = (['unknown_integer_param lt 10'],
                           [["unknown_string_param eq 'Type A'", "unknown_string_param eq 'Type F'"]])
 
