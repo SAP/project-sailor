@@ -160,6 +160,12 @@ def _unify_filters(equality_filters, extended_filters, field_map):
     if field_map is None:
         field_map = {}
 
+    def quote_if_string(x):
+        if isinstance(x, str):
+            return f"'{x}'"
+        else:
+            return str(x)
+
     unified_filters = []
     not_our_term = []
     for k, v in equality_filters.items():
@@ -169,7 +175,8 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         else:
             key = k
             not_our_term.append(key)
-            query_transformer = str     # equals identity, since end result is always a string
+            # unknown fields are quoted if they are strings.
+            query_transformer = quote_if_string     # we need to do this to keep old behavior
 
         if _is_non_string_iterable(v):
             v = [query_transformer(x) for x in v]
@@ -193,7 +200,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
             key = field_map[k].their_name_get
             if not quote_char and v in field_map:
                 v = field_map[v].their_name_get
-                query_transformer = str     # equals identity, since end result is always a string
+                query_transformer = str     # equals identity, since field name must be unquoted string
             else:
                 query_transformer = field_map[k].query_transformer
         else:
@@ -205,10 +212,10 @@ def _unify_filters(equality_filters, extended_filters, field_map):
                     return f'{q}{x}{q}'
                 query_transformer = quote_same
             else:
-                # anything else... put it through completely unchanged. Examples:
+                # unknown unquoted fields are put through completely unchanged. Examples:
                 # abc == 3.4
                 # abc == null
-                # abc == some-string-value-but-user-forgot-to-quote-it.  their fault.
+                # abc == some-string-value-but-user-forgot-to-quote-it
                 # abc == datetimeoffset'blub'
                 query_transformer = str     # equals identity, since end result is always a string
 
