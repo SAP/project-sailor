@@ -25,7 +25,7 @@ class TestAlert():
     def test_find_alerts_expect_fetch_call_args(self):
         params = get_parameters('alert')
 
-        find_params = dict(extended_filters=['unknown_integer_param < 10'], unknown_string_param=['Type A', 'Type F'])
+        find_params = dict(extended_filters=['unknown_integer_param < 10'], unknown_string_param=["'Type A'", "'Type F'"])
         expected_call_args = (['unknown_integer_param lt 10'],
                               [["unknown_string_param eq 'Type A'", "unknown_string_param eq 'Type F'"]],
                               'predictive_asset_insights')
