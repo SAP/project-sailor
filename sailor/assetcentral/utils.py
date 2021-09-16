@@ -144,6 +144,8 @@ def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), clie
 
 
 def _unify_filters(equality_filters, extended_filters, field_map):
+    # known fields are put through the query transformer
+    # unknown fields are never transformed
     operator_map = {
         '>': 'gt',
         '<': 'lt',
@@ -160,14 +162,6 @@ def _unify_filters(equality_filters, extended_filters, field_map):
     if field_map is None:
         field_map = {}
 
-    def quote_if_string(x):
-        if isinstance(x, str):
-            return f"'{x}'"
-        elif x is None:
-            return 'null'
-        else:
-            return str(x)
-
     unified_filters = []
     not_our_term = []
     for k, v in equality_filters.items():
@@ -177,8 +171,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         else:
             key = k
             not_our_term.append(key)
-            # unknown fields are quoted if they are strings.
-            query_transformer = quote_if_string     # we need to do this to keep old behavior
+            query_transformer = str
 
         if _is_non_string_iterable(v):
             v = [query_transformer(x) for x in v]
