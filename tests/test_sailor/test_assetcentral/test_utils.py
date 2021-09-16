@@ -137,7 +137,7 @@ class TestQueryParsers:
     @pytest.mark.parametrize('test_description,value,expected_value', [
         ('quoted value single-quote', "'value'", "'value'"),
         ('quoted value double-quote', '"value"', "'value'"),
-        ('other string', "datetimeoffset'2020-01-01'", "'datetimeoffset'2020-01-01''"),  # nonsensical example => a QT should handle this datatype
+        ('other string', "datetimeoffset'2020-01-01'", "'datetimeoffset'2020-01-01''"),  # nonsensical example
         ('null value', 'null', 'null'),
         ('single integer', 7, "'7'"),
         ('single float', 3.14, "'3.14'"),
@@ -265,8 +265,8 @@ class TestQueryParsers:
             {'location': ['Paris', 'London'], 'name': 'test'}, ["name eq 'test'"],
                                                                [["location eq 'Paris'", "location eq 'London'"]]),
     ])
-    def test_parse_filter_parameters_equality_filters_known_fields(self, equality_filters, expected_unbreakable, expected_breakable,
-                                                                     testdescription):
+    def test_parse_filter_parameters_equality_filters_known_fields(self, equality_filters, expected_unbreakable,
+                                                                   expected_breakable, testdescription):
         field_map = {'location': _base.MasterDataField('location', 'location'),
                      'name': _base.MasterDataField('name', 'name')}
         actual_unbreakable, actual_breakable = _parse_filter_parameters(equality_filters, None, field_map)
@@ -280,11 +280,11 @@ class TestQueryParsers:
         ('multi valued filters are breakable',
             {'location': ["'Paris'", "'London'"]}, [], [["location eq 'Paris'", "location eq 'London'"]]),
         ('single and multi are correctly broken',
-            {'location': ["'Paris'", "'London'"], 'name': "'test'"}, ["name eq 'test'"],
-                                                               [["location eq 'Paris'", "location eq 'London'"]]),
+            {'location': ["'Paris'", "'London'"], 'name': "'test'"}, ["name eq 'test'"], [
+                ["location eq 'Paris'", "location eq 'London'"]]),
     ])
-    def test_parse_filter_parameters_equality_filters_unknown_fields(self, equality_filters, expected_unbreakable, expected_breakable,
-                                                                     testdescription):
+    def test_parse_filter_parameters_equality_filters_unknown_fields(self, equality_filters, expected_unbreakable,
+                                                                     expected_breakable, testdescription):
         actual_unbreakable, actual_breakable = _parse_filter_parameters(equality_filters, None, None)
         assert actual_unbreakable == expected_unbreakable
         assert actual_breakable == expected_breakable

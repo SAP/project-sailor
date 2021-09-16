@@ -144,8 +144,8 @@ def _fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), clie
 
 
 def _unify_filters(equality_filters, extended_filters, field_map):
-    # known fields are put through the query transformer
-    # unknown fields are never transformed
+    # known field values are put through the query transformer
+    # unknown field values are never transformed
     operator_map = {
         '>': 'gt',
         '<': 'lt',
@@ -180,40 +180,26 @@ def _unify_filters(equality_filters, extended_filters, field_map):
 
         unified_filters.append((key, 'eq', v))
 
-    quoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?([\"\'])((?:\\?.)*?)\3$')
-    unquoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?(\S+)$')
+    filter_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?(\S+)$')
     for filter_entry in extended_filters:
-        quote_char = None
-        if match := quoted_pattern.fullmatch(filter_entry):
-            k, o, quote_char, v = match.groups()
-        elif match := unquoted_pattern.fullmatch(filter_entry):
+        if match := filter_pattern.fullmatch(filter_entry):
             k, o, v = match.groups()
         else:
             raise RuntimeError(f'Failed to parse filter entry {filter_entry}')
 
         if k in field_map:
             key = field_map[k].their_name_get
-            if not quote_char and v in field_map:
+            if v in field_map:
                 v = field_map[v].their_name_get
-                query_transformer = str     # equals identity, since field name must be unquoted string
+                query_transformer = str         # equals identity, since field name must be unquoted string
             else:
                 query_transformer = field_map[k].query_transformer
+                v = _strip_quote_marks(v)
         else:
             key = k
             not_our_term.append(key)
-
-            if quote_char:
-                # if quoted, then the user must mean that it is a string
-                def quote_same(x, q=quote_char):
-                    return f'{q}{x}{q}'
-                query_transformer = quote_same
-            else:
-                # unknown unquoted fields are put through completely unchanged. Examples:
-                # abc == 3.4
-                # abc == null
-                # abc == some-string-value-but-user-forgot-to-quote-it
-                # abc == datetimeoffset'blub'
-                query_transformer = str     # equals identity, since end result is always a string
+            # unknown field values are put through completely unchanged
+            query_transformer = str
 
         v = query_transformer(v)
 
@@ -253,25 +239,27 @@ def _apply_filters_post_request(data, equality_filters, extended_filters, field_
     unified_filters = _unify_filters(equality_filters, extended_filters, field_map)
     result = []
 
-    def strip_quote_marks(value):
-        if value[0] == "'" and value[-1] == "'":
-            return value[1:-1]
-        return value
-
     for elem in data:
         for key, op, value in unified_filters:
             if _is_non_string_iterable(value):
-                value = [strip_quote_marks(v) for v in value]
+                value = [_strip_quote_marks(v) for v in value]
                 if elem[key] not in value:
                     break
             else:
-                value = strip_quote_marks(value)
+                value = _strip_quote_marks(value)
                 if not getattr(operator, op)(elem[key], value):
                     break
         else:
             result.append(elem)
 
     return result
+
+
+def _strip_quote_marks(value):
+    quoted_value_pattern = re.compile(r'^([\"\'])(\S+)\1$')
+    if match := quoted_value_pattern.fullmatch(value):
+        _, value = match.groups()
+    return value
 
 
 def _ac_application_url():
