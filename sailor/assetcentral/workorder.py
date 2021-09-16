@@ -34,7 +34,7 @@ _WORKORDER_FIELDS = [
     _AssetcentralField('_created_by', 'createdBy'),
     _AssetcentralField('_created_on', 'creationDateTime'),
     _AssetcentralField('_lastChangedBy', 'lastChangedBy'),
-    _AssetcentralField('_changed_on', 'lastChangeDateTime'),  # TODO: query testing required (API: number)
+    _AssetcentralField('_changed_on', 'lastChangeDateTime'),
     _AssetcentralField('_basic_start_date', 'basicStartDate', get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('_basic_end_date', 'basicEndDate', get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('_actual_start_date', 'actualStartDate',
@@ -50,7 +50,7 @@ _WORKORDER_FIELDS = [
     _AssetcentralField('_source', 'source'),
     _AssetcentralField('_source_id', 'sourceId'),
     _AssetcentralField('_operator_id', 'operatorId'),
-    _AssetcentralField('_is_source_active', 'isSourceActive'),  # TODO: can this be queried? (number)
+    _AssetcentralField('_is_source_active', 'isSourceActive'),
     _AssetcentralField('_asset_core_equipment_id', 'assetCoreEquipmentId'),
     _AssetcentralField('_operator', 'operator'),
 ]

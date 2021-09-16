@@ -9,6 +9,7 @@ import plotnine as p9
 
 from ..utils.plot_helper import _default_plot_theme
 from ..utils.utils import _is_non_string_iterable
+from ..utils.timestamps import _any_to_timestamp, _timestamp_to_isoformat
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -45,6 +46,20 @@ class MasterDataField:
             return 'null'
         else:
             return f"'{str(value)}'"
+
+
+def _qt_double(value):
+    if value in [None, 'null']:
+        return 'null'
+    return f"{str(value)}d"
+
+
+def _qt_timestamp(value):
+    if value in [None, 'null']:
+        return 'null'
+    timestamp = _any_to_timestamp(value)
+    timestamp = _timestamp_to_isoformat(timestamp, with_zulu=True)
+    return f"'{timestamp}'"
 
 
 class MasterDataEntity:
