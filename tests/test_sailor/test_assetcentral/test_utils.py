@@ -6,7 +6,8 @@ import pytest
 from sailor import _base
 from sailor.assetcentral.utils import (
     AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity,
-    _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data)
+    _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data,
+    _strip_quote_marks)
 
 
 class TestAssetcentralRequest:
@@ -528,3 +529,17 @@ class TestFetchData:
         actual = _fetch_data('', unbreakable_filters, breakable_filters)
 
         assert actual == expected_result
+
+
+@pytest.mark.parametrize('input,expected', [
+    ("'correctly-quoted'", 'correctly-quoted'),
+    ('"correctly-quoted"', 'correctly-quoted'),
+    ('"correctly-quoted-with-quotes"in-the"-middle"', 'correctly-quoted-with-quotes"in-the"-middle'),
+    ('"wrong\'', '"wrong\''),
+    ('"wrong', '"wrong'),
+    ('just a string', 'just a string'),
+    ('some-quotes"in-the"-middle', 'some-quotes"in-the"-middle'),
+])
+def test_strip_quote_marks(input, expected):
+    actual = _strip_quote_marks(input)
+    assert actual == expected
