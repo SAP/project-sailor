@@ -7,6 +7,33 @@ from sailor.assetcentral.utils import AssetcentralEntity
 from sailor.pai.utils import PredictiveAssetInsightsEntity
 
 
+@pytest.mark.parametrize('input,expected', [
+    (1, '1d'),
+    ('1', '1d'),
+    (1.333, '1.333d'),
+    ('1.333', '1.333d'),
+    ('null', 'null'),
+    (None, 'null')
+])
+def test_qt_double(input, expected):
+    actual = _base.masterdata._qt_double(input)
+    assert actual == expected
+
+
+@pytest.mark.parametrize('input,expected', [
+    ('2020-01-01', "'2020-01-01T00:00:00Z'"),
+    ('2020-01-01 12:15:00+02:00', "'2020-01-01T10:15:00Z'"),
+    ("'2020-01-01'", "'2020-01-01T00:00:00Z'"),
+    ("'2020-01-01 12:15:00+02:00'", "'2020-01-01T10:15:00Z'"),
+    ('null', 'null'),
+    (None, 'null')
+])
+@pytest.mark.filterwarnings('ignore:Trying to parse non-timezone-aware timestamp')
+def test_qt_timestamp(input, expected):
+    actual = _base.masterdata._qt_timestamp(input)
+    assert actual == expected
+
+
 class TestMasterDataEntity:
 
     def test_magic_eq_true(self):
