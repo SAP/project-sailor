@@ -16,29 +16,26 @@ def fetch_data(client_name, result_handler, endpoint_url, unbreakable_filters=()
     filters = _compose_queries(unbreakable_filters, breakable_filters)
     oauth_client = get_oauth_client(client_name)
 
-    count_endpoint_url = endpoint_url + '/$count'
-
     if not filters:
         filters = ['']
 
     result = []
     for filter_string in filters:
-        result_part = []
-        count = _fetch_count(count_endpoint_url, oauth_client, filter_string)
-        if count == 0:
-            LOG.debug('Fetch count was zero for: %s', filter_string)
-            continue
+        result_filter = []
+
         skip = 0
-        while skip < count:
+        while True:
             params = {'$filter': filter_string} if filter_string else {}
             params.update({'$skip': skip, '$top': 10000, '$format': 'json'})
 
             endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
-            result_handler(result_part, endpoint_data)
+            result_handler(result_filter, endpoint_data)
 
-            skip = len(result_part)
+            if skip >= len(result_filter):
+                break
+            skip = len(result_filter)
             LOG.info('Fetch data progress: %d', skip)
-        result.extend(result_part)
+        result.extend(result_filter)
 
     if len(result) == 0:
         warnings.warn(DataNotFoundWarning(), stacklevel=2)
@@ -93,20 +90,6 @@ def apply_filters_post_request(data, equality_filters, extended_filters, field_m
             result.append(elem)
 
     return result
-
-
-def _fetch_count(endpoint_url_count, oauth_client, filter_string):
-    """Retrieve number of readings with filters from the predictive asset insights services."""
-    params = {'$filter': filter_string} if filter_string else {}
-
-    endpoint_data = oauth_client.request('GET', endpoint_url_count, params=params)
-
-    if isinstance(endpoint_data, (bytes, bytearray)):
-        count = int(endpoint_data.decode())
-        LOG.warning('count was returned as bytes from: %s', endpoint_url_count)  # figure out if this is needed
-    else:
-        count = endpoint_data
-    return count
 
 
 def _compose_queries(unbreakable_filters, breakable_filters):
