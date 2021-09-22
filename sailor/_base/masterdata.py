@@ -62,6 +62,16 @@ def _qt_timestamp(value):
     return f"'{timestamp}'"
 
 
+def _qt_odata_datetimeoffset(value):
+    """Return a timestamp in format 'datetimeoffset'yyyy-mm-ddThh:mm:ssZ'."""
+    if value in [None, 'null']:
+        return 'null'
+    timestamp = _any_to_timestamp(value)
+    timestamp = _timestamp_to_isoformat(timestamp, with_zulu=True)
+    timestamp = f"datetimeoffset'{timestamp}'"
+    return timestamp
+
+
 class MasterDataEntity:
     """Common base class for Masterdata entities."""
 

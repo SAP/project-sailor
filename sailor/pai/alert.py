@@ -6,7 +6,8 @@ Classes are provided for individual Alert as well as groups of Alerts (AlertSet)
 
 from sailor import _base
 from ..assetcentral.utils import (_fetch_data, _parse_filter_parameters)
-from ..utils.timestamps import _odata_to_timestamp_parser, _to_odata_datetimeoffset
+from ..utils.timestamps import _odata_to_timestamp_parser
+from .._base.masterdata import _qt_odata_datetimeoffset
 from .constants import ALERTS_READ_PATH
 from .utils import (PredictiveAssetInsightsEntity, _PredictiveAssetInsightsField,
                     PredictiveAssetInsightsEntitySet, _pai_application_url)
@@ -23,9 +24,9 @@ _ALERT_FIELDS = [
     _PredictiveAssetInsightsField('count', 'Count'),
     _PredictiveAssetInsightsField('status_code', 'StatusCode'),
     _PredictiveAssetInsightsField('triggered_on', 'TriggeredOn', get_extractor=_odata_to_timestamp_parser(),
-                                  query_transformer=_to_odata_datetimeoffset),
+                                  query_transformer=_qt_odata_datetimeoffset),
     _PredictiveAssetInsightsField('last_occured_on', 'LastOccuredOn', get_extractor=_odata_to_timestamp_parser(),
-                                  query_transformer=_to_odata_datetimeoffset),
+                                  query_transformer=_qt_odata_datetimeoffset),
     _PredictiveAssetInsightsField('type_description', 'AlertTypeDescription'),
     _PredictiveAssetInsightsField('error_code_description', 'ErrorCodeDescription'),
     _PredictiveAssetInsightsField('type', 'AlertType'),
@@ -49,7 +50,7 @@ _ALERT_FIELDS = [
     _PredictiveAssetInsightsField('_changed_by', 'ChangedBy'),
     _PredictiveAssetInsightsField('_serial_number', 'SerialNumber'),
     _PredictiveAssetInsightsField('_changed_on', 'ChangedOn', get_extractor=_odata_to_timestamp_parser(),
-                                  query_transformer=_to_odata_datetimeoffset),
+                                  query_transformer=_qt_odata_datetimeoffset),
     _PredictiveAssetInsightsField('_processor', 'Processor'),
     _PredictiveAssetInsightsField('_top_equipment_id', 'TopEquipmentID'),
     _PredictiveAssetInsightsField('_planning_plant', 'PlanningPlant'),
@@ -58,7 +59,7 @@ _ALERT_FIELDS = [
     _PredictiveAssetInsightsField('_source', 'Source'),
     _PredictiveAssetInsightsField('_top_equipment_name', 'TopEquipmentName'),
     _PredictiveAssetInsightsField('_created_on', 'CreatedOn', get_extractor=_odata_to_timestamp_parser(),
-                                  query_transformer=_to_odata_datetimeoffset),
+                                  query_transformer=_qt_odata_datetimeoffset),
     _PredictiveAssetInsightsField('_model_description', 'ModelDescription'),
     _PredictiveAssetInsightsField('_top_equipment_description', 'TopEquipmentDescription'),
     _PredictiveAssetInsightsField('_functional_location_name', 'FunctionalLocationName'),
