@@ -85,7 +85,7 @@ def test_qt_odata_datetimeoffset(input, expected):
 
 
 def test_qt_non_filterable():
-    with pytest.raises(RuntimeError, match=f'Filtering on "my_field" is not supported by AssetCentral'):
+    with pytest.raises(RuntimeError, match='Filtering on "my_field" is not supported by AssetCentral'):
         _base.masterdata._qt_non_filterable('my_field')('ignored_value')
 
 
