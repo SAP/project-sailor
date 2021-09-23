@@ -9,7 +9,7 @@ import plotnine as p9
 
 from ..utils.plot_helper import _default_plot_theme
 from ..utils.utils import _is_non_string_iterable
-from ..utils.timestamps import _any_to_timestamp, _timestamp_to_isoformat
+from ..utils.timestamps import _any_to_timestamp, _timestamp_to_isoformat, _timestamp_to_date_string
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -70,6 +70,26 @@ def _qt_odata_datetimeoffset(value):
     timestamp = _timestamp_to_isoformat(timestamp, with_zulu=True)
     timestamp = f"datetimeoffset'{timestamp}'"
     return timestamp
+
+
+def _qt_date(value):
+    if value in [None, 'null']:
+        return 'null'
+    timestamp = _any_to_timestamp(value)
+    timestamp = _timestamp_to_date_string(timestamp)
+    return f"'{timestamp}'"
+
+
+def _qt_boolean_int_string(value):
+    if value in [None, 'null']:
+        return 'null'
+    return f"'{str(int(value))}'"
+
+
+def _qt_non_filterable(field_name):
+    def raiser(value):
+        raise RuntimeError(f'Filtering on "{field_name}" is not supported by AssetCentral')
+    return raiser
 
 
 class MasterDataEntity:

@@ -20,7 +20,7 @@ _GROUP_FIELDS = [
     _AssetcentralField('name', 'displayId'),
     _AssetcentralField('group_type', 'groupTypeCode'),
     _AssetcentralField('short_description', 'shortDescription'),
-    _AssetcentralField('risk_value', 'riskValue'),
+    _AssetcentralField('risk_value', 'riskValue', query_transformer=_base.masterdata._qt_double),
     _AssetcentralField('id', 'id'),
     _AssetcentralField('_status', 'status'),
     _AssetcentralField('_normalized_risk_score', 'normalizedRiskScore'),
