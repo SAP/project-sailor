@@ -138,6 +138,9 @@ class TestQueryParsers:
     @pytest.mark.parametrize('test_description,value,expected_value', [
         ('quoted value single-quote', "'the value'", "'the value'"),
         ('quoted value double-quote', '"the value"', "'the value'"),
+        ('unquoted value', 'the value', "'the value'"),
+        ('empty quotes', '""', "''"),
+        ('empty quotes', "''", "''"),
         ('other string', "datetimeoffset'2020-01-01'", "'datetimeoffset'2020-01-01''"),  # nonsensical example
         ('null value', 'null', 'null'),
         ('single integer', 7, "'7'"),
@@ -169,6 +172,9 @@ class TestQueryParsers:
     @pytest.mark.parametrize('test_description,equality_value,extended_value', [
         ('quoted value single-quote', 'the value', "'the value'"),
         ('quoted value double-quote', 'the value', '"the value"'),
+        ('unquoted value double-quote', 'the value', 'the value'),
+        ('quoted empty value', '', "''"),
+        ('quoted empty value', '', '""'),
         ('other string', "datetimeoffset'2020-01-01'", "datetimeoffset'2020-01-01'"),
         ('null value', None, 'null'),
         ('single integer', 7, '7'),

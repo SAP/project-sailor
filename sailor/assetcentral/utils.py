@@ -256,7 +256,7 @@ def _apply_filters_post_request(data, equality_filters, extended_filters, field_
 
 
 def _strip_quote_marks(value):
-    quoted_value_pattern = re.compile(r'^([\"\'])(.+)\1$')
+    quoted_value_pattern = re.compile(r'^([\"\'])(.*)\1$')
     if match := quoted_value_pattern.fullmatch(value):
         _, value = match.groups()
     return value
