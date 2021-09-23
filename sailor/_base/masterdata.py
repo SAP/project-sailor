@@ -161,7 +161,7 @@ class MasterDataEntitySet(Sequence):
         """Combine two ResultSets as the sum of all elements, required to implement the `Sequence` interface."""
         if not isinstance(other, type(self)):
             raise TypeError('Only ResultSets of the same type can be added.')
-        return self.__class__(self.elements + other.elements, 'set-summation')
+        return self.__class__(self.elements + other.elements)
 
     def as_df(self, columns=None):
         """Return all information on the objects stored in the MasterDataEntitySet as a pandas dataframe."""
