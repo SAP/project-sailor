@@ -170,7 +170,8 @@
 
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
 <span class="kn">from</span> <span class="nn">..assetcentral.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">_fetch_data</span><span class="p">,</span> <span class="n">_parse_filter_parameters</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_odata_to_timestamp_parser</span><span class="p">,</span> <span class="n">_to_odata_datetimeoffset</span>
+<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_odata_to_timestamp_parser</span>
+<span class="kn">from</span> <span class="nn">.._base.masterdata</span> <span class="kn">import</span> <span class="n">_qt_odata_datetimeoffset</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">ALERTS_READ_PATH</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">PredictiveAssetInsightsEntity</span><span class="p">,</span> <span class="n">_PredictiveAssetInsightsField</span><span class="p">,</span>
                     <span class="n">PredictiveAssetInsightsEntitySet</span><span class="p">,</span> <span class="n">_pai_application_url</span><span class="p">)</span>
@@ -187,9 +188,9 @@
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Count&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;status_code&#39;</span><span class="p">,</span> <span class="s1">&#39;StatusCode&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;triggered_on&#39;</span><span class="p">,</span> <span class="s1">&#39;TriggeredOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_odata_to_timestamp_parser</span><span class="p">(),</span>
-                                  <span class="n">query_transformer</span><span class="o">=</span><span class="n">_to_odata_datetimeoffset</span><span class="p">),</span>
+                                  <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_odata_datetimeoffset</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;last_occured_on&#39;</span><span class="p">,</span> <span class="s1">&#39;LastOccuredOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_odata_to_timestamp_parser</span><span class="p">(),</span>
-                                  <span class="n">query_transformer</span><span class="o">=</span><span class="n">_to_odata_datetimeoffset</span><span class="p">),</span>
+                                  <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_odata_datetimeoffset</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;type_description&#39;</span><span class="p">,</span> <span class="s1">&#39;AlertTypeDescription&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;error_code_description&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorCodeDescription&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;AlertType&#39;</span><span class="p">),</span>
@@ -213,7 +214,7 @@
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_changed_by&#39;</span><span class="p">,</span> <span class="s1">&#39;ChangedBy&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_serial_number&#39;</span><span class="p">,</span> <span class="s1">&#39;SerialNumber&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_changed_on&#39;</span><span class="p">,</span> <span class="s1">&#39;ChangedOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_odata_to_timestamp_parser</span><span class="p">(),</span>
-                                  <span class="n">query_transformer</span><span class="o">=</span><span class="n">_to_odata_datetimeoffset</span><span class="p">),</span>
+                                  <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_odata_datetimeoffset</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_processor&#39;</span><span class="p">,</span> <span class="s1">&#39;Processor&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_top_equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;TopEquipmentID&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_planning_plant&#39;</span><span class="p">,</span> <span class="s1">&#39;PlanningPlant&#39;</span><span class="p">),</span>
@@ -222,7 +223,7 @@
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_source&#39;</span><span class="p">,</span> <span class="s1">&#39;Source&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_top_equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;TopEquipmentName&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_created_on&#39;</span><span class="p">,</span> <span class="s1">&#39;CreatedOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_odata_to_timestamp_parser</span><span class="p">(),</span>
-                                  <span class="n">query_transformer</span><span class="o">=</span><span class="n">_to_odata_datetimeoffset</span><span class="p">),</span>
+                                  <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_odata_datetimeoffset</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_model_description&#39;</span><span class="p">,</span> <span class="s1">&#39;ModelDescription&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_top_equipment_description&#39;</span><span class="p">,</span> <span class="s1">&#39;TopEquipmentDescription&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_functional_location_name&#39;</span><span class="p">,</span> <span class="s1">&#39;FunctionalLocationName&#39;</span><span class="p">),</span>

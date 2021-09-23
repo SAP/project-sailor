@@ -308,6 +308,8 @@
 
 
 <span class="k">def</span> <span class="nf">_unify_filters</span><span class="p">(</span><span class="n">equality_filters</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">field_map</span><span class="p">):</span>
+    <span class="c1"># known field values are put through the query transformer</span>
+    <span class="c1"># unknown field values are never transformed</span>
     <span class="n">operator_map</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span> <span class="s1">&#39;gt&#39;</span><span class="p">,</span>
         <span class="s1">&#39;&lt;&#39;</span><span class="p">:</span> <span class="s1">&#39;lt&#39;</span><span class="p">,</span>
@@ -333,46 +335,37 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">k</span>
             <span class="n">not_our_term</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-            <span class="n">query_transformer</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">query_transformer</span> <span class="o">=</span> <span class="nb">str</span>
 
-        <span class="k">def</span> <span class="nf">quote_if_string</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">_is_non_string_iterable</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="p">[</span><span class="n">quote_if_string</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="p">[</span><span class="n">query_transformer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="n">quote_if_string</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">query_transformer</span><span class="p">:</span>
             <span class="n">v</span> <span class="o">=</span> <span class="n">query_transformer</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
         <span class="n">unified_filters</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;eq&#39;</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
 
-    <span class="n">quoted_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\w+) *?(&gt;|&lt;|==|&lt;=|&gt;=|!=) *?([\&quot;</span><span class="se">\&#39;</span><span class="s1">])((?:</span><span class="se">\\</span><span class="s1">?.)*?)\3$&#39;</span><span class="p">)</span>
-    <span class="n">unquoted_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\w+) *?(&gt;|&lt;|==|&lt;=|&gt;=|!=) *?([+-]?[\w.]+)$&#39;</span><span class="p">)</span>
+    <span class="n">filter_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(\w+) *?(&gt;=|&lt;=|==|!=|&lt;|&gt;) *(.*?)$&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">filter_entry</span> <span class="ow">in</span> <span class="n">extended_filters</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">match</span> <span class="o">:=</span> <span class="n">quoted_pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">filter_entry</span><span class="p">):</span>
-            <span class="n">k</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&#39;&quot;</span>  <span class="c1"># we always need single quotes, but want to accept double quotes as well, hence re-writing.</span>
-        <span class="k">elif</span> <span class="n">match</span> <span class="o">:=</span> <span class="n">unquoted_pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">filter_entry</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="o">:=</span> <span class="n">filter_pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">filter_entry</span><span class="p">):</span>
             <span class="n">k</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">field_map</span><span class="p">:</span>
-                <span class="n">v</span> <span class="o">=</span> <span class="n">field_map</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">their_name_get</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to parse filter entry </span><span class="si">{</span><span class="n">filter_entry</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">field_map</span><span class="p">:</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">field_map</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">their_name_get</span>
-            <span class="n">query_transformer</span> <span class="o">=</span> <span class="n">field_map</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">query_transformer</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">field_map</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">field_map</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">their_name_get</span>
+                <span class="n">query_transformer</span> <span class="o">=</span> <span class="nb">str</span>         <span class="c1"># equals identity, since field name must be unquoted string</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">query_transformer</span> <span class="o">=</span> <span class="n">field_map</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">query_transformer</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">_strip_quote_marks</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">k</span>
             <span class="n">not_our_term</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-            <span class="n">query_transformer</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># unknown field values are put through completely unchanged</span>
+            <span class="n">query_transformer</span> <span class="o">=</span> <span class="nb">str</span>
 
-        <span class="k">if</span> <span class="n">query_transformer</span><span class="p">:</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="n">query_transformer</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">query_transformer</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
         <span class="n">unified_filters</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">operator_map</span><span class="p">[</span><span class="n">o</span><span class="p">],</span> <span class="n">v</span><span class="p">))</span>
 
@@ -410,25 +403,27 @@
     <span class="n">unified_filters</span> <span class="o">=</span> <span class="n">_unify_filters</span><span class="p">(</span><span class="n">equality_filters</span><span class="p">,</span> <span class="n">extended_filters</span><span class="p">,</span> <span class="n">field_map</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="nf">strip_quote_marks</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&#39;&quot;</span> <span class="ow">and</span> <span class="n">value</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">value</span>
-
     <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">unified_filters</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">_is_non_string_iterable</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">strip_quote_marks</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">_strip_quote_marks</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">elem</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
                     <span class="k">break</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="n">strip_quote_marks</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">_strip_quote_marks</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">operator</span><span class="p">,</span> <span class="n">op</span><span class="p">)(</span><span class="n">elem</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">value</span><span class="p">):</span>
                     <span class="k">break</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span> <span class="nf">_strip_quote_marks</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">quoted_value_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^([\&quot;</span><span class="se">\&#39;</span><span class="s1">])(.*)\1$&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="o">:=</span> <span class="n">quoted_value_pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">value</span>
 
 
 <span class="k">def</span> <span class="nf">_ac_application_url</span><span class="p">():</span>

@@ -183,15 +183,18 @@
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">EquipmentSet</span>
 
+
 <span class="n">_MODEL_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;internalId&#39;</span><span class="p">),</span>  <span class="c1"># there is also a native `name`, which we&#39;re ignoring</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;model_type&#39;</span><span class="p">,</span> <span class="s1">&#39;modelType&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;manufacturer&#39;</span><span class="p">,</span> <span class="s1">&#39;manufacturer&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;short_description&#39;</span><span class="p">,</span> <span class="s1">&#39;shortDescription&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;service_expiration_date&#39;</span><span class="p">,</span> <span class="s1">&#39;serviceExpirationDate&#39;</span><span class="p">,</span>
-                       <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+                       <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">),</span>
+                       <span class="n">query_transformer</span><span class="o">=</span><span class="n">_base</span><span class="o">.</span><span class="n">masterdata</span><span class="o">.</span><span class="n">_qt_timestamp</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;model_expiration_date&#39;</span><span class="p">,</span> <span class="s1">&#39;modelExpirationDate&#39;</span><span class="p">,</span>
-                       <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">)),</span>
+                       <span class="n">get_extractor</span><span class="o">=</span><span class="n">_string_to_timestamp_parser</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">),</span>
+                       <span class="n">query_transformer</span><span class="o">=</span><span class="n">_base</span><span class="o">.</span><span class="n">masterdata</span><span class="o">.</span><span class="n">_qt_timestamp</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;generation&#39;</span><span class="p">,</span> <span class="s1">&#39;generation&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;long_description&#39;</span><span class="p">,</span> <span class="s1">&#39;longDescription&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;modelId&#39;</span><span class="p">),</span>
