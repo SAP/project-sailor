@@ -13,9 +13,11 @@ from .constants import VIEW_LOCATIONS
 _LOCATION_FIELDS = [
     _AssetcentralField('name', 'name'),
     _AssetcentralField('short_description', 'shortDescription'),
-    _AssetcentralField('type_description', 'locationTypeDescription'),
+    _AssetcentralField('type_description', 'locationTypeDescription',
+                       query_transformer=_base.masterdata._qt_non_filterable('type_description')),
     _AssetcentralField('id', 'locationId'),
-    _AssetcentralField('type', 'locationType'),
+    _AssetcentralField('type', 'locationType',
+                       query_transformer=_base.masterdata._qt_non_filterable('type')),
     _AssetcentralField('_status', 'status'),
     _AssetcentralField('_version', 'version'),
     _AssetcentralField('_in_revision', 'hasInRevision'),

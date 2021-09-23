@@ -9,6 +9,7 @@ import plotnine as p9
 
 from ..utils.plot_helper import _default_plot_theme
 from ..utils.utils import _is_non_string_iterable
+from ..utils.timestamps import _any_to_timestamp, _timestamp_to_isoformat, _timestamp_to_date_string
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -35,11 +36,60 @@ class MasterDataField:
     def _default_put_setter(self, payload, value):
         payload[self.their_name_put] = value
 
-    def _default_get_extractor(self, value):
+    @staticmethod
+    def _default_get_extractor(value):
         return value
 
-    def _default_query_transformer(self, value):
-        return value
+    @staticmethod
+    def _default_query_transformer(value):
+        if value in [None, 'null']:
+            return 'null'
+        else:
+            return f"'{str(value)}'"
+
+
+def _qt_double(value):
+    if value in [None, 'null']:
+        return 'null'
+    return f"{str(value)}d"
+
+
+def _qt_timestamp(value):
+    if value in [None, 'null']:
+        return 'null'
+    timestamp = _any_to_timestamp(value)
+    timestamp = _timestamp_to_isoformat(timestamp, with_zulu=True)
+    return f"'{timestamp}'"
+
+
+def _qt_odata_datetimeoffset(value):
+    """Return a timestamp in format 'datetimeoffset'yyyy-mm-ddThh:mm:ssZ'."""
+    if value in [None, 'null']:
+        return 'null'
+    timestamp = _any_to_timestamp(value)
+    timestamp = _timestamp_to_isoformat(timestamp, with_zulu=True)
+    timestamp = f"datetimeoffset'{timestamp}'"
+    return timestamp
+
+
+def _qt_date(value):
+    if value in [None, 'null']:
+        return 'null'
+    timestamp = _any_to_timestamp(value)
+    timestamp = _timestamp_to_date_string(timestamp)
+    return f"'{timestamp}'"
+
+
+def _qt_boolean_int_string(value):
+    if value in [None, 'null']:
+        return 'null'
+    return f"'{str(int(value))}'"
+
+
+def _qt_non_filterable(field_name):
+    def raiser(value):
+        raise RuntimeError(f'Filtering on "{field_name}" is not supported by AssetCentral')
+    return raiser
 
 
 class MasterDataEntity:
@@ -131,7 +181,7 @@ class MasterDataEntitySet(Sequence):
         """Combine two ResultSets as the sum of all elements, required to implement the `Sequence` interface."""
         if not isinstance(other, type(self)):
             raise TypeError('Only ResultSets of the same type can be added.')
-        return self.__class__(self.elements + other.elements, 'set-summation')
+        return self.__class__(self.elements + other.elements)
 
     def as_df(self, columns=None):
         """Return all information on the objects stored in the MasterDataEntitySet as a pandas dataframe."""

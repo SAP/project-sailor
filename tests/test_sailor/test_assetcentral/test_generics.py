@@ -5,6 +5,7 @@ import pytest
 from sailor.assetcentral import constants
 from sailor import assetcentral
 
+
 test_params = {
     'equipment': {
         'function': assetcentral.find_equipment,
@@ -36,6 +37,12 @@ test_params = {
         'id_field': 'notificationId',
         'endpoint': constants.VIEW_NOTIFICATIONS
     },
+    'system': {
+        'function': assetcentral.find_systems,
+        'set_class': assetcentral.system.SystemSet,
+        'id_field': 'systemId',
+        'endpoint': constants.VIEW_SYSTEMS
+    },
     'workorder': {
         'function': assetcentral.find_workorders,
         'set_class': assetcentral.workorder.WorkorderSet,
@@ -48,8 +55,9 @@ test_params = {
 @pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
 @pytest.mark.parametrize('test_object', list(test_params))
 def test_find_functions_expect_fetch_call_args(test_object):
-    find_params = dict(extended_filters=['integer_param1 < 10'], string_parameter=['Type A', 'Type F'])
-    expected_call_args = (['integer_param1 lt 10'], [["string_parameter eq 'Type A'", "string_parameter eq 'Type F'"]])
+    find_params = dict(extended_filters=['unknown_integer_param < 10'], unknown_string_param=["'Type A'", "'Type F'"])
+    expected_call_args = (['unknown_integer_param lt 10'],
+                          [["unknown_string_param eq 'Type A'", "unknown_string_param eq 'Type F'"]])
 
     params = test_params[test_object]
     instance_class = params['set_class']._element_type
