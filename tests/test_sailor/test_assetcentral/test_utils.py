@@ -98,8 +98,8 @@ class TestAssetcentralRequest:
 class TestQueryParsers:
 
     @pytest.mark.parametrize('test_description,value,expected_values', [
-        ('single string', 'value', "'value'"),
-        ('list of strings', ['value1', 'value2'], ["'value1'", "'value2'"]),
+        ('single string', 'the value', "'the value'"),
+        ('list of strings', ['the value1', 'value2'], ["'the value1'", "'value2'"]),
         ('null value', None, 'null'),
         ('single integer', 7, "'7'"),
         ('list of integers', [3, 6, 1], ["'3'", "'6'", "'1'"]),
@@ -117,8 +117,8 @@ class TestQueryParsers:
 
     # values of unknown fields are never modified. the user must have it right
     @pytest.mark.parametrize('test_description,value,expected_values', [
-        ('single value', 'value', 'value'),  # this includes the null value
-        ('quoted value single-quote', "'value'", "'value'"),
+        ('single value', 'the value', 'the value'),  # this includes the null value
+        ('quoted value single-quote', "'the value'", "'the value'"),
         ('quoted value double-quote', '"value"', '"value"'),
         ('list of values', ['value1', 'value2'], ["value1", "value2"]),
         ('single integer', 7, "7"),
@@ -136,8 +136,8 @@ class TestQueryParsers:
 
     # values of known fields are put through the default QT => single quote everything with the exception of the 'null'
     @pytest.mark.parametrize('test_description,value,expected_value', [
-        ('quoted value single-quote', "'value'", "'value'"),
-        ('quoted value double-quote', '"value"', "'value'"),
+        ('quoted value single-quote', "'the value'", "'the value'"),
+        ('quoted value double-quote', '"the value"', "'the value'"),
         ('other string', "datetimeoffset'2020-01-01'", "'datetimeoffset'2020-01-01''"),  # nonsensical example
         ('null value', 'null', 'null'),
         ('single integer', 7, "'7'"),
@@ -152,8 +152,8 @@ class TestQueryParsers:
         assert filters == expected_filters
 
     @pytest.mark.parametrize('test_description,value,expected_value', [
-        ('quoted value single-quote', "'value'", "'value'"),
-        ('quoted value double-quote', '"value"', '"value"'),
+        ('quoted value single-quote', "'the value'", "'the value'"),
+        ('quoted value double-quote', '"the value"', '"the value"'),
         ('other string', "datetimeoffset'2020-01-01'", "datetimeoffset'2020-01-01'"),
         ('null value', 'null', 'null'),
         ('single integer', 7, '7'),
@@ -167,8 +167,8 @@ class TestQueryParsers:
         assert filters == expected_filters
 
     @pytest.mark.parametrize('test_description,equality_value,extended_value', [
-        ('quoted value single-quote', 'value', "'value'"),
-        ('quoted value double-quote', 'value', '"value"'),
+        ('quoted value single-quote', 'the value', "'the value'"),
+        ('quoted value double-quote', 'the value', '"the value"'),
         ('other string', "datetimeoffset'2020-01-01'", "datetimeoffset'2020-01-01'"),
         ('null value', None, 'null'),
         ('single integer', 7, '7'),
@@ -184,8 +184,8 @@ class TestQueryParsers:
         assert equality_filters == extended_filters
 
     @pytest.mark.parametrize('test_description,equality_value,extended_value', [
-        ('quoted value single-quote', "'value'", "'value'"),
-        ('quoted value double-quote', '"value"', '"value"'),
+        ('quoted value single-quote', "'the value'", "'the value'"),
+        ('quoted value double-quote', '"the value"', '"the value"'),
         ('other string', "datetimeoffset'2020-01-01'", "datetimeoffset'2020-01-01'"),
         ('null value', 'null', 'null'),
         ('single integer', 7, '7'),

@@ -180,7 +180,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
 
         unified_filters.append((key, 'eq', v))
 
-    filter_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?(\S+)$')
+    filter_pattern = re.compile(r'^(\w+) *?(>=|<=|==|!=|<|>) *(.*?)$')
     for filter_entry in extended_filters:
         if match := filter_pattern.fullmatch(filter_entry):
             k, o, v = match.groups()
@@ -256,7 +256,7 @@ def _apply_filters_post_request(data, equality_filters, extended_filters, field_
 
 
 def _strip_quote_marks(value):
-    quoted_value_pattern = re.compile(r'^([\"\'])(\S+)\1$')
+    quoted_value_pattern = re.compile(r'^([\"\'])(.+)\1$')
     if match := quoted_value_pattern.fullmatch(value):
         _, value = match.groups()
     return value
