@@ -4,10 +4,11 @@ from unittest.mock import patch
 import pytest
 
 from sailor import _base
-from sailor.assetcentral.utils import (
-    AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity,
-    _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data,
+from sailor._base.fetch import (
+    _unify_filters, parse_filter_parameters, apply_filters_post_request, _compose_queries, fetch_data,
     _strip_quote_marks)
+from sailor.assetcentral.utils import (
+    AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity)
 
 
 class TestAssetcentralRequest:
@@ -276,7 +277,7 @@ class TestQueryParsers:
                                                                    expected_breakable, testdescription):
         field_map = {'location': _base.MasterDataField('location', 'location'),
                      'name': _base.MasterDataField('name', 'name')}
-        actual_unbreakable, actual_breakable = _parse_filter_parameters(equality_filters, None, field_map)
+        actual_unbreakable, actual_breakable = parse_filter_parameters(equality_filters, None, field_map)
         assert actual_unbreakable == expected_unbreakable
         assert actual_breakable == expected_breakable
 
@@ -292,7 +293,7 @@ class TestQueryParsers:
     ])
     def test_parse_filter_parameters_equality_filters_unknown_fields(self, equality_filters, expected_unbreakable,
                                                                      expected_breakable, testdescription):
-        actual_unbreakable, actual_breakable = _parse_filter_parameters(equality_filters, None, None)
+        actual_unbreakable, actual_breakable = parse_filter_parameters(equality_filters, None, None)
         assert actual_unbreakable == expected_unbreakable
         assert actual_breakable == expected_breakable
 
@@ -307,7 +308,7 @@ class TestQueryParsers:
     ])
     def test_parse_filter_parameters_extended_filters_are_unbreakable(self, extended_filters, expected_unbreakable,
                                                                       testdescription):
-        actual_unbreakable, actual_breakable = _parse_filter_parameters(extended_filters=extended_filters)
+        actual_unbreakable, actual_breakable = parse_filter_parameters(extended_filters=extended_filters)
         assert actual_unbreakable == expected_unbreakable
         assert actual_breakable == []
 
@@ -316,7 +317,7 @@ class TestQueryParsers:
         extended_filters = ["startDate > '2020-01-01'", "endDate < '2020-02-01'"]
 
         actual_unbreakable, actual_breakable = \
-            _parse_filter_parameters(equality_filters=equality_filters, extended_filters=extended_filters)
+            parse_filter_parameters(equality_filters=equality_filters, extended_filters=extended_filters)
 
         assert actual_unbreakable == ["startDate gt '2020-01-01'", "endDate lt '2020-02-01'"]
         assert actual_breakable == [["location eq 'Paris'", "location eq 'London'"]]
@@ -330,7 +331,7 @@ class TestQueryParsers:
                      'start_date': _base.MasterDataField('start_date', 'startDate')}
 
         actual_unbreakable, actual_breakable = \
-            _parse_filter_parameters(equality_filters, extended_filters, field_map)
+            parse_filter_parameters(equality_filters, extended_filters, field_map)
 
         assert actual_unbreakable == ["serialNumber eq 1234", "startDate gt '2020-01-01'"]
         assert actual_breakable == [["location eq 'Paris'", "location eq 'London'"]]
@@ -361,7 +362,7 @@ class TestQueryParsers:
                      }
 
         actual_unbreakable, actual_breakable = \
-            _parse_filter_parameters(equality_filters, extended_filters, field_map)
+            parse_filter_parameters(equality_filters, extended_filters, field_map)
 
         assert actual_unbreakable == expected_unbreakable
         assert actual_breakable == []
@@ -377,7 +378,7 @@ class TestQueryParsers:
         field_map = {'location_name': _base.MasterDataField('location_name', 'location', query_transformer=add_prefix)}
 
         actual_unbreakable, actual_breakable = \
-            _parse_filter_parameters(equality_filters, extended_filters, field_map)
+            parse_filter_parameters(equality_filters, extended_filters, field_map)
 
         assert actual_unbreakable == []
         assert actual_breakable == expected_breakable
@@ -398,7 +399,7 @@ def test_apply_filters_post_request_filtering(equality_filters, extended_filters
             {'id': 'indicator_id2', 'type': 'yellow', 'dimension': 'three', 'categoryID': 'aa'},
             {'id': 'indicator_id3', 'type': 'brown', 'dimension': 'three', 'categoryID': 'aaaa'}]
 
-    actual = _apply_filters_post_request(data, equality_filters, extended_filters, field_map=None)
+    actual = apply_filters_post_request(data, equality_filters, extended_filters, field_map=None)
 
     assert [item['id'] for item in actual] == expected_ids
 
@@ -414,7 +415,7 @@ def test_apply_filters_post_request_property_mapping():
     expected_result = [{'propertyId': 'indicator_id1', 'indicatorType': 'yellow', 'categoryID': 'aa'},
                        {'propertyId': 'indicator_id2', 'indicatorType': 'yellow', 'categoryID': 'aa'}]
 
-    actual = _apply_filters_post_request(data, equality_filters, extended_filters, field_map)
+    actual = apply_filters_post_request(data, equality_filters, extended_filters, field_map)
 
     assert actual == expected_result
 
@@ -500,7 +501,7 @@ class TestFetchData:
     ])
     def test_returns_iterable(self, fetch_mock, unbreakable_filters, breakable_filters, remote_return, testdesc):
         fetch_mock.return_value = remote_return
-        actual = _fetch_data('', unbreakable_filters, breakable_filters)
+        actual = fetch_data('', unbreakable_filters, breakable_filters)
         assert not issubclass(actual.__class__, str)
         assert isinstance(actual, Iterable)
 
@@ -510,7 +511,7 @@ class TestFetchData:
         breakable_filters = []
         expected_params = {'$format': 'json'}
 
-        actual = _fetch_data('', unbreakable_filters, breakable_filters)
+        actual = fetch_data('', unbreakable_filters, breakable_filters)
 
         fetch_mock.assert_called_once_with('GET', '', params=expected_params)
         assert actual == ['result']
@@ -521,7 +522,7 @@ class TestFetchData:
         expected_parameters = {'$filter': "location eq 'Walldorf' and (manufacturer eq 'abcCorp')",
                                '$format': 'json'}
 
-        _fetch_data('', unbreakable_filters, breakable_filters)
+        fetch_data('', unbreakable_filters, breakable_filters)
 
         fetch_mock.assert_called_once_with('GET', '', params=expected_parameters)
 
@@ -532,7 +533,7 @@ class TestFetchData:
         fetch_mock.side_effect = [["result1-1", "result1-2"], ["result2-1"]]
         expected_result = ["result1-1", "result1-2", "result2-1"]
 
-        actual = _fetch_data('', unbreakable_filters, breakable_filters)
+        actual = fetch_data('', unbreakable_filters, breakable_filters)
 
         assert actual == expected_result
 
