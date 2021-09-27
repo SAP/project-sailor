@@ -17,4 +17,3 @@ Module contents
 
 .. automodule:: sailor
    :members:
-   :show-inheritance:

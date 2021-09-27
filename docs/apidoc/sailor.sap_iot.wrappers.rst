@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.sap_iot.wrappers
    :members:
-   :show-inheritance:

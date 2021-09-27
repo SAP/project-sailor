@@ -19,15 +19,18 @@ from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySe
 if TYPE_CHECKING:
     from .equipment import EquipmentSet
 
+
 _MODEL_FIELDS = [
     _AssetcentralField('name', 'internalId'),  # there is also a native `name`, which we're ignoring
     _AssetcentralField('model_type', 'modelType'),
     _AssetcentralField('manufacturer', 'manufacturer'),
     _AssetcentralField('short_description', 'shortDescription'),
     _AssetcentralField('service_expiration_date', 'serviceExpirationDate',
-                       get_extractor=_string_to_timestamp_parser(unit='ms')),
+                       get_extractor=_string_to_timestamp_parser(unit='ms'),
+                       query_transformer=_base.masterdata._qt_timestamp),
     _AssetcentralField('model_expiration_date', 'modelExpirationDate',
-                       get_extractor=_string_to_timestamp_parser(unit='ms')),
+                       get_extractor=_string_to_timestamp_parser(unit='ms'),
+                       query_transformer=_base.masterdata._qt_timestamp),
     _AssetcentralField('generation', 'generation'),
     _AssetcentralField('long_description', 'longDescription'),
     _AssetcentralField('id', 'modelId'),

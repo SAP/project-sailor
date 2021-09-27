@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.sap_iot.write
    :members:
-   :show-inheritance:

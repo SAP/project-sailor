@@ -71,19 +71,14 @@ def apply_filters_post_request(data, equality_filters, extended_filters, field_m
     unified_filters = _unify_filters(equality_filters, extended_filters, field_map)
     result = []
 
-    def strip_quote_marks(value):
-        if value[0] == "'" and value[-1] == "'":
-            return value[1:-1]
-        return value
-
     for elem in data:
         for key, op, value in unified_filters:
             if _is_non_string_iterable(value):
-                value = [strip_quote_marks(v) for v in value]
+                value = [_strip_quote_marks(v) for v in value]
                 if elem[key] not in value:
                     break
             else:
-                value = strip_quote_marks(value)
+                value = _strip_quote_marks(value)
                 if not getattr(operator, op)(elem[key], value):
                     break
         else:
@@ -194,6 +189,8 @@ def _compose_queries(unbreakable_filters, breakable_filters):
 
 
 def _unify_filters(equality_filters, extended_filters, field_map):
+    # known field values are put through the query transformer
+    # unknown field values are never transformed
     operator_map = {
         '>': 'gt',
         '<': 'lt',
@@ -219,46 +216,37 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         else:
             key = k
             not_our_term.append(key)
-            query_transformer = None
+            query_transformer = str
 
-        def quote_if_string(x):
-            if isinstance(x, str):
-                return f"'{x}'"
-            else:
-                return str(x)
         if _is_non_string_iterable(v):
-            v = [quote_if_string(x) for x in v]
+            v = [query_transformer(x) for x in v]
         else:
-            v = quote_if_string(v)
-
-        if query_transformer:
             v = query_transformer(v)
 
         unified_filters.append((key, 'eq', v))
 
-    quoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?([\"\'])((?:\\?.)*?)\3$')
-    unquoted_pattern = re.compile(r'^(\w+) *?(>|<|==|<=|>=|!=) *?([+-]?[\w.]+)$')
+    filter_pattern = re.compile(r'^(\w+) *?(>=|<=|==|!=|<|>) *(.*?)$')
     for filter_entry in extended_filters:
-        if match := quoted_pattern.fullmatch(filter_entry):
-            k, o, _, v = match.groups()
-            v = f"'{v}'"  # we always need single quotes, but want to accept double quotes as well, hence re-writing.
-        elif match := unquoted_pattern.fullmatch(filter_entry):
+        if match := filter_pattern.fullmatch(filter_entry):
             k, o, v = match.groups()
-            if v in field_map:
-                v = field_map[v].their_name_get
         else:
             raise RuntimeError(f'Failed to parse filter entry {filter_entry}')
 
         if k in field_map:
             key = field_map[k].their_name_get
-            query_transformer = field_map[k].query_transformer
+            if v in field_map:
+                v = field_map[v].their_name_get
+                query_transformer = str         # equals identity, since field name must be unquoted string
+            else:
+                query_transformer = field_map[k].query_transformer
+                v = _strip_quote_marks(v)
         else:
             key = k
             not_our_term.append(key)
-            query_transformer = None
+            # unknown field values are put through completely unchanged
+            query_transformer = str
 
-        if query_transformer:
-            v = query_transformer(v)
+        v = query_transformer(v)
 
         unified_filters.append((key, operator_map[o], v))
 
@@ -266,3 +254,10 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         warnings.warn(f'Following parameters are not in our terminology: {not_our_term}', stacklevel=3)
 
     return unified_filters
+
+
+def _strip_quote_marks(value):
+    quoted_value_pattern = re.compile(r'^([\"\'])(.*)\1$')
+    if match := quoted_value_pattern.fullmatch(value):
+        _, value = match.groups()
+    return value

@@ -16,4 +16,3 @@ Module contents
 
 .. automodule:: sailor.pai
    :members:
-   :show-inheritance:

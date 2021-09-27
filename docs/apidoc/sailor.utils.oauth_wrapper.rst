@@ -16,4 +16,3 @@ Module contents
 
 .. automodule:: sailor.utils.oauth_wrapper
    :members:
-   :show-inheritance:

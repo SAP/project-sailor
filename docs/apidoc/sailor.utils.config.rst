@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.utils.config
    :members:
-   :show-inheritance:

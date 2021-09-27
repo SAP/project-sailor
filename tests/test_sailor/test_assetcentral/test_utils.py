@@ -6,7 +6,8 @@ import pytest
 from sailor import _base
 from sailor.assetcentral.utils import (
     AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity,
-    _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data)
+    _unify_filters, _parse_filter_parameters, _apply_filters_post_request, _compose_queries, _fetch_data,
+    _strip_quote_marks)
 
 
 class TestAssetcentralRequest:
@@ -97,29 +98,107 @@ class TestAssetcentralRequest:
 class TestQueryParsers:
 
     @pytest.mark.parametrize('test_description,value,expected_values', [
-        ('single string', 'value', "'value'"),
-        ('list of strings', ['value1', 'value2'], ["'value1'", "'value2'"]),
-        ('single integer', 7, '7'),
-        ('list of integers', [3, 6, 1], ['3', '6', '1']),
-        ('single float', 3.14, '3.14'),
-        ('list of floats', [3.4, 4.5], ['3.4', '4.5']),
-        ('mixed type list', ['value 1', 18., 'value2', 5], ["'value 1'", '18.0', "'value2'", '5'])
+        ('single string', 'the value', "'the value'"),
+        ('list of strings', ['the value1', 'value2'], ["'the value1'", "'value2'"]),
+        ('null value', None, 'null'),
+        ('single integer', 7, "'7'"),
+        ('list of integers', [3, 6, 1], ["'3'", "'6'", "'1'"]),
+        ('single float', 3.14, "'3.14'"),
+        ('list of floats', [3.4, 4.5], ["'3.4'", "'4.5'"]),
+        ('mixed type list', ['value 1', 18., 'value2', 5, None], ["'value 1'", "'18.0'", "'value2'", "'5'", 'null']),
     ])
-    def test_unify_filters_only_equality_different_types(self, value, expected_values, test_description):
+    def test_unify_filters_only_equality_known_fields(self, value, expected_values, test_description):
+        expected_filters = [('filtered_term', 'eq', expected_values)]
+        field_map = {'filtered_term': _base.MasterDataField('filtered_term', 'filtered_term')}
+
+        filters = _unify_filters({'filtered_term': value}, None, field_map)
+
+        assert filters == expected_filters
+
+    # values of unknown fields are never modified. the user must have it right
+    @pytest.mark.parametrize('test_description,value,expected_values', [
+        ('single value', 'the value', 'the value'),  # this includes the null value
+        ('quoted value single-quote', "'the value'", "'the value'"),
+        ('quoted value double-quote', '"value"', '"value"'),
+        ('list of values', ['value1', 'value2'], ["value1", "value2"]),
+        ('single integer', 7, "7"),
+        ('list of integers', [3, 6, 1], ["3", "6", "1"]),
+        ('single float', 3.14, "3.14"),
+        ('list of floats', [3.4, 4.5], ["3.4", "4.5"]),
+        ('mixed type list', ['null', 18., "'value2'", 5], ["null", "18.0", "'value2'", "5"]),
+    ])
+    def test_unify_filters_only_equality_unknown_fields(self, value, expected_values, test_description):
         expected_filters = [('filtered_term', 'eq', expected_values)]
 
         filters = _unify_filters({'filtered_term': value}, None, None)
 
         assert filters == expected_filters
 
-    @pytest.mark.parametrize('test_description,equality_value,extended_value', [
-        ('single string single quote', 'value', "'value'"),
-        ('single string double quote', 'value', '"value"'),
+    # values of known fields are put through the default QT => single quote everything with the exception of the 'null'
+    @pytest.mark.parametrize('test_description,value,expected_value', [
+        ('quoted value single-quote', "'the value'", "'the value'"),
+        ('quoted value double-quote', '"the value"', "'the value'"),
+        ('unquoted value', 'the value', "'the value'"),
+        ('empty quotes', '""', "''"),
+        ('empty quotes', "''", "''"),
+        ('other string', "datetimeoffset'2020-01-01'", "'datetimeoffset'2020-01-01''"),  # nonsensical example
+        ('null value', 'null', 'null'),
+        ('single integer', 7, "'7'"),
+        ('single float', 3.14, "'3.14'"),
+    ])
+    def test_unify_filters_only_extended_known_fields(self, value, expected_value, test_description):
+        expected_filters = [('filtered_term', 'eq', expected_value)]
+        field_map = {'filtered_term': _base.MasterDataField('filtered_term', 'filtered_term')}
+
+        filters = _unify_filters(None, ['filtered_term == {}'.format(value)], field_map)
+
+        assert filters == expected_filters
+
+    @pytest.mark.parametrize('test_description,value,expected_value', [
+        ('quoted value single-quote', "'the value'", "'the value'"),
+        ('quoted value double-quote', '"the value"', '"the value"'),
+        ('other string', "datetimeoffset'2020-01-01'", "datetimeoffset'2020-01-01'"),
+        ('null value', 'null', 'null'),
         ('single integer', 7, '7'),
         ('single float', 3.14, '3.14'),
     ])
-    def test_extended_equals_equality_different_types(self, equality_value, extended_value, test_description):
+    def test_unify_filters_only_extended_unknown_fields(self, value, expected_value, test_description):
+        expected_filters = [('filtered_term', 'eq', expected_value)]
 
+        filters = _unify_filters(None, ['filtered_term == {}'.format(value)], None)
+
+        assert filters == expected_filters
+
+    @pytest.mark.parametrize('test_description,equality_value,extended_value', [
+        ('quoted value single-quote', 'the value', "'the value'"),
+        ('quoted value double-quote', 'the value', '"the value"'),
+        ('unquoted value double-quote', 'the value', 'the value'),
+        ('quoted empty value', '', "''"),
+        ('quoted empty value', '', '""'),
+        ('other string', "datetimeoffset'2020-01-01'", "datetimeoffset'2020-01-01'"),
+        ('null value', None, 'null'),
+        ('single integer', 7, '7'),
+        ('single float', 3.14, '3.14'),
+    ])
+    def test_extended_equals_equality_different_types_known_fields(self, equality_value, extended_value,
+                                                                   test_description):
+
+        field_map = {'filtered_term': _base.MasterDataField('filtered_term', 'filtered_term')}
+        equality_filters = _unify_filters({'filtered_term': equality_value}, None, field_map)
+        extended_filters = _unify_filters(None, ['filtered_term == {}'.format(extended_value)], field_map)
+
+        assert equality_filters == extended_filters
+
+    @pytest.mark.parametrize('test_description,equality_value,extended_value', [
+        ('quoted value single-quote', "'the value'", "'the value'"),
+        ('quoted value double-quote', '"the value"', '"the value"'),
+        ('other string', "datetimeoffset'2020-01-01'", "datetimeoffset'2020-01-01'"),
+        ('null value', 'null', 'null'),
+        ('single integer', 7, '7'),
+        ('single float', 3.14, '3.14'),
+    ])
+    def test_extended_equals_equality_different_types_unknown_fields(self, equality_value, extended_value,
+                                                                     test_description):
         equality_filters = _unify_filters({'filtered_term': equality_value}, None, None)
         extended_filters = _unify_filters(None, ['filtered_term == {}'.format(extended_value)], None)
 
@@ -128,28 +207,44 @@ class TestQueryParsers:
     @pytest.mark.parametrize('filter,odata_expression', [
         ('==', 'eq'), ('!=', 'ne'), ('<=', 'le'), ('>=', 'ge'), ('>', 'gt'), ('<', 'lt')
     ])
-    def test_unify_filters_extended_filter_types(self, filter, odata_expression):
-        expected_filters = [('filtered_term', odata_expression, "'value'")]
+    def test_unify_filters_extended_filter_types_unknown_fields(self, filter, odata_expression):
+        expected_filters = [('filtered_term', odata_expression, "value")]
 
-        filters = _unify_filters(None, ['filtered_term {} "value"'.format(filter)], None)
+        filters = _unify_filters(None, ['filtered_term {} value'.format(filter)], None)
 
         assert filters == expected_filters
 
     @pytest.mark.parametrize('filter_term', [
         'a == b', 'a==b', 'a ==b', 'a    ==   b'
     ])
-    def test_unify_filters_different_extended_formatting_unquoted(self, filter_term):
+    def test_unify_filters_different_extended_formatting_unquoted_known_fields(self, filter_term):
+        filters = _unify_filters(None, [filter_term], {'a': _base.MasterDataField('a', 'A')})
+
+        assert filters == [('A', 'eq', "'b'")]
+
+    @pytest.mark.parametrize('filter_term', [
+        'a == b', 'a==b', 'a ==b', 'a    ==   b'
+    ])
+    def test_unify_filters_different_extended_formatting_unquoted_unknown_fields(self, filter_term):
         filters = _unify_filters(None, [filter_term], None)
 
         assert filters == [('a', 'eq', 'b')]
 
     @pytest.mark.parametrize('filter_term', [
-        'a == "b"', 'a=="b"', 'a =="b"', 'a    ==   "b"', "a == 'b'", "a=='b'", "a =='b'", "a    ==   'b'"
+        "a == 'b'", "a=='b'", "a =='b'", "a    ==   'b'"
     ])
-    def test_unify_filters_different_extended_formatting_quoted(self, filter_term):
+    def test_unify_filters_different_extended_formatting_single_quoted_unknown_field(self, filter_term):
         filters = _unify_filters(None, [filter_term], None)
 
         assert filters == [('a', 'eq', "'b'")]
+
+    @pytest.mark.parametrize('filter_term', [
+        'a == "b"', 'a=="b"', 'a =="b"', 'a    ==   "b"'
+    ])
+    def test_unify_filters_different_extended_formatting_double_quoted_unknown_field(self, filter_term):
+        filters = _unify_filters(None, [filter_term], None)
+
+        assert filters == [('a', 'eq', '"b"')]
 
     def test_unify_filters_property_mapping_kwargs_key_field(self):
         filters = _unify_filters({'my_term': 'some_value'}, None, {'my_term': _base.MasterDataField('my_term',
@@ -161,10 +256,11 @@ class TestQueryParsers:
                                                                                                'their_term')})
         assert filters[0][0] == 'their_term'
 
-    def test_unify_filters_property_mapping_extended_value_field(self):
-        filters = _unify_filters(None, ['some_field == my_term'], {'my_term': _base.MasterDataField('my_term',
-                                                                                                    'their_term')})
-        assert filters[0][2] == 'their_term'
+    def test_unify_filters_property_mapping_value_is_a_known_field(self):
+        filters = _unify_filters(None, ['some_field == other_field'],
+                                 {'some_field': _base.MasterDataField('some_field', 'SomeField'),
+                                  'other_field': _base.MasterDataField('other_field', 'OtherField')})
+        assert filters == [('SomeField', 'eq', 'OtherField')]
 
     @pytest.mark.parametrize('testdescription,equality_filters,expected_unbreakable,expected_breakable', [
         ('no args returns empty', {}, [], []),
@@ -176,9 +272,27 @@ class TestQueryParsers:
             {'location': ['Paris', 'London'], 'name': 'test'}, ["name eq 'test'"],
                                                                [["location eq 'Paris'", "location eq 'London'"]]),
     ])
-    def test_parse_filter_parameters_equality_filters(self, equality_filters, expected_unbreakable, expected_breakable,
-                                                      testdescription):
-        actual_unbreakable, actual_breakable = _parse_filter_parameters(equality_filters=equality_filters)
+    def test_parse_filter_parameters_equality_filters_known_fields(self, equality_filters, expected_unbreakable,
+                                                                   expected_breakable, testdescription):
+        field_map = {'location': _base.MasterDataField('location', 'location'),
+                     'name': _base.MasterDataField('name', 'name')}
+        actual_unbreakable, actual_breakable = _parse_filter_parameters(equality_filters, None, field_map)
+        assert actual_unbreakable == expected_unbreakable
+        assert actual_breakable == expected_breakable
+
+    @pytest.mark.parametrize('testdescription,equality_filters,expected_unbreakable,expected_breakable', [
+        ('no args returns empty', {}, [], []),
+        ('single valued filters are unbreakable',
+            {'location': "'Paris'", 'name': "'test'"}, ["location eq 'Paris'", "name eq 'test'"], []),
+        ('multi valued filters are breakable',
+            {'location': ["'Paris'", "'London'"]}, [], [["location eq 'Paris'", "location eq 'London'"]]),
+        ('single and multi are correctly broken',
+            {'location': ["'Paris'", "'London'"], 'name': "'test'"}, ["name eq 'test'"], [
+                ["location eq 'Paris'", "location eq 'London'"]]),
+    ])
+    def test_parse_filter_parameters_equality_filters_unknown_fields(self, equality_filters, expected_unbreakable,
+                                                                     expected_breakable, testdescription):
+        actual_unbreakable, actual_breakable = _parse_filter_parameters(equality_filters, None, None)
         assert actual_unbreakable == expected_unbreakable
         assert actual_breakable == expected_breakable
 
@@ -197,8 +311,8 @@ class TestQueryParsers:
         assert actual_unbreakable == expected_unbreakable
         assert actual_breakable == []
 
-    def test_parse_filter_parameters_with_combined_filters(self):
-        equality_filters = {'location': ['Paris', 'London']}
+    def test_parse_filter_parameters_with_combined_filters_unknown_fields(self):
+        equality_filters = {'location': ["'Paris'", "'London'"]}
         extended_filters = ["startDate > '2020-01-01'", "endDate < '2020-02-01'"]
 
         actual_unbreakable, actual_breakable = \
@@ -211,7 +325,8 @@ class TestQueryParsers:
         equality_filters = {'location_name': ['Paris', 'London'], 'serial_number': 1234}
         extended_filters = ["start_date > '2020-01-01'"]
         field_map = {'location_name': _base.MasterDataField('location_name', 'location'),
-                     'serial_number': _base.MasterDataField('serial_number', 'serialNumber'),
+                     'serial_number': _base.MasterDataField('serial_number', 'serialNumber',
+                                                            query_transformer=lambda x: str(x)),
                      'start_date': _base.MasterDataField('start_date', 'startDate')}
 
         actual_unbreakable, actual_breakable = \
@@ -221,33 +336,51 @@ class TestQueryParsers:
         assert actual_breakable == [["location eq 'Paris'", "location eq 'London'"]]
 
     @pytest.mark.parametrize('testdescr,equality_filters,extended_filters', [
-        ('equality', {'field_str': 'PaloAlto', 'field_str_qt': 'Walldorf', 'field_int': 1234, 'field_int_qt': 1234},
+        ('equality', {'field_str': 'PaloAlto', 'field_str_qt': 'Walldorf', 'field_int': 1234},
             []),
-        ('extended', {},
-            ["field_str == 'PaloAlto'", "field_str_qt == 'Walldorf'", "field_int == 1234", 'field_int_qt == 1234']),
-        ('extended_2_with_double_quotes', {},
-            ["field_str == \"PaloAlto\"", "field_str_qt == \"Walldorf\"", "field_int == 1234", 'field_int_qt == 1234'])
+        ('extended_w/_quotes', {},
+            ["field_str == 'PaloAlto'", "field_str_qt == 'Walldorf'", "field_int == '1234'"]),
+        ('extended_w/_double_quotes', {},
+            ["field_str == \"PaloAlto\"", "field_str_qt == \"Walldorf\"", "field_int == \"1234\""]),
+        ('extended_w/o_quotes', {},
+            ["field_str == PaloAlto", "field_str_qt == Walldorf", "field_int == 1234"]),
     ])
     @pytest.mark.filterwarnings('ignore:Trying to parse non-timezone-aware timestamp, assuming UTC.')
     def test_parse_filter_parameters_with_query_transformer(self, equality_filters, extended_filters, testdescr):
         expected_unbreakable = ["FieldStr eq 'PaloAlto'", "FieldStrQT eq 'PREFIX_Walldorf'",
-                                "FieldInt eq 1234", "FieldIntQT eq 2468"]
+                                "FieldInt eq 1234"]
 
-        def add_prefix(x):
-            return "'PREFIX_" + str(x).strip('\'\"') + "'"
+        def str_add_prefix(x):
+            return "'PREFIX_" + str(x) + "'"
 
         field_map = {'field_str': _base.MasterDataField('field_str', 'FieldStr',),
                      'field_str_qt': _base.MasterDataField('field_str_qt', 'FieldStrQT',
-                                                           query_transformer=add_prefix),
-                     'field_int': _base.MasterDataField('field_int', 'FieldInt'),
-                     'field_int_qt': _base.MasterDataField('field_int_qt', 'FieldIntQT',
-                                                           query_transformer=lambda x: int(x)*2)
+                                                           query_transformer=str_add_prefix),
+                     'field_int': _base.MasterDataField('field_int', 'FieldInt',
+                                                        query_transformer=lambda x: int(x))
                      }
 
-        actual_unbreakable, _ = \
+        actual_unbreakable, actual_breakable = \
             _parse_filter_parameters(equality_filters, extended_filters, field_map)
 
         assert actual_unbreakable == expected_unbreakable
+        assert actual_breakable == []
+
+    def test_parse_filter_parameters_with_query_transformer_equality_list(self):
+        equality_filters = {'location_name': ['PaloAlto', 'Walldorf']}
+        extended_filters = []
+        expected_breakable = [["location eq 'PREFIX_PaloAlto'", "location eq 'PREFIX_Walldorf'"]]
+
+        def add_prefix(x):
+            return "'PREFIX_" + str(x) + "'"
+
+        field_map = {'location_name': _base.MasterDataField('location_name', 'location', query_transformer=add_prefix)}
+
+        actual_unbreakable, actual_breakable = \
+            _parse_filter_parameters(equality_filters, extended_filters, field_map)
+
+        assert actual_unbreakable == []
+        assert actual_breakable == expected_breakable
 
 
 @pytest.mark.parametrize('testdescription,equality_filters,extended_filters,expected_ids', [
@@ -402,3 +535,17 @@ class TestFetchData:
         actual = _fetch_data('', unbreakable_filters, breakable_filters)
 
         assert actual == expected_result
+
+
+@pytest.mark.parametrize('input,expected', [
+    ("'correctly-quoted'", 'correctly-quoted'),
+    ('"correctly-quoted"', 'correctly-quoted'),
+    ('"correctly-quoted-with-quotes"in-the"-middle"', 'correctly-quoted-with-quotes"in-the"-middle'),
+    ('"wrong\'', '"wrong\''),
+    ('"wrong', '"wrong'),
+    ('just a string', 'just a string'),
+    ('some-quotes"in-the"-middle', 'some-quotes"in-the"-middle'),
+])
+def test_strip_quote_marks(input, expected):
+    actual = _strip_quote_marks(input)
+    assert actual == expected

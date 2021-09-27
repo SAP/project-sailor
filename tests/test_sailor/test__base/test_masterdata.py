@@ -1,10 +1,92 @@
 from unittest.mock import patch
 
+import pandas as pd
 import pytest
 
 import sailor._base as _base
 from sailor.assetcentral.utils import AssetcentralEntity
 from sailor.pai.utils import PredictiveAssetInsightsEntity
+
+
+@pytest.mark.parametrize('input,expected', [
+    (1, '1d'),
+    ('1', '1d'),
+    (1.333, '1.333d'),
+    ('1.333', '1.333d'),
+    ('null', 'null'),
+    (None, 'null')
+])
+def test_qt_double(input, expected):
+    actual = _base.masterdata._qt_double(input)
+    assert actual == expected
+
+
+@pytest.mark.parametrize('input,expected', [
+    (1, "'1'"),
+    ('1', "'1'"),
+    (True, "'1'"),
+    (0, "'0'"),
+    ('0', "'0'"),
+    (False, "'0'"),
+    ('null', 'null'),
+    (None, 'null')
+])
+def test_qt_boolean_int_string(input, expected):
+    actual = _base.masterdata._qt_boolean_int_string(input)
+    assert actual == expected
+
+
+@pytest.mark.parametrize('input,expected', [
+    ('2020-01-01', "'2020-01-01'"),
+    ('2020-01-01 12:15:00+02:00', "'2020-01-01'"),
+    ("'2020-01-01'", "'2020-01-01'"),
+    ("'2020-01-01 12:15:00+02:00'", "'2020-01-01'"),
+    (pd.Timestamp('2020-01-01 00:00:00+00:00'), "'2020-01-01'"),
+    (pd.Timestamp('2020-01-01 00:00:00+02:00'), "'2019-12-31'"),
+    ('null', 'null'),
+    (None, 'null')
+])
+@pytest.mark.filterwarnings('ignore:Trying to parse non-timezone-aware timestamp')
+def test_qt_date(input, expected):
+    actual = _base.masterdata._qt_date(input)
+    assert actual == expected
+
+
+@pytest.mark.parametrize('input,expected', [
+    ('2020-01-01', "'2020-01-01T00:00:00Z'"),
+    ('2020-01-01 12:15:00+02:00', "'2020-01-01T10:15:00Z'"),
+    ("'2020-01-01'", "'2020-01-01T00:00:00Z'"),
+    ("'2020-01-01 12:15:00+02:00'", "'2020-01-01T10:15:00Z'"),
+    (pd.Timestamp('2020-01-01 00:00:00+00:00'), "'2020-01-01T00:00:00Z'"),
+    (pd.Timestamp('2020-01-01 00:00:00+02:00'), "'2019-12-31T22:00:00Z'"),
+    ('null', 'null'),
+    (None, 'null')
+])
+@pytest.mark.filterwarnings('ignore:Trying to parse non-timezone-aware timestamp')
+def test_qt_timestamp(input, expected):
+    actual = _base.masterdata._qt_timestamp(input)
+    assert actual == expected
+
+
+@pytest.mark.parametrize('input,expected', [
+    ('2020-01-01', "datetimeoffset'2020-01-01T00:00:00Z'"),
+    ('2020-01-01 12:15:00+02:00', "datetimeoffset'2020-01-01T10:15:00Z'"),
+    ("'2020-01-01'", "datetimeoffset'2020-01-01T00:00:00Z'"),
+    ("'2020-01-01 12:15:00+02:00'", "datetimeoffset'2020-01-01T10:15:00Z'"),
+    (pd.Timestamp('2020-01-01 00:00:00+00:00'), "datetimeoffset'2020-01-01T00:00:00Z'"),
+    (pd.Timestamp('2020-01-01 00:00:00+02:00'), "datetimeoffset'2019-12-31T22:00:00Z'"),
+    ('null', 'null'),
+    (None, 'null')
+])
+@pytest.mark.filterwarnings('ignore:Trying to parse non-timezone-aware timestamp')
+def test_qt_odata_datetimeoffset(input, expected):
+    actual = _base.masterdata._qt_odata_datetimeoffset(input)
+    assert actual == expected
+
+
+def test_qt_non_filterable():
+    with pytest.raises(RuntimeError, match='Filtering on "my_field" is not supported by AssetCentral'):
+        _base.masterdata._qt_non_filterable('my_field')('ignored_value')
 
 
 class TestMasterDataEntity:

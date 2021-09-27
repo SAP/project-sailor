@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.pai.alert
    :members:
-   :show-inheritance:
