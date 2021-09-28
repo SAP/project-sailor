@@ -23,18 +23,12 @@ def fetch_data(client_name, result_handler, endpoint_url, unbreakable_filters=()
     for filter_string in filters:
         result_filter = []
 
-        skip = 0
-        while True:
-            params = {'$filter': filter_string} if filter_string else {}
-            params.update({'$skip': skip, '$top': 10000, '$format': 'json'})
+        params = {'$filter': filter_string} if filter_string else {}
+        params.update({'$format': 'json'})
 
-            endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
-            result_handler(result_filter, endpoint_data)
+        endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
+        result_handler(result_filter, endpoint_data)
 
-            if skip >= len(result_filter):
-                break
-            skip = len(result_filter)
-            LOG.info('Fetch data progress: %d', skip)
         result.extend(result_filter)
 
     if len(result) == 0:
