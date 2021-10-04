@@ -34,51 +34,51 @@ def make_csv_bytes():
 
 
 class TestRawDataAsyncFunctions:
-    def test_export_start_request_delegate_call(self, mock_fetch, mock_config):
+    def test_export_start_request_delegate_call(self, mock_request, mock_config):
         mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_BASE_URL')
         expected_url = 'EXPORT_BASE_URL/v1/InitiateDataExport/indicator_group_id?timerange=start_date-end_date'
 
         _start_bulk_timeseries_data_export('start_date', 'end_date', 'indicator_group_id')
 
-        mock_fetch.assert_called_once_with('POST', expected_url)
+        mock_request.assert_called_once_with('POST', expected_url)
 
-    def test_export_status_request_delegate_call(self, mock_fetch, mock_config):
+    def test_export_status_request_delegate_call(self, mock_request, mock_config):
         mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_BASE_URL')
-        mock_fetch.return_value = dict(Status='The file is available for download.')
+        mock_request.return_value = dict(Status='The file is available for download.')
         expected_url = 'EXPORT_BASE_URL/v1/DataExportStatus?requestId=export_id'
 
         _check_bulk_timeseries_export_status('export_id')
 
-        mock_fetch.assert_called_once_with('GET', expected_url)
+        mock_request.assert_called_once_with('GET', expected_url)
 
-    def test_export_get_data_request_delegate_call(self, mock_fetch, mock_config):
+    def test_export_get_data_request_delegate_call(self, mock_request, mock_config):
         mock_config.config.sap_iot = defaultdict(str, download_url='DOWNLOAD_BASE_URL')
         expected_url = "DOWNLOAD_BASE_URL/v1/DownloadData('export_id')"
-        mock_fetch.return_value = b''
+        mock_request.return_value = b''
 
         with pytest.raises(RuntimeError):
             _get_exported_bulk_timeseries_data('export_id', IndicatorSet([]), EquipmentSet([]))
 
-        mock_fetch.assert_called_once_with('GET', expected_url, headers={'Accept': 'application/octet-stream'})
+        mock_request.assert_called_once_with('GET', expected_url, headers={'Accept': 'application/octet-stream'})
 
-    def test_export_get_data_request_invalid_zipfile_response(self, mock_fetch):
-        mock_fetch.return_value = b''
+    def test_export_get_data_request_invalid_zipfile_response(self, mock_request):
+        mock_request.return_value = b''
 
         with pytest.raises(RuntimeError) as exception_info:
             _get_exported_bulk_timeseries_data('export_id', IndicatorSet([]), EquipmentSet([]))
 
         assert str(exception_info.value) == 'Downloaded file is corrupted, can not process contents.'
 
-    def test_export_get_data_request_empty_zipfile_response(self, mock_fetch):
-        mock_fetch.return_value = bytes.fromhex('504B050600000000000000000000000000000000000000000000')  # minimal zip
+    def test_export_get_data_request_empty_zipfile_response(self, mock_request):
+        mock_request.return_value = bytes.fromhex('504B050600000000000000000000000000000000000000000000')  # minimal zip
 
         with pytest.raises(RuntimeError) as exception_info:
             _get_exported_bulk_timeseries_data('export_id', IndicatorSet([]), EquipmentSet([]))
 
         assert str(exception_info.value) == 'Downloaded File did not have any content.'
 
-    def test_export_get_data_request_empty_gzip_content(self, mock_zipfile, mock_fetch):
-        mock_fetch.return_value = b''
+    def test_export_get_data_request_empty_gzip_content(self, mock_zipfile, mock_request):
+        mock_request.return_value = b''
         mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1', 'inner_file_2']
         mock_zipfile.ZipFile.return_value.read.return_value = b''
 
@@ -87,8 +87,8 @@ class TestRawDataAsyncFunctions:
 
         assert str(exception_info.value) == 'Downloaded File did not have any content.'
 
-    def test_export_get_data_request_invalid_gzip_content(self, mock_zipfile, mock_fetch):
-        mock_fetch.return_value = b''
+    def test_export_get_data_request_invalid_gzip_content(self, mock_zipfile, mock_request):
+        mock_request.return_value = b''
         mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1', 'inner_file_2']
         mock_zipfile.ZipFile.return_value.read.return_value = b'INVALID'
 
@@ -101,8 +101,8 @@ class TestRawDataAsyncFunctions:
         ('available status', 'The file is available for download.', True),
         ('unavailable status', 'Request for data download is submitted.', False),
     ])
-    def test_export_status_request_good_response(self, mock_fetch, response, expected, description):
-        mock_fetch.return_value = dict(Status=response)
+    def test_export_status_request_good_response(self, mock_request, response, expected, description):
+        mock_request.return_value = dict(Status=response)
 
         assert _check_bulk_timeseries_export_status('export_id') == expected
 
@@ -111,8 +111,8 @@ class TestRawDataAsyncFunctions:
         ('None status', None),
         ('Failed status', 'File download has failed. Re-initiate the request for data export.')
     ])
-    def test_export_status_request_bad_response(self, mock_fetch, response, description):
-        mock_fetch.return_value = dict(Status=response)
+    def test_export_status_request_bad_response(self, mock_request, response, description):
+        mock_request.return_value = dict(Status=response)
 
         with pytest.raises(RuntimeError) as exception_info:
             _check_bulk_timeseries_export_status('export_id')
@@ -144,7 +144,7 @@ class TestRawDataAsyncFunctions:
 
 
 class TestRawDataWrapperFunction:
-    def test_get_indicator_data_two_indicator_groups(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
+    def test_get_indicator_data_two_indicator_groups(self, mock_zipfile, mock_gzip, mock_config, mock_request,
                                                      make_indicator_set, make_equipment_set, make_csv_bytes):
         mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_URL', download_url='DOWNLOAD_URL')
 
@@ -153,7 +153,7 @@ class TestRawDataWrapperFunction:
                                            pstid=[f'indicator_group_id_{x}' for x in [1, 1, 2, 2]])
         equipment_set = make_equipment_set(equipmentId=[f'equipment_id_{x}' for x in [1, 2]])
 
-        mock_fetch.side_effect = [
+        mock_request.side_effect = [
             {'RequestId': 'test_request_id_1'}, {'RequestId': 'test_request_id_2'},
             {'Status': 'The file is available for download.'}, b'mock_zip_content',
             {'Status': 'The file is available for download.'}, b'mock_zip_content',
@@ -178,7 +178,7 @@ class TestRawDataWrapperFunction:
 
         wrapper = get_indicator_data('2020-10-01T00:00:00Z', '2020-11-01T00:00:00Z', indicator_set, equipment_set)
 
-        mock_fetch.assert_has_calls(expected_calls)
+        mock_request.assert_has_calls(expected_calls)
         assert isinstance(wrapper, TimeseriesDataset)
         assert set(wrapper._df.columns) == set(expected_columns)
         assert len(wrapper._df) == 4
@@ -191,7 +191,7 @@ class TestRawDataWrapperFunction:
     @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
     @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators')
     @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the equipments')
-    def test_get_indicator_data_empty_csv_column_merge(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
+    def test_get_indicator_data_empty_csv_column_merge(self, mock_zipfile, mock_gzip, mock_config, mock_request,
                                                        make_indicator_set, make_equipment_set, make_csv_bytes,
                                                        description, equipment_id):
         # When columns in the csv returned are empty (as 'modelId' is in this test) the data type of those
@@ -209,7 +209,7 @@ class TestRawDataWrapperFunction:
         indicator_set = make_indicator_set(propertyId=['indicator_id_1'])
         equipment_set = make_equipment_set(equipmentId=[equipment_id])
 
-        mock_fetch.side_effect = [
+        mock_request.side_effect = [
             {'RequestId': 'test_request_id_1'},
             {'Status': 'The file is available for download.'}, b'mock_zip_content',
         ]
@@ -219,9 +219,9 @@ class TestRawDataWrapperFunction:
 
         get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set)
 
-    def test_get_indicator_data_requesterror_handled(self, mock_fetch, make_indicator_set):
-        mock_fetch.side_effect = RequestError('msg', '400', 'reason',
-                                              '{"message": "Data not found for the requested date range"}')
+    def test_get_indicator_data_requesterror_handled(self, mock_request, make_indicator_set):
+        mock_request.side_effect = RequestError('msg', '400', 'reason',
+                                                '{"message": "Data not found for the requested date range"}')
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'])
 
         with pytest.warns(DataNotFoundWarning, match='No data for indicator group IG_group_id.*'):
@@ -233,9 +233,9 @@ class TestRawDataWrapperFunction:
         ('wrong content', '{"message": "Test Content"}'),
         ('no field', '{"some_other_field": "Test Content"}')
     ])
-    def test_get_indicator_data_requesterror_unhandled(self, mock_fetch, make_indicator_set,
+    def test_get_indicator_data_requesterror_unhandled(self, mock_request, make_indicator_set,
                                                        content, description):
-        mock_fetch.side_effect = RequestError(content, '400', 'reason', content)
+        mock_request.side_effect = RequestError(content, '400', 'reason', content)
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'])
 
         with pytest.raises(RequestError) as exception_info:
@@ -243,7 +243,7 @@ class TestRawDataWrapperFunction:
 
         assert str(exception_info.value) == content
 
-    def test_get_indicator_data_missing_indicator_warning(self, mock_zipfile, mock_gzip, mock_config, mock_fetch,
+    def test_get_indicator_data_missing_indicator_warning(self, mock_zipfile, mock_gzip, mock_config, mock_request,
                                                           make_indicator_set, make_equipment_set, make_csv_bytes):
 
         mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_URL', download_url='DOWNLOAD_URL')
@@ -253,7 +253,7 @@ class TestRawDataWrapperFunction:
                                            pstid=['indicator_group_id_1'] * 3)
         equipment_set = make_equipment_set(equipmentId=[f'equipment_id_{x}' for x in [1, 2]])
 
-        mock_fetch.side_effect = [
+        mock_request.side_effect = [
             {'RequestId': 'test_request_id_1'},
             {'Status': 'The file is available for download.'}, b'mock_zip_content',
         ]
@@ -273,7 +273,7 @@ class TestPrintProgressUpdates:
         with patch('sailor.sap_iot.fetch.time') as mock:
             yield mock
 
-    def test_print_one_group_no_export(self, mock_zipfile, mock_gzip, mock_fetch,
+    def test_print_one_group_no_export(self, mock_zipfile, mock_gzip, mock_request,
                                        make_indicator_set, make_equipment_set, make_csv_bytes,
                                        capfd):
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
@@ -281,7 +281,7 @@ class TestPrintProgressUpdates:
                                            indicatorGroupName=['group1', 'group1'])
         equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'])
 
-        mock_fetch.side_effect = [
+        mock_request.side_effect = [
             {'RequestId': 'test_request_id_1'},
             {'Status': 'The file is available for download.'},
             b'mock_zip_content',
@@ -303,7 +303,7 @@ class TestPrintProgressUpdates:
             '\n'
         )
 
-    def test_print_two_groups_no_export(self, mock_zipfile, mock_gzip, mock_fetch,
+    def test_print_two_groups_no_export(self, mock_zipfile, mock_gzip, mock_request,
                                         make_indicator_set, make_equipment_set, make_csv_bytes,
                                         capfd):
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
@@ -311,7 +311,7 @@ class TestPrintProgressUpdates:
                                            indicatorGroupName=['group1', 'group2'])
         equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'])
 
-        mock_fetch.side_effect = [
+        mock_request.side_effect = [
             {'RequestId': 'test_request_id_1'},
             {'RequestId': 'test_request_id_2'},
             {'Status': 'The file is available for download.'},
@@ -340,7 +340,7 @@ class TestPrintProgressUpdates:
             '\n'
         )
 
-    def test_print_one_group_with_export(self, mock_zipfile, mock_gzip, mock_fetch,
+    def test_print_one_group_with_export(self, mock_zipfile, mock_gzip, mock_request,
                                          make_indicator_set, make_equipment_set, make_csv_bytes,
                                          capfd):
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
@@ -348,7 +348,7 @@ class TestPrintProgressUpdates:
                                            indicatorGroupName=['group1', 'group1'])
         equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'])
 
-        mock_fetch.side_effect = [
+        mock_request.side_effect = [
             {'RequestId': 'test_request_id_1'},
             {'Status': 'Request for data download is initiated.'},
             {'Status': 'Request for data download is initiated.'},
@@ -372,7 +372,7 @@ class TestPrintProgressUpdates:
             '\n'
         )
 
-    def test_print_two_groups_with_export(self, mock_zipfile, mock_gzip, mock_fetch,
+    def test_print_two_groups_with_export(self, mock_zipfile, mock_gzip, mock_request,
                                           make_indicator_set, make_equipment_set, make_csv_bytes,
                                           capfd):
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'],
@@ -380,7 +380,7 @@ class TestPrintProgressUpdates:
                                            indicatorGroupName=['group1', 'group2'])
         equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'])
 
-        mock_fetch.side_effect = [
+        mock_request.side_effect = [
             {'RequestId': 'test_request_id_1'},
             {'RequestId': 'test_request_id_2'},
             {'Status': 'Request for data download is initiated.'},

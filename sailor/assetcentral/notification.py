@@ -8,12 +8,13 @@ import plotnine as p9
 
 import sailor.assetcentral.equipment
 from sailor import _base
+from sailor._base.masterdata import _nested_put_setter
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.timestamps import _string_to_timestamp_parser
 from ..utils.plot_helper import _default_plot_theme
 from .constants import VIEW_NOTIFICATIONS
 from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntitySet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _nested_put_setter)
+                    _ac_application_url, _ac_fetch_data)
 
 _NOTIFICATION_FIELDS = [
     _AssetcentralField('name', 'internalId'),
@@ -259,10 +260,10 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
                            equipment_id=['id1', 'id2'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Notification._field_map)
+        _base.parse_filter_parameters(kwargs, extended_filters, Notification._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return NotificationSet([Notification(obj) for obj in object_list])
 
 

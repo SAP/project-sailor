@@ -13,8 +13,8 @@ from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_MODEL_INDICATORS, VIEW_MODELS
 from .indicators import Indicator, IndicatorSet
 from .equipment import find_equipment
-from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet, _parse_filter_parameters,
-                    _apply_filters_post_request, _fetch_data, _ac_application_url)
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
+                    _ac_application_url, _ac_fetch_data)
 
 if TYPE_CHECKING:
     from .equipment import EquipmentSet
@@ -114,9 +114,9 @@ class Model(AssetcentralEntity):
         endpoint_url = _ac_application_url() + VIEW_MODEL_INDICATORS + f'({self.id})' + '/indicatorvalues'
 
         # AC-BUG: this api doesn't support filters (thank you AC) so we have to fetch all of them and then filter below
-        object_list = _fetch_data(endpoint_url)
-        filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                       Indicator._field_map)
+        object_list = _ac_fetch_data(endpoint_url)
+        filtered_objects = _base.apply_filters_post_request(object_list, kwargs, extended_filters,
+                                                            Indicator._field_map)
 
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
@@ -178,8 +178,8 @@ def find_models(*, extended_filters=(), **kwargs) -> ModelSet:
         find_models(extended_filters=['model_expiration_date < "2018-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Model._field_map)
+        _base.parse_filter_parameters(kwargs, extended_filters, Model._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_MODELS
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return ModelSet([Model(obj) for obj in object_list])
