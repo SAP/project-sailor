@@ -34,8 +34,8 @@ class TestModel:
                                                   model_id=model.id)
             assert actual == expected
 
-    @patch('sailor.assetcentral.model._apply_filters_post_request')
-    @patch('sailor.assetcentral.model._fetch_data')
+    @patch('sailor._base.apply_filters_post_request')
+    @patch('sailor.assetcentral.model._ac_fetch_data')
     def test_find_equipment_indicators_fetch_and_apply(self, mock_fetch, mock_apply, model, mock_url,
                                                        make_indicator_set):
         object_list = Mock(name='raw_object_list')

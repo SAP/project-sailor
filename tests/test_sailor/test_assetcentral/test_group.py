@@ -36,7 +36,7 @@ class TestGroup:
 
 
 class TestGroupSet:
-    @patch('sailor.assetcentral.equipment._fetch_data')
+    @patch('sailor.assetcentral.equipment._ac_fetch_data')
     def test_element_fetch_skips_duplicates(self, mock_fetch, mock_config):
         with patch('sailor.assetcentral.group.Group._members_raw', new_callable=PropertyMock) as mock_members_raw:
             mock_members_raw.return_value = [{'businessObjectId': 'first_id', 'businessObjectType': 'MATCH'},
