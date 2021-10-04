@@ -1,5 +1,6 @@
 from itertools import product
 import operator
+from typing import List
 import warnings
 import re
 import logging
@@ -11,8 +12,12 @@ LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
 
-def fetch_data(client_name, result_handler, endpoint_url, unbreakable_filters=(), breakable_filters=()):
-    """Retrieve data from a supported odata service."""
+def fetch_data(client_name, result_handler, endpoint_url, unbreakable_filters=(), breakable_filters=()) -> List:
+    """Retrieve data from a supported odata service.
+
+    A result_handler function needs to be passed which must extract the results
+    returned from the odata service endpoint response into a list.
+    """
     filters = _compose_queries(unbreakable_filters, breakable_filters)
     oauth_client = get_oauth_client(client_name)
 
