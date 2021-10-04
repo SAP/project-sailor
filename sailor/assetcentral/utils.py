@@ -13,11 +13,11 @@ LOG.addHandler(logging.NullHandler())
 
 
 def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
-    return _base.fetch_data('asset_central', _ac_resulthandler,
+    return _base.fetch_data('asset_central', _ac_response_handler,
                             endpoint_url, unbreakable_filters, breakable_filters)
 
 
-def _ac_resulthandler(result_list, endpoint_data):
+def _ac_response_handler(result_list, endpoint_data):
     if isinstance(endpoint_data, list):
         result_list.extend(endpoint_data)
     else:

@@ -1,11 +1,11 @@
-from sailor.pai.utils import _pai_fetch_data, _pai_resulthandler
+from sailor.pai.utils import _pai_fetch_data, _pai_response_handler
 
 
-def test_pai_resulthandler():
+def test_pai_response_handler():
     result_list = ['dummy']
     endpoint_data = {'d': {'results': ['result1', 'result2']}}
     expected = ['dummy', 'result1', 'result2']
-    actual = _pai_resulthandler(result_list, endpoint_data)
+    actual = _pai_response_handler(result_list, endpoint_data)
     assert actual == expected
 
 

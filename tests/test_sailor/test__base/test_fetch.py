@@ -402,7 +402,7 @@ class TestComposeQueries:
 class TestFetchData:
 
     @staticmethod
-    def generic_result_handler(result, endpoint_data):
+    def generic_response_handler(result, endpoint_data):
         result.extend(endpoint_data)
         return result
 
@@ -415,7 +415,7 @@ class TestFetchData:
     ])
     def test_returns_iterable(self, mock_request, unbreakable_filters, breakable_filters, remote_return, testdesc):
         mock_request.return_value = remote_return
-        actual = fetch_data('dummy_client_name', self.generic_result_handler,
+        actual = fetch_data('dummy_client_name', self.generic_response_handler,
                             '', unbreakable_filters, breakable_filters)
         assert not issubclass(actual.__class__, str)
         assert isinstance(actual, Iterable)
@@ -426,7 +426,7 @@ class TestFetchData:
         breakable_filters = []
         expected_params = {'$format': 'json'}
 
-        actual = fetch_data('dummy_client_name', self.generic_result_handler,
+        actual = fetch_data('dummy_client_name', self.generic_response_handler,
                             '', unbreakable_filters, breakable_filters)
 
         mock_request.assert_called_once_with('GET', '', params=expected_params)
@@ -439,7 +439,7 @@ class TestFetchData:
         expected_parameters = {'$filter': "location eq 'Walldorf' and (manufacturer eq 'abcCorp')",
                                '$format': 'json'}
 
-        fetch_data('dummy_client_name', self.generic_result_handler,
+        fetch_data('dummy_client_name', self.generic_response_handler,
                    '', unbreakable_filters, breakable_filters)
 
         mock_request.assert_called_once_with('GET', '', params=expected_parameters)
@@ -451,7 +451,7 @@ class TestFetchData:
         mock_request.side_effect = [["result1-1", "result1-2"], ["result2-1"]]
         expected_result = ["result1-1", "result1-2", "result2-1"]
 
-        actual = fetch_data('dummy_client_name', self.generic_result_handler,
+        actual = fetch_data('dummy_client_name', self.generic_response_handler,
                             '', unbreakable_filters, breakable_filters)
 
         assert actual == expected_result

@@ -12,10 +12,10 @@ LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
 
-def fetch_data(client_name, result_handler, endpoint_url, unbreakable_filters=(), breakable_filters=()) -> List:
+def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=(), breakable_filters=()) -> List:
     """Retrieve data from a supported odata service.
 
-    A result_handler function needs to be passed which must extract the results
+    A response_handler function needs to be passed which must extract the results
     returned from the odata service endpoint response into a list.
     """
     filters = _compose_queries(unbreakable_filters, breakable_filters)
@@ -32,7 +32,7 @@ def fetch_data(client_name, result_handler, endpoint_url, unbreakable_filters=()
         params.update({'$format': 'json'})
 
         endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
-        result_filter = result_handler(result_filter, endpoint_data)
+        result_filter = response_handler(result_filter, endpoint_data)
 
         result.extend(result_filter)
 

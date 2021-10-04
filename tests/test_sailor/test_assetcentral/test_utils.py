@@ -2,7 +2,7 @@ import pytest
 
 from sailor.assetcentral.utils import (
     AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity,
-    _ac_fetch_data, _ac_resulthandler)
+    _ac_fetch_data, _ac_response_handler)
 
 
 class TestAssetcentralRequest:
@@ -93,9 +93,9 @@ class TestAssetcentralRequest:
     ('single return', {'a': 'dict'}, ['dummy', {'a': 'dict'}]),
     ('list return', ['result1', 'result2'], ['dummy', 'result1', 'result2']),
 ])
-def test_ac_resulthandler(endpoint_data, expected, testdesc):
+def test_ac_response_handler(endpoint_data, expected, testdesc):
     result_list = ['dummy']
-    actual = _ac_resulthandler(result_list, endpoint_data)
+    actual = _ac_response_handler(result_list, endpoint_data)
     assert actual == expected
 
 
