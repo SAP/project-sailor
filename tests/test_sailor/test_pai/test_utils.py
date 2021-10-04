@@ -1,14 +1,4 @@
-from unittest.mock import patch
-
-import pytest
-
 from sailor.pai.utils import _pai_fetch_data, _pai_resulthandler
-
-
-@pytest.fixture
-def fetch_mock(mock_config):
-    with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request') as mock:
-        yield mock
 
 
 def test_pai_resulthandler():
@@ -19,15 +9,15 @@ def test_pai_resulthandler():
     assert actual == expected
 
 
-def test_pai_fetch_data_integration(fetch_mock):
+def test_pai_fetch_data_integration(mock_request):
     unbreakable_filters = ["location eq 'Walldorf'"]
     breakable_filters = [["manufacturer eq 'abcCorp'"]]
     expected_parameters = {'$filter': "location eq 'Walldorf' and (manufacturer eq 'abcCorp')",
                            '$format': 'json'}
     expected = ['result1', 'result2']
-    fetch_mock.return_value = {'d': {'results': expected}}
+    mock_request.return_value = {'d': {'results': expected}}
 
     actual = _pai_fetch_data('', unbreakable_filters, breakable_filters)
 
-    fetch_mock.assert_called_once_with('GET', '', params=expected_parameters)
+    mock_request.assert_called_once_with('GET', '', params=expected_parameters)
     assert actual == expected

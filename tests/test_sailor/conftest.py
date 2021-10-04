@@ -13,6 +13,12 @@ def mock_config():
 
 
 @pytest.fixture
+def mock_request(mock_config):
+    with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request') as mock:
+        yield mock
+
+
+@pytest.fixture
 def make_indicator():
     def maker(**kwargs):
         kwargs.setdefault('propertyId', 'id')

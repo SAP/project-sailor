@@ -22,10 +22,10 @@ class TestEquipment:
 
     @patch('sailor._base.apply_filters_post_request')
     @patch('sailor.assetcentral.equipment._ac_fetch_data')
-    def test_find_equipment_indicators_fetch_and_apply(self, mock_fetch, mock_apply, mock_url,
+    def test_find_equipment_indicators_fetch_and_apply(self, mock_request, mock_apply, mock_url,
                                                        eq_obj, make_indicator_set):
         object_list = Mock(name='raw_object_list')
-        mock_fetch.return_value = object_list
+        mock_request.return_value = object_list
         mock_apply.return_value = [{'propertyId': 'indicator_1', 'pstid': 'group_id', 'categoryID': 'template_id'},
                                    {'propertyId': 'indicator_2', 'pstid': 'group_id', 'categoryID': 'template_id'}]
         filter_kwargs = {'param1': 'one'}
@@ -34,13 +34,13 @@ class TestEquipment:
 
         actual = eq_obj.find_equipment_indicators(**filter_kwargs, extended_filters=extended_filters)
 
-        assert constants.VIEW_EQUIPMENT in mock_fetch.call_args.args[0]
+        assert constants.VIEW_EQUIPMENT in mock_request.call_args.args[0]
         assert mock_apply.call_args.args[:-1] == (object_list, filter_kwargs, extended_filters)
         assert actual == expected_result
 
     @patch('sailor.assetcentral.equipment._ac_fetch_data')
-    def test_find_failure_modes(self, mock_fetch, mock_config, eq_obj):
-        mock_fetch.return_value = [{'ID': 'fm_id1'}, {'ID': 'fm_id2'}]
+    def test_find_failure_modes(self, mock_request, mock_config, eq_obj):
+        mock_request.return_value = [{'ID': 'fm_id1'}, {'ID': 'fm_id2'}]
         expected = 'expected return value is the value returned by the delegate function "find_failure_modes"'
 
         with patch('sailor.assetcentral.equipment.find_failure_modes', return_value=expected) as mock_delegate:
@@ -65,9 +65,9 @@ class TestEquipment:
             assert actual == expected
 
     @patch('sailor.assetcentral.location._ac_fetch_data')
-    def test_location_returns_location(self, mock_fetch, mock_config, make_equipment):
+    def test_location_returns_location(self, mock_request, mock_config, make_equipment):
         equipment = make_equipment(equipment_id='123', location='Walldorf')
-        mock_fetch.return_value = [{'locationId': '456', 'name': 'Walldorf'}]
+        mock_request.return_value = [{'locationId': '456', 'name': 'Walldorf'}]
         expected_result = Location({'locationId': '456', 'name': 'Walldorf'})
 
         actual = equipment.location

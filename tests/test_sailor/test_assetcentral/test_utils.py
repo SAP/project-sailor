@@ -1,16 +1,8 @@
-from unittest.mock import patch
-
 import pytest
 
 from sailor.assetcentral.utils import (
     AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity,
     _ac_fetch_data, _ac_resulthandler)
-
-
-@pytest.fixture
-def fetch_mock(mock_config):
-    with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request') as mock:
-        yield mock
 
 
 class TestAssetcentralRequest:
@@ -107,14 +99,14 @@ def test_ac_resulthandler(endpoint_data, expected, testdesc):
     assert actual == expected
 
 
-def test_ac_fetch_data_integration(fetch_mock):
+def test_ac_fetch_data_integration(mock_request):
     unbreakable_filters = ["location eq 'Walldorf'"]
     breakable_filters = [["manufacturer eq 'abcCorp'"]]
     expected_parameters = {'$filter': "location eq 'Walldorf' and (manufacturer eq 'abcCorp')",
                            '$format': 'json'}
-    expected = fetch_mock.return_value = ['result1']
+    expected = mock_request.return_value = ['result1']
 
     actual = _ac_fetch_data('', unbreakable_filters, breakable_filters)
 
-    fetch_mock.assert_called_once_with('GET', '', params=expected_parameters)
+    mock_request.assert_called_once_with('GET', '', params=expected_parameters)
     assert actual == expected

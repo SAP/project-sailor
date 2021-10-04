@@ -1,5 +1,4 @@
 from typing import Iterable
-from unittest.mock import patch
 
 import pytest
 
@@ -401,10 +400,6 @@ class TestComposeQueries:
 
 
 class TestFetchData:
-    @pytest.fixture
-    def fetch_mock(self, mock_config):
-        with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request') as mock:
-            yield mock
 
     @staticmethod
     def generic_result_handler(result, endpoint_data):
@@ -418,15 +413,15 @@ class TestFetchData:
         ('no filters - list return', [], [], ['result']),
         ('filters - list return', ['a gt b'], [['c eq 1']], ['result']),
     ])
-    def test_returns_iterable(self, fetch_mock, unbreakable_filters, breakable_filters, remote_return, testdesc):
-        fetch_mock.return_value = remote_return
+    def test_returns_iterable(self, mock_request, unbreakable_filters, breakable_filters, remote_return, testdesc):
+        mock_request.return_value = remote_return
         actual = fetch_data('dummy_client_name', self.generic_result_handler,
                             '', unbreakable_filters, breakable_filters)
         assert not issubclass(actual.__class__, str)
         assert isinstance(actual, Iterable)
 
-    def test_no_filters_makes_remote_call_without_query_params(self, fetch_mock):
-        fetch_mock.return_value = ['result']
+    def test_no_filters_makes_remote_call_without_query_params(self, mock_request):
+        mock_request.return_value = ['result']
         unbreakable_filters = []
         breakable_filters = []
         expected_params = {'$format': 'json'}
@@ -434,11 +429,11 @@ class TestFetchData:
         actual = fetch_data('dummy_client_name', self.generic_result_handler,
                             '', unbreakable_filters, breakable_filters)
 
-        fetch_mock.assert_called_once_with('GET', '', params=expected_params)
+        mock_request.assert_called_once_with('GET', '', params=expected_params)
         assert actual == ['result']
 
     @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
-    def test_adds_filter_parameter_on_call(self, fetch_mock):
+    def test_adds_filter_parameter_on_call(self, mock_request):
         unbreakable_filters = ["location eq 'Walldorf'"]
         breakable_filters = [["manufacturer eq 'abcCorp'"]]
         expected_parameters = {'$filter': "location eq 'Walldorf' and (manufacturer eq 'abcCorp')",
@@ -447,13 +442,13 @@ class TestFetchData:
         fetch_data('dummy_client_name', self.generic_result_handler,
                    '', unbreakable_filters, breakable_filters)
 
-        fetch_mock.assert_called_once_with('GET', '', params=expected_parameters)
+        mock_request.assert_called_once_with('GET', '', params=expected_parameters)
 
-    def test_multiple_calls_aggregated_result(self, fetch_mock):
+    def test_multiple_calls_aggregated_result(self, mock_request):
         unbreakable_filters = ["location eq 'Walldorf'"]
         # causes _compose_queries to generate two filter strings
         breakable_filters = [["manufacturer eq 'abcCorp'"] * 100]
-        fetch_mock.side_effect = [["result1-1", "result1-2"], ["result2-1"]]
+        mock_request.side_effect = [["result1-1", "result1-2"], ["result2-1"]]
         expected_result = ["result1-1", "result1-2", "result2-1"]
 
         actual = fetch_data('dummy_client_name', self.generic_result_handler,
