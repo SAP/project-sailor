@@ -27,7 +27,7 @@ def fetch_data(client_name, result_handler, endpoint_url, unbreakable_filters=()
         params.update({'$format': 'json'})
 
         endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
-        result_handler(result_filter, endpoint_data)
+        result_filter = result_handler(result_filter, endpoint_data)
 
         result.extend(result_filter)
 

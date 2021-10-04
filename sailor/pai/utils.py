@@ -15,9 +15,10 @@ def _pai_application_url():
     return SailorConfig.get('predictive_asset_insights', 'application_url')
 
 
-def _pai_resulthandler(result, endpoint_data):
+def _pai_resulthandler(result_list, endpoint_data):
     for element in endpoint_data['d']['results']:
-        result.append(element)
+        result_list.append(element)
+    return result_list
 
 
 class _PredictiveAssetInsightsField(_base.MasterDataField):

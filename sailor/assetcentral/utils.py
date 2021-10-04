@@ -17,11 +17,12 @@ def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
                             endpoint_url, unbreakable_filters, breakable_filters)
 
 
-def _ac_resulthandler(result, endpoint_data):
+def _ac_resulthandler(result_list, endpoint_data):
     if isinstance(endpoint_data, list):
-        result.extend(endpoint_data)
+        result_list.extend(endpoint_data)
     else:
-        result.append(endpoint_data)
+        result_list.append(endpoint_data)
+    return result_list
 
 
 def _ac_application_url():
