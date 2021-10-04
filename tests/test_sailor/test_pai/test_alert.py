@@ -28,10 +28,9 @@ class TestAlert():
         find_params = dict(extended_filters=['unknown_integer_param < 10'],
                            unknown_string_param=["'Type A'", "'Type F'"])
         expected_call_args = (['unknown_integer_param lt 10'],
-                              [["unknown_string_param eq 'Type A'", "unknown_string_param eq 'Type F'"]],
-                              'predictive_asset_insights')
+                              [["unknown_string_param eq 'Type A'", "unknown_string_param eq 'Type F'"]])
 
-        alert_object = {'d': {'results': [{'AlertId': 'test_id1'}, {'AlertId': 'test_id2'}]}}
+        fetch_result = [{'AlertId': 'test_id1'}, {'AlertId': 'test_id2'}]
         instance_class = params['set_class']._element_type
 
         objects = [instance_class({params['id_field']: x}) for x in ['test_id1', 'test_id2']]
@@ -39,8 +38,8 @@ class TestAlert():
 
         with patch('sailor.pai.alert._pai_application_url') as mock:
             mock.return_value = 'base_url'
-            with patch('sailor.pai.alert._fetch_data') as mock_fetch:
-                mock_fetch.return_value = [alert_object]
+            with patch('sailor.pai.alert._pai_fetch_data') as mock_fetch:
+                mock_fetch.return_value = fetch_result
                 actual_result = params['function'](**find_params)
 
         assert params['endpoint'] in mock_fetch.call_args.args[0]

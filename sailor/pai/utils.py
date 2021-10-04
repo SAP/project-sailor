@@ -6,7 +6,7 @@ from ..utils.config import SailorConfig
 
 
 def _pai_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
-    return _base.fetch_data('predictive_asset_insights', _pai_resulthandler,
+    return _base.fetch_data('predictive_asset_insights', _pai_response_handler,
                             endpoint_url, unbreakable_filters, breakable_filters)
 
 
@@ -15,9 +15,10 @@ def _pai_application_url():
     return SailorConfig.get('predictive_asset_insights', 'application_url')
 
 
-def _pai_resulthandler(result, endpoint_data):
+def _pai_response_handler(result_list, endpoint_data):
     for element in endpoint_data['d']['results']:
-        result.append(element)
+        result_list.append(element)
+    return result_list
 
 
 class _PredictiveAssetInsightsField(_base.MasterDataField):

@@ -66,7 +66,7 @@ def test_find_functions_expect_fetch_call_args(test_object):
 
     with patch(f'sailor.assetcentral.{test_object}._ac_application_url') as mock:
         mock.return_value = 'base_url'
-        with patch(f'sailor.assetcentral.{test_object}._fetch_data') as mock_fetch:
+        with patch(f'sailor.assetcentral.{test_object}._ac_fetch_data') as mock_fetch:
             mock_fetch.return_value = [{params['id_field']: 'test_id1'}, {params['id_field']: 'test_id2'}]
             actual_result = params['function'](**find_params)
 
