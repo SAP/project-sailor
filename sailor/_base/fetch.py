@@ -12,6 +12,18 @@ LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
 
+_OPERATOR_MAP = {
+    '>': 'gt',
+    '<': 'lt',
+    '>=': 'ge',
+    '<=': 'le',
+    '!=': 'ne',
+    '==': 'eq'
+}
+
+_EXTENDED_FILTER_PATTERN = re.compile(r'^(\w+) *?(>=|<=|==|!=|<|>) *(.*?)$')
+
+
 def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=(), breakable_filters=()) -> List:
     """Retrieve data from a supported odata service.
 
@@ -79,28 +91,18 @@ def apply_filters_post_request(data, equality_filters, extended_filters, field_m
     if field_map is None:
         field_map = {}
 
-    operator_map = {
-        '>': 'gt',
-        '<': 'lt',
-        '>=': 'ge',
-        '<=': 'le',
-        '!=': 'ne',
-        '==': 'eq'
-    }
-
     unified_filters = []
     for k, v in equality_filters.items():
         if k in field_map:
             k = field_map[k].their_name_get
         unified_filters.append((k, 'eq', v))
 
-    filter_pattern = re.compile(r'^(\w+) *?(>=|<=|==|!=|<|>) *(.*?)$')
     for filter_entry in extended_filters:
-        match = filter_pattern.fullmatch(filter_entry)
+        match = _EXTENDED_FILTER_PATTERN.fullmatch(filter_entry)
         k, o, v = match.groups()
         if k in field_map:
             k = field_map[k].their_name_get
-        unified_filters.append((k, operator_map[o], v))
+        unified_filters.append((k, _OPERATOR_MAP[o], v))
 
     # filtering starts here
     for elem in data:
@@ -223,14 +225,6 @@ def _compose_queries(unbreakable_filters, breakable_filters):
 def _unify_filters(equality_filters, extended_filters, field_map):
     # known field values are put through the query transformer
     # unknown field values are never transformed
-    operator_map = {
-        '>': 'gt',
-        '<': 'lt',
-        '>=': 'ge',
-        '<=': 'le',
-        '!=': 'ne',
-        '==': 'eq'
-    }
 
     if equality_filters is None:
         equality_filters = {}
@@ -257,9 +251,8 @@ def _unify_filters(equality_filters, extended_filters, field_map):
 
         unified_filters.append((key, 'eq', v))
 
-    filter_pattern = re.compile(r'^(\w+) *?(>=|<=|==|!=|<|>) *(.*?)$')
     for filter_entry in extended_filters:
-        if match := filter_pattern.fullmatch(filter_entry):
+        if match := _EXTENDED_FILTER_PATTERN.fullmatch(filter_entry):
             k, o, v = match.groups()
         else:
             raise RuntimeError(f'Failed to parse filter entry {filter_entry}')
@@ -280,7 +273,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
 
         v = query_transformer(v)
 
-        unified_filters.append((key, operator_map[o], v))
+        unified_filters.append((key, _OPERATOR_MAP[o], v))
 
     if len(not_our_term) > 0:
         warnings.warn(f'Following parameters are not in our terminology: {not_our_term}', stacklevel=3)
