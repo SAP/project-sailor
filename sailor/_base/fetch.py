@@ -12,6 +12,18 @@ LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
 
+_OPERATOR_MAP = {
+    '>': 'gt',
+    '<': 'lt',
+    '>=': 'ge',
+    '<=': 'le',
+    '!=': 'ne',
+    '==': 'eq'
+}
+
+_EXTENDED_FILTER_PATTERN = re.compile(r'^(\w+) *?(>=|<=|==|!=|<|>) *(.*?)$')
+
+
 def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=(), breakable_filters=()) -> List:
     """Retrieve data from a supported odata service.
 
@@ -67,9 +79,32 @@ def parse_filter_parameters(equality_filters=None, extended_filters=(), field_ma
 
 def apply_filters_post_request(data, equality_filters, extended_filters, field_map):
     """Allow filtering of the results returned by an AssetCentral query if the endpoint doesn't implement `filter`."""
-    unified_filters = _unify_filters(equality_filters, extended_filters, field_map)
     result = []
 
+    # the following code (until filtering) is partly similar to _unify_filters but leaves out query_transformers.
+    # this is done mainly to not further complicate the _unify_filters code.
+
+    if equality_filters is None:
+        equality_filters = {}
+    if extended_filters is None:
+        extended_filters = []
+    if field_map is None:
+        field_map = {}
+
+    unified_filters = []
+    for k, v in equality_filters.items():
+        if k in field_map:
+            k = field_map[k].their_name_get
+        unified_filters.append((k, 'eq', v))
+
+    for filter_entry in extended_filters:
+        match = _EXTENDED_FILTER_PATTERN.fullmatch(filter_entry)
+        k, o, v = match.groups()
+        if k in field_map:
+            k = field_map[k].their_name_get
+        unified_filters.append((k, _OPERATOR_MAP[o], v))
+
+    # filtering starts here
     for elem in data:
         for key, op, value in unified_filters:
             if _is_non_string_iterable(value):
@@ -190,14 +225,6 @@ def _compose_queries(unbreakable_filters, breakable_filters):
 def _unify_filters(equality_filters, extended_filters, field_map):
     # known field values are put through the query transformer
     # unknown field values are never transformed
-    operator_map = {
-        '>': 'gt',
-        '<': 'lt',
-        '>=': 'ge',
-        '<=': 'le',
-        '!=': 'ne',
-        '==': 'eq'
-    }
 
     if equality_filters is None:
         equality_filters = {}
@@ -224,9 +251,8 @@ def _unify_filters(equality_filters, extended_filters, field_map):
 
         unified_filters.append((key, 'eq', v))
 
-    filter_pattern = re.compile(r'^(\w+) *?(>=|<=|==|!=|<|>) *(.*?)$')
     for filter_entry in extended_filters:
-        if match := filter_pattern.fullmatch(filter_entry):
+        if match := _EXTENDED_FILTER_PATTERN.fullmatch(filter_entry):
             k, o, v = match.groups()
         else:
             raise RuntimeError(f'Failed to parse filter entry {filter_entry}')
@@ -247,7 +273,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
 
         v = query_transformer(v)
 
-        unified_filters.append((key, operator_map[o], v))
+        unified_filters.append((key, _OPERATOR_MAP[o], v))
 
     if len(not_our_term) > 0:
         warnings.warn(f'Following parameters are not in our terminology: {not_our_term}', stacklevel=3)
@@ -256,6 +282,8 @@ def _unify_filters(equality_filters, extended_filters, field_map):
 
 
 def _strip_quote_marks(value):
+    if not isinstance(value, str):
+        return value
     quoted_value_pattern = re.compile(r'^([\"\'])(.*)\1$')
     if match := quoted_value_pattern.fullmatch(value):
         _, value = match.groups()
