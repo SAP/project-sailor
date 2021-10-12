@@ -302,9 +302,9 @@ class TestQueryParsers:
     ('without filters as dict and list', {}, [], ['indicator_id1', 'indicator_id2', 'indicator_id3']),
     ('equality filters', dict(type='yellow', dimension='zero'), None, ['indicator_id1']),
     ('equality filter list', dict(type=['yellow', 'brown']), None, ['indicator_id1', 'indicator_id2', 'indicator_id3']),
-    ('extended filters', None, ['categoryID > aa'], ['indicator_id3']),
-    ('both filters', dict(type='brown'), ['categoryID > a'], ['indicator_id3']),
-    ('both filters yields empty result', dict(type='yellow'), ['categoryID > aa'], []),
+    ('extended filters', None, ['categoryID > "aa"'], ['indicator_id3']),
+    ('both filters', dict(type='brown'), ['categoryID > "a"'], ['indicator_id3']),
+    ('both filters yields empty result', dict(type='yellow'), ['categoryID > "aa"'], []),
 ])
 @pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
 def test_apply_filters_post_request_filtering(equality_filters, extended_filters, expected_ids, testdescription):
@@ -324,7 +324,7 @@ def test_apply_filters_post_request_property_mapping():
     field_map = {'type': _base.masterdata.MasterDataField('type', 'indicatorType'),
                  'template_id': _base.masterdata.MasterDataField('template_id', 'categoryID')}
     equality_filters = dict(type='yellow')
-    extended_filters = ['template_id > a']
+    extended_filters = ['template_id > "a"']
     expected_result = [{'propertyId': 'indicator_id1', 'indicatorType': 'yellow', 'categoryID': 'aa'},
                        {'propertyId': 'indicator_id2', 'indicatorType': 'yellow', 'categoryID': 'aa'}]
 
@@ -469,3 +469,33 @@ class TestFetchData:
 def test_strip_quote_marks(input, expected):
     actual = _strip_quote_marks(input)
     assert actual == expected
+
+
+@pytest.mark.parametrize('testdescription,equality_filters,expected_ids', [
+    ('numeric', dict(numeric_property=0), ['indicator_id1']),
+    ('numeric list', dict(numeric_property=[0, 4.4]), ['indicator_id1', 'indicator_id2']),
+    ('true boolean', dict(boolean_property=True), ['indicator_id1']),
+    ('int boolean', dict(boolean_property=0), ['indicator_id2']),
+    # TODO: post request filtering based on result type
+    # ('string boolean', dict(boolean_property='1'), ['indicator_id1']),
+    # ('timestamp string', dict(timestamp_property='2020-01-01 11:22:33'), ['indicator_id1']),
+])
+def test_post_request_filtering_data_types_equality(equality_filters, expected_ids, testdescription):
+    data = [{'id': 'indicator_id1', 'numeric_property': 0, 'boolean_property': True,
+             'timestamp_property': '2020-01-01T11:22:33+00:00'},
+            {'id': 'indicator_id2', 'numeric_property': 4.4, 'boolean_property': False,
+             'timestamp_property': '2020-01-01T11:22:33+02:00'}]
+
+    field_map = {
+        'id': _base.MasterDataField('filtered_term', 'filtered_term'),
+        'numeric_property': _base.MasterDataField('numeric_property', 'numeric_property',
+                                                  query_transformer=_base.masterdata._qt_double),
+        'boolean_property': _base.MasterDataField('boolean_property', 'boolean_property',
+                                                  query_transformer=_base.masterdata._qt_boolean_int_string),
+        'timestamp_property': _base.MasterDataField('timestamp_property', 'timestamp_property',
+                                                    query_transformer=_base.masterdata._qt_timestamp)
+    }
+
+    actual = apply_filters_post_request(data, equality_filters, [], field_map=field_map)
+
+    assert [item['id'] for item in actual] == expected_ids
