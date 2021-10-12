@@ -415,6 +415,7 @@ class TestFetchData:
     ])
     def test_returns_iterable(self, mock_request, unbreakable_filters, breakable_filters, remote_return, testdesc):
         mock_request.return_value = remote_return
+        assert False  # fetch_data runs in an infinite loop. test needs to be adapted
         actual = fetch_data('dummy_client_name', self.generic_response_handler,
                             '', unbreakable_filters, breakable_filters)
         assert not issubclass(actual.__class__, str)
@@ -425,6 +426,7 @@ class TestFetchData:
         unbreakable_filters = []
         breakable_filters = []
         expected_params = {'$format': 'json'}
+        assert False  # fetch_data runs in an infinite loop. test needs to be adapted
 
         actual = fetch_data('dummy_client_name', self.generic_response_handler,
                             '', unbreakable_filters, breakable_filters)

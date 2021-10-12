@@ -106,6 +106,7 @@ def test_ac_fetch_data_integration(mock_request):
                            '$format': 'json'}
     expected = mock_request.return_value = ['result1']
 
+    assert False  # fetch_data runs in an infinite loop. test needs to be adapted
     actual = _ac_fetch_data('', unbreakable_filters, breakable_filters)
 
     mock_request.assert_called_once_with('GET', '', params=expected_parameters)
