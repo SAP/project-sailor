@@ -6,22 +6,23 @@ Classes are provided for individual Alert as well as groups of Alerts (AlertSet)
 
 from sailor import _base
 from ..utils.timestamps import _odata_to_timestamp_parser
-from .._base.masterdata import _qt_odata_datetimeoffset
+from .._base.masterdata import _qt_odata_datetimeoffset, _qt_double
 from .constants import ALERTS_READ_PATH
 from .utils import (PredictiveAssetInsightsEntity, _PredictiveAssetInsightsField,
                     PredictiveAssetInsightsEntitySet, _pai_application_url, _pai_fetch_data)
 
 _ALERT_FIELDS = [
     _PredictiveAssetInsightsField('description', 'Description'),
-    _PredictiveAssetInsightsField('severity_code', 'SeverityCode'),
+    _PredictiveAssetInsightsField('severity_code', 'SeverityCode',
+                                  query_transformer=_qt_double),
     _PredictiveAssetInsightsField('category', 'Category'),
     _PredictiveAssetInsightsField('equipment_name', 'EquipmentName'),
     _PredictiveAssetInsightsField('model_name', 'ModelName'),
     _PredictiveAssetInsightsField('indicator_name', 'IndicatorName'),
     _PredictiveAssetInsightsField('indicator_group_name', 'IndicatorGroupName'),
     _PredictiveAssetInsightsField('template_name', 'TemplateName'),
-    _PredictiveAssetInsightsField('count', 'Count'),
-    _PredictiveAssetInsightsField('status_code', 'StatusCode'),
+    _PredictiveAssetInsightsField('count', 'Count', query_transformer=_qt_double),
+    _PredictiveAssetInsightsField('status_code', 'StatusCode', query_transformer=_qt_double),
     _PredictiveAssetInsightsField('triggered_on', 'TriggeredOn', get_extractor=_odata_to_timestamp_parser(),
                                   query_transformer=_qt_odata_datetimeoffset),
     _PredictiveAssetInsightsField('last_occured_on', 'LastOccuredOn', get_extractor=_odata_to_timestamp_parser(),
