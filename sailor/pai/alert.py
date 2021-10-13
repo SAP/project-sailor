@@ -5,12 +5,11 @@ Classes are provided for individual Alert as well as groups of Alerts (AlertSet)
 """
 
 from sailor import _base
-from ..assetcentral.utils import (_fetch_data, _parse_filter_parameters)
 from ..utils.timestamps import _odata_to_timestamp_parser
 from .._base.masterdata import _qt_odata_datetimeoffset
 from .constants import ALERTS_READ_PATH
 from .utils import (PredictiveAssetInsightsEntity, _PredictiveAssetInsightsField,
-                    PredictiveAssetInsightsEntitySet, _pai_application_url)
+                    PredictiveAssetInsightsEntitySet, _pai_application_url, _pai_fetch_data)
 
 _ALERT_FIELDS = [
     _PredictiveAssetInsightsField('description', 'Description'),
@@ -111,12 +110,8 @@ def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
         find_equipment(severity_code=[10, 1])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Alert._field_map)
+        _base.parse_filter_parameters(kwargs, extended_filters, Alert._field_map)
 
     endpoint_url = _pai_application_url() + ALERTS_READ_PATH
-    objects = []
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters, 'predictive_asset_insights')
-    for odata_result in object_list:
-        for element in odata_result['d']['results']:
-            objects.append(element)
-    return AlertSet([Alert(obj) for obj in objects])
+    object_list = _pai_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    return AlertSet([Alert(obj) for obj in object_list])

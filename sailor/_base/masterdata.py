@@ -260,3 +260,12 @@ def add_properties(cls):
 
         setattr(cls, field.our_name, property(getter, None, None))
     return cls
+
+
+def _nested_put_setter(*nested_names):
+    def setter(payload, value):
+        next_dict = payload
+        for nested_name in nested_names[:-1]:
+            next_dict = next_dict.setdefault(nested_name, {})
+        next_dict[nested_names[-1]] = value
+    return setter

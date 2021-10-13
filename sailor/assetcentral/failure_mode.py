@@ -6,7 +6,7 @@ Classes are provided for individual FailureModes as well as groups of FailureMod
 
 from sailor import _base
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url)
+                    _ac_application_url, _ac_fetch_data)
 from .constants import VIEW_FAILUREMODES
 
 _FAILURE_MODE_FIELDS = [
@@ -125,8 +125,8 @@ def find_failure_modes(*, extended_filters=(), **kwargs) -> FailureModeSet:
         find_failure_modes(extended_filters=['equipments_count >= 5'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, FailureMode._field_map)
+        _base.parse_filter_parameters(kwargs, extended_filters, FailureMode._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_FAILUREMODES
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return FailureModeSet([FailureMode(obj) for obj in object_list])

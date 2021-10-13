@@ -14,12 +14,6 @@ def mock_url():
         yield mock
 
 
-@pytest.fixture
-def mock_request(mock_config):
-    with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request') as mock:
-        yield mock
-
-
 # TODO: this test is a blueprint for testing create functions generically
 @pytest.mark.parametrize('input_kwargs,create_function,api_path,put_id_name,get_id_name', [
     ({'abc': 1, 'def': 2}, create_notification, VIEW_NOTIFICATIONS, 'notificationID', 'notificationId'),

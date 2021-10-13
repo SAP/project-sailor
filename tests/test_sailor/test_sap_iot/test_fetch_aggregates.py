@@ -50,7 +50,7 @@ def test_compose_query_params(make_equipment_set, make_aggregated_indicator_set)
     assert all(f'"equipmentId"=\'{equipment.id}\'' in result['tagsFilter'] for equipment in equipment_set)
 
 
-def test_get_indicator_aggregates_happy_path(make_equipment_set, make_indicator_set, mock_config, mock_fetch):
+def test_get_indicator_aggregates_happy_path(make_equipment_set, make_indicator_set, mock_config, mock_request):
     start, end = '2020-01-01 00:00:00+00:00', '2020-02-01 00:00:00+00:00'
     equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'],
                                        modelId=['equi_model', 'equi_model'])
@@ -61,7 +61,7 @@ def test_get_indicator_aggregates_happy_path(make_equipment_set, make_indicator_
     timestamps = ['2020-01-02T00:00:00Z', '2020-01-03T00:00:00Z', '2020-01-04T00:00:00Z']
 
     test_response = make_sample_response(equipment_set, aggregated_indicator_set, timestamps, interval)
-    mock_fetch.side_effect = [test_response]
+    mock_request.side_effect = [test_response]
 
     result = get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], interval)
 
@@ -70,7 +70,7 @@ def test_get_indicator_aggregates_happy_path(make_equipment_set, make_indicator_
     assert len(result._df) == len(timestamps) * len(equipment_set)
 
 
-def test_get_indicator_aggregates_with_pagination(make_equipment_set, make_indicator_set, mock_config, mock_fetch):
+def test_get_indicator_aggregates_with_pagination(make_equipment_set, make_indicator_set, mock_config, mock_request):
     start, end = '2020-01-01 00:00:00+00:00', '2020-02-01 00:00:00+00:00'
     equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'],
                                        modelId=['equi_model', 'equi_model'])
@@ -84,11 +84,11 @@ def test_get_indicator_aggregates_with_pagination(make_equipment_set, make_indic
     first_resp['nextLink'] = 'NEXT_LINK_URL'
     second_resp = make_sample_response(equipment_set, aggregated_indicator_set, timestamps[3:], interval)
 
-    mock_fetch.side_effect = [first_resp, second_resp]
+    mock_request.side_effect = [first_resp, second_resp]
 
     result = get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], interval)
 
-    mock_fetch.assert_has_calls([call('GET', 'NEXT_LINK_URL')])
+    mock_request.assert_has_calls([call('GET', 'NEXT_LINK_URL')])
     assert all([equipment.id in result._df['equipment_id'].values for equipment in equipment_set])
     assert all([indicator._unique_id in result._df.columns for indicator in aggregated_indicator_set])
     assert len(result._df) == len(timestamps) * len(equipment_set)
