@@ -6,7 +6,7 @@ Classes are provided for individual Equipment as well as groups of Equipment (Eq
 from __future__ import annotations
 
 from typing import Union, TYPE_CHECKING, Iterable
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 
@@ -228,9 +228,6 @@ class Equipment(AssetcentralEntity):
         ----
         If `indicator_set` is not specified, all indicators associated to this equipment are used.
         """
-        if start is None or end is None:
-            raise ValueError("Time parameters must be specified")
-
         if indicator_set is None:
             indicator_set = self.find_equipment_indicators()
 
@@ -380,9 +377,6 @@ class EquipmentSet(AssetcentralEntitySet):
         ----
         If `indicator_set` is not specified, indicators common to all equipments in this set are used.
         """
-        if start is None or end is None:
-            raise ValueError("Time parameters must be specified")
-
         if indicator_set is None:
             indicator_set = self.find_common_indicators()
 
@@ -393,7 +387,7 @@ class EquipmentSet(AssetcentralEntitySet):
             end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
             indicator_set: IndicatorSet = None,
             aggregation_functions: Iterable[str] = ('AVG',),
-            aggregation_interval: Union[str, pd.Timedelta, datetime.timedelta] = 'PT2M'
+            aggregation_interval: Union[str, pd.Timedelta, timedelta] = 'PT2M'
     ) -> TimeseriesDataset:
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.
@@ -422,14 +416,11 @@ class EquipmentSet(AssetcentralEntitySet):
         for a period from 01.06.2020 to 05.12.2020 ::
 
             my_equipment_set = find_equipment(model_name='MyModel')
-            my_equipment_set.get_indicator_data('2020-06-01', '2020-12-05')
+            my_equipment_set.get_indicator_aggregates('2020-06-01', '2020-12-05', aggregation_functions=['MIN'])
         Note
         ----
         If `indicator_set` is not specified, indicators common to all equipments in this set are used.
         """
-        if start is None or end is None:
-            raise ValueError("Time parameters must be specified")
-
         if indicator_set is None:
             indicator_set = self.find_common_indicators()
 

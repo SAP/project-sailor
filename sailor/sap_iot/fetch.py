@@ -170,6 +170,9 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
     # the bulk export api *only* works on indicator groups. No filtering for equipment_set or indicator_set.
     # so we always need to download data for the whole group. We filter on individual indicator-template combinations
     # as well as individual equipment in `_process_one_file`.
+    if start_date is None or end_date is None:
+        raise ValueError("Time parameters must be specified")
+
     start_date = _any_to_timestamp(start_date)
     end_date = _any_to_timestamp(end_date)
 

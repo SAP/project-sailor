@@ -8,7 +8,7 @@ raw data from the cold store.
 from __future__ import annotations
 
 from typing import Union, Iterable, TYPE_CHECKING
-from datetime import datetime
+from datetime import datetime, timedelta
 import warnings
 import re
 import logging
@@ -33,6 +33,13 @@ _ALL_KNOWN_AGGREGATION_FUNCTIONS = ['MIN', 'AVG', 'FIRST', 'MAX', 'SUM', 'LAST',
                                     'PERCENT_GOOD', 'TMAX', 'TLAST', 'STDDEV', 'TFIRST', 'TMIN']
 
 
+def _parse_aggregation_interval(aggregation_interval):
+    if aggregation_interval is not None and not isinstance(aggregation_interval, str):
+        total_seconds = aggregation_interval.total_seconds()
+        aggregation_interval = f'PT{total_seconds}S'
+    return aggregation_interval
+
+
 def _compose_query_params(template: str, equipment_set: EquipmentSet,
                           aggregated_indicator_set: AggregatedIndicatorSet,
                           aggregation_interval: str):
@@ -55,7 +62,7 @@ def _compose_query_params(template: str, equipment_set: EquipmentSet,
 def get_indicator_aggregates(start: Union[str, pd.Timestamp, datetime], end: Union[str, pd.Timestamp, datetime],
                              indicator_set: IndicatorSet, equipment_set: EquipmentSet,
                              aggregation_functions: Iterable[str],
-                             aggregation_interval: Union[str, pd.Timedelta, datetime.timedelta] = 'PT2M'):
+                             aggregation_interval: Union[str, pd.Timedelta, timedelta] = 'PT2M'):
     """Read aggregated indicator data for a certain time period, a set of equipments and a set of indicators."""
     # The data we get from Leonardo IoT is basically the first format below, where columns are identified by
     # indicator_id and aggregation_function, indicator_group and template_id are in a separate column.
@@ -72,6 +79,8 @@ def get_indicator_aggregates(start: Union[str, pd.Timestamp, datetime], end: Uni
     # x | equi - 1 | model - 1 | 5 | 15
     # where the column_ids encode all unique identifiers of an aggregated sensor value here
     # column_id = hash(indicator_id + indicator_group_id + template_id + aggregation_function)
+    if start is None or end is None:
+        raise ValueError("Time parameters must be specified")
 
     start = _any_to_timestamp(start)
     end = _any_to_timestamp(end)
@@ -85,13 +94,10 @@ def get_indicator_aggregates(start: Union[str, pd.Timestamp, datetime], end: Uni
     aggregated_indicators = AggregatedIndicatorSet._from_indicator_set_and_aggregation_functions(indicator_set,
                                                                                                  aggregation_functions)
     oauth_iot = get_oauth_client('sap_iot')
-    df = None
+    df = pd.DataFrame({'equipment_id': [], 'timestamp': pd.to_datetime([], utc=True)})
     duration = None
 
-    if aggregation_interval is not None and not isinstance(aggregation_interval, str):
-        total_seconds = aggregation_interval.total_seconds()
-        aggregation_interval = f'PT{total_seconds}S'
-
+    aggregation_interval = _parse_aggregation_interval(aggregation_interval)
     params = dict(start=_timestamp_to_isoformat(start, True), end=_timestamp_to_isoformat(end, True),
                   equipment_set=equipment_set, aggregated_indicator_set=aggregated_indicators,
                   aggregation_interval=aggregation_interval)
@@ -104,10 +110,7 @@ def get_indicator_aggregates(start: Union[str, pd.Timestamp, datetime], end: Uni
         if results_df.empty:
             continue
         duration = results[0]['properties']['duration'] if duration is None else duration
-        if df is not None:
-            df = pd.merge(df, results_df, on=['timestamp', 'equipment_id'], how='outer')
-        else:
-            df = results_df
+        df = pd.merge(df, results_df, on=['timestamp', 'equipment_id'], how='outer')
 
     if df is None:
         raise RuntimeError("No data could be found for the given parameters.")

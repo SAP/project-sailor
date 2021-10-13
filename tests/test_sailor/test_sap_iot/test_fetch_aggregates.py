@@ -22,7 +22,7 @@ def make_sample_response(equipment_set, indicator_set, timestamps, duration):
         tags = {'modelId': model_id, 'templateId': indicator_set[0].template_id,
                 'equipmentId': equipment_id, 'indicatorGroupId': indicator_set[0]._liot_group_id}
         identifiers = {'indicatorGroupId': indicator_set[0]._liot_group_id, 'objectId': equipment_id}
-        properties = {'duration': duration, 'time': timestamp}
+        properties = {'duration': duration[1:], 'time': timestamp}
 
         for indicator in indicator_set:
             properties[indicator._iot_column_header] = 1
