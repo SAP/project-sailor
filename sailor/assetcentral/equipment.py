@@ -399,16 +399,17 @@ class EquipmentSet(AssetcentralEntitySet):
         Parameters
         ----------
         start
-            Date of beginning of requested timeseries data. Any time component will be ignored.
+            Date of beginning of requested timeseries data.
         end
-            Date of end of requested timeseries data. Any time component will be ignored.
+            Date of end of requested timeseries data.
         indicator_set
-            IndicatorSet for which timeseries data is returned.
+            IndicatorSet for which timeseries data is returned. Defaults to indicators common to all equipment in this
+            equipment set.
         aggregation_functions: Determines which aggregates to retrieve. Possible aggregates are
             'MIN', 'MAX', 'AVG', 'STDDEV', 'SUM', 'FIRST', 'LAST',
             'COUNT', 'PERCENT_GOOD', 'TMIN', 'TMAX',  'TFIRST', 'TLAST'
-        aggregation_interval: Determines the aggregation interval. Can be specified as a string (like `PT2M` for
-            2-minute aggregates) or as a pandas.Timedelta or datetime.timedelta object.
+        aggregation_interval: Determines the aggregation interval. Can be specified as an ISO 8601 string
+            (like `PT2M` for 2-minute aggregates) or as a pandas.Timedelta or datetime.timedelta object.
 
         Example
         -------
@@ -417,9 +418,6 @@ class EquipmentSet(AssetcentralEntitySet):
 
             my_equipment_set = find_equipment(model_name='MyModel')
             my_equipment_set.get_indicator_aggregates('2020-06-01', '2020-12-05', aggregation_functions=['MIN'])
-        Note
-        ----
-        If `indicator_set` is not specified, indicators common to all equipments in this set are used.
         """
         if indicator_set is None:
             indicator_set = self.find_common_indicators()

@@ -10,7 +10,6 @@ from __future__ import annotations
 from typing import Union, Iterable, TYPE_CHECKING
 from datetime import datetime, timedelta
 import warnings
-import re
 import logging
 from collections import defaultdict
 
@@ -61,15 +60,46 @@ def _compose_query_params(template: str, equipment_set: EquipmentSet,
 
 def get_indicator_aggregates(start: Union[str, pd.Timestamp, datetime], end: Union[str, pd.Timestamp, datetime],
                              indicator_set: IndicatorSet, equipment_set: EquipmentSet,
-                             aggregation_functions: Iterable[str],
+                             aggregation_functions: Iterable[str] = ('AVG',),
                              aggregation_interval: Union[str, pd.Timedelta, timedelta] = 'PT2M'):
-    """Read aggregated indicator data for a certain time period, a set of equipments and a set of indicators."""
-    # The data we get from Leonardo IoT is basically the first format below, where columns are identified by
+    """
+    Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.
+
+    Unlike :meth:`sailor.assetcentral.equipment.Equipment.get_indicator_data` this function retrieves
+    pre-aggregated data from the hot store.
+
+    Parameters
+    ----------
+    start
+        Date of beginning of requested timeseries data.
+    end
+        Date of end of requested timeseries data.
+    indicator_set
+        IndicatorSet for which timeseries data is returned.
+    equipment_set
+        EquipmentSet for which timeseries data is returned.
+    aggregation_functions: Determines which aggregates to retrieve. Possible aggregates are
+        'MIN', 'MAX', 'AVG', 'STDDEV', 'SUM', 'FIRST', 'LAST',
+        'COUNT', 'PERCENT_GOOD', 'TMIN', 'TMAX',  'TFIRST', 'TLAST'
+    aggregation_interval: Determines the aggregation interval. Can be specified as an ISO 8601 string
+        (like `PT2M` for 2-minute aggregates) or as a pandas.Timedelta or datetime.timedelta object.
+
+    Example
+    -------
+    Get indicator data for all Equipment belonging to the Model 'MyModel'
+    for a period from 01.06.2020 to 05.12.2020 ::
+
+        equipment_set = find_equipment(model_name='MyModel')
+        indicator_set = equipment_set.find_common_indicators()
+        get_indicator_aggregates('2020-06-01', '2020-12-05', indicator_set, equipment_set,
+                                 aggregation_functions=['MIN'], aggregation_interval=pd.Timedelta(hours=2))
+    """
+    # The data we get from SAP IoT is basically the first format below, where columns are identified by
     # indicator_id and aggregation_function, indicator_group and template_id are in a separate column.
     # That is confusing, as it's neither a purely horizonal format nor a purely vertical format.
-    # Much of the code below is therefore taking care of conversion from the Leonardo IoT format to our own format
+    # Much of the code below is therefore taking care of conversion from the SAP IoT format to our own format
     # which is fully horizontal (ie column headers encode template, indicator group, indicator and aggregation function)
-    # Leonardo IoT format is effectively:
+    # SAP IoT format is effectively:
     # time | equi - id | equi - model - id | indicator - group - id | template - id | indicator_A_value_AGG
     # x | equi - 1 | model - 1 | indi - group - 1 | template - 1 | 5
     # x | equi - 1 | model - 1 | indi - group - 2 | template - 1 | 15
@@ -117,13 +147,12 @@ def get_indicator_aggregates(start: Union[str, pd.Timestamp, datetime], end: Uni
 
     df['timestamp'] = pd.to_datetime(df['timestamp'])
 
-    d_match = re.match(r'ALL\((.*)\)', duration)
-    if d_match:
-        duration = d_match.group(1)
-    if aggregation_interval is not None and duration != aggregation_interval[1:]:
-        # the returned 'duration' is missing the 'P' in front
-        warnings.warn(f'The aggregation interval returned by the query ("P{duration}")' +
-                      f'does not match the requested aggregation interval ("{aggregation_interval}")')
+    if aggregation_interval is not None:
+        duration = pd.Timedelta('P' + duration)
+        aggregation_interval = pd.Timedelta(aggregation_interval)
+        if duration != aggregation_interval:
+            warnings.warn(f'The aggregation interval returned by the query ("{duration}") ' +
+                          f'does not match the requested aggregation interval ("{aggregation_interval}")')
 
     return TimeseriesDataset(df, aggregated_indicators, equipment_set, start, end)
 
@@ -144,8 +173,7 @@ def _fetch_aggregates(liot_group_id, template_id, oauth_iot, start, end, **param
     return results
 
 
-def _prepare_df(results, aggregated_indicators, liot_group_id, template_id) \
-        -> pd.DataFrame:
+def _prepare_df(results, aggregated_indicators, liot_group_id, template_id) -> pd.DataFrame:
     key_tags = ['equipmentId', 'modelId', 'templateId', 'indicatorGroupId']
     grouped_results = defaultdict(list)
     for row in results:

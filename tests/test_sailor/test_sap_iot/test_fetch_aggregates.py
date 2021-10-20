@@ -1,5 +1,6 @@
 from unittest.mock import call, patch
 
+import pandas as pd
 import pytest
 
 from sailor.sap_iot.fetch_aggregates import _compose_query_params, get_indicator_aggregates
@@ -22,7 +23,7 @@ def make_sample_response(equipment_set, indicator_set, timestamps, duration):
         tags = {'modelId': model_id, 'templateId': indicator_set[0].template_id,
                 'equipmentId': equipment_id, 'indicatorGroupId': indicator_set[0]._liot_group_id}
         identifiers = {'indicatorGroupId': indicator_set[0]._liot_group_id, 'objectId': equipment_id}
-        properties = {'duration': duration[1:], 'time': timestamp}
+        properties = {'duration': duration, 'time': timestamp}
 
         for indicator in indicator_set:
             properties[indicator._iot_column_header] = 1
@@ -57,13 +58,12 @@ def test_get_indicator_aggregates_happy_path(make_equipment_set, make_indicator_
     indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'])
     aggregated_indicator_set = AggregatedIndicatorSet._from_indicator_set_and_aggregation_functions(indicator_set,
                                                                                                     ['MIN', 'MAX'])
-    interval = 'PT1D'
     timestamps = ['2020-01-02T00:00:00Z', '2020-01-03T00:00:00Z', '2020-01-04T00:00:00Z']
 
-    test_response = make_sample_response(equipment_set, aggregated_indicator_set, timestamps, interval)
+    test_response = make_sample_response(equipment_set, aggregated_indicator_set, timestamps, 'T1D')
     mock_request.side_effect = [test_response]
 
-    result = get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], interval)
+    result = get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], 'PT1D')
 
     assert all([equipment.id in result._df['equipment_id'].values for equipment in equipment_set])
     assert all([indicator._unique_id in result._df.columns for indicator in aggregated_indicator_set])
@@ -77,21 +77,54 @@ def test_get_indicator_aggregates_with_pagination(make_equipment_set, make_indic
     indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'])
     aggregated_indicator_set = AggregatedIndicatorSet._from_indicator_set_and_aggregation_functions(indicator_set,
                                                                                                     ['MIN', 'MAX'])
-    interval = 'PT1D'
     timestamps = ['2020-01-02T00:00:00Z', '2020-01-03T00:00:00Z', '2020-01-04T00:00:00Z',
                   '2020-01-05T00:00:00Z', '2020-01-06T00:00:00Z', '2020-01-07T00:00:00Z']
-    first_resp = make_sample_response(equipment_set, aggregated_indicator_set, timestamps[:3], interval)
+    first_resp = make_sample_response(equipment_set, aggregated_indicator_set, timestamps[:3], 'T1D')
     first_resp['nextLink'] = 'NEXT_LINK_URL'
-    second_resp = make_sample_response(equipment_set, aggregated_indicator_set, timestamps[3:], interval)
+    second_resp = make_sample_response(equipment_set, aggregated_indicator_set, timestamps[3:], 'T1D')
 
     mock_request.side_effect = [first_resp, second_resp]
 
-    result = get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], interval)
+    result = get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], 'PT1D')
 
     mock_request.assert_has_calls([call('GET', 'NEXT_LINK_URL')])
     assert all([equipment.id in result._df['equipment_id'].values for equipment in equipment_set])
     assert all([indicator._unique_id in result._df.columns for indicator in aggregated_indicator_set])
     assert len(result._df) == len(timestamps) * len(equipment_set)
+
+
+@pytest.mark.parametrize('requested_interval,returned_interval,warning', [
+    (pd.Timedelta('PT1D'), 'T1D', False),
+    (pd.Timedelta('PT24H'), 'T1D', False),
+    (pd.Timedelta('PT1D'), 'T24H', False),
+    ('PT1D', 'T1D', False),
+    ('PT24H', 'T1D', False),
+    ('PT1D', 'T24H', False),
+    (pd.Timedelta('PT3H'), 'T1H', True),
+    ('PT3H', 'T1H', True),
+    (None, 'ALL(T3H)', False)
+])
+def test_get_indicator_aggregates_timestamp_warning(requested_interval, returned_interval, warning,
+                                                    make_equipment_set, make_indicator_set, mock_config, mock_request):
+    start, end = '2020-01-01 00:00:00+00:00', '2020-02-01 00:00:00+00:00'
+    equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'],
+                                       modelId=['equi_model', 'equi_model'])
+    indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'])
+    aggregated_indicator_set = AggregatedIndicatorSet._from_indicator_set_and_aggregation_functions(indicator_set,
+                                                                                                    ['MIN', 'MAX'])
+
+    timestamps = ['2020-01-02T00:00:00Z', '2020-01-03T00:00:00Z', '2020-01-04T00:00:00Z']
+    test_response = make_sample_response(equipment_set, aggregated_indicator_set, timestamps, returned_interval)
+    mock_request.side_effect = [test_response]
+
+    with pytest.warns(None) as record:
+        get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], requested_interval)
+
+    if warning:
+        assert len(record) == 1
+        assert str(record[0].message).startswith('The aggregation interval returned by the query')
+    else:
+        assert not record, record[0].message
 
 
 def test_get_indicator_aggregates_two_groups(make_equipment_set, make_indicator_set, mock_config):
@@ -101,13 +134,12 @@ def test_get_indicator_aggregates_two_groups(make_equipment_set, make_indicator_
     indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'], pstid=['group_1', 'group_2'])
     aggregated_indicator_set = AggregatedIndicatorSet._from_indicator_set_and_aggregation_functions(indicator_set,
                                                                                                     ['MIN', 'MAX'])
-    interval = 'PT1D'
     timestamps = ['2020-01-02T00:00:00Z', '2020-01-03T00:00:00Z', '2020-01-04T00:00:00Z']
 
     first_resp = make_sample_response(equipment_set, aggregated_indicator_set.filter(indicator_group_id='group_1'),
-                                      timestamps, interval)
+                                      timestamps, 'T1D')
     second_resp = make_sample_response(equipment_set, aggregated_indicator_set.filter(indicator_group_id='group_2'),
-                                       timestamps, interval)
+                                       timestamps, 'T1D')
 
     def mock_request(self, method, endpoint, params):
         if endpoint == 'IG_group_1':
@@ -115,7 +147,7 @@ def test_get_indicator_aggregates_two_groups(make_equipment_set, make_indicator_
         return second_resp
 
     with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request', mock_request):
-        result = get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], interval)
+        result = get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], 'PT1D')
 
     assert all([equipment.id in result._df['equipment_id'].values for equipment in equipment_set])
     assert all([indicator._unique_id in result._df.columns for indicator in aggregated_indicator_set])
