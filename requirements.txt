@@ -14,10 +14,12 @@ cycler==0.10.0
     # via matplotlib
 descartes==1.1.0
     # via plotnine
-furl==2.1.2
+furl==2.1.3
     # via -r requirements.in
 idna==2.10
     # via requests
+isodate==0.6.0
+    # via -r requirements.in
 joblib==1.0.1
     # via scikit-learn
 kiwisolver==1.3.1
@@ -87,6 +89,7 @@ six==1.16.0
     # via
     #   cycler
     #   furl
+    #   isodate
     #   orderedmultidict
     #   patsy
     #   python-dateutil
