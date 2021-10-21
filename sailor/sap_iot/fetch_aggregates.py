@@ -14,12 +14,14 @@ import logging
 from collections import defaultdict
 
 import pandas as pd
+import isodate
 
 from sailor.utils.timestamps import _any_to_timestamp, _timestamp_to_isoformat
 from sailor.assetcentral.indicators import AggregatedIndicatorSet, IndicatorSet
 from sailor.sap_iot.wrappers import TimeseriesDataset
 from sailor.utils.oauth_wrapper import get_oauth_client
 from sailor.sap_iot._common import request_aggregates_url
+from ..utils.utils import DataNotFoundWarning
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -33,7 +35,9 @@ _ALL_KNOWN_AGGREGATION_FUNCTIONS = ['MIN', 'AVG', 'FIRST', 'MAX', 'SUM', 'LAST',
 
 
 def _parse_aggregation_interval(aggregation_interval):
-    if aggregation_interval is not None and not isinstance(aggregation_interval, str):
+    if aggregation_interval is not None:
+        if isinstance(aggregation_interval, str):
+            aggregation_interval = isodate.parse_duration(aggregation_interval)
         total_seconds = aggregation_interval.total_seconds()
         aggregation_interval = f'PT{total_seconds}S'
     return aggregation_interval
@@ -142,14 +146,15 @@ def get_indicator_aggregates(start: Union[str, pd.Timestamp, datetime], end: Uni
         duration = results[0]['properties']['duration'] if duration is None else duration
         df = pd.merge(df, results_df, on=['timestamp', 'equipment_id'], how='outer')
 
-    if df is None:
-        raise RuntimeError("No data could be found for the given parameters.")
-
     df['timestamp'] = pd.to_datetime(df['timestamp'])
 
-    if aggregation_interval is not None:
-        duration = pd.Timedelta('P' + duration)
-        aggregation_interval = pd.Timedelta(aggregation_interval)
+    if df.empty:
+        warning = DataNotFoundWarning('Could not find any data for the requested period.')
+        warnings.warn(warning)
+
+    if aggregation_interval is not None and duration is not None:
+        duration = isodate.parse_duration('P' + duration)
+        aggregation_interval = isodate.parse_duration(aggregation_interval)
         if duration != aggregation_interval:
             warnings.warn(f'The aggregation interval returned by the query ("{duration}") ' +
                           f'does not match the requested aggregation interval ("{aggregation_interval}")')

@@ -8,3 +8,4 @@ rauth
 requests
 scikit-learn
 cachetools
+isodate
