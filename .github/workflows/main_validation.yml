@@ -2,14 +2,16 @@ name: Validation
 
 on:
   push:
-    branches: [main]
+    branches: [main, ci/main_requirements]
 
 jobs:
   pytest:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ['3.8', '3.9']
+        requirements: ['.in', '.txt']
 
     steps:
       - uses: actions/setup-python@v2
@@ -21,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r .ci/requirements_test.txt
-          pip install -r requirements.txt
+          pip install -r "requirements${{ matrix.requirements }}"
 
       - name: Run pytest
         run: |
