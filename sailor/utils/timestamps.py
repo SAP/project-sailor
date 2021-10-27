@@ -56,7 +56,7 @@ def _timestamp_to_date_string(timestamp: pd.Timestamp):
     timestamp = timestamp.tz_localize(None)
     date = pd.Timestamp.date(timestamp)
     if pd.Timestamp(date) != timestamp:
-        warnings.warn('Casting timestamp to date, this operation will loose time-of-day information.')
+        warnings.warn('Casting timestamp to date, this operation will lose time-of-day information.', stacklevel=3)
     return str(date)
 
 
