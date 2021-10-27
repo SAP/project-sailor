@@ -128,7 +128,8 @@ def get_indicator_aggregates(start: Union[str, pd.Timestamp, datetime], end: Uni
     aggregated_indicators = AggregatedIndicatorSet._from_indicator_set_and_aggregation_functions(indicator_set,
                                                                                                  aggregation_functions)
     oauth_iot = get_oauth_client('sap_iot')
-    df = pd.DataFrame({'equipment_id': [], 'timestamp': pd.to_datetime([], utc=True)})
+    schema = {'equipment_id': 'object', 'timestamp': pd.DatetimeTZDtype(tz='UTC')}
+    df = pd.DataFrame(columns=schema.keys()).astype(schema)
     duration = None
 
     aggregation_interval = _parse_aggregation_interval(aggregation_interval)

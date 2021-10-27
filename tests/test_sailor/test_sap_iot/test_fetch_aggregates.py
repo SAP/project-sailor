@@ -162,4 +162,6 @@ def test_get_indicator_aggregates_empty_response(mock_config, mock_request, prep
     mock_request.side_effect = [test_response]
 
     with pytest.warns(DataNotFoundWarning, match='Could not find any data for the requested period.'):
-        get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], 'P1D')
+        dataset = get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], 'P1D')
+
+    dataset.as_df()
