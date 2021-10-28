@@ -47,6 +47,7 @@ def test_qt_boolean_int_string(input, expected):
     (None, 'null')
 ])
 @pytest.mark.filterwarnings('ignore:Trying to parse non-timezone-aware timestamp')
+@pytest.mark.filterwarnings('ignore:Casting timestamp to date, this operation will lose time-of-day information')
 def test_qt_date(input, expected):
     actual = _base.masterdata._qt_date(input)
     assert actual == expected
