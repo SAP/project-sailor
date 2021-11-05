@@ -39,7 +39,10 @@ class _AssetcentralField(_base.MasterDataField):
 class AssetcentralEntity(_base.MasterDataEntity):
     """Common base class for AssetCentral entities."""
 
-    pass
+    def __repr__(self) -> str:
+        """Return a very short string representation."""
+        name = getattr(self, 'name', getattr(self, 'short_description', None))
+        return f'"{self.__class__.__name__}(name="{name}", id="{self.id}")'
 
 
 class AssetcentralEntitySet(_base.MasterDataEntitySet):

@@ -119,6 +119,22 @@ class TestMasterDataEntity:
 
         assert entity.our_name == 81
 
+    def test_get_available_properties_is_not_empty(self):
+        # note: __subclasses__ requires that all subclasses are imported
+        # currently we ensure this transitively: see __init__.py in test_base
+        abstract_classes = _base.MasterDataEntity.__subclasses__()
+        classes = sum((class_.__subclasses__() for class_ in abstract_classes), start=list())
+        for class_ in classes:
+            actual = class_.get_available_properties()
+            assert actual, f'actual result for {class_.__name__} is empty: {actual}'
+            assert type(actual) == set
+
+    def test_id_in_field_map(self):
+        abstract_classes = _base.MasterDataEntity.__subclasses__()
+        classes = sum((class_.__subclasses__() for class_ in abstract_classes), start=list())
+        for class_ in classes:
+            assert 'id' in class_._field_map
+
 
 class TestMasterDataEntitySet:
     test_classes = sum((class_.__subclasses__() for class_ in _base.MasterDataEntitySet.__subclasses__()), start=[])
@@ -155,13 +171,3 @@ class TestMasterDataEntitySet:
         else:
             assert rs1 != rs2
 
-
-def test_get_available_properties_is_not_empty():
-    # note: __subclasses__ requires that all subclasses are imported
-    # currently we ensure this transitively: see __init__.py in test_base
-    abstract_classes = _base.MasterDataEntity.__subclasses__()
-    classes = sum((class_.__subclasses__() for class_ in abstract_classes), start=list())
-    for class_ in classes:
-        actual = class_.get_available_properties()
-        assert actual, f'actual result for {class_.__name__} is empty: {actual}'
-        assert type(actual) == set
