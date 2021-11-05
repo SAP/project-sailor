@@ -131,22 +131,6 @@ class System(AssetcentralEntity):
         del self.__hierarchy['component_tree']['key']
         return self.__hierarchy
 
-    @cached_property
-    def components(self):
-        """Pieces of equipment that are children of the system.
-
-        .. deprecated:: 1.4.0
-        Only top level, lower levels are ignored.
-        """
-        warnings.warn("deprecated: attribute 'components' of class System will be removed after September 1, 2021",
-                      FutureWarning)
-        equipment_ids = set()
-        comp_tree = self._hierarchy['component_tree']
-        for c in comp_tree['child_nodes']:
-            if comp_tree['child_nodes'][c]['object_type'] == 'EQU':
-                equipment_ids.add(comp_tree['child_nodes'][c]['id'])
-        return self._hierarchy['equipment'].filter(id=equipment_ids)
-
     @staticmethod
     def _create_selection_dictionary(comp_tree):
         """Create a selection dictionary recursively based on 'comp_tree.' Pydocstyle does not know punctuation."""

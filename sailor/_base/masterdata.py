@@ -102,20 +102,6 @@ class MasterDataEntity:
         """Return the available properties for this class."""
         return set([field.our_name for field in cls._field_map.values() if field.is_exposed])
 
-    @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from our terminology to remote API terminology.
-
-        .. deprecated:: 1.4.0
-        Use :meth:`get_available_properties` instead.
-        """
-        # TODO: remove method in future version
-        msg = ("'get_property_mapping': deprecated. Method will be removed after September 01, 2021. " +
-               "use 'get_available_properties' instead")
-        warnings.warn(msg, FutureWarning)
-        return {field.our_name: (field.their_name_get, None, None, None) for field in cls._field_map.values()
-                if field.is_exposed}
-
     def __init__(self, ac_json: dict):
         """Create a new entity."""
         self.raw = ac_json
