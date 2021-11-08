@@ -127,7 +127,7 @@ class MasterDataEntity:
 
     def __repr__(self) -> str:
         """Return a very short string representation."""
-        return f'"{self.__class__.__name__}(id="{self.id}")'
+        return f'{self.__class__.__name__}(id="{self.id}")'
 
     def __eq__(self, obj):
         """Compare two objects based on instance type and id."""

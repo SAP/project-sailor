@@ -135,6 +135,13 @@ class TestMasterDataEntity:
         for class_ in classes:
             assert 'id' in class_._field_map
 
+    def test_repr_starts_with_classname(self):
+        abstract_classes = _base.MasterDataEntity.__subclasses__()
+        classes = sum((class_.__subclasses__() for class_ in abstract_classes), start=list())
+        for class_ in classes:
+            object_ = class_({'id': 1})
+            assert str(object_).startswith(class_.__name__)
+
 
 class TestMasterDataEntitySet:
     test_classes = sum((class_.__subclasses__() for class_ in _base.MasterDataEntitySet.__subclasses__()), start=[])

@@ -42,7 +42,7 @@ class AssetcentralEntity(_base.MasterDataEntity):
     def __repr__(self) -> str:
         """Return a very short string representation."""
         name = getattr(self, 'name', getattr(self, 'short_description', None))
-        return f'"{self.__class__.__name__}(name="{name}", id="{self.id}")'
+        return f'{self.__class__.__name__}(name="{name}", id="{self.id}")'
 
 
 class AssetcentralEntitySet(_base.MasterDataEntitySet):
