@@ -54,3 +54,4 @@ def find_capabilities(*, extended_filters=(), **kwargs) -> CapabilitySet:
     endpoint_url = _device_connectivity_api_url() + VIEW_CAPABILITIES
     object_list = _dc_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return CapabilitySet([Capability(obj) for obj in object_list])
+    

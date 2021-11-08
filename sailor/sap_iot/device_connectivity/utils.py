@@ -89,3 +89,4 @@ class DeviceConnectivityEntitySet(_base.MasterDataEntitySet):
                 if expand_dict:
                     df = pd.concat([df.drop(column, axis=1), pd.json_normalize(df[column]).add_prefix(column + '_')], axis=1)
         return df
+        

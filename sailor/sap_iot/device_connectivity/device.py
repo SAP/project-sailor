@@ -101,3 +101,4 @@ def find_devices(*, extended_filters=(), **kwargs) -> DeviceSet:
     endpoint_url = _device_connectivity_api_url() + VIEW_DEVICES
     object_list = _dc_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
     return DeviceSet([Device(obj) for obj in object_list])
+    
