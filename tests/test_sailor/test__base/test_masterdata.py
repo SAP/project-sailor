@@ -170,4 +170,3 @@ class TestMasterDataEntitySet:
             assert rs1 == rs2
         else:
             assert rs1 != rs2
-
