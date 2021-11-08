@@ -360,7 +360,7 @@ class TimeseriesDataset(object):
 
         return new_wrapper, fitted_scaler
 
-    def filter(self, equipment_ids: Iterable[str] = None, start: Union[str, pd.Timestamp, datetime] = None,
+    def filter(self, start: Union[str, pd.Timestamp, datetime] = None,
                end: Union[str, pd.Timestamp, datetime] = None, equipment_set: EquipmentSet = None,
                indicator_set: Union[IndicatorSet, AggregatedIndicatorSet] = None) -> TimeseriesDataset:
         """Return a new TimeseriesDataset extracted from an original data with filter parameters.
@@ -369,10 +369,6 @@ class TimeseriesDataset(object):
 
         Parameters
         ----------
-        equipment_ids
-            .. deprecated:: 1.4.0
-            Optional equipment set ids to filter timeseries data. If equipment_set is also present this
-            argument is ignored.
         start
             Optional start time of timeseries data are returned.
         end
@@ -388,23 +384,18 @@ class TimeseriesDataset(object):
 
             My_indicator_data.filter(MyEquipmentId)
         """
-        if isinstance(equipment_ids, str):
-            equipment_ids = [equipment_ids]
-
-        if equipment_ids is not None:
-            warnings.warn('Passing equipment_ids to the TimeseriesDataset filter is deprecated and will be removed '
-                          'after September 1 2021. Please use equipment_set as filter instead.', FutureWarning)
-
         start_time = _any_to_timestamp(start, default=self.nominal_data_start)
         end_time = _any_to_timestamp(end, default=self.nominal_data_end)
 
-        if equipment_set is not None:
+        if equipment_set:
+            # we need to filter the user's choice before creating a new TSDataset
+            # since they can specify an arbitrary equipment set which could not be in the TSDataset
             equipment_ids = [equipment.id for equipment in equipment_set]
-            selected_equi_set = equipment_set
-        else:
-            if equipment_ids is None:
-                equipment_ids = [equipment.id for equipment in self._equipment_set]
             selected_equi_set = self._equipment_set.filter(id=equipment_ids)
+        else:
+            selected_equi_set = self._equipment_set
+
+        equipment_ids = [equipment.id for equipment in selected_equi_set]
 
         selected_df = self._df.query('(equipment_id in @equipment_ids) &'
                                      '(timestamp >= @start_time) & (timestamp < @end_time)')
