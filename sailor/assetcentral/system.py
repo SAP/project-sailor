@@ -6,7 +6,6 @@ Classes are provided for individual Systems as well as groups of Systems (System
 from __future__ import annotations
 
 import itertools
-import warnings
 from typing import TYPE_CHECKING, Union
 from datetime import datetime
 from functools import cached_property

@@ -384,7 +384,6 @@ class TimeseriesDataset(object):
 
             My_indicator_data.filter(MyEquipmentId)
         """
-
         start_time = _any_to_timestamp(start, default=self.nominal_data_start)
         end_time = _any_to_timestamp(end, default=self.nominal_data_end)
 

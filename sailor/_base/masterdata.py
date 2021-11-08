@@ -1,4 +1,3 @@
-import warnings
 import logging
 from collections import Counter
 from collections.abc import Sequence
