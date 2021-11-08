@@ -170,7 +170,6 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
@@ -294,22 +293,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_components</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__hierarchy</span><span class="p">[</span><span class="s1">&#39;component_tree&#39;</span><span class="p">])</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hierarchy</span><span class="p">[</span><span class="s1">&#39;component_tree&#39;</span><span class="p">][</span><span class="s1">&#39;key&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__hierarchy</span>
-
-    <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Pieces of equipment that are children of the system.</span>
-
-<span class="sd">        .. deprecated:: 1.4.0</span>
-<span class="sd">        Only top level, lower levels are ignored.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;deprecated: attribute &#39;components&#39; of class System will be removed after September 1, 2021&quot;</span><span class="p">,</span>
-                      <span class="ne">FutureWarning</span><span class="p">)</span>
-        <span class="n">equipment_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="n">comp_tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">[</span><span class="s1">&#39;component_tree&#39;</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">comp_tree</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">comp_tree</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">][</span><span class="n">c</span><span class="p">][</span><span class="s1">&#39;object_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;EQU&#39;</span><span class="p">:</span>
-                <span class="n">equipment_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">comp_tree</span><span class="p">[</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">][</span><span class="n">c</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">[</span><span class="s1">&#39;equipment&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">equipment_ids</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_create_selection_dictionary</span><span class="p">(</span><span class="n">comp_tree</span><span class="p">):</span>

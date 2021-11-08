@@ -524,7 +524,7 @@
 
         <span class="k">return</span> <span class="n">new_wrapper</span><span class="p">,</span> <span class="n">fitted_scaler</span></div>
 
-<div class="viewcode-block" id="TimeseriesDataset.filter"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">equipment_ids</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="TimeseriesDataset.filter"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">:</span> <span class="n">EquipmentSet</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                <span class="n">indicator_set</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">IndicatorSet</span><span class="p">,</span> <span class="n">AggregatedIndicatorSet</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return a new TimeseriesDataset extracted from an original data with filter parameters.</span>
@@ -533,10 +533,6 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        equipment_ids</span>
-<span class="sd">            .. deprecated:: 1.4.0</span>
-<span class="sd">            Optional equipment set ids to filter timeseries data. If equipment_set is also present this</span>
-<span class="sd">            argument is ignored.</span>
 <span class="sd">        start</span>
 <span class="sd">            Optional start time of timeseries data are returned.</span>
 <span class="sd">        end</span>
@@ -552,23 +548,18 @@
 
 <span class="sd">            My_indicator_data.filter(MyEquipmentId)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">equipment_ids</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">equipment_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">equipment_ids</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">equipment_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Passing equipment_ids to the TimeseriesDataset filter is deprecated and will be removed &#39;</span>
-                          <span class="s1">&#39;after September 1 2021. Please use equipment_set as filter instead.&#39;</span><span class="p">,</span> <span class="ne">FutureWarning</span><span class="p">)</span>
-
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">_any_to_timestamp</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_start</span><span class="p">)</span>
         <span class="n">end_time</span> <span class="o">=</span> <span class="n">_any_to_timestamp</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nominal_data_end</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">equipment_set</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">equipment_set</span><span class="p">:</span>
+            <span class="c1"># we need to filter the user&#39;s choice before creating a new TSDataset</span>
+            <span class="c1"># since they can specify an arbitrary equipment set which could not be in the TSDataset</span>
             <span class="n">equipment_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">equipment</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="n">equipment_set</span><span class="p">]</span>
-            <span class="n">selected_equi_set</span> <span class="o">=</span> <span class="n">equipment_set</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">equipment_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">equipment_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">equipment</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span><span class="p">]</span>
             <span class="n">selected_equi_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">equipment_ids</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">selected_equi_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span>
+
+        <span class="n">equipment_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">equipment</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="n">selected_equi_set</span><span class="p">]</span>
 
         <span class="n">selected_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;(equipment_id in @equipment_ids) &amp;&#39;</span>
                                      <span class="s1">&#39;(timestamp &gt;= @start_time) &amp; (timestamp &lt; @end_time)&#39;</span><span class="p">)</span>
