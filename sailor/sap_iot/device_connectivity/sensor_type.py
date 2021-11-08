@@ -22,6 +22,18 @@ class SensorType(DeviceConnectivityEntity):
     _field_map = {field.our_name: field for field in _SENSOR_TYPE_FIELDS}
 
     def find_capabilities(self, *, extended_filters=(), **kwargs) -> CapabilitySet:
+        """
+        Find the Capabilities assigned to the SensorType
+
+        This method supports the common filter language explained at :ref:`filter`.
+
+        Parameters
+        ----------
+        extended_filters
+            See :ref:`filter`.
+        **kwargs
+            See :ref:`filter`.
+        """
         kwargs['id'] = [c['id'] for c in self.capabilities]
         return find_capabilities(extended_filters=extended_filters, **kwargs)
 
@@ -31,6 +43,18 @@ class SensorTypeSet(DeviceConnectivityEntitySet):
     _element_type = SensorType
 
     def find_capabilities(self, *, extended_filters=(), **kwargs) -> CapabilitySet:
+        """
+        Find the Capabilities of all the SensorTypes in the SensorTypeSet. Each SensorType is assigned one or more Capability.
+
+        This method supports the common filter language explained at :ref:`filter`.
+
+        Parameters
+        ----------
+        extended_filters
+            See :ref:`filter`.
+        **kwargs
+            See :ref:`filter`.
+        """
         kwargs['id'] = [c['id'] for e in self.elements for c in e.capabilities]
         return find_capabilities(extended_filters=extended_filters, **kwargs)
 

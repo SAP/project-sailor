@@ -9,8 +9,8 @@ from ...utils.config import SailorConfig
 from ...utils.oauth_wrapper import get_oauth_client
 from ...utils.utils import DataNotFoundWarning
 
-def _dc_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
-    """Retrieve data from a supported odata service.
+def _dc_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()) -> list:
+    """Retrieve data from a supported REST service (The IoT device connectivity API).
 
     A response_handler function needs to be passed which must extract the results
     returned from the odata service endpoint response into a list.
@@ -38,7 +38,10 @@ def _dc_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
 
     return result
 
-def _dc_response_handler(result_list, endpoint_data):
+def _dc_response_handler(result_list, endpoint_data) -> list:
+    """
+    Converting the API response into a list representation.
+    """
     if isinstance(endpoint_data, bytes):
         endpoint_data = json.loads(endpoint_data.decode('utf-8')) # why do i get a byte string? ac request returns a dict object here
     if isinstance(endpoint_data, list):
@@ -65,6 +68,20 @@ class DeviceConnectivityEntitySet(_base.MasterDataEntitySet):
     """Baseclass to be used in all Sets of Device Connectivity objects."""
 
     def as_df(self, columns=None, explode:list=None, expand_dict:bool=False) -> pd.DataFrame:
+        """
+        Return all information on the objects stored in the DeviceConnectivityEntitySet as a pandas dataframe.
+
+        Overwriting the base method and support exploding nested lists and expanding nested json objects in the dataframe.
+
+        Parameters
+        ----------
+        columns 
+            Columns to include in the dataframe. Defaults to None. If no columns provided, include all.
+        explode
+            Explode columns in the dataframe, which contain a list value. Specify the column names to explode. Defaults to None.
+        expand_dict 
+            Whether to expand nested objects in the dataframe into multiple columns. Each object key will be a new column. Defaults to False.
+        """
         df = super().as_df(columns=columns)
         if explode:
             for column in explode:

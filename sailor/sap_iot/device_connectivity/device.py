@@ -31,6 +31,18 @@ class Device(DeviceConnectivityEntity):
     _field_map = {field.our_name: field for field in _DEVICE_FIELDS}
     
     def find_sensor_types(self, *, extended_filters=(), **kwargs) -> SensorTypeSet:
+        """
+        Fetch the SensorTypes assigned to the Device.
+
+        This method supports the common filter language explained at :ref:`filter`.
+
+        Parameters
+        ----------
+        extended_filters
+            See :ref:`filter`.
+        **kwargs
+            See :ref:`filter`.
+        """
         kwargs['id'] = [s['sensorTypeId'] for s in self.sensors]
         return find_sensor_types(extended_filters=extended_filters, **kwargs)
 
@@ -45,6 +57,18 @@ class DeviceSet(DeviceConnectivityEntitySet):
     }
 
     def find_sensor_types(self, *, extended_filters=(), **kwargs) -> SensorTypeSet:
+        """
+        Fetch the SensorTypes of all Devices in the DeviceSet. Each Device is assigned one or more SensorTypes.
+
+        This method supports the common filter language explained at :ref:`filter`.
+
+        Parameters
+        ----------
+        extended_filters
+            See :ref:`filter`.
+        **kwargs
+            See :ref:`filter`.
+        """
         kwargs['id'] = [s['sensorTypeId'] for e in self.elements for s in e.sensors]
         return find_sensor_types(extended_filters=extended_filters, **kwargs)
 
