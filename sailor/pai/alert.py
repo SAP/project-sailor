@@ -75,6 +75,11 @@ class Alert(PredictiveAssetInsightsEntity):
 
     _field_map = {field.our_name: field for field in _ALERT_FIELDS}
 
+    def __repr__(self) -> str:
+        """Return a very short string representation."""
+        descr = getattr(self, 'description', None)
+        return f'{self.__class__.__name__}(description="{descr}", id="{self.id}")'
+
 
 class AlertSet(PredictiveAssetInsightsEntitySet):
     """Class representing a group of Alerts."""

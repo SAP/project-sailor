@@ -28,9 +28,7 @@ class _PredictiveAssetInsightsField(_base.MasterDataField):
 class PredictiveAssetInsightsEntity(_base.MasterDataEntity):
     """Common base class for PAI entities."""
 
-    def __repr__(self) -> str:
-        """Return a very short string representation."""
-        return f'"{self.__class__.__name__}(id="{self.id}")'
+    pass
 
 
 class PredictiveAssetInsightsEntitySet(_base.MasterDataEntitySet):
