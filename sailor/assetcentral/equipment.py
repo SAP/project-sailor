@@ -11,6 +11,7 @@ from datetime import datetime
 import pandas as pd
 
 from sailor import _base
+from sailor import pai
 from sailor import sap_iot
 from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_EQUIPMENT, VIEW_OBJECTS
@@ -243,12 +244,24 @@ class Equipment(AssetcentralEntity):
         --------
         :meth:`sailor.assetcentral.notification.create_notification`
         """
-        args = {'equipment_id': self.id}
+        fixed_kwargs = {'equipment_id': self.id}
         if self.location is not None:
-            args['location_id'] = self.location.id
-        request = _AssetcentralWriteRequest(Notification._field_map, **args)
+            fixed_kwargs['location_id'] = self.location.id
+        request = _AssetcentralWriteRequest(Notification._field_map, **fixed_kwargs)
         request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
         return _create_or_update_notification(request, 'POST')
+
+    def create_alert(self, **kwargs) -> pai.alert.Alert:
+        """Create a new alert for this equipment.
+
+        See Also
+        --------
+        :meth:`sailor.pai.alert.create_alert`
+        """
+        fixed_kwargs = {'equipment_id': self.id}
+        request = pai.alert._AlertWriteRequest(**fixed_kwargs)
+        request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
+        return pai.alert._create_alert(request)
 
 
 class EquipmentSet(AssetcentralEntitySet):

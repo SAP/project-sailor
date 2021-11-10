@@ -124,6 +124,31 @@ class TestEquipment:
         with pytest.raises(RuntimeError, match=f"You cannot set '{expected_offender}' in this request."):
             equipment.create_notification(**create_kwargs)
 
+    @patch('sailor.pai.alert._create_alert')
+    def test_create_alert_builds_request(self, create_mock, make_equipment):
+        equipment = make_equipment(equipmentId='123')
+        create_kwargs = dict(triggered_on='2020-07-31T13:23:00Z',
+                             type='PUMP_TEMP_WARN', severity_code=5)
+        expected_request_dict = {'equipmentId': '123', 'triggeredOn': '2020-07-31T13:23:00Z',
+                                 'alertType': 'PUMP_TEMP_WARN', 'severityCode': 5}
+
+        equipment.create_alert(**create_kwargs)
+
+        create_mock.assert_called_once_with(expected_request_dict)
+
+    @pytest.mark.parametrize('create_kwargs', [
+        ({'id': 123}),
+        ({'equipment_id': 123}),
+        ({'equipmentId': 123})
+    ])
+    def test_create_alert_forbidden_fields_raises(self, create_kwargs, make_equipment):
+        equipment = make_equipment()
+        expected_offender = list(create_kwargs.keys())[0]
+
+        with pytest.raises(RuntimeError, match=f"You cannot set '{expected_offender}' in this request."):
+            equipment.create_alert(**create_kwargs)
+
+
 
 class TestEquipmentSet:
 
