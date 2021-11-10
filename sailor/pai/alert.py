@@ -4,7 +4,7 @@ Retrieve Alert information from the alert re-use service.
 Classes are provided for individual Alert as well as groups of Alerts (AlertSet).
 """
 
-from functools import cache
+from functools import lru_cache
 import re
 
 import sailor.assetcentral.utils as ac_utils
@@ -94,7 +94,7 @@ class Alert(PredictiveAssetInsightsEntity):
         return f'{self.__class__.__name__}(description="{descr}", id="{self.id}")'
 
     @property
-    @cache
+    @lru_cache(maxsize=None)
     def _custom_properties(self):
         return {key: value for key, value in self.raw.items()
                 if key.startswith('Z_') or key.startswith('z_')}

@@ -149,7 +149,6 @@ class TestEquipment:
             equipment.create_alert(**create_kwargs)
 
 
-
 class TestEquipmentSet:
 
     @pytest.mark.parametrize('function_name', [
