@@ -5,6 +5,7 @@ Classes are provided for individual Alert as well as groups of Alerts (AlertSet)
 """
 
 from functools import lru_cache
+from typing import Iterable
 import re
 
 import sailor.assetcentral.utils as ac_utils
@@ -96,6 +97,7 @@ class Alert(PredictiveAssetInsightsEntity):
     @property
     @lru_cache(maxsize=None)
     def _custom_properties(self):
+        # the Alerts Extension API supports creating custom fields which must start with Z_ or z_
         return {key: value for key, value in self.raw.items()
                 if key.startswith('Z_') or key.startswith('z_')}
 
@@ -110,7 +112,7 @@ class AlertSet(PredictiveAssetInsightsEntitySet):
         },
     }
 
-    def as_df(self, columns=None, include_all_custom_properties=False):
+    def as_df(self, columns: Iterable[str] = None, include_all_custom_properties=False):
         """Return all information on the objects stored in the AlertSet as a pandas dataframe.
 
         Parameters
@@ -133,7 +135,7 @@ class AlertSet(PredictiveAssetInsightsEntitySet):
             custom_columns = dict.fromkeys(self[0]._custom_properties.keys())
             columns.update(custom_columns)
 
-        return super().as_df(columns=columns)
+        return super().as_df(columns=list(columns))
 
 
 def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
