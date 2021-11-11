@@ -85,29 +85,8 @@ def test_interpolate_missing_data(simple_dataset, method, expect_ffill, expect_b
         assert not interpolated_dataset._df[interpolated_dataset._df.timestamp > actual_end].isnull().any().any()
 
 
-@pytest.mark.filterwarnings('ignore:Passing equipment_ids to the TimeseriesDataset filter is deprecated')
-def test_filter_equipment_id_only(simple_dataset):
-    filtered_dataset = simple_dataset.filter(equipment_ids=['equipment_id_1'])
-
-    assert len(filtered_dataset.equipment_set) == 1
-    assert len(filtered_dataset._df) == 100
-    assert filtered_dataset._df.equipment_id.unique() == ['equipment_id_1']
-    assert filtered_dataset.indicator_set == simple_dataset.indicator_set
-
-
-def test_filter_equipment_set_only(simple_dataset):
+def test_filter_equipment_set(simple_dataset):
     filtered_dataset = simple_dataset.filter(equipment_set=simple_dataset.equipment_set.filter(id='equipment_id_1'))
-
-    assert len(filtered_dataset.equipment_set) == 1
-    assert len(filtered_dataset._df) == 100
-    assert filtered_dataset._df.equipment_id.unique() == ['equipment_id_1']
-    assert filtered_dataset.indicator_set == simple_dataset.indicator_set
-
-
-@pytest.mark.filterwarnings('ignore:Passing equipment_ids to the TimeseriesDataset filter is deprecated')
-def test_filter_equipment_set_and_id(simple_dataset):
-    filtered_dataset = simple_dataset.filter(equipment_ids=['equipment_id_2'],
-                                             equipment_set=simple_dataset.equipment_set.filter(id='equipment_id_1'))
 
     assert len(filtered_dataset.equipment_set) == 1
     assert len(filtered_dataset._df) == 100

@@ -39,7 +39,10 @@ class _AssetcentralField(_base.MasterDataField):
 class AssetcentralEntity(_base.MasterDataEntity):
     """Common base class for AssetCentral entities."""
 
-    pass
+    def __repr__(self) -> str:
+        """Return a very short string representation."""
+        name = getattr(self, 'name', getattr(self, 'short_description', None))
+        return f'{self.__class__.__name__}(name="{name}", id="{self.id}")'
 
 
 class AssetcentralEntitySet(_base.MasterDataEntitySet):
@@ -81,6 +84,9 @@ class _AssetcentralWriteRequest(UserDict):
         if field := self.field_map.get(key):
             if field.is_writable:
                 field.put_setter(self.data, value)
+            else:
+                warnings.warn(f"Parameter '{key}' is not available for create or update requests and will be ignored.",
+                              stacklevel=5)
         else:
             warnings.warn(f"Unknown name for {type(self).__name__} parameter found: '{key}'.")
             self.data[key] = value

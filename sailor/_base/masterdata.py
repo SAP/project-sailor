@@ -1,8 +1,7 @@
-import warnings
 import logging
 from collections import Counter
 from collections.abc import Sequence
-from typing import Union
+from typing import Iterable, Union
 
 import pandas as pd
 import plotnine as p9
@@ -102,20 +101,6 @@ class MasterDataEntity:
         """Return the available properties for this class."""
         return set([field.our_name for field in cls._field_map.values() if field.is_exposed])
 
-    @classmethod
-    def get_property_mapping(cls):
-        """Return a mapping from our terminology to remote API terminology.
-
-        .. deprecated:: 1.4.0
-        Use :meth:`get_available_properties` instead.
-        """
-        # TODO: remove method in future version
-        msg = ("'get_property_mapping': deprecated. Method will be removed after September 01, 2021. " +
-               "use 'get_available_properties' instead")
-        warnings.warn(msg, FutureWarning)
-        return {field.our_name: (field.their_name_get, None, None, None) for field in cls._field_map.values()
-                if field.is_exposed}
-
     def __init__(self, ac_json: dict):
         """Create a new entity."""
         self.raw = ac_json
@@ -127,8 +112,7 @@ class MasterDataEntity:
 
     def __repr__(self) -> str:
         """Return a very short string representation."""
-        name = getattr(self, 'name', getattr(self, 'short_description', None))
-        return f'"{self.__class__.__name__}(name="{name}", id="{self.id}")'
+        return f'{self.__class__.__name__}(id="{self.id}")'
 
     def __eq__(self, obj):
         """Compare two objects based on instance type and id."""
@@ -183,8 +167,11 @@ class MasterDataEntitySet(Sequence):
             raise TypeError('Only ResultSets of the same type can be added.')
         return self.__class__(self.elements + other.elements)
 
-    def as_df(self, columns=None):
-        """Return all information on the objects stored in the MasterDataEntitySet as a pandas dataframe."""
+    def as_df(self, columns: Iterable[str] = None):
+        """Return all information on the objects stored in the MasterDataEntitySet as a pandas dataframe.
+
+        ``columns`` can be specified to select the columns (and their order) for the DataFrame.
+        """
         if columns is None:
             columns = [field.our_name for field in self._element_type._field_map.values() if field.is_exposed]
         return pd.DataFrame({

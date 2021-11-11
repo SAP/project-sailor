@@ -54,9 +54,10 @@ def _timestamp_to_date_string(timestamp: pd.Timestamp):
     if timestamp.tzinfo:
         timestamp = timestamp.tz_convert('UTC')
     timestamp = timestamp.tz_localize(None)
-    if timestamp.date() != timestamp:
-        warnings.warn('Casting timestamp to date, this operation will loose time-of-day information.')
-    return str(timestamp.date())
+    date = pd.Timestamp.date(timestamp)
+    if pd.Timestamp(date) != timestamp:
+        warnings.warn('Casting timestamp to date, this operation will lose time-of-day information.', stacklevel=3)
+    return str(date)
 
 
 def _calculate_nice_sub_intervals(interval, n_breaks):
