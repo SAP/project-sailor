@@ -12,10 +12,10 @@ from .constants import VIEW_SENSOR_TYPES
 
 
 _SENSOR_TYPE_FIELDS = [
-    _DeviceConnectivityField('id', 'id'),
     _DeviceConnectivityField('name', 'name'),
     _DeviceConnectivityField('alternate_id', 'alternateId'),
     _DeviceConnectivityField('capabilities', 'capabilities'),
+    _DeviceConnectivityField('id', 'id'),
 ]
 
 
