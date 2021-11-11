@@ -1,7 +1,7 @@
 import logging
 from collections import Counter
 from collections.abc import Sequence
-from typing import Union
+from typing import Iterable, Union
 
 import pandas as pd
 import plotnine as p9
@@ -167,8 +167,11 @@ class MasterDataEntitySet(Sequence):
             raise TypeError('Only ResultSets of the same type can be added.')
         return self.__class__(self.elements + other.elements)
 
-    def as_df(self, columns=None):
-        """Return all information on the objects stored in the MasterDataEntitySet as a pandas dataframe."""
+    def as_df(self, columns: Iterable[str] = None):
+        """Return all information on the objects stored in the MasterDataEntitySet as a pandas dataframe.
+
+        ``columns`` can be specified to select the columns (and their order) for the DataFrame.
+        """
         if columns is None:
             columns = [field.our_name for field in self._element_type._field_map.values() if field.is_exposed]
         return pd.DataFrame({
