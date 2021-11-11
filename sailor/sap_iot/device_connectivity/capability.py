@@ -3,16 +3,20 @@ Retrieve Capability information from Device Connectiviy API of SAP IoT.
 
 Classes are provided for individual Capabilities as well as groups of Capabilities (CapabilitySet).
 """
+
 from sailor import _base
-from .utils import _DeviceConnectivityField, DeviceConnectivityEntity, DeviceConnectivityEntitySet, _device_connectivity_api_url, _dc_fetch_data
+from .utils import _DeviceConnectivityField, DeviceConnectivityEntity, DeviceConnectivityEntitySet, \
+    _device_connectivity_api_url, _dc_fetch_data
 from .constants import VIEW_CAPABILITIES
 
+
 _CAPABILITY_FIELDS = [
-    _DeviceConnectivityField('id', 'id'),
     _DeviceConnectivityField('name', 'name'),
     _DeviceConnectivityField('alternate_id', 'alternateId'),
     _DeviceConnectivityField('properties', 'properties'),
+    _DeviceConnectivityField('id', 'id'),
 ]
+
 
 @_base.add_properties
 class Capability(DeviceConnectivityEntity):
@@ -20,10 +24,12 @@ class Capability(DeviceConnectivityEntity):
 
     _field_map = {field.our_name: field for field in _CAPABILITY_FIELDS}
 
+
 class CapabilitySet(DeviceConnectivityEntitySet):
     """Class representing a group of Capabilities."""
 
     _element_type = Capability
+
 
 def find_capabilities(*, extended_filters=(), **kwargs) -> CapabilitySet:
     """

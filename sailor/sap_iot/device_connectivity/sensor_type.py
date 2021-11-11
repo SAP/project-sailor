@@ -3,10 +3,13 @@ Retrieve Sensor Type information from Device Connectiviy API of SAP IoT.
 
 Classes are provided for individual Sensor Types as well as groups of Sensor Types (SensorTypeSet).
 """
+
 from sailor import _base
 from sailor.sap_iot.device_connectivity.capability import CapabilitySet, find_capabilities
-from .utils import _DeviceConnectivityField, DeviceConnectivityEntity, DeviceConnectivityEntitySet, _device_connectivity_api_url, _dc_fetch_data
+from .utils import _DeviceConnectivityField, DeviceConnectivityEntity, DeviceConnectivityEntitySet, \
+    _device_connectivity_api_url, _dc_fetch_data
 from .constants import VIEW_SENSOR_TYPES
+
 
 _SENSOR_TYPE_FIELDS = [
     _DeviceConnectivityField('id', 'id'),
@@ -14,6 +17,7 @@ _SENSOR_TYPE_FIELDS = [
     _DeviceConnectivityField('alternate_id', 'alternateId'),
     _DeviceConnectivityField('capabilities', 'capabilities'),
 ]
+
 
 @_base.add_properties
 class SensorType(DeviceConnectivityEntity):
@@ -23,7 +27,7 @@ class SensorType(DeviceConnectivityEntity):
 
     def find_capabilities(self, *, extended_filters=(), **kwargs) -> CapabilitySet:
         """
-        Find the Capabilities assigned to the SensorType
+        Find the Capabilities assigned to the SensorType.
 
         This method supports the common filter language explained at :ref:`filter`.
 
@@ -36,6 +40,7 @@ class SensorType(DeviceConnectivityEntity):
         """
         kwargs['id'] = [c['id'] for c in self.capabilities]
         return find_capabilities(extended_filters=extended_filters, **kwargs)
+
 
 class SensorTypeSet(DeviceConnectivityEntitySet):
     """Class representing a group of Sensor Types."""
@@ -57,6 +62,7 @@ class SensorTypeSet(DeviceConnectivityEntitySet):
         """
         kwargs['id'] = [c['id'] for e in self.elements for c in e.capabilities]
         return find_capabilities(extended_filters=extended_filters, **kwargs)
+
 
 def find_sensor_types(*, extended_filters=(), **kwargs) -> SensorTypeSet:
     """

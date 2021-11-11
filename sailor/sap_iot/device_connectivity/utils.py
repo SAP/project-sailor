@@ -2,12 +2,14 @@
 
 import json
 import warnings
+
 import pandas as pd
 
 from sailor import _base
 from ...utils.config import SailorConfig
 from ...utils.oauth_wrapper import get_oauth_client
 from ...utils.utils import DataNotFoundWarning
+
 
 def _dc_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()) -> list:
     """Retrieve data from a supported REST service (The IoT device connectivity API).
@@ -38,10 +40,10 @@ def _dc_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()) -
 
     return result
 
+
 def _dc_response_handler(result_list, endpoint_data) -> list:
-    """
-    Converting the API response into a list representation.
-    """
+    """Convert the API response into a list representation."""
+
     if isinstance(endpoint_data, bytes):
         endpoint_data = json.loads(endpoint_data.decode('utf-8')) # why do i get a byte string? ac request returns a dict object here
     if isinstance(endpoint_data, list):
@@ -50,22 +52,38 @@ def _dc_response_handler(result_list, endpoint_data) -> list:
         result_list.append(endpoint_data)
     return result_list
 
+
 def _device_connectivity_api_url():
     """Return the SAP IoT Device Connectivity API URL from the SailorConfig."""
+
     return SailorConfig.get('sap_iot', 'device_connectivity_url')
+
 
 class _DeviceConnectivityField(_base.MasterDataField):
     """Specify a field in Device Connectivity."""
 
     pass
 
+
 class DeviceConnectivityEntity(_base.MasterDataEntity):
     """Common base class for Device Connectivity entities."""
 
     pass
 
+
 class DeviceConnectivityEntitySet(_base.MasterDataEntitySet):
     """Baseclass to be used in all Sets of Device Connectivity objects."""
+
+    _method_defaults = {
+        'plot_distribution': {
+            'by': 'id'
+        }
+    }
+
+    def plot_distribution(self, by=None, fill=None, dropna=False) -> None:
+        """Overwrite, because irrelevant for IoT Device Model."""
+
+        pass
 
     def as_df(self, columns=None, explode:list=None, expand_dict:bool=False) -> pd.DataFrame:
         """
