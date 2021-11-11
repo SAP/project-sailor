@@ -44,7 +44,6 @@ def _dc_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()) -
 
 def _dc_response_handler(result_list, endpoint_data) -> list:
     """Convert the API response into a list representation."""
-
     if isinstance(endpoint_data, bytes):
         # why do i get a byte string? ac request returns a dict object here
         endpoint_data = json.loads(endpoint_data.decode('utf-8'))
@@ -57,7 +56,6 @@ def _dc_response_handler(result_list, endpoint_data) -> list:
 
 def _device_connectivity_api_url():
     """Return the SAP IoT Device Connectivity API URL from the SailorConfig."""
-
     return SailorConfig.get('sap_iot', 'device_connectivity_url')
 
 
@@ -84,7 +82,6 @@ class DeviceConnectivityEntitySet(_base.MasterDataEntitySet):
 
     def plot_distribution(self, by=None, fill=None, dropna=False) -> None:
         """Overwrite, because irrelevant for IoT Device Model."""
-
         pass
 
     def as_df(self, columns=None, explode: list = None, expand_dict: bool = False) -> pd.DataFrame:

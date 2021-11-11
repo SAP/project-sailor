@@ -50,8 +50,8 @@ class SensorTypeSet(DeviceConnectivityEntitySet):
     def find_capabilities(self, *, extended_filters=(), **kwargs) -> CapabilitySet:
         """
         Find the Capabilities of all the SensorTypes in the SensorTypeSet.
-        Each SensorType is assigned one or more Capability.
 
+        Each SensorType is assigned one or more Capability.
         This method supports the common filter language explained at :ref:`filter`.
 
         Parameters
