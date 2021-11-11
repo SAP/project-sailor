@@ -27,7 +27,8 @@ def _dc_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()) -
     for filter_string in filters:
         result_filter = []
 
-        # device connectivity api requires 'filter' and not '$filter', which is why the base fetch_data method cannot be called
+        # device connectivity api requires 'filter' and not '$filter',
+        # which is why the base fetch_data method cannot be called
         params = {'filter': filter_string} if filter_string else {}
 
         endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
@@ -45,7 +46,8 @@ def _dc_response_handler(result_list, endpoint_data) -> list:
     """Convert the API response into a list representation."""
 
     if isinstance(endpoint_data, bytes):
-        endpoint_data = json.loads(endpoint_data.decode('utf-8')) # why do i get a byte string? ac request returns a dict object here
+        # why do i get a byte string? ac request returns a dict object here
+        endpoint_data = json.loads(endpoint_data.decode('utf-8'))
     if isinstance(endpoint_data, list):
         result_list.extend(endpoint_data)
     else:
@@ -85,25 +87,29 @@ class DeviceConnectivityEntitySet(_base.MasterDataEntitySet):
 
         pass
 
-    def as_df(self, columns=None, explode:list=None, expand_dict:bool=False) -> pd.DataFrame:
+    def as_df(self, columns=None, explode: list = None, expand_dict: bool = False) -> pd.DataFrame:
         """
         Return all information on the objects stored in the DeviceConnectivityEntitySet as a pandas dataframe.
 
-        Overwriting the base method and support exploding nested lists and expanding nested json objects in the dataframe.
+        Overwriting the base method and support exploding nested lists and expanding nested json objects
+        in the dataframe.
 
         Parameters
         ----------
-        columns 
+        columns
             Columns to include in the dataframe. Defaults to None. If no columns provided, include all.
         explode
-            Explode columns in the dataframe, which contain a list value. Specify the column names to explode. Defaults to None.
-        expand_dict 
-            Whether to expand nested objects in the dataframe into multiple columns. Each object key will be a new column. Defaults to False.
+            Explode columns in the dataframe, which contain a list value. Specify the column names to explode.
+            Defaults to None.
+        expand_dict
+            Whether to expand nested objects in the dataframe into multiple columns.
+            Each object key will be a new column. Defaults to False.
         """
         df = super().as_df(columns=columns)
         if explode:
             for column in explode:
                 df = df.explode(column, ignore_index=True)
                 if expand_dict:
-                    df = pd.concat([df.drop(column, axis=1), pd.json_normalize(df[column]).add_prefix(column + '_')], axis=1)
+                    df = pd.concat([df.drop(column, axis=1),
+                                    pd.json_normalize(df[column]).add_prefix(column + '_')], axis=1)
         return df

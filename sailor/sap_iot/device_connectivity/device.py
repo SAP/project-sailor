@@ -20,7 +20,7 @@ _DEVICE_FIELDS = [
     _DeviceConnectivityField('_online', 'online'),
     _DeviceConnectivityField('_authentications', 'authentications'),
     _DeviceConnectivityField('_creation_timestamp', 'creationTimestamp',
-        get_extractor=_string_to_timestamp_parser(unit='ms'))
+                             get_extractor=_string_to_timestamp_parser(unit='ms'))
 ]
 
 
