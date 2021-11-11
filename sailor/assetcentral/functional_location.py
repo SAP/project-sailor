@@ -13,8 +13,7 @@ from .constants import VIEW_FUNCTIONAL_LOCATIONS
 
 
 _FUNCTIONAL_LOCATION_FIELDS = [
-    _AssetcentralField('name', 'name'),
-    _AssetcentralField('internal_id', 'internalId'),
+    _AssetcentralField('name', 'internalId'),
     _AssetcentralField('model_name', 'modelName'),
     _AssetcentralField('location_name', 'location'),
     _AssetcentralField('status_text', 'statusDescription',
@@ -109,11 +108,6 @@ def find_functional_locations(*, extended_filters=(), **kwargs) -> FunctionalLoc
     Find all Functional Locations with the name 'MyFloc' which are also located in 'London'::
 
         find_functional_locations(name='MyFloc', location_name='London')
-
-    Find all Functional Locations created between January 1, 2018 and January 1, 2019 in 'London'::
-
-        find_functional_locations(extended_filters=['_created_on >= "2018-01-01"', '_created_on < "2019-01-01"'],
-                        location_name='London')
     """
     unbreakable_filters, breakable_filters = \
         _base.parse_filter_parameters(kwargs, extended_filters, FunctionalLocation._field_map)
