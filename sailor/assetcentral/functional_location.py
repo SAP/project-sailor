@@ -1,8 +1,10 @@
 """
 Retrieve Functional Location information from AssetCentral.
 
-Classes are provided for individual Functional Locations as well as groups of Functional Locations (FunctionalLocationSet).
+Classes are provided for individual Functional Locations as well as groups
+of Functional Locations (FunctionalLocationSet).
 """
+
 from sailor import _base
 from ..utils.timestamps import _string_to_timestamp_parser
 from .utils import _ac_fetch_data, AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet, \
@@ -11,39 +13,42 @@ from .constants import VIEW_FUNCTIONAL_LOCATIONS
 
 
 _FUNCTIONAL_LOCATION_FIELDS = [
-    _AssetcentralField('id', 'id'),
     _AssetcentralField('name', 'name'),
     _AssetcentralField('internal_id', 'internalId'),
+    _AssetcentralField('model_name', 'modelName'),
+    _AssetcentralField('location_name', 'location'),
+    _AssetcentralField('status_text', 'statusDescription',
+                       query_transformer=_base.masterdata._qt_non_filterable('status_text')),
+    _AssetcentralField('short_description', 'shortDescription'),
+    _AssetcentralField('manufacturer', 'manufacturer'),
+    _AssetcentralField('operator', 'operator'),
+    _AssetcentralField('installation_date', 'installationDate', get_extractor=_string_to_timestamp_parser('ms'),
+                       query_transformer=_base.masterdata._qt_timestamp),
+    _AssetcentralField('build_date', 'buildDate', get_extractor=_string_to_timestamp_parser('ms'),
+                       query_transformer=_base.masterdata._qt_timestamp),
+    _AssetcentralField('crititcality_description', 'criticalityDescription'),
+    _AssetcentralField('id', 'id'),
+    _AssetcentralField('model_id', 'modelId'),
+    _AssetcentralField('template_id', 'templateId'),
+    _AssetcentralField('serial_number', 'serialNumber'),
+    _AssetcentralField('batch_number', 'batchNumber'),
     _AssetcentralField('_status', 'status'),
-    _AssetcentralField('_status_description', 'statusDescription'),
     _AssetcentralField('_version', 'version'),
     _AssetcentralField('_in_revision', 'hasInRevision'),
-    _AssetcentralField('model_id', 'modelId'),
-    _AssetcentralField('model_name', 'modelName'),
-    _AssetcentralField('short_description', 'shortDescription'),
-    _AssetcentralField('_template_id', 'templateId'),
     _AssetcentralField('_subclass', 'subclass'),
     _AssetcentralField('_model_template', 'modelTemplate'),
-    _AssetcentralField('location_name', 'location'),
     _AssetcentralField('_criticality_code', 'criticalityCode'),
-    _AssetcentralField('_crititcality_description', 'criticalityDescription'),
-    _AssetcentralField('_manufacturer', 'manufacturer'),
     _AssetcentralField('_completeness', 'completeness'),
     _AssetcentralField('_created_on', 'createdOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('_changed_on', 'changedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('_published_on', 'publishedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
-    _AssetcentralField('_serial_number', 'serialNumber'),
-    _AssetcentralField('_batch_number', 'batchNumber'),
     _AssetcentralField('_tag_number', 'tagNumber'),
     _AssetcentralField('_lifecycle', 'lifeCycle'),
     _AssetcentralField('_lifecycle_description', 'lifeCycleDescription'),
     _AssetcentralField('_source', 'source'),
     _AssetcentralField('_image_URL', 'imageURL'),
-    _AssetcentralField('_operator', 'operator'),
     _AssetcentralField('_coordinates', 'coordinates'),
-    _AssetcentralField('_installation_date', 'installationDate'),
     _AssetcentralField('_floc_status', 'flocStatus'),
-    _AssetcentralField('_build_date', 'buildDate'),
     _AssetcentralField('_is_operator_valid', 'isOperatorValid'),
     _AssetcentralField('_model_version', 'modelVersion'),
     _AssetcentralField('_sold_to', 'soldTo'),
@@ -59,11 +64,13 @@ _FUNCTIONAL_LOCATION_FIELDS = [
     _AssetcentralField('_class', 'class')
 ]
 
+
 @_base.add_properties
 class FunctionalLocation(AssetcentralEntity):
     """AssetCentral Functional Location Object."""
 
     _field_map = {field.our_name: field for field in _FUNCTIONAL_LOCATION_FIELDS}
+
 
 class FunctionalLocationSet(AssetcentralEntitySet):
     """Class representing a group of Functional Locations."""
@@ -74,6 +81,7 @@ class FunctionalLocationSet(AssetcentralEntitySet):
             'by': 'model_name',
         },
     }
+
 
 def find_functional_locations(*, extended_filters=(), **kwargs) -> FunctionalLocationSet:
     """
