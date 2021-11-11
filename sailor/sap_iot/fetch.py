@@ -115,7 +115,6 @@ def _get_exported_bulk_timeseries_data(export_id: str,
     request_url = f"{base_url}/v1/DownloadData('{export_id}')"
 
     resp = oauth_iot.request('GET', request_url, headers={'Accept': 'application/octet-stream'})
-
     ifile = BytesIO(resp)
     try:
         zip_content = zipfile.ZipFile(ifile)

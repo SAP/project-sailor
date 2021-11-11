@@ -16,13 +16,14 @@ def mock_aggregates_url():
 
 @pytest.fixture()
 def prepare_setup(make_equipment_set, make_indicator_set):
-    def maker():
+    def maker(aggregation_functions=('MIN', 'MAX')):
         start, end = '2020-01-01 00:00:00+00:00', '2020-02-01 00:00:00+00:00'
         equipment_set = make_equipment_set(equipmentId=['equipment_id_1', 'equipment_id_2'],
                                            modelId=['equi_model', 'equi_model'])
         indicator_set = make_indicator_set(propertyId=['indicator_id_1', 'indicator_id_2'])
-        aggregated_indicator_set = AggregatedIndicatorSet._from_indicator_set_and_aggregation_functions(indicator_set,
-                                                                                                        ['MIN', 'MAX'])
+        aggregated_indicator_set = AggregatedIndicatorSet.\
+            _from_indicator_set_and_aggregation_functions(indicator_set, aggregation_functions)
+
         return start, end, equipment_set, indicator_set, aggregated_indicator_set
     return maker
 
@@ -165,3 +166,24 @@ def test_get_indicator_aggregates_empty_response(mock_config, mock_request, prep
         dataset = get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], 'P1D')
 
     dataset.as_df()
+
+
+def test_prepare_df_with_time_aggregates(mock_config, mock_request, prepare_setup):
+    start, end, equipment_set, indicator_set, aggregated_indicator_set = prepare_setup(('TMIN', 'AVG'))
+    timestamps = ['2020-01-02T00:00:00Z', '2020-01-03T00:00:00Z', '2020-01-04T00:00:00Z']
+    # format for time-properties: '2021-05-27T00:00:09.827Z'
+    tmin_1 = ['2020-01-02T00:00:00.000Z', '2020-01-03T00:00:00.111Z', '2020-01-04T00:00:00.123Z']*2  # two equipments
+    tmin_2 = ['2020-01-02T00:00:00.003Z', '2020-01-03T00:00:00.101Z', '2020-01-04T00:00:00.023Z']*2
+    test_response = make_sample_response(equipment_set, aggregated_indicator_set, timestamps, '1D')
+    for i, element in enumerate(test_response['results']):
+        element['properties']['I_indicator_id_1_TMIN'] = tmin_1[i]
+        element['properties']['I_indicator_id_2_TMIN'] = tmin_2[i]
+    mock_request.side_effect = [test_response]
+
+    dataset = get_indicator_aggregates(start, end, indicator_set, equipment_set, ['TMIN', 'AVG'], 'P1D')
+
+    for indicator in aggregated_indicator_set:
+        if indicator.aggregation_function == 'TMIN':
+            assert pd.api.types.is_datetime64_ns_dtype(dataset._df[indicator._unique_id])
+        else:
+            assert pd.api.types.is_numeric_dtype(dataset._df[indicator._unique_id])
