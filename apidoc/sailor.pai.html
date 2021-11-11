@@ -198,6 +198,36 @@
 <div class="section" id="module-sailor.pai">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sailor.pai" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
+<dt class="sig sig-object py" id="sailor.pai.create_alert">
+<span class="sig-prename descclassname"><span class="pre">sailor.pai.</span></span><span class="sig-name descname"><span class="pre">create_alert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/pai/alert.html#create_alert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.pai.create_alert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new alert in the remote system.</p>
+<p>Alerts are immutable. If the specified alert type uses a deduplication period,
+the remote system will not create a new alert but <strong>ONLY</strong> increase the counter for an existing alert
+on the same equipment within the deduplication period. This means (1) additional properties supplied are
+discarded and (2) this function will return the existing alert object as a response.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Keyword arguments which names correspond to the available properties.
+Can also be used to supply custom fields (Z_*, z_*) used with the corresponding alert type: in this case the
+type of the field is not known to Sailor and therefore the value must be strictly given in the format defined by
+the type as defined by the remote API.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A new alert object as retrieved from PAI after the create succeeded.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sailor.pai.alert.html#sailor.pai.alert.Alert" title="sailor.pai.alert.Alert">Alert</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">alert</span> <span class="o">=</span> <span class="n">create_alert</span><span class="p">(</span><span class="n">equipment_id</span><span class="o">=</span><span class="s1">&#39;123&#39;</span><span class="p">,</span> <span class="n">triggered_on</span><span class="o">=</span><span class="s1">&#39;2020-07-31T13:23:00Z&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                     <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;PUMP_TEMP_WARN&#39;</span><span class="p">,</span> <span class="n">severity_code</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">indicator_id</span><span class="o">=</span><span class="s1">&#39;ic1&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                     <span class="n">indicator_group_id</span><span class="o">=</span><span class="s1">&#39;ig1&#39;</span><span class="p">,</span> <span class="n">template_id</span><span class="o">=</span><span class="s1">&#39;t1&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="sailor.pai.find_alerts">
 <span class="sig-prename descclassname"><span class="pre">sailor.pai.</span></span><span class="sig-name descname"><span class="pre">find_alerts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/pai/alert.html#find_alerts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.pai.find_alerts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch Alerts from PredictiveAssetInsights (PAI) with the applied filters, return an AlertSet.</p>

@@ -175,6 +175,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
+<span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">pai</span>
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">sap_iot</span>
 <span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_string_to_timestamp_parser</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_EQUIPMENT</span><span class="p">,</span> <span class="n">VIEW_OBJECTS</span>
@@ -407,12 +408,24 @@
 <span class="sd">        --------</span>
 <span class="sd">        :meth:`sailor.assetcentral.notification.create_notification`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">}</span>
+        <span class="n">fixed_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;location_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">id</span>
-        <span class="n">request</span> <span class="o">=</span> <span class="n">_AssetcentralWriteRequest</span><span class="p">(</span><span class="n">Notification</span><span class="o">.</span><span class="n">_field_map</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">fixed_kwargs</span><span class="p">[</span><span class="s1">&#39;location_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">_AssetcentralWriteRequest</span><span class="p">(</span><span class="n">Notification</span><span class="o">.</span><span class="n">_field_map</span><span class="p">,</span> <span class="o">**</span><span class="n">fixed_kwargs</span><span class="p">)</span>
         <span class="n">request</span><span class="o">.</span><span class="n">insert_user_input</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">forbidden_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_id&#39;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">_create_or_update_notification</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">_create_or_update_notification</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Equipment.create_alert"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.Equipment.create_alert">[docs]</a>    <span class="k">def</span> <span class="nf">create_alert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pai</span><span class="o">.</span><span class="n">alert</span><span class="o">.</span><span class="n">Alert</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a new alert for this equipment.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :meth:`sailor.pai.alert.create_alert`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fixed_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">}</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">pai</span><span class="o">.</span><span class="n">alert</span><span class="o">.</span><span class="n">_AlertWriteRequest</span><span class="p">(</span><span class="o">**</span><span class="n">fixed_kwargs</span><span class="p">)</span>
+        <span class="n">request</span><span class="o">.</span><span class="n">insert_user_input</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">forbidden_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_id&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">pai</span><span class="o">.</span><span class="n">alert</span><span class="o">.</span><span class="n">_create_alert</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="EquipmentSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.EquipmentSet">[docs]</a><span class="k">class</span> <span class="nc">EquipmentSet</span><span class="p">(</span><span class="n">AssetcentralEntitySet</span><span class="p">):</span>

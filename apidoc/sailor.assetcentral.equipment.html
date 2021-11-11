@@ -208,6 +208,21 @@
 </dd>
 </dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.create_alert">
+<span class="sig-name descname"><span class="pre">create_alert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.create_alert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.create_alert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new alert for this equipment.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="sailor.pai.alert.html#sailor.pai.alert.create_alert" title="sailor.pai.alert.create_alert"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.pai.alert.create_alert()</span></code></a></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sailor.pai.alert.html#sailor.pai.alert.Alert" title="sailor.pai.alert.Alert">sailor.pai.alert.Alert</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sailor.assetcentral.equipment.Equipment.create_notification">
 <span class="sig-name descname"><span class="pre">create_notification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#Equipment.create_notification"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.Equipment.create_notification" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new notification for this equipment.</p>
@@ -372,6 +387,12 @@ my_equipment.get_indicator_data(‘2020-06-01’, ‘2020-12-05’)</p>
 <dt class="sig sig-object py" id="sailor.assetcentral.equipment.EquipmentSet.as_df">
 <span class="sig-name descname"><span class="pre">as_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.as_df" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return all information on the objects stored in the MasterDataEntitySet as a pandas dataframe.</p>
+<p><code class="docutils literal notranslate"><span class="pre">columns</span></code> can be specified to select the columns (and their order) for the DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>columns</strong> (<em>Optional</em><em>[</em><em>Iterable</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
