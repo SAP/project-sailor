@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+
 from sailor.dmc.scenario import Scenario, ScenarioSet, find_scenarios
 
 
@@ -24,6 +25,12 @@ def mock_fetch():
             'scenarioStatus': 'Example_Status',
             'scenarioVersion': 1
         }]
+        yield mock
+
+
+@pytest.fixture
+def mock_find_inspection_logs():
+    with patch('sailor.dmc.scenario.find_inspection_logs') as mock:
         yield mock
 
 
@@ -97,3 +104,23 @@ def test_correct_scenario_object(mock_url, mock_fetch):
 
     for property_name, value in expected_attributes.items():
         assert getattr(scenario, property_name) == value
+
+
+def test_get_inspection_logs(mock_url, mock_fetch, mock_find_inspection_logs):
+    kwargs = {
+        'deployment_type': 'Deployment_Type',
+        'material': 'Example_Material',
+        'operation': 'Example_Operation',
+        'plant': 'Example_Plant',
+        'resource': 'Example_Resource',
+        'routing': 'Example_Routing',
+        'sfc': 'Example_SFC',
+    }
+
+    scenarios = find_scenarios(**kwargs)
+
+    scenario = scenarios[0]
+
+    scenario.get_inspection_logs()
+
+    mock_find_inspection_logs.assert_called_once_with(scenario_id='Example_ID', scenario_version=1)

@@ -7,8 +7,8 @@ from base64 import b64decode
 from typing import Any, Dict, List, Tuple
 
 import pandas as pd
-from sailor import _base
 
+from sailor import _base
 from .constants import AIML_GROUP, INSPECTION_LOG, INSPECTION_LOGS_FOR_CONTEXT
 from .utils import (DigitalManufacturingCloudEntity, DigitalManufacturingCloudEntitySet,
                     _DigitalManufacturingCloudField, _dmc_application_url, _dmc_fetch_data)
@@ -61,11 +61,13 @@ class InspectionLog(DigitalManufacturingCloudEntity):
 
     _field_map = {field.our_name: field for field in _INSPECTION_LOG_FIELDS}
 
-    # TODO: Review whether to make this function private, do some remapping to fit syntax with INSPECTION_LOG_FIELDS
+    # TODO: Review whether to do some remapping to fit syntax with INSPECTION_LOG_FIELDS
     # or add the properties to the Inspection Logs returned by find_inspection_logs()
     def _get_details(self) -> Dict[str, Any]:
-        """Fetches details about this specific Inspecton Log and if applicable the corresponding image as
-        base64-encoded string from Digital Manufacturing Cloud.
+        """Fetch details about this specific Inspecton Log from Digital Manufacturing Cloud.
+
+        Return the details, which contain more and easier to comprehend details on the inspection log, and, if
+        applicable, the corresponding image as base64-encoded string.
         """
         endpoint_url = _dmc_application_url() + AIML_GROUP + INSPECTION_LOG
 
@@ -91,10 +93,11 @@ class InspectionLogSet(DigitalManufacturingCloudEntitySet):
     _element_type = InspectionLog
 
     def _get_details_and_images(self) -> Tuple[List[Dict[str, Any]], Dict[str, bytes]]:
-        """Fetches details with :ref:`_get_details()` and decodes the base64-encoded images to bytes.
-        Returns a list containing all details for Inspection Logs containing images and a dict mapping bytes to fileId.
-        """
+        """Fetch details for all `InspectionLog` objects in the set and decode the base64-encoded images to bytes.
 
+        Call `_get_details()` for every element in the set and return a list containing all details for Inspection Logs
+        containing images and a dict mapping bytes to fileId.
+        """
         details = []
         images = {}
 
@@ -117,21 +120,46 @@ class InspectionLogSet(DigitalManufacturingCloudEntitySet):
 
         return details, images
 
+    def _preprocess_details(self, details_item) -> Dict[str, Any]:
+        """Remove attributes that are not required for all types of ML input.
+
+        Also add attributes within the response parameter `context` to the df at base level.
+        """
+        details_item.update(details_item['context'])
+
+        details_item.pop('context')
+        details_item.pop('fileID', None)
+
+        details_item.pop('scenarioVersion', None)
+        details_item.pop('scenarioId', None)
+
+        return details_item
+
+    def _convert_bool_and_datetime(self, df) -> pd.DataFrame:
+        """Convert the flag `isConformant` and the datetime `inspectionLogTime` to the correct formats."""
+        df['inspectionLogTime'] = pd.to_datetime(df['inspectionLogTime'])
+        df['isConformant'] = df['isConformant'].astype('boolean')
+
+        return df
+
     def _remove_duplicates(self, df) -> pd.DataFrame:
-        """Removes in respect to fileId duplicate Inspection Logs from DataFrame, keeping only the most recent."""
+        """Remove in respect to fileId duplicate Inspection Logs from DataFrame, keep only the most recent."""
         df = df.sort_values('inspectionLogTime', ascending=False)
         df = df.drop_duplicates(['fileId'])
         return df
 
     def _remove_images_not_in_df(self, df, images) -> Dict[str, bytes]:
-        """Removes all images from the images-dict that do not have a label in the df."""
+        """Remove all images from the images-dict that do not have a label in the df."""
         available_files = df['fileId'].tolist()
         filtered_images = {file_id: images[file_id] for file_id in available_files}
         return filtered_images
 
     def as_binary_classification_input(self, remove_duplicates=True):
-        """Returns a DataFrame containing the details of all Inspection Logs that contain an image and the isConformant-flag,
-        and a dictionary mapping the bytes of those images to the corresponding fileId."""
+        """Convert this `InspectionLogSet` to ML-Input for Binary Classification.
+
+        Return a DataFrame containing the details of all Inspection Logs that contain an image and the
+        isConformant-flag, and a dictionary mapping the bytes of those images to the corresponding fileId.
+        """
         details, images = self._get_details_and_images()
 
         df = pd.DataFrame()
@@ -140,21 +168,14 @@ class InspectionLogSet(DigitalManufacturingCloudEntitySet):
             if 'isConformant' not in details_item.keys():
                 continue
 
-            details_item.update(details_item['context'])
-            details_item.pop('context')
-            details_item.pop('fileID', None)
-
-            details_item.pop('scenarioVersion', None)
-            details_item.pop('scenarioId', None)
-
             details_item.pop('predictions', None)
             details_item.pop('loggedNCS', None)
 
+            details_item = self._preprocess_details(details_item)
+
             df = df.append(details_item, ignore_index=True)
 
-        df['inspectionLogTime'] = pd.to_datetime(df['inspectionLogTime'])
-
-        df['isConformant'] = df['isConformant'].astype('boolean')
+        df = self._convert_bool_and_datetime(df)
 
         if remove_duplicates:
             df = self._remove_duplicates(df)
@@ -164,8 +185,11 @@ class InspectionLogSet(DigitalManufacturingCloudEntitySet):
         return df, images
 
     def as_multilabel_classification_input(self, remove_duplicates=True) -> Tuple[pd.DataFrame, Dict[str, bytes]]:
-        """Returns a DataFrame containing the details of all Inspection Logs that contain an image and either predictions
-        or logged non-conformancies, and a dictionary mapping the bytes of those images to the corresponding fileId."""
+        """Convert this `InspectionLogSet` to ML-Input for Multi-label Classification.
+
+        Return a DataFrame containing the details of all Inspection Logs that contain an image and either predictions
+        or logged non-conformancies, and a dictionary mapping the bytes of those images to the corresponding fileId.
+        """
         details, images = self._get_details_and_images()
 
         df = pd.DataFrame()
@@ -174,18 +198,11 @@ class InspectionLogSet(DigitalManufacturingCloudEntitySet):
             if (len(details_item['predictions']) == 0) and (len(details_item['loggedNCS']) == 0):
                 continue
 
-            details_item.update(details_item['context'])
-            details_item.pop('context')
-            details_item.pop('fileID', None)
-
-            details_item.pop('scenarioVersion', None)
-            details_item.pop('scenarioId', None)
+            details_item = self._preprocess_details(details_item)
 
             df = df.append(details_item, ignore_index=True)
 
-        df['inspectionLogTime'] = pd.to_datetime(df['inspectionLogTime'])
-
-        df['isConformant'] = df['isConformant'].astype('boolean')
+        df = self._convert_bool_and_datetime(df)
 
         if remove_duplicates:
             df = self._remove_duplicates(df)
@@ -195,24 +212,25 @@ class InspectionLogSet(DigitalManufacturingCloudEntitySet):
         return df, images
 
     def _contains_bounding_box(self, details_item) -> bool:
-        """Looks into predictions and logged non-conformancies and return whether one of both
-        contains a bounding box."""
+        """Check whether details item contains at least one bounding box."""
         for prediction in details_item['predictions']:
-            if 'predictionBoundingBoxCoords' in prediction.keys():
-                if prediction['predictionBoundingBoxCoords'] != '[]':
-                    return True
+            if ('predictionBoundingBoxCoords'
+                    in prediction.keys()) and (prediction['predictionBoundingBoxCoords'] != '[]'):
+                return True
 
         for logged_ncs in details_item['loggedNCS']:
-            if 'defectBoundingBoxCoords' in logged_ncs.keys():
-                if logged_ncs['defectBoundingBoxCoords'] != '[]':
-                    return True
+            if ('defectBoundingBoxCoords' in logged_ncs.keys()) and (logged_ncs['defectBoundingBoxCoords'] != '[]'):
+                return True
 
         return False
 
     def as_object_detection_input(self, remove_duplicates=True) -> Tuple[pd.DataFrame, Dict[str, bytes]]:
-        """Returns a DataFrame containing the details of all Inspection Logs that contain an image and whoose either
+        """Convert this `InspectionLogSet` to ML-Input for Object Detection.
+
+        Return a DataFrame containing the details of all Inspection Logs that contain an image and whoose either
         predictions or logged non-conformancies countain bounding boxes, and a dictionary mapping the bytes of those
-        images to the corresponding fileId. Removes all prediction/non-conformanicies without bounding boxes."""
+        images to the corresponding fileId. Removes all prediction/non-conformanicies without bounding boxes.
+        """
         details, images = self._get_details_and_images()
 
         df = pd.DataFrame()
@@ -231,18 +249,11 @@ class InspectionLogSet(DigitalManufacturingCloudEntitySet):
                 if 'defectBoundingBoxCoords' in prediction.keys()
             ]
 
-            details_item.update(details_item['context'])
-            details_item.pop('context')
-            details_item.pop('fileID', None)
-
-            details_item.pop('scenarioVersion', None)
-            details_item.pop('scenarioId', None)
+            details_item = self._preprocess_details(details_item)
 
             df = df.append(details_item, ignore_index=True)
 
-        df['inspectionLogTime'] = pd.to_datetime(df['inspectionLogTime'])
-
-        df['isConformant'] = df['isConformant'].astype('boolean')
+        df = self._convert_bool_and_datetime(df)
 
         if remove_duplicates:
             df = self._remove_duplicates(df)
@@ -252,26 +263,23 @@ class InspectionLogSet(DigitalManufacturingCloudEntitySet):
         return df, images
 
     def as_ml_input(self, remove_duplicates=True) -> Tuple[pd.DataFrame, Dict[str, bytes]]:
-        """Returns a DataFrame containing the details of all Inspection Logs that contain an image and a dictionary
+        """Convert this `InspectionLogSet` to generic ML-Input.
+
+        Return a DataFrame containing the details of all Inspection Logs that contain an image and a dictionary
         mapping the bytes of those images to the corresponding fileId. Keeps the DataFrame generic in case the
-        user wants to do their own data preparation."""
+        user wants to do their own data preparation.
+        """
         details, images = self._get_details_and_images()
 
         df = pd.DataFrame()
 
         for details_item in details:
-            details_item.update(details_item['context'])
-            details_item.pop('context')
-            details_item.pop('fileID', None)
 
-            details_item.pop('scenarioVersion', None)
-            details_item.pop('scenarioId', None)
+            details_item = self._preprocess_details(details_item)
 
             df = df.append(details_item, ignore_index=True)
 
-        df['inspectionLogTime'] = pd.to_datetime(df['inspectionLogTime'])
-
-        df['isConformant'] = df['isConformant'].astype('boolean')
+        df = self._convert_bool_and_datetime(df)
 
         if remove_duplicates:
             df = self._remove_duplicates(df)

@@ -1,4 +1,5 @@
 import pytest
+
 from sailor.dmc.utils import _dmc_fetch_data
 from sailor.utils.utils import DataNotFoundWarning
 

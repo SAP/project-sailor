@@ -3,6 +3,7 @@ from unittest.mock import call, patch
 
 import pandas as pd
 import pytest
+
 from sailor.dmc.inspection_log import (InspectionLog, InspectionLogSet, find_inspection_logs)
 
 _SCENARIO_ID = '123'
@@ -203,7 +204,7 @@ def test_expected_public_attributes_are_present():
     assert expected_attributes == fieldmap_public_attributes
 
 
-def test_correct_arguments(mock_url, mock_fetch):
+def test_find_inspection_logs_correct_arguments(mock_url, mock_fetch):
 
     scenario_id = '123'
     scenario_version = 1
@@ -238,6 +239,18 @@ def test_correct_arguments(mock_url, mock_fetch):
     find_inspection_logs(scenario_id=scenario_id, scenario_version=scenario_version)
 
     mock_fetch.assert_called_once_with(expected_url, expected_filters, expected_filter_fields)
+
+
+def test_find_inspection_logs_raises_error_if_scenario_id_or_version_missing(mock_url, mock_fetch):
+
+    scenario_id = '123'
+    scenario_version = 1
+
+    with pytest.raises(ValueError, match='Please specify a scenario_id and a scenario_version.'):
+        find_inspection_logs(scenario_id=scenario_id)
+
+    with pytest.raises(ValueError, match='Please specify a scenario_id and a scenario_version.'):
+        find_inspection_logs(scenario_version=scenario_version)
 
 
 def test_correct_inspection_log_object(mock_url, mock_fetch):
@@ -380,6 +393,8 @@ def test_get_details_and_images(mock_url, mock_fetch, mock_details):
     file_1_decoded = b64decode(_FILE_1_CONTENT)
     file_2_decoded = b64decode(_FILE_2_CONTENT)
 
+    expected_details = details_list
+
     mock_details.side_effect = details_list
 
     inspection_logs = find_inspection_logs(**kwargs)
@@ -388,10 +403,38 @@ def test_get_details_and_images(mock_url, mock_fetch, mock_details):
 
     assert len(details) == 3
     for i in range(len(details)):
-        assert details[i] == details_list[i]
+        assert details[i] == expected_details[i]
 
     assert len(images) == 2
     assert images[_FILE_1] == file_1_decoded
+    assert images[_FILE_2] == file_2_decoded
+
+
+def test_get_details_and_images_skips_details_without_file_content(mock_url, mock_fetch, mock_details):
+    kwargs = {
+        'scenario_id': '123',
+        'scenario_version': 1,
+    }
+
+    details_list = [_DETAILS_1.copy(), _DETAILS_2.copy(), _DETAILS_3.copy()]
+
+    details_list[0].pop('fileContent')
+
+    file_2_decoded = b64decode(_FILE_2_CONTENT)
+
+    expected_details = details_list[1:]
+
+    mock_details.side_effect = details_list
+
+    inspection_logs = find_inspection_logs(**kwargs)
+
+    details, images = inspection_logs._get_details_and_images()
+
+    assert len(details) == 2
+    for i in range(len(details)):
+        assert details[i] == expected_details[i]
+
+    assert len(images) == 1
     assert images[_FILE_2] == file_2_decoded
 
 

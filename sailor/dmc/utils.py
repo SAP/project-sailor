@@ -4,7 +4,6 @@ import logging
 import warnings
 
 from sailor import _base
-
 from ..utils.config import SailorConfig
 from ..utils.oauth_wrapper.clients import get_oauth_client
 from ..utils.utils import DataNotFoundWarning
@@ -19,7 +18,7 @@ def _dmc_application_url():
 
 
 def _dmc_fetch_data(endpoint_url, filters={}, filter_fields={}):
-
+    """Fetch data from the Digital Manufacturing Cloud API."""
     oauth_client = get_oauth_client('dmc')
 
     query_params = {}

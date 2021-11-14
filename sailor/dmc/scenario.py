@@ -6,7 +6,6 @@ Classes are provided for individual Scenarios as well as groups of Scenarios (Sc
 
 from sailor import _base
 from sailor.dmc.inspection_log import InspectionLogSet, find_inspection_logs
-
 from .constants import ACTIVE_SCENARIOS, AIML_GROUP
 from .utils import (DigitalManufacturingCloudEntity, DigitalManufacturingCloudEntitySet,
                     _DigitalManufacturingCloudField, _dmc_application_url, _dmc_fetch_data)
@@ -48,9 +47,9 @@ class Scenario(DigitalManufacturingCloudEntity):
         return f'{self.__class__.__name__}(name="{name}", id="{self.id}")'
 
     def get_inspection_logs(self) -> InspectionLogSet:
-        """Fetches all Inspection Logs belonging to this Scenario from Digital Manufacturing Cloud.
+        """Fetch all Inspection Logs belonging to this Scenario from Digital Manufacturing Cloud.
 
-        For further details see :ref:`find_inspection_logs()`
+        For further details see :ref:`find_inspection_logs()`.
         """
         return find_inspection_logs(
             scenario_id=self.id,
@@ -92,7 +91,6 @@ def find_scenarios(**kwargs) -> ScenarioSet:
 
       find_scenarios(**kwargs)
     """
-
     endpoint_url = _dmc_application_url() + AIML_GROUP + ACTIVE_SCENARIOS
 
     object_list = _dmc_fetch_data(endpoint_url, kwargs, _SCENARIO_FILTER_FIELDS)
