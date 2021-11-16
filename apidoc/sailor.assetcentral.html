@@ -102,6 +102,7 @@
 <li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.constants</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.equipment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.failure_mode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.failure_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.functional_location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.functional_location</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.group.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.group</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.indicators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
@@ -200,6 +201,7 @@
 <li class="toctree-l1"><a class="reference internal" href="sailor.assetcentral.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.constants</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="sailor.assetcentral.equipment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="sailor.assetcentral.failure_mode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.failure_mode</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="sailor.assetcentral.functional_location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.functional_location</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="sailor.assetcentral.group.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.group</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="sailor.assetcentral.indicators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
@@ -290,6 +292,37 @@ filter criteria need to match for a FailureMode to be returned.</p>
 <p class="rubric">Example</p>
 <p>Find all FailureModes where equipment count higher or equal to 5:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_failure_modes</span><span class="p">(</span><span class="n">extended_filters</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;equipments_count &gt;= 5&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sailor.assetcentral.find_functional_locations">
+<span class="sig-prename descclassname"><span class="pre">sailor.assetcentral.</span></span><span class="sig-name descname"><span class="pre">find_functional_locations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extended_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/functional_location.html#find_functional_locations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.find_functional_locations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch Functional Locations from AssetCentral with the applied filters, return an FunctionalLocationSet.</p>
+<p>This method supports the common filter language explained at <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extended_filters</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+<li><p><strong>**kwargs</strong> – See <a class="reference internal" href="../filter_language.html#filter"><span class="std std-ref">Filter Language</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.assetcentral.functional_location.html#sailor.assetcentral.functional_location.FunctionalLocationSet" title="sailor.assetcentral.functional_location.FunctionalLocationSet">sailor.assetcentral.functional_location.FunctionalLocationSet</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Find all Functional Locations with the name ‘MyFloc’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_functional_locations</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyFloc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Find all Functional Locations which either have the name ‘MyFloc’ or the name ‘MyOtherFloc’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_functional_locations</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MyFloc&#39;</span><span class="p">,</span> <span class="s1">&#39;MyOtherFloc&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Find all Functional Locations with the name ‘MyFloc’ which are also located in ‘London’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">find_functional_locations</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;MyFloc&#39;</span><span class="p">,</span> <span class="n">location_name</span><span class="o">=</span><span class="s1">&#39;London&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
