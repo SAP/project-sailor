@@ -15,16 +15,11 @@ from .constants import VIEW_FUNCTIONAL_LOCATIONS
 _FUNCTIONAL_LOCATION_FIELDS = [
     _AssetcentralField('name', 'internalId'),
     _AssetcentralField('model_name', 'modelName'),
-    _AssetcentralField('location_name', 'location'),
     _AssetcentralField('status_text', 'statusDescription',
                        query_transformer=_base.masterdata._qt_non_filterable('status_text')),
     _AssetcentralField('short_description', 'shortDescription'),
     _AssetcentralField('manufacturer', 'manufacturer'),
     _AssetcentralField('operator', 'operator'),
-    _AssetcentralField('installation_date', 'installationDate', get_extractor=_string_to_timestamp_parser('ms'),
-                       query_transformer=_base.masterdata._qt_timestamp),
-    _AssetcentralField('build_date', 'buildDate', get_extractor=_string_to_timestamp_parser('ms'),
-                       query_transformer=_base.masterdata._qt_timestamp),
     _AssetcentralField('crititcality_description', 'criticalityDescription'),
     _AssetcentralField('id', 'id'),
     _AssetcentralField('model_id', 'modelId'),
@@ -41,9 +36,14 @@ _FUNCTIONAL_LOCATION_FIELDS = [
     _AssetcentralField('_created_on', 'createdOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('_changed_on', 'changedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
     _AssetcentralField('_published_on', 'publishedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_installation_date', 'installationDate', get_extractor=_string_to_timestamp_parser('ms'),
+                       query_transformer=_base.masterdata._qt_timestamp),
+    _AssetcentralField('_build_date', 'buildDate', get_extractor=_string_to_timestamp_parser('ms'),
+                       query_transformer=_base.masterdata._qt_timestamp),
     _AssetcentralField('_tag_number', 'tagNumber'),
     _AssetcentralField('_lifecycle', 'lifeCycle'),
     _AssetcentralField('_lifecycle_description', 'lifeCycleDescription'),
+    _AssetcentralField('_location', 'location'),
     _AssetcentralField('_source', 'source'),
     _AssetcentralField('_image_URL', 'imageURL'),
     _AssetcentralField('_coordinates', 'coordinates'),
@@ -105,9 +105,9 @@ def find_functional_locations(*, extended_filters=(), **kwargs) -> FunctionalLoc
 
         find_functional_locations(name=['MyFloc', 'MyOtherFloc'])
 
-    Find all Functional Locations with the name 'MyFloc' which are also located in 'London'::
+    Find all Functional Locations by manufacturer 'ACME Corp' which are operated by 'Operator 42'::
 
-        find_functional_locations(name='MyFloc', location_name='London')
+        find_functional_locations(manufacturer='ACME Corp', operator='Operator 42')
     """
     unbreakable_filters, breakable_filters = \
         _base.parse_filter_parameters(kwargs, extended_filters, FunctionalLocation._field_map)
