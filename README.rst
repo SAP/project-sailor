@@ -72,6 +72,7 @@ A JSON string can be provided with the environment variable ``SAILOR_CONFIG_JSON
             'extension_url': 'https://iot-extension-sap-<space>.cfapps.<landscape>.hana.ondemand.com',
             'export_url': 'https://coldstore-export-sap-<space>.cfapps.<landscape>.hana.ondemand.com',
             'download_url': 'https://coldstore-downloader-sap-<space>.cfapps.<landscape>.hana.ondemand.com',
+            'device_connectivity_url': 'https://iot-device-connectivity-<space>.cfapps.<landscape>.hana.ondemand.com',
             'access_token_url': 'https://authentication.<landscape>.hana.ondemand.com/oauth/token',
             'subdomain': 'account-name'
         },
@@ -103,6 +104,7 @@ Specify the location of a YAML file via environment variable (e.g.: ``SAILOR_CON
       extension_url: https://iot-extension-sap-<space>.cfapps.<landscape>.hana.ondemand.com
       export_url: https://coldstore-export-sap-<space>.cfapps.sap.<landscape>.ondemand.com
       download_url: https://coldstore-downloader-sap-<space>.cfapps.<landscape>.hana.ondemand.com
+      device_connectivity_url: https://iot-device-connectivity-<space>.cfapps.<landscape>.hana.ondemand.com
       access_token_url: https://authentication.<landscape>.hana.ondemand.com/oauth/token
       subdomain: account-name
     predictive_asset_insights:

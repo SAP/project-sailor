@@ -1,6 +1,14 @@
 :mod:`sailor.sap\_iot`
 ======================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   sailor.sap_iot.device_connectivity
+
 Submodules
 ----------
 
