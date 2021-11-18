@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+
 import numpy as np
 
 from sailor.sap_iot.write import upload_indicator_data
@@ -90,15 +91,11 @@ def test_each_equipment_one_request(mock_request, mock_upload_url, make_indicato
 
 
 def test_nan_dataset_written(mock_request, make_indicator_set, make_equipment_set):
-    indicator_set = make_indicator_set(
-    propertyId=['indicator_id_A', 'indicator_id_B'],
-    pstid=['indicator_group_A'],
-    )
-    equipment_set = make_equipment_set(
-    equipmentId=['equipment_A']
-    )
-    dataset = make_dataset(indicator_set, equipment_set,2)
-    dataset._df.iloc[0,2] = np.nan
+    indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'],
+                                       pstid=['indicator_group_A'],)
+    equipment_set = make_equipment_set(equipmentId=['equipment_A'])
+    dataset = make_dataset(indicator_set, equipment_set, 2)
+    dataset._df.iloc[0, 2] = np.nan
     upload_indicator_data(dataset)
 
     payloads = [args[-1]['json'] for args in mock_request.call_args_list]
@@ -111,7 +108,7 @@ def test_nan_dataset_written(mock_request, make_indicator_set, make_equipment_se
                 if 'I_indicator_id_B' in x:
                     indicator_values.append(x['I_indicator_id_B'])
 
-    assert indicator_values[0] == None
+    assert if indicator_values[0] is None
     assert all(isinstance(x, float) for x in indicator_values[1::])
 
 
