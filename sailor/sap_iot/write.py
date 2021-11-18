@@ -9,6 +9,7 @@ indicator and equipment information is taken from the TimeseriesDataset.
 from functools import partial
 from collections import defaultdict
 import logging
+
 import numpy as np
 
 import sailor.assetcentral.indicators as ac_indicators
