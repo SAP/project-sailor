@@ -1,8 +1,7 @@
 from unittest.mock import patch
 
-import pytest
-
 import numpy as np
+import pytest
 
 from sailor.sap_iot.write import upload_indicator_data
 from ..data_generators import make_dataset
@@ -108,7 +107,7 @@ def test_nan_dataset_written(mock_request, make_indicator_set, make_equipment_se
                 if 'I_indicator_id_B' in x:
                     indicator_values.append(x['I_indicator_id_B'])
 
-    assert if indicator_values[0] is None
+    assert indicator_values[0] is not None
     assert all(isinstance(x, float) for x in indicator_values[1::])
 
 
