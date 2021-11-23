@@ -155,6 +155,7 @@ def test_get_indicator_aggregates_two_groups(mock_config, make_indicator_set, pr
     assert len(result._df) == len(timestamps) * len(equipment_set)
 
 
+@pytest.mark.filterwarnings('ignore:Model information will be removed from the dataset after December 1 2021')
 def test_get_indicator_aggregates_empty_response(mock_config, mock_request, prepare_setup):
     start, end, equipment_set, indicator_set, aggregated_indicator_set = prepare_setup()
     timestamps = []
