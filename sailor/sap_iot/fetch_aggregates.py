@@ -222,6 +222,7 @@ def _prepare_df(results, aggregated_indicators, liot_group_id, template_id) -> p
 
     results_df = (
         tmp.drop(columns=drop_columns, errors='ignore')
+           .reindex(columns=['equipmentId', 'time'] + sorted(column_mapping))
            .rename(columns=column_mapping)
            .rename(columns={'time': 'timestamp', 'equipmentId': 'equipment_id'})
     )
