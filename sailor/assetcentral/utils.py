@@ -3,15 +3,33 @@
 from copy import deepcopy
 from collections import UserDict
 import logging
+import time
 import warnings
 
 from sailor import _base
 from ..utils.config import SailorConfig
+from sailor.utils.oauth_wrapper.OAuthServiceImpl import RequestError
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
 
+def rate_limited(f):
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except RequestError as e:
+            if e.status_code == 429:
+                LOG.debug('AssetCentral request was rate limited, will re-try once in 1s.')
+                time.sleep(1)
+                return f(*args, **kwargs)
+            else:
+                raise
+
+    return wrapper
+
+
+@rate_limited
 def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
     return _base.fetch_data('asset_central', _ac_response_handler,
                             endpoint_url, unbreakable_filters, breakable_filters)
