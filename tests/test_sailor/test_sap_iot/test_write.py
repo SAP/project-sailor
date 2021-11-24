@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from sailor.sap_iot.write import upload_indicator_data
+from sailor.utils.timestamps import _timestamp_to_isoformat
 from ..data_generators import make_dataset
 
 
@@ -90,25 +91,25 @@ def test_each_equipment_one_request(mock_request, mock_upload_url, make_indicato
 
 
 def test_nan_dataset_written(mock_request, make_indicator_set, make_equipment_set):
-    indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'],
-                                       pstid=['indicator_group_A'],)
+    indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'])
     equipment_set = make_equipment_set(equipmentId=['equipment_A'])
     dataset = make_dataset(indicator_set, equipment_set, 2)
-    dataset._df.iloc[0, 2] = np.nan
+
+    none_indicator = indicator_set[0]
+    valid_indicator = indicator_set[1]
+    none_timestamp = _timestamp_to_isoformat(dataset._df.loc[0, 'timestamp'], with_zulu=True)
+    dataset._df.loc[0, none_indicator._unique_id] = np.nan
+
     upload_indicator_data(dataset)
-
     payloads = [args[-1]['json'] for args in mock_request.call_args_list]
-    indicator_values = []
     for payload in payloads:
-        for values in payload.values():
-            for x in values:
-                if 'I_indicator_id_A' in x:
-                    indicator_values.append(x['I_indicator_id_A'])
-                if 'I_indicator_id_B' in x:
-                    indicator_values.append(x['I_indicator_id_B'])
+        for values_at_timestamp in payload['Values']:
+            assert isinstance(values_at_timestamp[valid_indicator._liot_id], float)
 
-    assert indicator_values[0] is None
-    assert all(isinstance(x, float) for x in indicator_values[1::])
+            if values_at_timestamp['_time'] == none_timestamp:
+                assert values_at_timestamp[none_indicator._liot_id] is None
+            else:
+                assert isinstance(values_at_timestamp[none_indicator._liot_id], float)
 
 
 def test_aggregate_indicators_in_dataset_raise(make_aggregated_indicator_set, make_equipment_set):
