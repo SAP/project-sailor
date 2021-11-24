@@ -18,6 +18,8 @@ furl==2.1.3
     # via -r requirements.in
 idna==3.3
     # via requests
+isodate==0.6.0
+    # via -r requirements.in
 joblib==1.1.0
     # via scikit-learn
 kiwisolver==1.3.2
@@ -86,6 +88,7 @@ scipy==1.7.1
 six==1.16.0
     # via
     #   furl
+    #   isodate
     #   orderedmultidict
     #   patsy
     #   python-dateutil

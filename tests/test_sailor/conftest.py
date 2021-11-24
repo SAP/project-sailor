@@ -41,11 +41,11 @@ def make_indicator_set(make_indicator):
 
 @pytest.fixture
 def make_aggregated_indicator():
-    def maker(**kwargs):
+    def maker(aggregation_function='mean', **kwargs):
         kwargs.setdefault('propertyId', 'id')
         kwargs.setdefault('pstid', 'group_id')
         kwargs.setdefault('categoryID', 'template_id')
-        return AggregatedIndicator(kwargs, 'mean')
+        return AggregatedIndicator(kwargs, aggregation_function)
     return maker
 
 
