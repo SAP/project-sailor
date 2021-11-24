@@ -491,6 +491,38 @@ verify the uniformity of the Equipment included in this set.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sailor.assetcentral.equipment.EquipmentSet.get_indicator_aggregates">
+<span class="sig-name descname"><span class="pre">get_indicator_aggregates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_functions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('AVG')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PT2M'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.get_indicator_aggregates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.get_indicator_aggregates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.</p>
+<p>This is a wrapper for <a class="reference internal" href="sailor.sap_iot.fetch_aggregates.html#sailor.sap_iot.fetch_aggregates.get_indicator_aggregates" title="sailor.sap_iot.fetch_aggregates.get_indicator_aggregates"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch_aggregates.get_indicator_aggregates()</span></code></a> that limits the fetch
+query to this equipment set. Unlike <a class="reference internal" href="#sailor.assetcentral.equipment.Equipment.get_indicator_data" title="sailor.assetcentral.equipment.Equipment.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment.Equipment.get_indicator_data()</span></code></a> this
+function retrieves pre-aggregated data from the hot store.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime.timestamp</em><em>, </em><em>datetime.date</em><em>]</em>) – Date of beginning of requested timeseries data.</p></li>
+<li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime.timestamp</em><em>, </em><em>datetime.date</em><em>]</em>) – Date of end of requested timeseries data.</p></li>
+<li><p><strong>indicator_set</strong> (<a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.IndicatorSet" title="sailor.assetcentral.indicators.IndicatorSet"><em>IndicatorSet</em></a>) – IndicatorSet for which timeseries data is returned. Defaults to indicators common to all equipment in this
+equipment set.</p></li>
+<li><p><strong>aggregation_functions</strong> (<em>Determines which aggregates to retrieve. Possible aggregates are</em>) – ‘MIN’, ‘MAX’, ‘AVG’, ‘STDDEV’, ‘SUM’, ‘FIRST’, ‘LAST’,
+‘COUNT’, ‘PERCENT_GOOD’, ‘TMIN’, ‘TMAX’,  ‘TFIRST’, ‘TLAST’</p></li>
+<li><p><strong>aggregation_interval</strong> (<em>Determines the aggregation interval. Can be specified as an ISO 8601 string</em>) – (like <cite>PT2M</cite> for 2-minute aggregates) or as a pandas.Timedelta or datetime.timedelta object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset">TimeseriesDataset</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Get indicator data for all Equipment belonging to the Model ‘MyModel’
+for a period from 01.06.2020 to 05.12.2020</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">my_equipment_set</span> <span class="o">=</span> <span class="n">find_equipment</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;MyModel&#39;</span><span class="p">)</span>
+<span class="n">my_equipment_set</span><span class="o">.</span><span class="n">get_indicator_aggregates</span><span class="p">(</span><span class="s1">&#39;2020-06-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-12-05&#39;</span><span class="p">,</span> <span class="n">aggregation_functions</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MIN&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sailor.assetcentral.equipment.EquipmentSet.get_indicator_data">
 <span class="sig-name descname"><span class="pre">get_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/equipment.html#EquipmentSet.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.equipment.EquipmentSet.get_indicator_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.</p>

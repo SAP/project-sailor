@@ -245,7 +245,11 @@
         <span class="n">m</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
         <span class="n">unique_string</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indicator_group_id</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">template_id</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_function</span>
         <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">unique_string</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_iot_column_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_liot_id</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">aggregation_function</span><span class="si">}</span><span class="s1">&#39;</span></div>
 
 
 <div class="viewcode-block" id="IndicatorSet"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.IndicatorSet">[docs]</a><span class="k">class</span> <span class="nc">IndicatorSet</span><span class="p">(</span><span class="n">AssetcentralEntitySet</span><span class="p">):</span>
@@ -308,7 +312,16 @@
                 <span class="n">indicator</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
                 <span class="n">indicator</span><span class="o">.</span><span class="n">aggregation_function</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="n">mapping</span></div>
+        <span class="k">return</span> <span class="n">mapping</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_from_indicator_set_and_aggregation_functions</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">indicators</span><span class="p">,</span> <span class="n">aggregation_functions</span><span class="p">):</span>
+        <span class="n">aggregated_indicators</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">indicators</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">aggregation_function</span> <span class="ow">in</span> <span class="n">aggregation_functions</span><span class="p">:</span>
+                <span class="n">aggregated_indicators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AggregatedIndicator</span><span class="p">(</span><span class="n">indicator</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">aggregation_function</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">aggregated_indicators</span><span class="p">)</span></div>
 
 <span class="c1"># while there is a generic &#39;/services/api/v1/indicators&#39; endpoint that allows to find indicators,</span>
 <span class="c1"># that endpoint returns a very different object from the one that you can find via the equipment.</span>

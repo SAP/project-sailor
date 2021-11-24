@@ -169,8 +169,8 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
@@ -393,9 +393,6 @@
 <span class="sd">        ----</span>
 <span class="sd">        If `indicator_set` is not specified, all indicators associated to this equipment are used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Time parameters must be specified&quot;</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">indicator_set</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">indicator_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_equipment_indicators</span><span class="p">()</span>
 
@@ -557,13 +554,53 @@
 <span class="sd">        ----</span>
 <span class="sd">        If `indicator_set` is not specified, indicators common to all equipments in this set are used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Time parameters must be specified&quot;</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">indicator_set</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">indicator_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_common_indicators</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">sap_iot</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">sap_iot</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EquipmentSet.get_indicator_aggregates"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.EquipmentSet.get_indicator_aggregates">[docs]</a>    <span class="k">def</span> <span class="nf">get_indicator_aggregates</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+            <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
+            <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">aggregation_functions</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;AVG&#39;</span><span class="p">,),</span>
+            <span class="n">aggregation_interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;PT2M&#39;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.</span>
+
+<span class="sd">        This is a wrapper for :meth:`sailor.sap_iot.fetch_aggregates.get_indicator_aggregates` that limits the fetch</span>
+<span class="sd">        query to this equipment set. Unlike :meth:`sailor.assetcentral.equipment.Equipment.get_indicator_data` this</span>
+<span class="sd">        function retrieves pre-aggregated data from the hot store.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        start</span>
+<span class="sd">            Date of beginning of requested timeseries data.</span>
+<span class="sd">        end</span>
+<span class="sd">            Date of end of requested timeseries data.</span>
+<span class="sd">        indicator_set</span>
+<span class="sd">            IndicatorSet for which timeseries data is returned. Defaults to indicators common to all equipment in this</span>
+<span class="sd">            equipment set.</span>
+<span class="sd">        aggregation_functions: Determines which aggregates to retrieve. Possible aggregates are</span>
+<span class="sd">            &#39;MIN&#39;, &#39;MAX&#39;, &#39;AVG&#39;, &#39;STDDEV&#39;, &#39;SUM&#39;, &#39;FIRST&#39;, &#39;LAST&#39;,</span>
+<span class="sd">            &#39;COUNT&#39;, &#39;PERCENT_GOOD&#39;, &#39;TMIN&#39;, &#39;TMAX&#39;,  &#39;TFIRST&#39;, &#39;TLAST&#39;</span>
+<span class="sd">        aggregation_interval: Determines the aggregation interval. Can be specified as an ISO 8601 string</span>
+<span class="sd">            (like `PT2M` for 2-minute aggregates) or as a pandas.Timedelta or datetime.timedelta object.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        Get indicator data for all Equipment belonging to the Model &#39;MyModel&#39;</span>
+<span class="sd">        for a period from 01.06.2020 to 05.12.2020 ::</span>
+
+<span class="sd">            my_equipment_set = find_equipment(model_name=&#39;MyModel&#39;)</span>
+<span class="sd">            my_equipment_set.get_indicator_aggregates(&#39;2020-06-01&#39;, &#39;2020-12-05&#39;, aggregation_functions=[&#39;MIN&#39;])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">indicator_set</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">indicator_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_common_indicators</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">sap_iot</span><span class="o">.</span><span class="n">get_indicator_aggregates</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span>
+                                                <span class="n">aggregation_functions</span><span class="p">,</span> <span class="n">aggregation_interval</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="find_equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.find_equipment">[docs]</a><span class="k">def</span> <span class="nf">find_equipment</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EquipmentSet</span><span class="p">:</span>

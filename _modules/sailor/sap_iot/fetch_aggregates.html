@@ -1,0 +1,452 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>sailor.sap_iot.fetch_aggregates &mdash; Project &#34;Sailor&#34;  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Project "Sailor"
+          
+
+          
+            
+            <img src="../../../_static/sailor_logo_100x100.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../filter_language.html">Filter Language</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Project "Sailor"</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>sailor.sap_iot.fetch_aggregates</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for sailor.sap_iot.fetch_aggregates</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Timeseries module can be used to retrieve timeseries data from the SAP iot abstract timeseries api.</span>
+
+<span class="sd">This is the equivalent to sap_iot.fetch, except we&#39;re retrieving pre-aggregated data from the hot store rather than</span>
+<span class="sd">raw data from the cold store.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">isodate</span>
+
+<span class="kn">from</span> <span class="nn">sailor.utils.timestamps</span> <span class="kn">import</span> <span class="n">_any_to_timestamp</span><span class="p">,</span> <span class="n">_timestamp_to_isoformat</span>
+<span class="kn">from</span> <span class="nn">sailor.assetcentral.indicators</span> <span class="kn">import</span> <span class="n">AggregatedIndicatorSet</span><span class="p">,</span> <span class="n">IndicatorSet</span>
+<span class="kn">from</span> <span class="nn">sailor.sap_iot.wrappers</span> <span class="kn">import</span> <span class="n">TimeseriesDataset</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span>
+<span class="kn">from</span> <span class="nn">sailor.sap_iot._common</span> <span class="kn">import</span> <span class="n">request_aggregates_url</span>
+<span class="kn">from</span> <span class="nn">..utils.utils</span> <span class="kn">import</span> <span class="n">DataNotFoundWarning</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..assetcentral.equipment</span> <span class="kn">import</span> <span class="n">EquipmentSet</span>
+
+
+<span class="n">_ALL_KNOWN_AGGREGATION_FUNCTIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MIN&#39;</span><span class="p">,</span> <span class="s1">&#39;AVG&#39;</span><span class="p">,</span> <span class="s1">&#39;FIRST&#39;</span><span class="p">,</span> <span class="s1">&#39;MAX&#39;</span><span class="p">,</span> <span class="s1">&#39;SUM&#39;</span><span class="p">,</span> <span class="s1">&#39;LAST&#39;</span><span class="p">,</span> <span class="s1">&#39;COUNT&#39;</span><span class="p">,</span>
+                                    <span class="s1">&#39;PERCENT_GOOD&#39;</span><span class="p">,</span> <span class="s1">&#39;TMAX&#39;</span><span class="p">,</span> <span class="s1">&#39;TLAST&#39;</span><span class="p">,</span> <span class="s1">&#39;STDDEV&#39;</span><span class="p">,</span> <span class="s1">&#39;TFIRST&#39;</span><span class="p">,</span> <span class="s1">&#39;TMIN&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_aggregation_interval</span><span class="p">(</span><span class="n">aggregation_interval</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">aggregation_interval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aggregation_interval</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">aggregation_interval</span> <span class="o">=</span> <span class="n">isodate</span><span class="o">.</span><span class="n">parse_duration</span><span class="p">(</span><span class="n">aggregation_interval</span><span class="p">)</span>
+        <span class="n">total_seconds</span> <span class="o">=</span> <span class="n">aggregation_interval</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="n">aggregation_interval</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;PT</span><span class="si">{</span><span class="n">total_seconds</span><span class="si">}</span><span class="s1">S&#39;</span>
+    <span class="k">return</span> <span class="n">aggregation_interval</span>
+
+
+<span class="k">def</span> <span class="nf">_compose_query_params</span><span class="p">(</span><span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">:</span> <span class="n">EquipmentSet</span><span class="p">,</span>
+                          <span class="n">aggregated_indicator_set</span><span class="p">:</span> <span class="n">AggregatedIndicatorSet</span><span class="p">,</span>
+                          <span class="n">aggregation_interval</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">equipment_selector</span> <span class="o">=</span> <span class="s1">&#39; or &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">equipmentId</span><span class="se">\&quot;</span><span class="s2">=&#39;</span><span class="si">{</span><span class="n">equipment</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&#39;&quot;</span> <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="n">equipment_set</span><span class="p">)</span>
+    <span class="n">tags_filter</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">equipment_selector</span><span class="si">}</span><span class="s2">) and </span><span class="se">\&quot;</span><span class="s2">templateId</span><span class="se">\&quot;</span><span class="s2"> = &#39;</span><span class="si">{</span><span class="n">template</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+
+    <span class="n">query_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;tagsFilter&#39;</span><span class="p">:</span> <span class="n">tags_filter</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">aggregation_interval</span><span class="p">:</span>
+        <span class="n">query_params</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregation_interval</span>
+
+    <span class="n">select_query_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">indicator</span><span class="o">.</span><span class="n">_iot_column_header</span> <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">aggregated_indicator_set</span><span class="p">]</span>
+    <span class="n">query_params</span><span class="p">[</span><span class="s1">&#39;select&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">select_query_list</span><span class="p">)</span>
+
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Query parameters for aggregate timeseries request: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">query_params</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">query_params</span>
+
+
+<div class="viewcode-block" id="get_indicator_aggregates"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.fetch_aggregates.html#sailor.sap_iot.fetch_aggregates.get_indicator_aggregates">[docs]</a><span class="k">def</span> <span class="nf">get_indicator_aggregates</span><span class="p">(</span><span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="p">],</span> <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="p">],</span>
+                             <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">:</span> <span class="n">EquipmentSet</span><span class="p">,</span>
+                             <span class="n">aggregation_functions</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;AVG&#39;</span><span class="p">,),</span>
+                             <span class="n">aggregation_interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;PT2M&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.</span>
+
+<span class="sd">    Unlike :meth:`sailor.assetcentral.equipment.Equipment.get_indicator_data` this function retrieves</span>
+<span class="sd">    pre-aggregated data from the hot store.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    start</span>
+<span class="sd">        Date of beginning of requested timeseries data.</span>
+<span class="sd">    end</span>
+<span class="sd">        Date of end of requested timeseries data.</span>
+<span class="sd">    indicator_set</span>
+<span class="sd">        IndicatorSet for which timeseries data is returned.</span>
+<span class="sd">    equipment_set</span>
+<span class="sd">        EquipmentSet for which timeseries data is returned.</span>
+<span class="sd">    aggregation_functions: Determines which aggregates to retrieve. Possible aggregates are</span>
+<span class="sd">        &#39;MIN&#39;, &#39;MAX&#39;, &#39;AVG&#39;, &#39;STDDEV&#39;, &#39;SUM&#39;, &#39;FIRST&#39;, &#39;LAST&#39;,</span>
+<span class="sd">        &#39;COUNT&#39;, &#39;PERCENT_GOOD&#39;, &#39;TMIN&#39;, &#39;TMAX&#39;,  &#39;TFIRST&#39;, &#39;TLAST&#39;</span>
+<span class="sd">    aggregation_interval: Determines the aggregation interval. Can be specified as an ISO 8601 string</span>
+<span class="sd">        (like `PT2M` for 2-minute aggregates) or as a pandas.Timedelta or datetime.timedelta object.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    Get indicator data for all Equipment belonging to the Model &#39;MyModel&#39;</span>
+<span class="sd">    for a period from 01.06.2020 to 05.12.2020 ::</span>
+
+<span class="sd">        equipment_set = find_equipment(model_name=&#39;MyModel&#39;)</span>
+<span class="sd">        indicator_set = equipment_set.find_common_indicators()</span>
+<span class="sd">        get_indicator_aggregates(&#39;2020-06-01&#39;, &#39;2020-12-05&#39;, indicator_set, equipment_set,</span>
+<span class="sd">                                 aggregation_functions=[&#39;MIN&#39;], aggregation_interval=pd.Timedelta(hours=2))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># The data we get from SAP IoT is basically the first format below, where columns are identified by</span>
+    <span class="c1"># indicator_id and aggregation_function, indicator_group and template_id are in a separate column.</span>
+    <span class="c1"># That is confusing, as it&#39;s neither a purely horizonal format nor a purely vertical format.</span>
+    <span class="c1"># Much of the code below is therefore taking care of conversion from the SAP IoT format to our own format</span>
+    <span class="c1"># which is fully horizontal (ie column headers encode template, indicator group, indicator and aggregation function)</span>
+    <span class="c1"># SAP IoT format is effectively:</span>
+    <span class="c1"># time | equi - id | equi - model - id | indicator - group - id | template - id | indicator_A_value_AGG</span>
+    <span class="c1"># x | equi - 1 | model - 1 | indi - group - 1 | template - 1 | 5</span>
+    <span class="c1"># x | equi - 1 | model - 1 | indi - group - 2 | template - 1 | 15</span>
+    <span class="c1">#</span>
+    <span class="c1"># Our format is effectively:</span>
+    <span class="c1"># time | equi - id | equi - model - id | column_id_1 | columnd_id_2</span>
+    <span class="c1"># x | equi - 1 | model - 1 | 5 | 15</span>
+    <span class="c1"># where the column_ids encode all unique identifiers of an aggregated sensor value here</span>
+    <span class="c1"># column_id = hash(indicator_id + indicator_group_id + template_id + aggregation_function)</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Time parameters must be specified&quot;</span><span class="p">)</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">_any_to_timestamp</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">_any_to_timestamp</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
+
+    <span class="n">query_groups</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">indicator_set</span><span class="p">:</span>
+        <span class="n">query_groups</span><span class="p">[(</span><span class="n">indicator</span><span class="o">.</span><span class="n">template_id</span><span class="p">,</span> <span class="n">indicator</span><span class="o">.</span><span class="n">_liot_group_id</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indicator</span><span class="o">.</span><span class="n">_liot_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">aggregation_functions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">aggregation_functions</span> <span class="o">=</span> <span class="n">_ALL_KNOWN_AGGREGATION_FUNCTIONS</span>
+    <span class="n">aggregated_indicators</span> <span class="o">=</span> <span class="n">AggregatedIndicatorSet</span><span class="o">.</span><span class="n">_from_indicator_set_and_aggregation_functions</span><span class="p">(</span><span class="n">indicator_set</span><span class="p">,</span>
+                                                                                                 <span class="n">aggregation_functions</span><span class="p">)</span>
+    <span class="n">oauth_iot</span> <span class="o">=</span> <span class="n">get_oauth_client</span><span class="p">(</span><span class="s1">&#39;sap_iot&#39;</span><span class="p">)</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">:</span> <span class="s1">&#39;object&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeTZDtype</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="s1">&#39;UTC&#39;</span><span class="p">)}</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">schema</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">duration</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">aggregation_interval</span> <span class="o">=</span> <span class="n">_parse_aggregation_interval</span><span class="p">(</span><span class="n">aggregation_interval</span><span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">_timestamp_to_isoformat</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">_timestamp_to_isoformat</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+                  <span class="n">equipment_set</span><span class="o">=</span><span class="n">equipment_set</span><span class="p">,</span> <span class="n">aggregated_indicator_set</span><span class="o">=</span><span class="n">aggregated_indicators</span><span class="p">,</span>
+                  <span class="n">aggregation_interval</span><span class="o">=</span><span class="n">aggregation_interval</span><span class="p">)</span>
+
+    <span class="c1"># doing this as the aggregates api needs to be called for each indicator group</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">template_id</span><span class="p">,</span> <span class="n">liot_group_id</span><span class="p">),</span> <span class="n">group_indicators</span> <span class="ow">in</span> <span class="n">query_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Fetching indicator data. Indicator Group ID: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">liot_group_id</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">_fetch_aggregates</span><span class="p">(</span><span class="n">liot_group_id</span><span class="p">,</span> <span class="n">template_id</span><span class="p">,</span> <span class="n">oauth_iot</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">results_df</span> <span class="o">=</span> <span class="n">_prepare_df</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">aggregated_indicators</span><span class="p">,</span> <span class="n">liot_group_id</span><span class="p">,</span> <span class="n">template_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">results_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">duration</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">duration</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">results_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_id&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;timestamp&#39;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">warning</span> <span class="o">=</span> <span class="n">DataNotFoundWarning</span><span class="p">(</span><span class="s1">&#39;Could not find any data for the requested period.&#39;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">aggregation_interval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">isodate</span><span class="o">.</span><span class="n">parse_duration</span><span class="p">(</span><span class="s1">&#39;P&#39;</span> <span class="o">+</span> <span class="n">duration</span><span class="p">)</span>
+        <span class="n">aggregation_interval</span> <span class="o">=</span> <span class="n">isodate</span><span class="o">.</span><span class="n">parse_duration</span><span class="p">(</span><span class="n">aggregation_interval</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">duration</span> <span class="o">!=</span> <span class="n">aggregation_interval</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The aggregation interval returned by the query (&quot;</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s1">&quot;) &#39;</span> <span class="o">+</span>
+                          <span class="sa">f</span><span class="s1">&#39;does not match the requested aggregation interval (&quot;</span><span class="si">{</span><span class="n">aggregation_interval</span><span class="si">}</span><span class="s1">&quot;)&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">TimeseriesDataset</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">aggregated_indicators</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_fetch_aggregates</span><span class="p">(</span><span class="n">liot_group_id</span><span class="p">,</span> <span class="n">template_id</span><span class="p">,</span> <span class="n">oauth_iot</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+    <span class="n">aggregates_url</span> <span class="o">=</span> <span class="n">request_aggregates_url</span><span class="p">(</span><span class="n">liot_group_id</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+    <span class="n">query_params</span> <span class="o">=</span> <span class="n">_compose_query_params</span><span class="p">(</span><span class="n">template_id</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">response_data</span> <span class="o">=</span> <span class="n">oauth_iot</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="n">aggregates_url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">query_params</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">response_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">response_data</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">response_data</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">next_link</span> <span class="o">:=</span> <span class="n">response_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nextLink&#39;</span><span class="p">):</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Query incomplete, fetching next page.&#39;</span><span class="p">)</span>
+            <span class="n">response_data</span> <span class="o">=</span> <span class="n">oauth_iot</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">next_link</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">results</span>
+
+
+<span class="k">def</span> <span class="nf">_prepare_df</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">aggregated_indicators</span><span class="p">,</span> <span class="n">liot_group_id</span><span class="p">,</span> <span class="n">template_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">key_tags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;equipmentId&#39;</span><span class="p">,</span> <span class="s1">&#39;modelId&#39;</span><span class="p">,</span> <span class="s1">&#39;templateId&#39;</span><span class="p">,</span> <span class="s1">&#39;indicatorGroupId&#39;</span><span class="p">]</span>
+    <span class="n">grouped_results</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">key_tags</span><span class="p">)</span>
+        <span class="n">grouped_results</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">])</span>
+
+    <span class="n">all_dfs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">grouped_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">key_tag</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">key_tags</span><span class="p">):</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">key_tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">all_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_dfs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">tmp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">all_dfs</span><span class="p">)</span>
+
+    <span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">drop_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;templateId&#39;</span><span class="p">,</span> <span class="s1">&#39;indicatorGroupId&#39;</span><span class="p">,</span> <span class="s1">&#39;duration&#39;</span><span class="p">,</span> <span class="s1">&#39;modelId&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">tmp</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">column</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;I_&#39;</span><span class="p">):</span>
+            <span class="n">indicator_candidates</span> <span class="o">=</span> <span class="n">aggregated_indicators</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">_iot_column_header</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
+                                                                <span class="n">template_id</span><span class="o">=</span><span class="n">template_id</span><span class="p">,</span>
+                                                                <span class="n">_liot_group_id</span><span class="o">=</span><span class="n">liot_group_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indicator_candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;No matching indicator found for </span><span class="si">%s</span><span class="s1">, ignoring data.&#39;</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+                <span class="n">drop_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">indicator_candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;More than one indicator matching column </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s1"> found!&#39;</span>
+            <span class="n">aggregated_indicator</span> <span class="o">=</span> <span class="n">indicator_candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">column_mapping</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregated_indicator</span><span class="o">.</span><span class="n">_unique_id</span>
+
+            <span class="c1"># this typecasting based on the name of the column is pretty wild...</span>
+            <span class="c1"># should refactor to do it based on indicator data type</span>
+            <span class="c1"># but need to somehow combine that with the aggregation function</span>
+            <span class="k">if</span> <span class="n">aggregated_indicator</span><span class="o">.</span><span class="n">aggregation_function</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;TMIN&#39;</span><span class="p">,</span> <span class="s1">&#39;TMAX&#39;</span><span class="p">,</span> <span class="s1">&#39;TFIRST&#39;</span><span class="p">,</span> <span class="s1">&#39;TLAST&#39;</span><span class="p">]:</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="n">column</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># should always be an aggregated indicator, since we&#39;re filtering on &#39;I_&#39; above.</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+    <span class="n">results_df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">drop_columns</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+           <span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;equipmentId&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">column_mapping</span><span class="p">))</span>
+           <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_mapping</span><span class="p">)</span>
+           <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="s1">&#39;equipmentId&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_id&#39;</span><span class="p">})</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results_df</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, SAP SE and project &#34;Sailor&#34; contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #e3e3e3;
+      color: #000000;
+    }
+    .wy-side-nav-search>a, .wy-nav-top>a {
+        color: #000000;
+    }
+  </style>
+
+
+</body>
+</html>

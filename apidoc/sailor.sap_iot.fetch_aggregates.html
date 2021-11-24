@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>sailor.sap_iot.fetch &mdash; Project &#34;Sailor&#34;  documentation</title>
+  <title>sailor.sap_iot.fetch_aggregates &mdash; Project &#34;Sailor&#34;  documentation</title>
   
 
   
@@ -43,8 +43,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sailor.sap_iot.fetch_aggregates" href="sailor.sap_iot.fetch_aggregates.html" />
-    <link rel="prev" title="sailor.sap_iot" href="sailor.sap_iot.html" /> 
+    <link rel="next" title="sailor.sap_iot.wrappers" href="sailor.sap_iot.wrappers.html" />
+    <link rel="prev" title="sailor.sap_iot.fetch" href="sailor.sap_iot.fetch.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -101,8 +101,8 @@
 <li class="toctree-l2"><a class="reference internal" href="sailor.pai.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai</span></code></a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="sailor.sap_iot.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="sailor.sap_iot.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="sailor.sap_iot.fetch_aggregates.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch_aggregates</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.sap_iot.fetch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch_aggregates</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="sailor.sap_iot.wrappers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.wrappers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="sailor.sap_iot.write.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></a></li>
 </ul>
@@ -165,14 +165,14 @@
         
           <li><a href="sailor.sap_iot.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></a> &raquo;</li>
         
-      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></li>
+      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch_aggregates</span></code></li>
     
     
       <li class="wy-breadcrumbs-aside">
         
           
             
-              <a href="https://github.com/SAP/project-sailor/blob/main/docs/apidoc/sailor.sap_iot.fetch.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/SAP/project-sailor/blob/main/docs/apidoc/sailor.sap_iot.fetch_aggregates.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -186,33 +186,37 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-sailor.sap_iot.fetch">
-<span id="sailor-sap-iot-fetch"></span><h1><a class="reference internal" href="#module-sailor.sap_iot.fetch" title="sailor.sap_iot.fetch"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a><a class="headerlink" href="#module-sailor.sap_iot.fetch" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-sailor.sap_iot.fetch_aggregates">
+<span id="sailor-sap-iot-fetch-aggregates"></span><h1><a class="reference internal" href="#module-sailor.sap_iot.fetch_aggregates" title="sailor.sap_iot.fetch_aggregates"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch_aggregates</span></code></a><a class="headerlink" href="#module-sailor.sap_iot.fetch_aggregates" title="Permalink to this headline">¶</a></h1>
 <p>Timeseries module can be used to retrieve timeseries data from the SAP iot abstract timeseries api.</p>
-<p>Interfaces for retrieval are aligned with AssetCentral objects such as equipment_set and indicator_set.
-Timeseries data is generally stored in a pandas dataframe, wrapped in a convenience class to make it easier
-to interact with the data in AssetCentral terms (see wrappers.py for the convenience class).</p>
+<p>This is the equivalent to sap_iot.fetch, except we’re retrieving pre-aggregated data from the hot store rather than
+raw data from the cold store.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="sailor.sap_iot.fetch.get_indicator_data">
-<span class="sig-prename descclassname"><span class="pre">sailor.sap_iot.fetch.</span></span><span class="sig-name descname"><span class="pre">get_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equipment_set</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/fetch.html#get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.fetch.get_indicator_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read indicator data for a certain time period, a set of equipments and a set of indicators.</p>
+<dt class="sig sig-object py" id="sailor.sap_iot.fetch_aggregates.get_indicator_aggregates">
+<span class="sig-prename descclassname"><span class="pre">sailor.sap_iot.fetch_aggregates.</span></span><span class="sig-name descname"><span class="pre">get_indicator_aggregates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indicator_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equipment_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_functions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('AVG')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PT2M'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/fetch_aggregates.html#get_indicator_aggregates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.fetch_aggregates.get_indicator_aggregates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.</p>
+<p>Unlike <a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment.get_indicator_data" title="sailor.assetcentral.equipment.Equipment.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment.Equipment.get_indicator_data()</span></code></a> this function retrieves
+pre-aggregated data from the hot store.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_date</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime.timestamp</em><em>, </em><em>datetime.date</em><em>]</em>) – Date of beginning of requested timeseries data. Time components of the date will be ignored.</p></li>
-<li><p><strong>end_date</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime.timestamp</em><em>, </em><em>datetime.date</em><em>]</em>) – Date of end of requested timeseries data. Time components of the date will be ignored.</p></li>
+<li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime</em><em>]</em>) – Date of beginning of requested timeseries data.</p></li>
+<li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime</em><em>]</em>) – Date of end of requested timeseries data.</p></li>
 <li><p><strong>indicator_set</strong> (<a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.IndicatorSet" title="sailor.assetcentral.indicators.IndicatorSet"><em>IndicatorSet</em></a>) – IndicatorSet for which timeseries data is returned.</p></li>
-<li><p><strong>equipment_set</strong> (<a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet"><em>EquipmentSet</em></a>) – Equipment set for which the timeseries data is read.</p></li>
+<li><p><strong>equipment_set</strong> (<a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet"><em>EquipmentSet</em></a>) – EquipmentSet for which timeseries data is returned.</p></li>
+<li><p><strong>aggregation_functions</strong> (<em>Determines which aggregates to retrieve. Possible aggregates are</em>) – ‘MIN’, ‘MAX’, ‘AVG’, ‘STDDEV’, ‘SUM’, ‘FIRST’, ‘LAST’,
+‘COUNT’, ‘PERCENT_GOOD’, ‘TMIN’, ‘TMAX’,  ‘TFIRST’, ‘TLAST’</p></li>
+<li><p><strong>aggregation_interval</strong> (<em>Determines the aggregation interval. Can be specified as an ISO 8601 string</em>) – (like <cite>PT2M</cite> for 2-minute aggregates) or as a pandas.Timedelta or datetime.timedelta object.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset">TimeseriesDataset</a></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<p>Get the indicator set ‘my_indicator_set’ timeseries data for equipments in
-the equipment set ‘my_equipment_set’ for a period from ‘2020-07-02’ to ‘2021-01-10’:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">get_indicator_data</span><span class="p">(</span><span class="s1">&#39;2020-07-02&#39;</span><span class="p">,</span><span class="s1">&#39;2021-01-10&#39;</span><span class="p">,</span> <span class="n">my_indicator_set</span><span class="p">,</span> <span class="n">my_equipment_set</span><span class="p">)</span>
+<p>Get indicator data for all Equipment belonging to the Model ‘MyModel’
+for a period from 01.06.2020 to 05.12.2020</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">equipment_set</span> <span class="o">=</span> <span class="n">find_equipment</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s1">&#39;MyModel&#39;</span><span class="p">)</span>
+<span class="n">indicator_set</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="o">.</span><span class="n">find_common_indicators</span><span class="p">()</span>
+<span class="n">get_indicator_aggregates</span><span class="p">(</span><span class="s1">&#39;2020-06-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-12-05&#39;</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">,</span>
+                         <span class="n">aggregation_functions</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MIN&#39;</span><span class="p">],</span> <span class="n">aggregation_interval</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -225,8 +229,8 @@ the equipment set ‘my_equipment_set’ for a period from ‘2020-07-02’ to �
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="sailor.sap_iot.fetch_aggregates.html" class="btn btn-neutral float-right" title="sailor.sap_iot.fetch_aggregates" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="sailor.sap_iot.html" class="btn btn-neutral float-left" title="sailor.sap_iot" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sailor.sap_iot.wrappers.html" class="btn btn-neutral float-right" title="sailor.sap_iot.wrappers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sailor.sap_iot.fetch.html" class="btn btn-neutral float-left" title="sailor.sap_iot.fetch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

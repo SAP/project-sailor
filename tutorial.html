@@ -333,6 +333,12 @@ If here the indicator set is left blank, then all indicators returned by <a clas
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="s1">&#39;2020-10-01 00:00:00+00:00&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-01 00:00:00+00:00&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Equally, it is possible to retrieve pre-aggregated data from SAP IoT. The function signature is very similar to the one above, but you can specify aggregation interval and aggregation functions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interval</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">equipment_set</span><span class="o">.</span><span class="n">get_indicator_aggregates</span><span class="p">(</span><span class="s1">&#39;2020-10-01 00:00:00+00:00&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-01 00:00:00+00:00&#39;</span><span class="p">,</span>
+                                              <span class="n">aggregation_functions</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MIN&#39;</span><span class="p">,</span> <span class="s1">&#39;MAX&#39;</span><span class="p">],</span> <span class="n">aggregation_interval</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="working-with-timeseries-data">
 <span id="how-to-work-with-data"></span><h2>Working with Timeseries Data<a class="headerlink" href="#working-with-timeseries-data" title="Permalink to this headline">¶</a></h2>

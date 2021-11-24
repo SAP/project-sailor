@@ -211,6 +211,13 @@ If here the indicator set is left blank, then all indicators returned by :meth:`
 
     data = equipment_set.get_indicator_data('2020-10-01 00:00:00+00:00', '2021-01-01 00:00:00+00:00')
 
+Equally, it is possible to retrieve pre-aggregated data from SAP IoT. The function signature is very similar to the one above, but you can specify aggregation interval and aggregation functions.
+
+.. code-block:: python
+
+    interval = pd.Timedelta(hours=1)
+    data = equipment_set.get_indicator_aggregates('2020-10-01 00:00:00+00:00', '2021-01-01 00:00:00+00:00',
+                                                  aggregation_functions=['MIN', 'MAX'], aggregation_interval=interval)
 
 .. _how_to_work_with_data:
 
