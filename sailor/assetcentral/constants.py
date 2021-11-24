@@ -2,6 +2,7 @@
 
 VIEW_MODELS = '/services/api/v1/models'
 VIEW_EQUIPMENT = '/services/api/v1/equipment'
+VIEW_FUNCTIONAL_LOCATIONS = '/services/api/v1/floc'
 VIEW_NOTIFICATIONS = '/services/api/v1/notification'
 VIEW_OBJECTS = '/services/api/v1/objects/'
 VIEW_MODEL_INDICATORS = '/services/api/v1/model'
