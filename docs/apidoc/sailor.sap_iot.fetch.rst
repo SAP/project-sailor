@@ -3,4 +3,3 @@
 
 .. automodule:: sailor.sap_iot.fetch
    :members:
-   :show-inheritance:

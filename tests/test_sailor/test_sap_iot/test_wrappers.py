@@ -1,40 +1,23 @@
 import math
 
 import pytest
-from numpy.random import default_rng
 import pandas as pd
 
 from sailor.assetcentral.indicators import IndicatorSet
 from sailor.assetcentral.equipment import EquipmentSet
 from sailor.sap_iot.wrappers import TimeseriesDataset
+from ..data_generators import make_dataset
 
 
 @pytest.fixture
-def simple_dataset(make_indicator, make_equipment_set):
-    indicator_1 = make_indicator(propertyId='indicator_id_1', indicatorName='row_id')
-    indicator_2 = make_indicator(propertyId='indicator_id_2', indicatorName='row_id_per_equipment')
-    indicator_set = IndicatorSet([indicator_1, indicator_2])
-    equipment_set = make_equipment_set(equipmentId=('equipment_id_1', 'equipment_id_2'))
-    nominal_start_date = pd.Timestamp('2021-01-01', tz='Etc/UTC')
-    nominal_end_date = pd.Timestamp('2021-01-03', tz='Etc/UTC')
-    rows_per_equipment = 100
+def simple_dataset(make_indicator_set, make_equipment_set):
+    indicator_set = make_indicator_set(propertyId=('indicator_id_1', 'indicator_id_2'))
+    equipment_set = make_equipment_set(
+        equipmentId=('equipment_id_1', 'equipment_id_2'),
+        modelId=('equipment_model_id_1', 'equipment_model_id_1')
+    )
 
-    generator = default_rng(seed=42)
-
-    def make_random_timestamps():
-        start_u = nominal_start_date.value // 10 ** 9
-        end_u = nominal_end_date.value // 10 ** 9
-        epochs = generator.integers(start_u, end_u, rows_per_equipment)
-        return pd.to_datetime(epochs, unit='s', utc=True).tz_convert('Etc/UTC')
-
-    data = pd.DataFrame({
-        'equipment_id': ['equipment_id_1'] * rows_per_equipment + ['equipment_id_2'] * rows_per_equipment,
-        'model_id': ('equipment_model_id_1', ) * rows_per_equipment * 2,
-        'timestamp': [*make_random_timestamps(), *make_random_timestamps()],
-        indicator_1._unique_id: range(rows_per_equipment*2),
-        indicator_2._unique_id: list(range(rows_per_equipment))*2
-    }).sort_values(['equipment_id', 'model_id', 'timestamp'])
-    return TimeseriesDataset(data, indicator_set, equipment_set, nominal_start_date, nominal_end_date)
+    return make_dataset(indicator_set, equipment_set)
 
 
 @pytest.mark.parametrize('description,aggregation_functions,expected_indicator_count', [
@@ -102,29 +85,8 @@ def test_interpolate_missing_data(simple_dataset, method, expect_ffill, expect_b
         assert not interpolated_dataset._df[interpolated_dataset._df.timestamp > actual_end].isnull().any().any()
 
 
-@pytest.mark.filterwarnings('ignore:Passing equipment_ids to the TimeseriesDataset filter is deprecated')
-def test_filter_equipment_id_only(simple_dataset):
-    filtered_dataset = simple_dataset.filter(equipment_ids=['equipment_id_1'])
-
-    assert len(filtered_dataset.equipment_set) == 1
-    assert len(filtered_dataset._df) == 100
-    assert filtered_dataset._df.equipment_id.unique() == ['equipment_id_1']
-    assert filtered_dataset.indicator_set == simple_dataset.indicator_set
-
-
-def test_filter_equipment_set_only(simple_dataset):
+def test_filter_equipment_set(simple_dataset):
     filtered_dataset = simple_dataset.filter(equipment_set=simple_dataset.equipment_set.filter(id='equipment_id_1'))
-
-    assert len(filtered_dataset.equipment_set) == 1
-    assert len(filtered_dataset._df) == 100
-    assert filtered_dataset._df.equipment_id.unique() == ['equipment_id_1']
-    assert filtered_dataset.indicator_set == simple_dataset.indicator_set
-
-
-@pytest.mark.filterwarnings('ignore:Passing equipment_ids to the TimeseriesDataset filter is deprecated')
-def test_filter_equipment_set_and_id(simple_dataset):
-    filtered_dataset = simple_dataset.filter(equipment_ids=['equipment_id_2'],
-                                             equipment_set=simple_dataset.equipment_set.filter(id='equipment_id_1'))
 
     assert len(filtered_dataset.equipment_set) == 1
     assert len(filtered_dataset._df) == 100
@@ -140,14 +102,28 @@ def test_filter_indicator_set(simple_dataset):
     assert len(filtered_dataset.equipment_set) == 2
     assert len(filtered_dataset._df) == len(simple_dataset._df)
     assert filtered_dataset.indicator_set == selected_indicators
-    assert len(filtered_dataset._df.columns) == 4
-    assert all(filtered_dataset._df.columns == (filtered_dataset.get_index_columns() +
+    assert len(filtered_dataset._df.columns) == 3
+    assert all(filtered_dataset._df.columns == (filtered_dataset.get_index_columns(include_model=False) +
                                                 [indicator._unique_id for indicator in selected_indicators]))
 
 
-def test_as_df_no_indicators():
-    df = pd.DataFrame({'equipment_id': [], 'model_id': [], 'timestamp': pd.to_datetime([], utc=True)})
+@pytest.mark.parametrize('include_model', [True, False])
+def test_as_df_no_indicators(include_model):
+    df = pd.DataFrame({'equipment_id': [], 'timestamp': pd.to_datetime([], utc=True)})
+    df = df.astype({'equipment_id': 'object'})
     data = TimeseriesDataset(df, IndicatorSet([]), EquipmentSet([]),
                              pd.Timestamp('2021-01-01', tz='Etc/UTC'), pd.Timestamp('2021-01-03', tz='Etc/UTC'))
 
-    data.as_df(speaking_names=True)  # this used to lead to a TypeError, we're effectively testing that doesn't happen.
+    data.as_df(speaking_names=True, include_model=include_model)
+    # this used to lead to a TypeError, we're effectively testing that doesn't happen.
+
+
+def test_plotting_happy_path(simple_dataset):
+    simple_dataset.plot()
+
+
+def test_normalize_happy_path(simple_dataset):
+    normalized_dataset, _ = simple_dataset.normalize()
+
+    assert all(normalized_dataset._df.columns == simple_dataset._df.columns)
+    assert len(normalized_dataset._df) == len(simple_dataset._df)

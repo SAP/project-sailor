@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import math
 import itertools
-import warnings
 from typing import TYPE_CHECKING, Union
 from datetime import datetime
 from functools import cached_property
@@ -15,9 +14,10 @@ from operator import itemgetter
 
 import pandas as pd
 
+from sailor import _base
 from sailor import sap_iot
-from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    _ac_application_url
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
+                    _ac_application_url, _ac_fetch_data)
 from .equipment import find_equipment, EquipmentSet
 from .indicators import IndicatorSet
 from .constants import VIEW_SYSTEMS
@@ -25,33 +25,45 @@ from .constants import VIEW_SYSTEMS
 if TYPE_CHECKING:
     from ..sap_iot import TimeseriesDataset
 
+_SYSTEM_FIELDS = [
+    _AssetcentralField('name', 'internalId'),
+    _AssetcentralField('model_name', 'model',
+                       query_transformer=_base.masterdata._qt_non_filterable('model_name')),
+    _AssetcentralField('status_text', 'systemStatusDescription',
+                       query_transformer=_base.masterdata._qt_non_filterable('status_text')),
+    _AssetcentralField('short_description', 'shortDescription'),
+    _AssetcentralField('class_name', 'className'),
+    _AssetcentralField('id', 'systemId'),
+    _AssetcentralField('model_id', 'modelID',
+                       query_transformer=_base.masterdata._qt_non_filterable('model_id')),
+    _AssetcentralField('template_id', 'templateID',
+                       query_transformer=_base.masterdata._qt_non_filterable('template_id')),
+    _AssetcentralField('_status', 'status'),
+    _AssetcentralField('_model_version', 'modelVersion'),
+    _AssetcentralField('_system_provider', 'systemProvider'),
+    _AssetcentralField('_system_version', 'systemVersion'),
+    _AssetcentralField('_created_on', 'createdOn'),
+    _AssetcentralField('_changed_on', 'changedOn'),
+    _AssetcentralField('_published_on', 'publishedOn'),
+    _AssetcentralField('_source', 'source'),
+    _AssetcentralField('_image_URL', 'imageURL'),
+    _AssetcentralField('_class_id', 'classID'),
+    _AssetcentralField('_subclass', 'subclass'),
+    _AssetcentralField('_subclass_id', 'subclassID'),
+    _AssetcentralField('_system_provider_id', 'systemProviderID'),
+    _AssetcentralField('_source_search_terms', 'sourceSearchTerms'),
+    _AssetcentralField('_system_provider_search_terms', 'systemProviderSearchTerms'),
+    _AssetcentralField('_operator', 'operator'),
+    _AssetcentralField('_operator_id', 'operatorID'),
+    _AssetcentralField('_completeness', 'completeness'),
+]
 
-@_add_properties
+
+@_base.add_properties
 class System(AssetcentralEntity):
     """AssetCentral System Object."""
 
-    # Properties (in AC terminology) are: systemId, internalId, status, systemStatusDescription, modelID, modelVersion,
-    # model, shortDescription, templateID, systemProvider, systemVersion, createdOn, changedOn, source, imageURL,
-    # className, classID, subclass, subclassID, systemProviderID, sourceSearchTerms, systemProviderSearchTerms,
-    # publishedOn, operator, operatorID, completeness
-
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return cls._get_legacy_mapping().keys()
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        return {
-            'id': ('systemId', None, None, None),
-            'name': ('internalId', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'class_name': ('className', None, None, None),
-            'model_id': ('modelID', None, None, None),
-            'model_name': ('model', None, None, None),
-            'status_text': ('systemStatusDescription', None, None, None),
-            'template_id': ('templateID', None, None, None),
-        }
+    _field_map = {field.our_name: field for field in _SYSTEM_FIELDS}
 
     @staticmethod
     def _traverse_components(component, model_order, equipment_ids, system_ids):
@@ -101,7 +113,7 @@ class System(AssetcentralEntity):
     def _hierarchy(self):
         """Prepare component tree and cache it."""
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
-        comps = _fetch_data(endpoint_url)[0]
+        comps = _ac_fetch_data(endpoint_url)[0]
         self.__hierarchy = {}
         self.__hierarchy['component_tree'], equipment_ids, system_ids = System._traverse_components(comps, 0, [], [])
         if system_ids:
@@ -118,21 +130,6 @@ class System(AssetcentralEntity):
         self._update_components(self.__hierarchy['component_tree'])
         del self.__hierarchy['component_tree']['key']
         return self.__hierarchy
-
-    @cached_property
-    def components(self):
-        """Pieces of equipment that are children of the system.
-
-        Only top level, lower levels are ignored
-        """
-        warnings.warn("deprecated: attribute 'components' of class System will be removed after September 1, 2021",
-                      FutureWarning)
-        equipment_ids = set()
-        comp_tree = self._hierarchy['component_tree']
-        for c in comp_tree['child_nodes']:
-            if comp_tree['child_nodes'][c]['object_type'] == 'EQU':
-                equipment_ids.add(comp_tree['child_nodes'][c]['id'])
-        return self._hierarchy['equipment'].filter(id=equipment_ids)
 
     @staticmethod
     def _create_selection_dictionary(comp_tree):
@@ -200,7 +197,7 @@ class System(AssetcentralEntity):
         return sap_iot.get_indicator_data(start, end, all_indicators, self._hierarchy['equipment'])
 
 
-class SystemSet(ResultSet):
+class SystemSet(AssetcentralEntitySet):
     """Class representing a group of Systems."""
 
     _element_type = System
@@ -362,13 +359,12 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
         find_systems(extended_filters=['created_on >= "2020-01-01"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, System._get_legacy_mapping())
+        _base.parse_filter_parameters(kwargs, extended_filters, System._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_SYSTEMS
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
 
-    return SystemSet([System(obj) for obj in object_list],
-                     {'filters': kwargs, 'extended_filters': extended_filters})
+    return SystemSet([System(obj) for obj in object_list])
 
 
 def create_analysis_table(indicator_data, equi_info):

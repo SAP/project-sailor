@@ -1,5 +1,7 @@
 .. image:: https://api.reuse.software/badge/github.com/SAP/project-sailor
     :target: https://api.reuse.software/info/github.com/SAP/project-sailor
+.. image:: https://sonarcloud.io/api/project_badges/measure?project=SAP_project-sailor&metric=alert_status
+    :target: https://sonarcloud.io/dashboard?id=SAP_project-sailor
 
 ================
 Project "Sailor"
@@ -67,11 +69,18 @@ A JSON string can be provided with the environment variable ``SAILOR_CONFIG_JSON
         'sap_iot': {
             'client_id': 'IoTexampleId',
             'client_secret': 'IoTexampleSecret',
-            'application_url': 'https://iot-ts-access-sap-<space>.cfapps.<landscape>.hana.ondemand.com',
+            'extension_url': 'https://iot-extension-sap-<space>.cfapps.<landscape>.hana.ondemand.com',
             'export_url': 'https://coldstore-export-sap-<space>.cfapps.<landscape>.hana.ondemand.com',
             'download_url': 'https://coldstore-downloader-sap-<space>.cfapps.<landscape>.hana.ondemand.com',
             'access_token_url': 'https://authentication.<landscape>.hana.ondemand.com/oauth/token',
             'subdomain': 'account-name'
+        },
+        'predictive_asset_insights': {
+            'client_id': 'PAIexampleId',
+            'client_secret': 'PAIexampleSecret',
+            'application_url': https://<system>.cfapps.<landscape>.hana.ondemand.com,
+            'access_token_url': https://authentication.<landscape>.hana.ondemand.com/oauth/token,
+            'subdomain': 'account-name',
         },
     })
 
@@ -91,9 +100,15 @@ Specify the location of a YAML file via environment variable (e.g.: ``SAILOR_CON
     sap_iot:
       client_id: IoTexampleId
       client_secret: IoTexampleSecret
-      application_url: https://iot-ts-access-sap-<space>.cfapps.<landscape>.hana.ondemand.com
+      extension_url: https://iot-extension-sap-<space>.cfapps.<landscape>.hana.ondemand.com
       export_url: https://coldstore-export-sap-<space>.cfapps.sap.<landscape>.ondemand.com
       download_url: https://coldstore-downloader-sap-<space>.cfapps.<landscape>.hana.ondemand.com
+      access_token_url: https://authentication.<landscape>.hana.ondemand.com/oauth/token
+      subdomain: account-name
+    predictive_asset_insights:
+      client_id: PAIexampleId
+      client_secret: PAIexampleSecret
+      application_url: https://<system>.cfapps.<landscape>.hana.ondemand.com
       access_token_url: https://authentication.<landscape>.hana.ondemand.com/oauth/token
       subdomain: account-name
 

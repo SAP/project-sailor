@@ -25,4 +25,3 @@ Module contents
 
 .. automodule:: sailor.utils
    :members:
-   :show-inheritance:

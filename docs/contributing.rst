@@ -69,11 +69,11 @@ This section describes how we support additonal use cases that may occur during 
 
 Dev tools
 ~~~~~~~~~
-Install all tools required for testing and linting by running:
+Install tools required for everything related to Sailor development by running:
 
 .. code-block::
 
-    pip install -r .ci/requirements_ci.txt
+    pip install -r .ci/requirements_dev.txt
 
 Find the current settings and/or possible instructions to run linting/testing tools in ``setup.cfg``.
 
@@ -94,11 +94,11 @@ Building the package
 ~~~~~~~~~~~~~~~~~~~~
 We are using a PEP517 and PEP518 compliant build tooling.
 
-To build the project simply run:
+To create distribution files simply run:
 
 .. code-block::
 
-    python -m build
+    python -m build -ws
 
 
 .. _contributing_documentation:
@@ -111,7 +111,7 @@ and can be found in the :code:`docs` folder.
 
 Requirements
 ------------
-You will need to install Sphinx and dependencies that we use. This can be done via pip:
+You will need to install Sphinx and dependencies that we use. If you have installed all dev tools already, you can skip this step.
 
 .. code-block::
 

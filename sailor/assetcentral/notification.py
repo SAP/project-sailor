@@ -7,76 +7,85 @@ import pandas as pd
 import plotnine as p9
 
 import sailor.assetcentral.equipment
-from .constants import VIEW_NOTIFICATIONS
-from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, ResultSet,
-                    _parse_filter_parameters, _fetch_data, _ac_application_url, _add_properties_new, _nested_put_setter)
+from sailor import _base
+from sailor._base.masterdata import _nested_put_setter
 from ..utils.oauth_wrapper import get_oauth_client
-from ..utils.timestamps import _string_to_timestamp_parser_new
+from ..utils.timestamps import _string_to_timestamp_parser
 from ..utils.plot_helper import _default_plot_theme
+from .constants import VIEW_NOTIFICATIONS
+from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntitySet,
+                    _ac_application_url, _ac_fetch_data)
 
 _NOTIFICATION_FIELDS = [
-    _AssetcentralField('id', 'notificationId', 'notificationID'),
-    _AssetcentralField('notification_type', 'notificationType', 'type', is_mandatory=True),
+    _AssetcentralField('name', 'internalId'),
+    _AssetcentralField('equipment_name', 'equipmentName'),
+    _AssetcentralField('priority_description', 'priorityDescription'),
+    _AssetcentralField('status_text', 'statusDescription'),
     _AssetcentralField('short_description', 'shortDescription', 'description', is_mandatory=True,
                        put_setter=_nested_put_setter('description', 'shortDescription')),
-    _AssetcentralField('priority', 'priority', 'priority', is_mandatory=True),
+    _AssetcentralField('malfunction_start_date', 'malfunctionStartDate', 'malfunctionStartDate',
+                       get_extractor=_string_to_timestamp_parser(),
+                       query_transformer=_base.masterdata._qt_timestamp),
+    _AssetcentralField('malfunction_end_date', 'malfunctionEndDate', 'malfunctionEndDate',
+                       get_extractor=_string_to_timestamp_parser(),
+                       query_transformer=_base.masterdata._qt_timestamp),
+    _AssetcentralField('breakdown', 'breakdown', 'breakdown', get_extractor=lambda v: bool(int(v)),
+                       query_transformer=_base.masterdata._qt_boolean_int_string),
+    _AssetcentralField('confirmed_failure_mode_description', 'confirmedFailureModeDesc'),
+    _AssetcentralField('cause_description', 'causeDesc'),
+    _AssetcentralField('effect_description', 'effectDesc'),
+    _AssetcentralField('notification_type', 'notificationType', 'type', is_mandatory=True),
     _AssetcentralField('status', 'status', 'status', is_mandatory=True,
                        put_setter=lambda p, v: p.update({'status': [v] if isinstance(v, str) else v})),
-    _AssetcentralField('equipment_id', 'equipmentId', 'equipmentID', is_mandatory=True),
     _AssetcentralField('long_description', 'longDescription', 'description',
                        put_setter=_nested_put_setter('description', 'longDescription')),
-    _AssetcentralField('breakdown', 'breakdown', 'breakdown', get_extractor=lambda v: bool(int(v))),
+    _AssetcentralField('id', 'notificationId', 'notificationID'),
+    _AssetcentralField('priority', 'priority', 'priority', is_mandatory=True),
+    _AssetcentralField('equipment_id', 'equipmentId', 'equipmentID', is_mandatory=True),
     _AssetcentralField('cause_id', 'causeID', 'causeID'),
-    _AssetcentralField('cause_description', 'causeDesc'),
     _AssetcentralField('cause_display_id', 'causeDisplayID'),
     _AssetcentralField('effect_id', 'effectID', 'effectID'),
-    _AssetcentralField('effect_description', 'effectDesc'),
     _AssetcentralField('effect_display_id', 'effectDisplayID'),
     _AssetcentralField('instruction_id', 'instructionID', 'instructionID'),
     _AssetcentralField('instruction_title', 'instructionTitle'),
     _AssetcentralField('operator_id', 'operatorId', 'operator'),  # setting 'operator' has no effect
     _AssetcentralField('confirmed_failure_mode_id', 'confirmedFailureModeID', 'confirmedFailureModeID'),
-    _AssetcentralField('confirmed_failure_mode_description', 'confirmedFailureModeDesc'),
     _AssetcentralField('confirmed_failure_mode_name', 'confirmedFailureModeDisplayID'),
-    _AssetcentralField('end_date', 'endDate', 'endDate', get_extractor=_string_to_timestamp_parser_new()),
-    _AssetcentralField('equipment_name', 'equipmentName'),
+    _AssetcentralField('end_date', 'endDate', 'endDate', get_extractor=_string_to_timestamp_parser(),
+                       query_transformer=_base.masterdata._qt_timestamp),
     _AssetcentralField('functional_location_id', 'functionalLocationID', 'functionalLocationID'),
     _AssetcentralField('location_id', 'locationId', 'locationID'),
     _AssetcentralField('location_name', 'location'),
-    _AssetcentralField('malfunction_end_date', 'malfunctionEndDate', 'malfunctionEndDate',
-                       get_extractor=_string_to_timestamp_parser_new()),
-    _AssetcentralField('malfunction_start_date', 'malfunctionStartDate', 'malfunctionStartDate',
-                       get_extractor=_string_to_timestamp_parser_new()),
     _AssetcentralField('model_id', 'modelId'),
-    _AssetcentralField('name', 'internalId'),
     _AssetcentralField('notification_type_description', 'notificationTypeDescription'),
-    _AssetcentralField('priority_description', 'priorityDescription'),
     _AssetcentralField('root_equipment_id', 'rootEquipmentId'),
     _AssetcentralField('root_equipment_name', 'rootEquipmentName'),
     _AssetcentralField('start_date', 'startDate', 'startDate',
-                       get_extractor=_string_to_timestamp_parser_new()),
-    _AssetcentralField('status_text', 'statusDescription'),
+                       get_extractor=_string_to_timestamp_parser(),
+                       query_transformer=_base.masterdata._qt_timestamp),
+    # can not filter systemProposedFailureModeID (no error but filter is ignored...)
+    # that's probably not enough to use a _base.masterdata._qt_non_filterable though.
     _AssetcentralField('system_failure_mode_id', 'systemProposedFailureModeID', 'systemProposedFailureModeID'),
     _AssetcentralField('system_failure_mode_description', 'systemProposedFailureModeDesc'),
     _AssetcentralField('system_failure_mode_name', 'systemProposedFailureModeDisplayID'),
     _AssetcentralField('user_failure_mode_id', 'proposedFailureModeID', 'proposedFailureModeID'),
     _AssetcentralField('user_failure_mode_description', 'proposedFailureModeDesc'),
     _AssetcentralField('user_failure_mode_name', 'proposedFailureModeDisplayID'),
-    _AssetcentralField('isInternal', 'isInternal', is_exposed=False),
-    _AssetcentralField('createdBy', 'createdBy', is_exposed=False),
-    _AssetcentralField('creationDateTime', 'creationDateTime', is_exposed=False),
-    _AssetcentralField('lastChangedBy', 'lastChangedBy', is_exposed=False),
-    _AssetcentralField('lastChangeDateTime', 'lastChangeDateTime', is_exposed=False),
-    _AssetcentralField('progressStatus', 'progressStatus', is_exposed=False),
-    _AssetcentralField('progressStatusDescription', 'progressStatusDescription', is_exposed=False),
-    _AssetcentralField('coordinates', 'coordinates', is_exposed=False),
-    _AssetcentralField('source', 'source', is_exposed=False),
-    _AssetcentralField('assetCoreEquipmentId', 'assetCoreEquipmentId', is_exposed=False),
-    _AssetcentralField('operator', 'operator', is_exposed=False),
+    _AssetcentralField('_is_internal', 'isInternal'),
+    _AssetcentralField('_created_by', 'createdBy'),
+    _AssetcentralField('_creation_datetime', 'creationDateTime'),
+    _AssetcentralField('_lastchanged_by', 'lastChangedBy'),
+    _AssetcentralField('_lastchange_datetime', 'lastChangeDateTime'),
+    _AssetcentralField('_progress_status', 'progressStatus'),
+    _AssetcentralField('_progress_status_description', 'progressStatusDescription'),
+    _AssetcentralField('_coordinates', 'coordinates'),
+    _AssetcentralField('_source', 'source'),
+    _AssetcentralField('_assetcore_equipment_id', 'assetCoreEquipmentId'),  # duplicate of equipmentId?
+    _AssetcentralField('_operator', 'operator'),
 ]
 
 
-@_add_properties_new
+@_base.add_properties
 class Notification(AssetcentralEntity):
     """AssetCentral Notification Object."""
 
@@ -159,7 +168,7 @@ class Notification(AssetcentralEntity):
         return plot
 
 
-class NotificationSet(ResultSet):
+class NotificationSet(AssetcentralEntitySet):
     """Class representing a group of Notifications."""
 
     _element_type = Notification
@@ -184,6 +193,10 @@ class NotificationSet(ResultSet):
         """
         data = self.as_df(columns=['malfunction_start_date', 'malfunction_end_date',
                                    'equipment_name', 'confirmed_failure_mode_description'])
+
+        # if there are any `NA` values in the equipment_name the plot gets messed up.
+        # this turns the NAs into an 'nan' string, which works fine.
+        data['equipment_name'] = data['equipment_name'].astype(str)
 
         aes = {
             'x': 'malfunction_start_date', 'xend': 'malfunction_end_date',
@@ -247,12 +260,11 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
                            equipment_id=['id1', 'id2'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Notification._get_legacy_mapping())
+        _base.parse_filter_parameters(kwargs, extended_filters, Notification._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return NotificationSet([Notification(obj) for obj in object_list],
-                           {'filters': kwargs, 'extended_filters': extended_filters})
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    return NotificationSet([Notification(obj) for obj in object_list])
 
 
 def _create_or_update_notification(request, method) -> Notification:

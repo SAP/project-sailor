@@ -5,75 +5,93 @@ Classes are provided for individual Equipment as well as groups of Equipment (Eq
 """
 from __future__ import annotations
 
-from typing import Union, TYPE_CHECKING
-from datetime import datetime
+from typing import Union, TYPE_CHECKING, Iterable
+from datetime import datetime, timedelta
 
 import pandas as pd
 
+from sailor import _base
+from sailor import pai
 from sailor import sap_iot
+from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_EQUIPMENT, VIEW_OBJECTS
 from .failure_mode import find_failure_modes
 from .indicators import Indicator, IndicatorSet
 from .notification import Notification, find_notifications, _create_or_update_notification
 from .location import Location, find_locations
 from .workorder import find_workorders
-from .utils import (AssetcentralEntity, ResultSet, _AssetcentralWriteRequest, _ac_application_url,
-                    _apply_filters_post_request, _fetch_data, _add_properties, _parse_filter_parameters)
-from ..utils.timestamps import _string_to_timestamp_parser
+from .utils import (AssetcentralEntity, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntitySet,
+                    _ac_application_url, _ac_fetch_data)
 
 if TYPE_CHECKING:
-    from ..sap_iot import TimeseriesDataset
     from .notification import NotificationSet
     from .failure_mode import FailureModeSet
     from .workorder import WorkorderSet
+    from ..sap_iot import TimeseriesDataset
+
+_EQUIPMENT_FIELDS = [
+    _AssetcentralField('name', 'internalId'),  # there is also a native `name`, which we're ignoring
+    _AssetcentralField('model_name', 'modelName'),
+    _AssetcentralField('location_name', 'location'),
+    _AssetcentralField('status_text', 'statusDescription',
+                       query_transformer=_base.masterdata._qt_non_filterable('status_text')),
+    _AssetcentralField('short_description', 'shortDescription'),
+    _AssetcentralField('manufacturer', 'manufacturer'),
+    _AssetcentralField('operator', 'operator'),
+    _AssetcentralField('installation_date', 'installationDate', get_extractor=_string_to_timestamp_parser('ms'),
+                       query_transformer=_base.masterdata._qt_timestamp),
+    _AssetcentralField('build_date', 'buildDate', get_extractor=_string_to_timestamp_parser('ms'),
+                       query_transformer=_base.masterdata._qt_timestamp),
+    _AssetcentralField('criticality_description', 'criticalityDescription'),
+    _AssetcentralField('id', 'equipmentId'),
+    _AssetcentralField('model_id', 'modelId'),
+    _AssetcentralField('template_id', 'templateId'),
+    _AssetcentralField('serial_number', 'serialNumber'),
+    _AssetcentralField('batch_number', 'batchNumber'),
+    _AssetcentralField('_tag_number', 'tagNumber'),
+    _AssetcentralField('_lifecycle', 'lifeCycle'),
+    _AssetcentralField('_lifecycle_description', 'lifeCycleDescription'),
+    _AssetcentralField('_source', 'source'),
+    _AssetcentralField('_status', 'status'),
+    _AssetcentralField('_version', 'version'),
+    _AssetcentralField('_in_revision', 'hasInRevision'),
+    _AssetcentralField('_subclass', 'subclass'),
+    _AssetcentralField('_model_template', 'modelTemplate'),
+    _AssetcentralField('_criticality_code', 'criticalityCode'),
+    _AssetcentralField('_completeness', 'completeness', query_transformer=_base.masterdata._qt_double),
+    _AssetcentralField('_created_on', 'createdOn'),
+    _AssetcentralField('_changed_on', 'changedOn'),
+    _AssetcentralField('_published_on', 'publishedOn'),
+    _AssetcentralField('_image_URL', 'imageURL'),
+    _AssetcentralField('_coordinates', 'coordinates'),
+    _AssetcentralField('_equipment_status', 'equipmentStatus'),
+    _AssetcentralField('_is_operator_valid', 'isOperatorValid'),
+    _AssetcentralField('_model_version', 'modelVersion'),
+    _AssetcentralField('_sold_to', 'soldTo'),
+    _AssetcentralField('_image', 'image'),
+    _AssetcentralField('_consume', 'consume'),
+    _AssetcentralField('_dealer', 'dealer'),
+    _AssetcentralField('_service_provider', 'serviceProvider'),
+    _AssetcentralField('_primary_external_id', 'primaryExternalId'),
+    _AssetcentralField('_equipment_search_terms', 'equipmentSearchTerms'),
+    _AssetcentralField('_source_search_terms', 'sourceSearchTerms'),
+    _AssetcentralField('_manufacturer_search_terms', 'manufacturerSearchTerms'),
+    _AssetcentralField('_operator_search_terms', 'operatorSearchTerms'),
+    _AssetcentralField('_class', 'class'),
+]
 
 
-@_add_properties
+@_base.add_properties
 class Equipment(AssetcentralEntity):
     """AssetCentral Equipment Object."""
 
-    # Properties (in AC terminology) are:
-    # equipmentId, name, internalId, status, statusDescription, version, hasInRevision,
-    # modelId, modelName, shortDescription, templateId, subclass, modelTemplate,
-    # location, criticalityCode, criticalityDescription, manufacturer, completeness, createdOn,
-    # changedOn, publishedOn, serialNumber, batchNumber, tagNumber, lifeCycle, lifeCycleDescription,
-    # source, imageURL, operator, coordinates, installationDate, equipmentStatus, buildDate,
-    # isOperatorValid, modelVersion, soldTo, image, consume, dealer, serviceProvider, primaryExternalId,
-    # equipmentSearchTerms, sourceSearchTerms, manufacturerSearchTerms, operatorSearchTerms, class
-
+    _field_map = {field.our_name: field for field in _EQUIPMENT_FIELDS}
     _location = None
-
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return cls._get_legacy_mapping().keys()
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        return {
-            'id': ('equipmentId', None, None, None),
-            'name': ('name', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'batch_number': ('batchNumber', None, None, None),
-            'build_date': ('buildDate', _string_to_timestamp_parser('buildDate', 'ms'), None, None),
-            'criticality_description': ('criticalityDescription', None, None, None),
-            'model_id': ('modelId', None, None, None),
-            'model_name': ('modelName', None, None, None),
-            'installation_date': ('installationDate', _string_to_timestamp_parser('installationDate', 'ms'),
-                                  None, None),
-            'lifecycle_description': ('lifeCycleDescription', None, None, None),
-            'location_name': ('location', None, None, None),
-            'manufacturer': ('manufacturer', None, None, None),
-            'operator': ('operator', None, None, None),
-            'serial_number': ('serialNumber', None, None, None),
-            'status_text': ('statusDescription', None, None, None),
-            'template_id': ('templateId', None, None, None),
-        }
 
     @property
     def location(self) -> Location:
         """Return the Location associated with this Equipment."""
-        if self._location is None:
+        if self._location is None and self.location_name is not None:
             locations = find_locations(name=self.location_name)  # why do we have a name here, not an ID???
             assert len(locations) == 1
             self._location = locations[0]
@@ -99,10 +117,10 @@ class Equipment(AssetcentralEntity):
         """
         # AC-BUG: this endpoint just silently ignores filter parameters, so we can't really support them...
         endpoint_url = _ac_application_url() + VIEW_EQUIPMENT + f'({self.id})' + '/indicatorvalues'
-        object_list = _fetch_data(endpoint_url)
+        object_list = _ac_fetch_data(endpoint_url)
 
-        filtered_objects = _apply_filters_post_request(object_list, kwargs, extended_filters,
-                                                       Indicator._get_legacy_mapping())
+        filtered_objects = _base.apply_filters_post_request(object_list, kwargs, extended_filters,
+                                                            Indicator._field_map)
         return IndicatorSet([Indicator(obj) for obj in filtered_objects])
 
     def find_notifications(self, *, extended_filters=(), **kwargs) -> NotificationSet:
@@ -153,7 +171,7 @@ class Equipment(AssetcentralEntity):
         if 'id' in kwargs or 'ID' in kwargs:
             raise RuntimeError('Can not manually filter for FailureMode ID when using this method.')
         endpoint_url = _ac_application_url() + VIEW_OBJECTS + 'EQU/' + self.id + '/failuremodes'
-        object_list = _fetch_data(endpoint_url)
+        object_list = _ac_fetch_data(endpoint_url)
         kwargs['id'] = [element['ID'] for element in object_list]
         return find_failure_modes(extended_filters=extended_filters, **kwargs)
 
@@ -211,9 +229,6 @@ class Equipment(AssetcentralEntity):
         ----
         If `indicator_set` is not specified, all indicators associated to this equipment are used.
         """
-        if start is None or end is None:
-            raise ValueError("Time parameters must be specified")
-
         if indicator_set is None:
             indicator_set = self.find_equipment_indicators()
 
@@ -226,12 +241,27 @@ class Equipment(AssetcentralEntity):
         --------
         :meth:`sailor.assetcentral.notification.create_notification`
         """
-        request = _AssetcentralWriteRequest(Notification._field_map, equipment_id=self.id, location_id=self.location.id)
+        fixed_kwargs = {'equipment_id': self.id}
+        if self.location is not None:
+            fixed_kwargs['location_id'] = self.location.id
+        request = _AssetcentralWriteRequest(Notification._field_map, **fixed_kwargs)
         request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
         return _create_or_update_notification(request, 'POST')
 
+    def create_alert(self, **kwargs) -> pai.alert.Alert:
+        """Create a new alert for this equipment.
 
-class EquipmentSet(ResultSet):
+        See Also
+        --------
+        :meth:`sailor.pai.alert.create_alert`
+        """
+        fixed_kwargs = {'equipment_id': self.id}
+        request = pai.alert._AlertWriteRequest(**fixed_kwargs)
+        request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
+        return pai.alert._create_alert(request)
+
+
+class EquipmentSet(AssetcentralEntitySet):
     """Class representing a group of Equipment."""
 
     _element_type = Equipment
@@ -360,13 +390,53 @@ class EquipmentSet(ResultSet):
         ----
         If `indicator_set` is not specified, indicators common to all equipments in this set are used.
         """
-        if start is None or end is None:
-            raise ValueError("Time parameters must be specified")
-
         if indicator_set is None:
             indicator_set = self.find_common_indicators()
 
         return sap_iot.get_indicator_data(start, end, indicator_set, self)
+
+    def get_indicator_aggregates(
+            self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+            indicator_set: IndicatorSet = None,
+            aggregation_functions: Iterable[str] = ('AVG',),
+            aggregation_interval: Union[str, pd.Timedelta, timedelta] = 'PT2M'
+    ) -> TimeseriesDataset:
+        """
+        Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.
+
+        This is a wrapper for :meth:`sailor.sap_iot.fetch_aggregates.get_indicator_aggregates` that limits the fetch
+        query to this equipment set. Unlike :meth:`sailor.assetcentral.equipment.Equipment.get_indicator_data` this
+        function retrieves pre-aggregated data from the hot store.
+
+        Parameters
+        ----------
+        start
+            Date of beginning of requested timeseries data.
+        end
+            Date of end of requested timeseries data.
+        indicator_set
+            IndicatorSet for which timeseries data is returned. Defaults to indicators common to all equipment in this
+            equipment set.
+        aggregation_functions: Determines which aggregates to retrieve. Possible aggregates are
+            'MIN', 'MAX', 'AVG', 'STDDEV', 'SUM', 'FIRST', 'LAST',
+            'COUNT', 'PERCENT_GOOD', 'TMIN', 'TMAX',  'TFIRST', 'TLAST'
+        aggregation_interval: Determines the aggregation interval. Can be specified as an ISO 8601 string
+            (like `PT2M` for 2-minute aggregates) or as a pandas.Timedelta or datetime.timedelta object.
+
+        Example
+        -------
+        Get indicator data for all Equipment belonging to the Model 'MyModel'
+        for a period from 01.06.2020 to 05.12.2020 ::
+
+            my_equipment_set = find_equipment(model_name='MyModel')
+            my_equipment_set.get_indicator_aggregates('2020-06-01', '2020-12-05', aggregation_functions=['MIN'])
+        """
+        if indicator_set is None:
+            indicator_set = self.find_common_indicators()
+
+        return sap_iot.get_indicator_aggregates(start, end, indicator_set, self,
+                                                aggregation_functions, aggregation_interval)
 
 
 def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
@@ -402,9 +472,8 @@ def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
                         location_name='London')
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Equipment._get_legacy_mapping())
+        _base.parse_filter_parameters(kwargs, extended_filters, Equipment._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return EquipmentSet([Equipment(obj) for obj in object_list],
-                        {'filters': kwargs, 'extended_filters': extended_filters})
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    return EquipmentSet([Equipment(obj) for obj in object_list])

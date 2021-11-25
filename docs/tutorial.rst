@@ -11,6 +11,8 @@ in your SAP backends. In particular, you will learn how to:
 - :ref:`Read master data from AssetCentral<how_to_read_master_data>`
 - :ref:`Explore and visualize master data <how_to_explore_data>`
 - :ref:`Read timeseries data from SAP IoT <how_to_read_timeseries>`
+- :ref:`Use the TimeseriesDataset <how_to_work_with_data>`
+- :ref:`Create and update master data <how_to_write_master_data>`
 - :ref:`Build custom plots on the extracted data <how_to_custom_plot>`
 - :ref:`Build a machine learning model on the extracted data <how_to_model>`
 
@@ -32,6 +34,7 @@ packages like this:
     import pandas as pd
     from sailor.assetcentral import find_models, find_equipment, find_notifications, find_systems
 
+
 .. _how_to_read_master_data:
 
 Reading Master Data
@@ -47,22 +50,25 @@ an object representing multiple pieces of equipment. The convenience function :m
     equipment_set = find_equipment(model_name='my_model_name')
     equipment_set.as_df().head()
 
-Other ways of filtering are also available, e.g., for selecting the ``my_model_name`` equipment in a specific location,
-say PaloAlto.
 
-.. code-block:: python
+Filtering data
+    Other ways of filtering are also available, e.g., for selecting the ``my_model_name`` equipment in a specific location,
+    say PaloAlto::
 
-    equipment_set2 = find_equipment(model_name='my_model_name', location_name='PaloAlto')
+        equipment_set2 = find_equipment(model_name='my_model_name', location_name='PaloAlto')
+
+    For an overview of the syntax used for filtering, refer to the documentation of the :doc:`Filter Language<../filter_language>`.
+    To get an overview of the fields that are available as filters, you can use the function :meth:`~sailor.assetcentral.equipment.Equipment.get_available_properties()`.
+    The fields in the resulting set can be used as filters. Similar functions also exist for the other objects::
+
+        from sailor.assetcentral.equipment import Equipment
+        Equipment.get_available_properties()
+
+    Furthermore it is possible to filter on result sets directly. Please see :meth:`~sailor.assetcentral.utils.ResultSet.filter` for details::
+
+        equipment_set2.filter(id='ID_123')
 
 
-For an overview of the syntax used for filtering, refer to the documentation of the :doc:`Filter Language<../filter_language>`.
-To get an overview of the fields that are available as filters, you can use the function :meth:`~sailor.assetcentral.equipment.Equipment.get_property_mapping()`. 
-The names of the items in the resulting map can be used as filters. Similar functions also exist for the other objects.
-
-.. code-block:: python
-
-    from sailor.assetcentral.equipment import Equipment
-    Equipment.get_property_mapping()
 
 Other typical starting points for the analysis are models. You can search for models using
 :meth:`~sailor.assetcentral.model.find_models()`.
@@ -97,11 +103,11 @@ Again, a ``pandas`` dataframe representation of the object can be obtained using
     notification_set = equipment_set.find_notifications(extended_filters=['malfunction_start_date > "2020-08-01"']) 
     notification_set.as_df().head()
 
+
 .. _how_to_explore_data:
 
 Exploring Data
 ==============
-
 
 To facilitate exploration and use of the extracted data for exploration, visualization, and model building, the :meth:`~sailor.assetcentral.utils.ResultSet.as_df()` function
 is provided for all objects. The functions provide representations of the objects as ``pandas`` dataframe.
@@ -164,8 +170,9 @@ a timeseries dataset locally as described in :ref:`Read timeseries data<how_to_r
 
 .. code-block:: python
 
-    timeseries_data = equipment_set.get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00')
-    notification_set[0].plot_context(timeseries_data)
+    data = equipment_set.get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00')
+    notification_set[0].plot_context(data)
+
 
 .. _how_to_read_timeseries:
 
@@ -193,7 +200,7 @@ This retrieves data for a single piece of equipment.
 
 .. code-block:: python
 
-    timeseries_data = equipment_set[0].get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00', indicators)
+    data = equipment_set[0].get_indicator_data('2020-05-01 00:00:00+00:00', '2021-03-01 00:00:00+00:00', indicators)
 
 If you leave indicator set blank, then all indicators attached to the piece of equipment will be fetched.
 
@@ -202,12 +209,84 @@ If here the indicator set is left blank, then all indicators returned by :meth:`
 
 .. code-block:: python
 
-    timeseries_data = equipment_set.get_indicator_data('2020-10-01 00:00:00+00:00', '2021-01-01 00:00:00+00:00')
+    data = equipment_set.get_indicator_data('2020-10-01 00:00:00+00:00', '2021-01-01 00:00:00+00:00')
 
+Equally, it is possible to retrieve pre-aggregated data from SAP IoT. The function signature is very similar to the one above, but you can specify aggregation interval and aggregation functions.
+
+.. code-block:: python
+
+    interval = pd.Timedelta(hours=1)
+    data = equipment_set.get_indicator_aggregates('2020-10-01 00:00:00+00:00', '2021-01-01 00:00:00+00:00',
+                                                  aggregation_functions=['MIN', 'MAX'], aggregation_interval=interval)
+
+.. _how_to_work_with_data:
+
+Working with Timeseries Data
+============================
+Timeseries data is always returned as a :class:`~sailor.sap_iot.wrappers.TimeseriesDataset`.
+With this object you have some options on how to work with the data contained within it.
+
+You can retrieve the data as a DataFrame::
+
+    data.as_df(speaking_names=True)
+
+.. image:: _static/data_as_df.png
+
+**Filtering.** E.g., filter the dataset based on a subset of indicators or equipments::
+
+    eq_subset = data.equipment_set.filter(location_name='PaloAlto')
+    ind_subset = data.indicator_set.filter(name=['DS_BearingTemperature', 'DS_OilPressure'])
+    data = data.filter(equipment_set=eq_subset, indicator_set=ind_subset)
+
+**Aggregation and interpolation.** If you are working with raw data and want to have your timeseries data aggregated.
+Interpolation of ``NaN`` values is also supported::
+
+    data = data.aggregate('24h', ['min', 'max']).interpolate('24h')
+
+Finally, you might be interested in plotting the resulting dataset::
+
+    data.plot()
+
+.. image:: _static/data_plot.png
+
+
+.. _how_to_write_master_data:
+
+Writing Master Data
+===================
+We also aim to provide the possibility to write data to all backend systems supported by Sailor.
+In this example we show you how to create notifications in AssetCentral.
+
+Notifications are usually created for some equipment.
+Therefore we can use the :meth:`~sailor.assetcentral.equipment.Equipment.create_notification` function 
+to create a new notification for an equipment. In this example we want to create a new breakdown notification 
+with high priority::
+
+    equi = equipment_set[0]
+    notif = equi.create_notification(
+                    status='NEW', notification_type='M2', priority=25,
+                    short_description='Valve broken',
+                    start_date='2021-07-07', end_date='2021-07-08')
+
+We might want to update this notification at a later time, e.g., when the maintenance crew is working on the equipment.
+For this we need a notification object representing this notification. This can be the original ``notif`` object that 
+we have created, or you can obtain the object from Assetcentral again.
+We can call the :meth:`~sailor.assetcentral.notification.Notification.update` method directly on the 
+Notification object to send our desired changes to Assetcentral::
+
+    notif = find_notifications(id='previous_notification_ID')[0]
+    notif.update(status='IPR')
+
+As you can see from these examples we can use the same properties as keyword arguments, that we are familiar with,
+e.g., from when using the ``find_*`` functions. 
+
+
+Customization
+=============
 .. _how_to_custom_plot:
 
 Building Custom Visualizations
-==============================
+------------------------------
 
 To build your custom analysis or plot, you can use the data in any :class:`~sailor.assetcentral.utils.ResultSet` and transform
 it into a `pandas` dataframe using :meth:`~sailor.assetcentral.utils.ResultSet.as_df()`. The data frame can then form the 
@@ -216,18 +295,19 @@ basis of your visualization.
 .. code-block:: python
 
     import plotnine as p9
-    from sailor.utils.plot_helper import default_plot_theme
+    from sailor.utils.plot_helper import _default_plot_theme
     data = equipment_set[0:4].get_indicator_data('2020-09-01 00:00:00+00:00', '2020-10-05 00:00:00+00:00')
     df = data.as_df(speaking_names=True).droplevel([0, 1], axis=1).reset_index()
     df = df.melt(id_vars=['equipment_name', 'model_name', 'timestamp'], var_name='indicator')
-    p9.ggplot(df, p9.aes(x='indicator', y='value', fill='equipment_name')) + p9.geom_violin(alpha=0.6) + default_plot_theme()
+    p9.ggplot(df, p9.aes(x='indicator', y='value', fill='equipment_name')) + p9.geom_violin(alpha=0.6) + _default_plot_theme()
 
 .. image:: _static/custom_plot.png
+
 
 .. _how_to_model:
 
 Building Custom Machine Learning Models
-=======================================
+---------------------------------------
 
 Building machine learning models can be done using the same starting point as building custom visualizations, namely the method 
 :meth:`~sailor.assetcentral.utils.ResultSet.as_df()`.

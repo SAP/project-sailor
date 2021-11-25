@@ -4,36 +4,42 @@ Location module can be used to retrieve Location information from AssetCentral.
 Classes are provided for individual Locations as well as groups of Locations (LocationSet).
 """
 
-from .utils import _fetch_data, _add_properties, _parse_filter_parameters, AssetcentralEntity, ResultSet, \
-    _ac_application_url
+from sailor import _base
+from ..utils.timestamps import _string_to_timestamp_parser
+from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
+                    _ac_application_url, _ac_fetch_data)
 from .constants import VIEW_LOCATIONS
 
+_LOCATION_FIELDS = [
+    _AssetcentralField('name', 'name'),
+    _AssetcentralField('short_description', 'shortDescription'),
+    _AssetcentralField('type_description', 'locationTypeDescription',
+                       query_transformer=_base.masterdata._qt_non_filterable('type_description')),
+    _AssetcentralField('id', 'locationId'),
+    _AssetcentralField('type', 'locationType',
+                       query_transformer=_base.masterdata._qt_non_filterable('type')),
+    _AssetcentralField('_status', 'status'),
+    _AssetcentralField('_version', 'version'),
+    _AssetcentralField('_in_revision', 'hasInRevision'),
+    _AssetcentralField('_location', 'location'),
+    _AssetcentralField('_completeness', 'completeness'),
+    _AssetcentralField('_created_on', 'createdOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_changed_on', 'changedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_published_on', 'publishedOn', get_extractor=_string_to_timestamp_parser(unit='ms')),
+    _AssetcentralField('_source', 'source'),
+    _AssetcentralField('_image_URL', 'imageURL'),
+    _AssetcentralField('_location_status', 'locationStatus'),
+]
 
-@_add_properties
+
+@_base.add_properties
 class Location(AssetcentralEntity):
     """AssetCentral Location Object."""
 
-    # Properties (in AC terminology) are:
-    # locationId, name, status, version, hasInRevision, shortDescription, location, completeness, createdOn,
-    # changedOn, publishedOn, source, imageURL, locationStatus, locationTypeDescription, locationType
-
-    @classmethod
-    def get_available_properties(cls):  # noqa: D102
-        return cls._get_legacy_mapping().keys()
-
-    @classmethod
-    def _get_legacy_mapping(cls):
-        # TODO: remove method in future version after field templates are in used
-        return {
-            'id': ('locationId', None, None, None),
-            'name': ('name', None, None, None),
-            'short_description': ('shortDescription', None, None, None),
-            'type': ('locationType', None, None, None),
-            'type_description': ('locationTypeDescription', None, None, None),
-        }
+    _field_map = {field.our_name: field for field in _LOCATION_FIELDS}
 
 
-class LocationSet(ResultSet):
+class LocationSet(AssetcentralEntitySet):
     """Class representing a group of Locations."""
 
     _element_type = Location
@@ -93,10 +99,9 @@ def find_locations(*, extended_filters=(), **kwargs) -> LocationSet:
         find_locations(extended_filters=['short_description != "Location 1"'])
     """
     unbreakable_filters, breakable_filters = \
-        _parse_filter_parameters(kwargs, extended_filters, Location._get_legacy_mapping())
+        _base.parse_filter_parameters(kwargs, extended_filters, Location._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_LOCATIONS
 
-    object_list = _fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    return LocationSet([Location(obj) for obj in object_list],
-                       {'filters': kwargs, 'extended_filters': extended_filters})
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    return LocationSet([Location(obj) for obj in object_list])

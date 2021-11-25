@@ -13,6 +13,12 @@ def mock_config():
 
 
 @pytest.fixture
+def mock_request(mock_config):
+    with patch('sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client.request') as mock:
+        yield mock
+
+
+@pytest.fixture
 def make_indicator():
     def maker(**kwargs):
         kwargs.setdefault('propertyId', 'id')
@@ -35,11 +41,11 @@ def make_indicator_set(make_indicator):
 
 @pytest.fixture
 def make_aggregated_indicator():
-    def maker(**kwargs):
+    def maker(aggregation_function='mean', **kwargs):
         kwargs.setdefault('propertyId', 'id')
         kwargs.setdefault('pstid', 'group_id')
         kwargs.setdefault('categoryID', 'template_id')
-        return AggregatedIndicator(kwargs, 'mean')
+        return AggregatedIndicator(kwargs, aggregation_function)
     return maker
 
 

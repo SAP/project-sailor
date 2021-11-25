@@ -36,8 +36,8 @@ class TestGroup:
 
 
 class TestGroupSet:
-    @patch('sailor.assetcentral.equipment._fetch_data')
-    def test_element_fetch_skips_duplicates(self, mock_fetch, mock_config):
+    @patch('sailor.assetcentral.equipment._ac_fetch_data')
+    def test_element_fetch_skips_duplicates(self, mock_request, mock_config):
         with patch('sailor.assetcentral.group.Group._members_raw', new_callable=PropertyMock) as mock_members_raw:
             mock_members_raw.return_value = [{'businessObjectId': 'first_id', 'businessObjectType': 'MATCH'},
                                              {'businessObjectId': 'second_id', 'businessObjectType': 'MATCH'}]
@@ -79,3 +79,12 @@ class TestGroupSet:
             group_set._generic_get_members('MATCH', element_class, None, None, id='some_id')
 
         assert str(excinfo.value) == 'Cannot specify `id` when retrieving "ElementName" from a group.'
+
+    def test_expected_public_attributes_are_present(self):
+        expected_attributes = ['name', 'group_type', 'short_description', 'risk_value', 'id']
+
+        fieldmap_public_attributes = [
+            field.our_name for field in Group._field_map.values() if field.is_exposed
+        ]
+
+        assert expected_attributes == fieldmap_public_attributes

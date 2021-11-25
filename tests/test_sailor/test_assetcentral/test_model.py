@@ -34,12 +34,12 @@ class TestModel:
                                                   model_id=model.id)
             assert actual == expected
 
-    @patch('sailor.assetcentral.model._apply_filters_post_request')
-    @patch('sailor.assetcentral.model._fetch_data')
-    def test_find_equipment_indicators_fetch_and_apply(self, mock_fetch, mock_apply, model, mock_url,
+    @patch('sailor._base.apply_filters_post_request')
+    @patch('sailor.assetcentral.model._ac_fetch_data')
+    def test_find_equipment_indicators_fetch_and_apply(self, mock_request, mock_apply, model, mock_url,
                                                        make_indicator_set):
         object_list = Mock(name='raw_object_list')
-        mock_fetch.return_value = object_list
+        mock_request.return_value = object_list
         mock_apply.return_value = [{'propertyId': 'indicator_1', 'pstid': 'group_id', 'categoryID': 'template_id'},
                                    {'propertyId': 'indicator_2', 'pstid': 'group_id', 'categoryID': 'template_id'}]
         filter_kwargs = {'param1': 'one'}
@@ -48,6 +48,18 @@ class TestModel:
 
         actual = model.find_model_indicators(**filter_kwargs, extended_filters=extended_filters)
 
-        assert constants.VIEW_MODEL_INDICATORS in mock_fetch.call_args.args[0]
+        assert constants.VIEW_MODEL_INDICATORS in mock_request.call_args.args[0]
         assert mock_apply.call_args.args[:-1] == (object_list, filter_kwargs, extended_filters)
         assert actual == expected_result
+
+    def test_expected_public_attributes_are_present(self):
+        expected_attributes = [
+            'name', 'model_type', 'manufacturer', 'short_description', 'service_expiration_date',
+            'model_expiration_date', 'generation', 'long_description', 'id', 'template_id', 'model_template_id'
+        ]
+
+        fieldmap_public_attributes = [
+            field.our_name for field in Model._field_map.values() if field.is_exposed
+        ]
+
+        assert expected_attributes == fieldmap_public_attributes

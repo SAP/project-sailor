@@ -6,15 +6,11 @@ import warnings
 import pandas as pd
 
 
-def _odata_to_timestamp_parser(name):
-    return lambda self: pd.Timestamp(float(self.raw[name][6:-2])/1000, tz='UTC') if self.raw[name] else None
+def _odata_to_timestamp_parser(unit='ms'):
+    return lambda value: pd.Timestamp(float(value[6:-2]), unit=unit, tz='UTC')
 
 
-def _string_to_timestamp_parser(name, unit=None):
-    return lambda self: pd.Timestamp(self.raw[name], unit=unit, tz='UTC') if self.raw[name] else None
-
-
-def _string_to_timestamp_parser_new(unit=None):
+def _string_to_timestamp_parser(unit=None):
     return lambda value: pd.Timestamp(value, unit=unit, tz='UTC')
 
 
@@ -43,11 +39,14 @@ def _any_to_timestamp(value, default: pd.Timestamp = None):
     return timestamp
 
 
-def _timestamp_to_isoformat(timestamp: pd.Timestamp):
+def _timestamp_to_isoformat(timestamp: pd.Timestamp, with_zulu=False):
     """Return an iso-format string of a timestamp after conversion to UTC and without the timezone information."""
     if timestamp.tzinfo:
         timestamp = timestamp.tz_convert('UTC')
-    return timestamp.tz_localize(None).isoformat()
+    if with_zulu:
+        return timestamp.tz_localize(None).isoformat() + 'Z'
+    else:
+        return timestamp.tz_localize(None).isoformat()
 
 
 def _timestamp_to_date_string(timestamp: pd.Timestamp):
@@ -55,9 +54,10 @@ def _timestamp_to_date_string(timestamp: pd.Timestamp):
     if timestamp.tzinfo:
         timestamp = timestamp.tz_convert('UTC')
     timestamp = timestamp.tz_localize(None)
-    if timestamp.date() != timestamp:
-        warnings.warn('Casting timestamp to date, this operation will loose time-of-day information.')
-    return str(timestamp.date())
+    date = pd.Timestamp.date(timestamp)
+    if pd.Timestamp(date) != timestamp:
+        warnings.warn('Casting timestamp to date, this operation will lose time-of-day information.', stacklevel=3)
+    return str(date)
 
 
 def _calculate_nice_sub_intervals(interval, n_breaks):

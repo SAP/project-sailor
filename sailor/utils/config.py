@@ -14,7 +14,7 @@ from .utils import DataNotFoundWarning
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
-CONFIG_PROPERTIES = ('asset_central', 'sap_iot')
+CONFIG_PROPERTIES = ('asset_central', 'sap_iot', 'predictive_asset_insights')
 
 
 @contextmanager
@@ -29,7 +29,7 @@ def try_log(exception, msg):
         raise
 
 
-class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES)):
+class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES, defaults=(None,) * len(CONFIG_PROPERTIES))):
     """Stores the config of Sailor."""
 
     config = None
@@ -47,6 +47,8 @@ class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES)):
         if SailorConfig.config is None:
             SailorConfig.load()
         res = getattr(SailorConfig.config, keys[0])
+        if res is None:
+            raise RuntimeError(f"You have not configured credentials for '{keys[0]}' in config.")
         for k in keys[1:]:
             res = res[k]
         return res

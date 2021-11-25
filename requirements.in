@@ -1,9 +1,11 @@
-furl
+furl>=2.1.3
 pyjwt>2
 matplotlib
-pandas
+pandas>=1.2.0
 plotnine
 pyyaml
 rauth
 requests
 scikit-learn
+cachetools
+isodate
