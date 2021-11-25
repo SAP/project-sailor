@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from unittest.mock import patch, MagicMock
-from datetime import datetime
 
 from rauth import OAuth2Session
 import jwt
@@ -158,7 +157,7 @@ def test_scopes_config_available_decoding_token_fails(jwt_decode_mock):
     mock_method.assert_called_once()
 
 
-@patch('jwt.decode', return_value={'exp': datetime(9999, 12, 31).timestamp()})
+@patch('jwt.decode', return_value={'exp': 253402210800})
 @patch('rauth.OAuth2Service.get_auth_session')
 def test_get_session_returns_active_session_on_repeated_calls(get_auth_mock, decode_mock):
     expected_session = MagicMock()
@@ -172,8 +171,7 @@ def test_get_session_returns_active_session_on_repeated_calls(get_auth_mock, dec
     assert actual == expected_session
 
 
-@patch('jwt.decode', return_value={'exp': datetime(9999, 12, 31).timestamp(),
-                                   'scope': ['test']})
+@patch('jwt.decode', return_value={'exp': 253402210800, 'scope': ['test']})
 @patch('rauth.OAuth2Service.get_auth_session')
 def test_get_session_returns_new_session_if_scopes_are_different(get_auth_mock, decode_mock):
     new_scopes_requested = 'abc def'
