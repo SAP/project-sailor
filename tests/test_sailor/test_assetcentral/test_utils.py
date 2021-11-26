@@ -13,11 +13,12 @@ class TestAssetcentralRequest:
             actual.update({'abc': 1})
         assert actual == {'abc': 1}
 
-    def test_setitem_sets_nothing_if_key_known_but_not_writable(self):
+    def test_setitem_sets_nothing_and_warns_if_key_known_but_not_writable(self):
         field_map = {'our_name': _AssetcentralField('our_name', 'their_name_get')}
         actual = _AssetcentralWriteRequest(field_map)
 
-        actual.update({'our_name': 1})
+        with pytest.warns(UserWarning, match="Parameter 'our_name' is not available"):
+            actual.update({'our_name': 1})
 
         assert actual == {}
 

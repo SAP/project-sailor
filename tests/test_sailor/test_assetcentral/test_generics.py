@@ -13,6 +13,12 @@ test_params = {
         'id_field': 'equipmentId',
         'endpoint': constants.VIEW_EQUIPMENT
     },
+    'functional_location': {
+        'function': assetcentral.find_functional_locations,
+        'set_class': assetcentral.functional_location.FunctionalLocationSet,
+        'id_field': 'id',
+        'endpoint': constants.VIEW_FUNCTIONAL_LOCATIONS
+    },
     'failure_mode': {
         'function': assetcentral.find_failure_modes,
         'set_class': assetcentral.failure_mode.FailureModeSet,

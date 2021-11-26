@@ -1,4 +1,4 @@
 
-from .alert import find_alerts
+from .alert import find_alerts, create_alert
 
-__all__ = ['find_alerts']
+__all__ = ['find_alerts', 'create_alert']
