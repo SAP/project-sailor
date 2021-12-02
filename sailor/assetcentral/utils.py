@@ -7,32 +7,25 @@ import time
 import warnings
 
 from sailor import _base
-from ..utils.config import SailorConfig
 from sailor.utils.oauth_wrapper.OAuthServiceImpl import RequestError
+from ..utils.config import SailorConfig
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
 
-def rate_limited(f):
-    def wrapper(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except RequestError as e:
-            if e.status_code == 429:
-                LOG.debug('AssetCentral request was rate limited, will re-try once in 1s.')
-                time.sleep(1)
-                return f(*args, **kwargs)
-            else:
-                raise
-
-    return wrapper
-
-
-@rate_limited
 def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
-    return _base.fetch_data('asset_central', _ac_response_handler,
-                            endpoint_url, unbreakable_filters, breakable_filters)
+    try:
+        return _base.fetch_data('asset_central', _ac_response_handler,
+                                endpoint_url, unbreakable_filters, breakable_filters)
+    except RequestError as e:
+        if e.status_code == 429:
+            LOG.debug('AssetCentral request was rate limited, will re-try once in 1s.')
+            time.sleep(1)
+            return _base.fetch_data('asset_central', _ac_response_handler,
+                                    endpoint_url, unbreakable_filters, breakable_filters)
+        else:
+            raise
 
 
 def _ac_response_handler(result_list, endpoint_data):

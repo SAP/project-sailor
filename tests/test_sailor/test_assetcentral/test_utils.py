@@ -1,5 +1,6 @@
 import pytest
 
+from sailor.utils.oauth_wrapper import RequestError
 from sailor.assetcentral.utils import (
     AssetcentralRequestValidationError, _AssetcentralField, _AssetcentralWriteRequest, AssetcentralEntity,
     _ac_fetch_data, _ac_response_handler)
@@ -111,3 +112,33 @@ def test_ac_fetch_data_integration(mock_request):
 
     mock_request.assert_called_once_with('GET', '', params=expected_parameters)
     assert actual == expected
+
+
+def test_ac_fetch_data_rate_limiting(mock_request):
+    exception = RequestError('test_message', 429, 'reason', 'error_text')
+    mock_request.side_effect = [exception, 'retry-response']
+
+    actual = _ac_fetch_data('')
+
+    assert mock_request.call_count == 2
+    assert actual == ['retry-response']
+
+
+def test_ac_fetch_data_rate_limiting_repeated_error(mock_request):
+    exception = RequestError('test_message', 429, 'reason', 'error_text')
+    mock_request.side_effect = [exception, exception, 'some-response']
+
+    with pytest.raises(RequestError, match='test_message'):
+        _ac_fetch_data('')
+
+    assert mock_request.call_count == 2
+
+
+def test_ac_fetch_data_rate_limiting_different_exception(mock_request):
+    exception = RuntimeError('Unexpected Error')
+    mock_request.side_effect = [exception, 'some-response']
+
+    with pytest.raises(RuntimeError, match='Unexpected Error'):
+        _ac_fetch_data('')
+
+    assert mock_request.call_count == 1
