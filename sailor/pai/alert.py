@@ -8,6 +8,8 @@ from functools import lru_cache
 from typing import Iterable
 import re
 
+import plotnine as p9
+
 import sailor.assetcentral.utils as ac_utils
 from sailor import _base
 from sailor.utils.oauth_wrapper import get_oauth_client
@@ -16,6 +18,7 @@ from sailor._base.masterdata import _qt_odata_datetimeoffset, _qt_double
 from .constants import ALERTS_READ_PATH, ALERTS_WRITE_PATH
 from .utils import (PredictiveAssetInsightsEntity, _PredictiveAssetInsightsField,
                     PredictiveAssetInsightsEntitySet, _pai_application_url, _pai_fetch_data)
+from ..utils.plot_helper import _default_plot_theme
 
 _ALERT_FIELDS = [
     _PredictiveAssetInsightsField('triggered_on', 'TriggeredOn', 'triggeredOn', is_mandatory=True,
@@ -136,6 +139,37 @@ class AlertSet(PredictiveAssetInsightsEntitySet):
             columns.update(custom_columns)
 
         return super().as_df(columns=list(columns))
+
+    def plot_overview(self):
+        """
+        Plot an overview over all alerts in the set as a function of time.
+
+        Each alert will be shown by a rectangle, on a y-scale representing the affected equipment
+        and with a color representing the alert type.
+
+        Example
+        -------
+        Plot an overview over all alerts in the dataset "alert_set" by time::
+
+            alert_set.plot_overview()
+        """
+        data = self.as_df(columns=['last_occured_on', 'equipment_name', 'type', 'count'])
+
+        # if there are any `NA` values in the equipment_name the plot gets messed up.
+        # this turns the NAs into an 'nan' string, which works fine.
+        data['equipment_name'] = data['equipment_name'].astype(str)
+
+        aes = {
+            'x': 'last_occured_on',
+            'y': 'equipment_name',
+            'color': 'type',
+        }
+
+        plot = p9.ggplot(data, p9.aes(**aes))
+        plot += p9.geom_point(p9.aes(size='count'))
+        plot += _default_plot_theme()
+
+        return plot
 
 
 def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
