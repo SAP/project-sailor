@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 
 from sailor.utils.oauth_wrapper import RequestError
@@ -114,7 +116,8 @@ def test_ac_fetch_data_integration(mock_request):
     assert actual == expected
 
 
-def test_ac_fetch_data_rate_limiting(mock_request):
+@patch('time.sleep')
+def test_ac_fetch_data_rate_limiting(mock_sleep, mock_request):
     exception = RequestError('test_message', 429, 'reason', 'error_text')
     mock_request.side_effect = [exception, 'retry-response']
 
@@ -124,7 +127,8 @@ def test_ac_fetch_data_rate_limiting(mock_request):
     assert actual == ['retry-response']
 
 
-def test_ac_fetch_data_rate_limiting_repeated_error(mock_request):
+@patch('time.sleep')
+def test_ac_fetch_data_rate_limiting_repeated_error(mock_sleep, mock_request):
     exception = RequestError('test_message', 429, 'reason', 'error_text')
     mock_request.side_effect = [exception, exception, 'some-response']
 
@@ -134,7 +138,8 @@ def test_ac_fetch_data_rate_limiting_repeated_error(mock_request):
     assert mock_request.call_count == 2
 
 
-def test_ac_fetch_data_rate_limiting_different_exception(mock_request):
+@patch('time.sleep')
+def test_ac_fetch_data_rate_limiting_different_exception(mock_sleep, mock_request):
     exception = RuntimeError('Unexpected Error')
     mock_request.side_effect = [exception, 'some-response']
 
