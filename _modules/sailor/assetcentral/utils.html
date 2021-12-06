@@ -167,9 +167,11 @@
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">UserDict</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.oauth_wrapper.OAuthServiceImpl</span> <span class="kn">import</span> <span class="n">RequestError</span>
 <span class="kn">from</span> <span class="nn">..utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -177,8 +179,17 @@
 
 
 <span class="k">def</span> <span class="nf">_ac_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="o">=</span><span class="p">(),</span> <span class="n">breakable_filters</span><span class="o">=</span><span class="p">()):</span>
-    <span class="k">return</span> <span class="n">_base</span><span class="o">.</span><span class="n">fetch_data</span><span class="p">(</span><span class="s1">&#39;asset_central&#39;</span><span class="p">,</span> <span class="n">_ac_response_handler</span><span class="p">,</span>
-                            <span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_base</span><span class="o">.</span><span class="n">fetch_data</span><span class="p">(</span><span class="s1">&#39;asset_central&#39;</span><span class="p">,</span> <span class="n">_ac_response_handler</span><span class="p">,</span>
+                                <span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">RequestError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;AssetCentral request was rate limited, will re-try once in 1s.&#39;</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_base</span><span class="o">.</span><span class="n">fetch_data</span><span class="p">(</span><span class="s1">&#39;asset_central&#39;</span><span class="p">,</span> <span class="n">_ac_response_handler</span><span class="p">,</span>
+                                    <span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span>
 
 
 <span class="k">def</span> <span class="nf">_ac_response_handler</span><span class="p">(</span><span class="n">result_list</span><span class="p">,</span> <span class="n">endpoint_data</span><span class="p">):</span>
