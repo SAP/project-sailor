@@ -2,6 +2,7 @@ from unittest.mock import patch, call
 
 import pytest
 from pandas import Timestamp
+from plotnine import ggplot
 
 from sailor.pai import constants
 from sailor import pai
@@ -109,40 +110,47 @@ class TestAlert():
         assert alert.z_another == 'another'
 
 
-@pytest.mark.parametrize('testdesc,kwargs,expected_cols', [
-    ('default=all noncustom properties',
-        dict(), ['id', 'type']),
-    ('only specified columns',
-        dict(columns=['id', 'Z_mycustom']), ['id', 'Z_mycustom']),
-    ('all properties AND all custom properties',
-        dict(include_all_custom_properties=True), ['id', 'type', 'Z_mycustom', 'z_another']),
-    ('specified AND all custom properties',
-        dict(columns=['id', 'Z_mycustom'], include_all_custom_properties=True), ['id', 'Z_mycustom', 'z_another'])
-])
-def test_alertset_as_df_expects_columns(make_alert_set, monkeypatch,
-                                        kwargs, expected_cols, testdesc):
-    monkeypatch.setattr(Alert, '_field_map', {
-        'id': _PredictiveAssetInsightsField('id', 'AlertId'),
-        'type': _PredictiveAssetInsightsField('type', 'AlertType'),
-    })
-    alert_set = make_alert_set(AlertId=['id1', 'id2', 'id3'],
-                               Z_mycustom=['cust1', 'cust2', 'cust3'],
-                               z_another=['ano1', 'ano2', 'ano3'])
-    actual = alert_set.as_df(**kwargs)
-    assert actual.columns.to_list() == expected_cols
+class TestAlertSet:
+    @pytest.mark.parametrize('testdesc,kwargs,expected_cols', [
+        ('default=all noncustom properties',
+            dict(), ['id', 'type']),
+        ('only specified columns',
+            dict(columns=['id', 'Z_mycustom']), ['id', 'Z_mycustom']),
+        ('all properties AND all custom properties',
+            dict(include_all_custom_properties=True), ['id', 'type', 'Z_mycustom', 'z_another']),
+        ('specified AND all custom properties',
+            dict(columns=['id', 'Z_mycustom'], include_all_custom_properties=True), ['id', 'Z_mycustom', 'z_another'])
+    ])
+    def test_as_df_expects_columns(self, make_alert_set, monkeypatch,
+                                   kwargs, expected_cols, testdesc):
+        monkeypatch.setattr(Alert, '_field_map', {
+            'id': _PredictiveAssetInsightsField('id', 'AlertId'),
+            'type': _PredictiveAssetInsightsField('type', 'AlertType'),
+        })
+        alert_set = make_alert_set(AlertId=['id1', 'id2', 'id3'],
+                                   Z_mycustom=['cust1', 'cust2', 'cust3'],
+                                   z_another=['ano1', 'ano2', 'ano3'])
+        actual = alert_set.as_df(**kwargs)
+        assert actual.columns.to_list() == expected_cols
 
+    def test_as_df_raises_on_custom_properties_with_multiple_types(self, make_alert_set, monkeypatch):
+        monkeypatch.setattr(Alert, '_field_map', {
+            'id': _PredictiveAssetInsightsField('id', 'AlertId'),
+            'type': _PredictiveAssetInsightsField('type', 'AlertType'),
+        })
+        alert_set = make_alert_set(AlertId=['id1', 'id2', 'id3'],
+                                   AlertType=['type', 'type', 'DIFFERENT_TYPE'],
+                                   Z_mycustom=['cust1', 'cust2', 'cust3'],
+                                   z_another=['ano1', 'ano2', 'ano3'])
+        with pytest.raises(RuntimeError, match='More than one alert type present in result'):
+            alert_set.as_df(include_all_custom_properties=True)
 
-def test_alertset_as_df_raises_on_custom_properties_with_multiple_types(make_alert_set, monkeypatch):
-    monkeypatch.setattr(Alert, '_field_map', {
-        'id': _PredictiveAssetInsightsField('id', 'AlertId'),
-        'type': _PredictiveAssetInsightsField('type', 'AlertType'),
-    })
-    alert_set = make_alert_set(AlertId=['id1', 'id2', 'id3'],
-                               AlertType=['type', 'type', 'DIFFERENT_TYPE'],
-                               Z_mycustom=['cust1', 'cust2', 'cust3'],
-                               z_another=['ano1', 'ano2', 'ano3'])
-    with pytest.raises(RuntimeError, match='More than one alert type present in result'):
-        alert_set.as_df(include_all_custom_properties=True)
+    def test_plot_overview_returns_plot(self, make_alert_set):
+        alert_set = make_alert_set(AlertId=['id1'],
+                                   LastOccuredOn=['1234567890'],
+                                   Count=['1'])
+        plot = alert_set.plot_overview()
+        assert type(plot) == ggplot
 
 
 @pytest.mark.filterwarnings('ignore:Unknown name for _AlertWriteRequest parameter found')
