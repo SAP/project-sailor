@@ -84,10 +84,9 @@ class TestAlert():
 
     def test_expected_public_attributes_are_present(self):
         expected_attributes = [
-            'description', 'severity_code', 'category', 'equipment_name', 'model_name', 'indicator_name',
-            'indicator_group_name', 'template_name', 'count', 'status_code', 'triggered_on', 'last_occured_on',
-            'type_description', 'error_code_description', 'type', 'source', 'id', 'equipment_id', 'model_id',
-            'template_id', 'indicator_id', 'indicator_group_id', 'notification_id', 'error_code_id',
+            'triggered_on', 'last_occured_on', 'count', 'type', 'category', 'severity_code', 'equipment_name', 'model_name', 'indicator_name',
+            'indicator_group_name', 'template_name', 'status_code',  'type_description', 'error_code_description',  'source', 'description',
+            'id', 'equipment_id', 'model_id', 'template_id', 'indicator_id', 'indicator_group_id', 'notification_id', 'error_code_id',
         ]
 
         fieldmap_public_attributes = [
