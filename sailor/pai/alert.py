@@ -144,8 +144,10 @@ class AlertSet(PredictiveAssetInsightsEntitySet):
         """
         Plot an overview over all alerts in the set as a function of time.
 
-        Each alert will be shown by a rectangle, on a y-scale representing the affected equipment
-        and with a color representing the alert type.
+        Each alert will be shown by a point, on a y-scale representing the affected equipment
+        and with a color representing the alert type. The size of the point is given by the ``count`` value.
+        This value represents how many times the alert has occurred in the deduplication window specified by the
+        alert type.
 
         Example
         -------
