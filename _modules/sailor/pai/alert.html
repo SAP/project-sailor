@@ -172,6 +172,8 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
+<span class="kn">import</span> <span class="nn">plotnine</span> <span class="k">as</span> <span class="nn">p9</span>
+
 <span class="kn">import</span> <span class="nn">sailor.assetcentral.utils</span> <span class="k">as</span> <span class="nn">ac_utils</span>
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
 <span class="kn">from</span> <span class="nn">sailor.utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span>
@@ -180,19 +182,9 @@
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">ALERTS_READ_PATH</span><span class="p">,</span> <span class="n">ALERTS_WRITE_PATH</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">PredictiveAssetInsightsEntity</span><span class="p">,</span> <span class="n">_PredictiveAssetInsightsField</span><span class="p">,</span>
                     <span class="n">PredictiveAssetInsightsEntitySet</span><span class="p">,</span> <span class="n">_pai_application_url</span><span class="p">,</span> <span class="n">_pai_fetch_data</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..utils.plot_helper</span> <span class="kn">import</span> <span class="n">_default_plot_theme</span>
 
 <span class="n">_ALERT_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;Description&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">),</span>
-    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;severity_code&#39;</span><span class="p">,</span> <span class="s1">&#39;SeverityCode&#39;</span><span class="p">,</span> <span class="s1">&#39;severityCode&#39;</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                  <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_double</span><span class="p">),</span>
-    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="s1">&#39;Category&#39;</span><span class="p">),</span>
-    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;EquipmentName&#39;</span><span class="p">),</span>
-    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;model_name&#39;</span><span class="p">,</span> <span class="s1">&#39;ModelName&#39;</span><span class="p">),</span>
-    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;indicator_name&#39;</span><span class="p">,</span> <span class="s1">&#39;IndicatorName&#39;</span><span class="p">),</span>
-    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;indicator_group_name&#39;</span><span class="p">,</span> <span class="s1">&#39;IndicatorGroupName&#39;</span><span class="p">),</span>
-    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;template_name&#39;</span><span class="p">,</span> <span class="s1">&#39;TemplateName&#39;</span><span class="p">),</span>
-    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Count&#39;</span><span class="p">,</span> <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_double</span><span class="p">),</span>
-    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;status_code&#39;</span><span class="p">,</span> <span class="s1">&#39;StatusCode&#39;</span><span class="p">,</span> <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_double</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;triggered_on&#39;</span><span class="p">,</span> <span class="s1">&#39;TriggeredOn&#39;</span><span class="p">,</span> <span class="s1">&#39;triggeredOn&#39;</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                   <span class="n">get_extractor</span><span class="o">=</span><span class="n">_odata_to_timestamp_parser</span><span class="p">(),</span>
                                   <span class="n">put_setter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;triggeredOn&#39;</span><span class="p">:</span> <span class="n">_timestamp_to_isoformat</span><span class="p">(</span>
@@ -200,10 +192,21 @@
                                   <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_odata_datetimeoffset</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;last_occured_on&#39;</span><span class="p">,</span> <span class="s1">&#39;LastOccuredOn&#39;</span><span class="p">,</span> <span class="n">get_extractor</span><span class="o">=</span><span class="n">_odata_to_timestamp_parser</span><span class="p">(),</span>
                                   <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_odata_datetimeoffset</span><span class="p">),</span>
+    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;Count&#39;</span><span class="p">,</span> <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_double</span><span class="p">),</span>
+    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;AlertType&#39;</span><span class="p">,</span> <span class="s1">&#39;alertType&#39;</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="s1">&#39;Category&#39;</span><span class="p">),</span>
+    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;severity_code&#39;</span><span class="p">,</span> <span class="s1">&#39;SeverityCode&#39;</span><span class="p">,</span> <span class="s1">&#39;severityCode&#39;</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                  <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_double</span><span class="p">),</span>
+    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;EquipmentName&#39;</span><span class="p">),</span>
+    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;model_name&#39;</span><span class="p">,</span> <span class="s1">&#39;ModelName&#39;</span><span class="p">),</span>
+    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;indicator_name&#39;</span><span class="p">,</span> <span class="s1">&#39;IndicatorName&#39;</span><span class="p">),</span>
+    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;indicator_group_name&#39;</span><span class="p">,</span> <span class="s1">&#39;IndicatorGroupName&#39;</span><span class="p">),</span>
+    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;template_name&#39;</span><span class="p">,</span> <span class="s1">&#39;TemplateName&#39;</span><span class="p">),</span>
+    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;status_code&#39;</span><span class="p">,</span> <span class="s1">&#39;StatusCode&#39;</span><span class="p">,</span> <span class="n">query_transformer</span><span class="o">=</span><span class="n">_qt_double</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;type_description&#39;</span><span class="p">,</span> <span class="s1">&#39;AlertTypeDescription&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;error_code_description&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorCodeDescription&#39;</span><span class="p">),</span>
-    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;AlertType&#39;</span><span class="p">,</span> <span class="s1">&#39;alertType&#39;</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="s1">&#39;Source&#39;</span><span class="p">,</span> <span class="s1">&#39;source&#39;</span><span class="p">),</span>
+    <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;Description&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;AlertId&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;EquipmentID&#39;</span><span class="p">,</span> <span class="s1">&#39;equipmentId&#39;</span><span class="p">,</span> <span class="n">is_mandatory</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;model_id&#39;</span><span class="p">,</span> <span class="s1">&#39;ModelID&#39;</span><span class="p">),</span>
@@ -299,7 +302,40 @@
             <span class="n">custom_columns</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_custom_properties</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="n">columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">custom_columns</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">as_df</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">columns</span><span class="p">))</span></div></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">as_df</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">columns</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="AlertSet.plot_overview"><a class="viewcode-back" href="../../../apidoc/sailor.pai.alert.html#sailor.pai.AlertSet.plot_overview">[docs]</a>    <span class="k">def</span> <span class="nf">plot_overview</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot an overview over all alerts in the set as a function of time.</span>
+
+<span class="sd">        Each alert will be shown by a point, on a y-scale representing the affected equipment</span>
+<span class="sd">        and with a color representing the alert type. The size of the point is given by the ``count`` value.</span>
+<span class="sd">        This value represents how many times the alert has occurred in the deduplication window specified by the</span>
+<span class="sd">        alert type.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        Plot an overview over all alerts in the dataset &quot;alert_set&quot; by time::</span>
+
+<span class="sd">            alert_set.plot_overview()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_df</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;last_occured_on&#39;</span><span class="p">,</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">])</span>
+
+        <span class="c1"># if there are any `NA` values in the equipment_name the plot gets messed up.</span>
+        <span class="c1"># this turns the NAs into an &#39;nan&#39; string, which works fine.</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;equipment_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;equipment_name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+        <span class="n">aes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="s1">&#39;last_occured_on&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="s1">&#39;equipment_name&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">p9</span><span class="o">.</span><span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">p9</span><span class="o">.</span><span class="n">aes</span><span class="p">(</span><span class="o">**</span><span class="n">aes</span><span class="p">))</span>
+        <span class="n">plot</span> <span class="o">+=</span> <span class="n">p9</span><span class="o">.</span><span class="n">geom_point</span><span class="p">(</span><span class="n">p9</span><span class="o">.</span><span class="n">aes</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">))</span>
+        <span class="n">plot</span> <span class="o">+=</span> <span class="n">_default_plot_theme</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">plot</span></div></div>
 
 
 <div class="viewcode-block" id="find_alerts"><a class="viewcode-back" href="../../../apidoc/sailor.pai.alert.html#sailor.pai.find_alerts">[docs]</a><span class="k">def</span> <span class="nf">find_alerts</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">extended_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AlertSet</span><span class="p">:</span>

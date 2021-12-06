@@ -241,7 +241,7 @@
         <span class="sd">&quot;&quot;&quot;Return all equipment present in the TimeseriesDataset.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span>
 
-<div class="viewcode-block" id="TimeseriesDataset.get_key_columns"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_key_columns">[docs]</a>    <span class="k">def</span> <span class="nf">get_key_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speaking_names</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="TimeseriesDataset.get_key_columns"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_key_columns">[docs]</a>    <span class="k">def</span> <span class="nf">get_key_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speaking_names</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_model</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return those columns of the data that identify the asset.</span>
 
@@ -262,12 +262,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s1">&#39;EQUIPMENT&#39;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Currently only Equipment is supported as base object for timeseries data.&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">include_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Model information will be removed from the dataset after December 1 2021 as the &#39;</span>
-                          <span class="s1">&#39;equipment is fully identified by the equipment_id. If you require model information &#39;</span>
-                          <span class="s1">&#39;specify `include_model=True` explicitly.&#39;</span><span class="p">,</span> <span class="ne">FutureWarning</span><span class="p">)</span>
-            <span class="n">include_model</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="n">include_model</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">speaking_names</span><span class="p">:</span>
@@ -307,11 +301,11 @@
             <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span><span class="o">.</span><span class="n">_unique_id_to_names</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span><span class="o">.</span><span class="n">_unique_id_to_constituent_ids</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="TimeseriesDataset.get_index_columns"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_index_columns">[docs]</a>    <span class="k">def</span> <span class="nf">get_index_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speaking_names</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_model</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<div class="viewcode-block" id="TimeseriesDataset.get_index_columns"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_index_columns">[docs]</a>    <span class="k">def</span> <span class="nf">get_index_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speaking_names</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return the names of all index columns (key columns and time column).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_key_columns</span><span class="p">(</span><span class="n">speaking_names</span><span class="p">,</span> <span class="n">include_model</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_column</span><span class="p">()]</span></div>
 
-<div class="viewcode-block" id="TimeseriesDataset.as_df"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.as_df">[docs]</a>    <span class="k">def</span> <span class="nf">as_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speaking_names</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="TimeseriesDataset.as_df"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.as_df">[docs]</a>    <span class="k">def</span> <span class="nf">as_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speaking_names</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_model</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the data stored within this TimeseriesDataset object as a pandas dataframe.</span>
 

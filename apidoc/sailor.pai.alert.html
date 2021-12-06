@@ -250,6 +250,21 @@ must match for an entity to be selected.</p>
 distinguish a second dimension.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.pai.alert.AlertSet.plot_overview">
+<span class="sig-name descname"><span class="pre">plot_overview</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/pai/alert.html#AlertSet.plot_overview"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.pai.alert.AlertSet.plot_overview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot an overview over all alerts in the set as a function of time.</p>
+<p>Each alert will be shown by a point, on a y-scale representing the affected equipment
+and with a color representing the alert type. The size of the point is given by the <code class="docutils literal notranslate"><span class="pre">count</span></code> value.
+This value represents how many times the alert has occurred in the deduplication window specified by the
+alert type.</p>
+<p class="rubric">Example</p>
+<p>Plot an overview over all alerts in the dataset “alert_set” by time:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">alert_set</span><span class="o">.</span><span class="n">plot_overview</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
