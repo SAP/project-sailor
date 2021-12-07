@@ -36,7 +36,7 @@ def mock_find_inspection_logs():
 
 def test_expected_public_attributes_are_present():
     expected_attributes = [
-        'short_description', 'id', 'name', 'objective', 'status', 'version', 'created_at', 'changed_at'
+        'short_description', 'name', 'objective', 'status', 'version', 'id', 'created_at', 'changed_at'
     ]
 
     fieldmap_public_attributes = [field.our_name for field in Scenario._field_map.values() if field.is_exposed]
@@ -74,8 +74,6 @@ def test_correct_arguments(mock_url, mock_fetch):
 def test_correct_scenario_object(mock_url, mock_fetch):
     kwargs = {
         'deployment_type': 'Deployment_Type',
-        'material': 'Example_Material',
-        'operation': 'Example_Operation',
         'plant': 'Example_Plant',
         'resource': 'Example_Resource',
         'routing': 'Example_Routing',
@@ -109,8 +107,6 @@ def test_correct_scenario_object(mock_url, mock_fetch):
 def test_get_inspection_logs(mock_url, mock_fetch, mock_find_inspection_logs):
     kwargs = {
         'deployment_type': 'Deployment_Type',
-        'material': 'Example_Material',
-        'operation': 'Example_Operation',
         'plant': 'Example_Plant',
         'resource': 'Example_Resource',
         'routing': 'Example_Routing',

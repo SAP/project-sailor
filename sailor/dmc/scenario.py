@@ -12,11 +12,11 @@ from .utils import (DigitalManufacturingCloudEntity, DigitalManufacturingCloudEn
 
 _SCENARIO_FIELDS = [
     _DigitalManufacturingCloudField('short_description', 'scenarioDescription'),
-    _DigitalManufacturingCloudField('id', 'scenarioId'),
     _DigitalManufacturingCloudField('name', 'scenarioName'),
     _DigitalManufacturingCloudField('objective', 'scenarioObjective'),
     _DigitalManufacturingCloudField('status', 'scenarioStatus'),
     _DigitalManufacturingCloudField('version', 'scenarioVersion'),
+    _DigitalManufacturingCloudField('id', 'scenarioId'),
     _DigitalManufacturingCloudField('created_at', 'scenarioCreatedAt'),
     _DigitalManufacturingCloudField('changed_at', 'scenarioChangedAt'),
     _DigitalManufacturingCloudField('_combinations', 'scenarioCombinations'),
@@ -99,6 +99,7 @@ def find_scenarios(**kwargs) -> ScenarioSet:
         raise RuntimeError(error_msg_mandatory_properties)
     elif 'sfc' not in kwargs and not all(key in kwargs for key in ['material', 'operation']):
         raise RuntimeError(error_msg_mandatory_properties)
+
     endpoint_url = _dmc_application_url() + AIML_GROUP + ACTIVE_SCENARIOS
 
     object_list = _dmc_fetch_data(endpoint_url, kwargs, _SCENARIO_FILTER_FIELDS)
