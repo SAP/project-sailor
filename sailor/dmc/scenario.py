@@ -73,7 +73,7 @@ def find_scenarios(**kwargs) -> ScenarioSet:
     Parameters
     ----------
     **kwargs
-        See :ref:`filter`.
+        Only equality filters. Some parameters are mandatory.
 
     Examples
     --------
@@ -91,6 +91,14 @@ def find_scenarios(**kwargs) -> ScenarioSet:
 
       find_scenarios(**kwargs)
     """
+    error_msg_mandatory_properties = ("'plant' must specified along with either 'sfc' or a combination of "
+                                      "'operation' and 'material'.")
+    if 'plant' not in kwargs:
+        raise RuntimeError(error_msg_mandatory_properties)
+    if 'sfc' in kwargs and any(key in kwargs for key in ['material', 'operation']):
+        raise RuntimeError(error_msg_mandatory_properties)
+    elif 'sfc' not in kwargs and not all(key in kwargs for key in ['material', 'operation']):
+        raise RuntimeError(error_msg_mandatory_properties)
     endpoint_url = _dmc_application_url() + AIML_GROUP + ACTIVE_SCENARIOS
 
     object_list = _dmc_fetch_data(endpoint_url, kwargs, _SCENARIO_FILTER_FIELDS)
