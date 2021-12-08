@@ -77,7 +77,7 @@ class TimeseriesDataset(object):
         """Return all equipment present in the TimeseriesDataset."""
         return self._equipment_set
 
-    def get_key_columns(self, speaking_names=False, include_model=None):
+    def get_key_columns(self, speaking_names=False, include_model=False):
         """
         Return those columns of the data that identify the asset.
 
@@ -98,12 +98,6 @@ class TimeseriesDataset(object):
         """
         if self.type != 'EQUIPMENT':
             raise NotImplementedError('Currently only Equipment is supported as base object for timeseries data.')
-
-        if include_model is None:
-            warnings.warn('Model information will be removed from the dataset after December 1 2021 as the '
-                          'equipment is fully identified by the equipment_id. If you require model information '
-                          'specify `include_model=True` explicitly.', FutureWarning)
-            include_model = True
 
         if include_model:
             if speaking_names:
@@ -143,11 +137,11 @@ class TimeseriesDataset(object):
             return list(self._indicator_set._unique_id_to_names().values())
         return list(self._indicator_set._unique_id_to_constituent_ids().keys())
 
-    def get_index_columns(self, speaking_names=False, include_model=None) -> list:
+    def get_index_columns(self, speaking_names=False, include_model=False) -> list:
         """Return the names of all index columns (key columns and time column)."""
         return [*self.get_key_columns(speaking_names, include_model), self.get_time_column()]
 
-    def as_df(self, speaking_names=False, include_model=None):
+    def as_df(self, speaking_names=False, include_model=False):
         """
         Return the data stored within this TimeseriesDataset object as a pandas dataframe.
 

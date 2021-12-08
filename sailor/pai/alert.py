@@ -8,6 +8,8 @@ from functools import lru_cache
 from typing import Iterable
 import re
 
+import plotnine as p9
+
 import sailor.assetcentral.utils as ac_utils
 from sailor import _base
 from sailor.utils.oauth_wrapper import get_oauth_client
@@ -16,19 +18,9 @@ from sailor._base.masterdata import _qt_odata_datetimeoffset, _qt_double
 from .constants import ALERTS_READ_PATH, ALERTS_WRITE_PATH
 from .utils import (PredictiveAssetInsightsEntity, _PredictiveAssetInsightsField,
                     PredictiveAssetInsightsEntitySet, _pai_application_url, _pai_fetch_data)
+from ..utils.plot_helper import _default_plot_theme
 
 _ALERT_FIELDS = [
-    _PredictiveAssetInsightsField('description', 'Description', 'description'),
-    _PredictiveAssetInsightsField('severity_code', 'SeverityCode', 'severityCode', is_mandatory=True,
-                                  query_transformer=_qt_double),
-    _PredictiveAssetInsightsField('category', 'Category'),
-    _PredictiveAssetInsightsField('equipment_name', 'EquipmentName'),
-    _PredictiveAssetInsightsField('model_name', 'ModelName'),
-    _PredictiveAssetInsightsField('indicator_name', 'IndicatorName'),
-    _PredictiveAssetInsightsField('indicator_group_name', 'IndicatorGroupName'),
-    _PredictiveAssetInsightsField('template_name', 'TemplateName'),
-    _PredictiveAssetInsightsField('count', 'Count', query_transformer=_qt_double),
-    _PredictiveAssetInsightsField('status_code', 'StatusCode', query_transformer=_qt_double),
     _PredictiveAssetInsightsField('triggered_on', 'TriggeredOn', 'triggeredOn', is_mandatory=True,
                                   get_extractor=_odata_to_timestamp_parser(),
                                   put_setter=lambda p, v: p.update({'triggeredOn': _timestamp_to_isoformat(
@@ -36,10 +28,21 @@ _ALERT_FIELDS = [
                                   query_transformer=_qt_odata_datetimeoffset),
     _PredictiveAssetInsightsField('last_occured_on', 'LastOccuredOn', get_extractor=_odata_to_timestamp_parser(),
                                   query_transformer=_qt_odata_datetimeoffset),
+    _PredictiveAssetInsightsField('count', 'Count', query_transformer=_qt_double),
+    _PredictiveAssetInsightsField('type', 'AlertType', 'alertType', is_mandatory=True),
+    _PredictiveAssetInsightsField('category', 'Category'),
+    _PredictiveAssetInsightsField('severity_code', 'SeverityCode', 'severityCode', is_mandatory=True,
+                                  query_transformer=_qt_double),
+    _PredictiveAssetInsightsField('equipment_name', 'EquipmentName'),
+    _PredictiveAssetInsightsField('model_name', 'ModelName'),
+    _PredictiveAssetInsightsField('indicator_name', 'IndicatorName'),
+    _PredictiveAssetInsightsField('indicator_group_name', 'IndicatorGroupName'),
+    _PredictiveAssetInsightsField('template_name', 'TemplateName'),
+    _PredictiveAssetInsightsField('status_code', 'StatusCode', query_transformer=_qt_double),
     _PredictiveAssetInsightsField('type_description', 'AlertTypeDescription'),
     _PredictiveAssetInsightsField('error_code_description', 'ErrorCodeDescription'),
-    _PredictiveAssetInsightsField('type', 'AlertType', 'alertType', is_mandatory=True),
     _PredictiveAssetInsightsField('source', 'Source', 'source'),
+    _PredictiveAssetInsightsField('description', 'Description', 'description'),
     _PredictiveAssetInsightsField('id', 'AlertId'),
     _PredictiveAssetInsightsField('equipment_id', 'EquipmentID', 'equipmentId', is_mandatory=True),
     _PredictiveAssetInsightsField('model_id', 'ModelID'),
@@ -136,6 +139,39 @@ class AlertSet(PredictiveAssetInsightsEntitySet):
             columns.update(custom_columns)
 
         return super().as_df(columns=list(columns))
+
+    def plot_overview(self):
+        """
+        Plot an overview over all alerts in the set as a function of time.
+
+        Each alert will be shown by a point, on a y-scale representing the affected equipment
+        and with a color representing the alert type. The size of the point is given by the ``count`` value.
+        This value represents how many times the alert has occurred in the deduplication window specified by the
+        alert type.
+
+        Example
+        -------
+        Plot an overview over all alerts in the dataset "alert_set" by time::
+
+            alert_set.plot_overview()
+        """
+        data = self.as_df(columns=['last_occured_on', 'equipment_name', 'type', 'count'])
+
+        # if there are any `NA` values in the equipment_name the plot gets messed up.
+        # this turns the NAs into an 'nan' string, which works fine.
+        data['equipment_name'] = data['equipment_name'].astype(str)
+
+        aes = {
+            'x': 'last_occured_on',
+            'y': 'equipment_name',
+            'color': 'type',
+        }
+
+        plot = p9.ggplot(data, p9.aes(**aes))
+        plot += p9.geom_point(p9.aes(size='count'))
+        plot += _default_plot_theme()
+
+        return plot
 
 
 def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
