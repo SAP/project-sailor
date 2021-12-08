@@ -137,11 +137,14 @@ class TestMasterDataEntity:
         for class_ in classes:
             assert 'id' in class_._field_map
 
-    def test_repr_starts_with_classname(self):
+    def test_repr_starts_with_classname(self, monkeypatch):
         abstract_classes = _base.MasterDataEntity.__subclasses__()
         classes = sum((class_.__subclasses__() for class_ in abstract_classes), start=list())
         for class_ in classes:
-            object_ = class_({'id': 1})
+            # all classes need to have an ID, but it can be differently generated
+            # id is part of the base class representation
+            monkeypatch.setattr(class_, 'id', 1)
+            object_ = class_({})
             assert str(object_).startswith(class_.__name__)
 
 

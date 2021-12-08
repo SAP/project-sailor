@@ -292,32 +292,33 @@ def test_inspection_log_constructs_correct_object():
         assert getattr(actual, property_name) == value
 
 
-
-
 def test_get_details(mock_url, mock_fetch):
-    kwargs = {
-        'scenario_id': '123',
-        'scenario_version': 1,
-    }
-
-    expected_url_context = 'base_url/aiml/v1/inspectionLogsForContext'
-
+    inspection_log = InspectionLog({
+        'fileId': _FILE_1,
+        'inspectionLogTime': _TIME_1,
+        'inspectionType': _TYPE,
+        'inspectionViewName': _VIEW_NAME,
+        'loggedAnnotation': f'{_NC_1}:{_BB_NC_1_LOG};{_NC_3}:{_BB_NC_3_LOG}',
+        'loggedNCCode': f'{_NC_1};{_NC_3}',
+        'material': _MATERIAL,
+        'operation': _OPERATION,
+        'plant': _PLANT,
+        'predictedAnnotation': f'{_NC_1}:{_BB_NC_1_PRED};{_NC_3}:{_BB_NC_3_PRED}',
+        'predictedClass': f'{_NC_1_CLASS}:0.95;{_NC_3_CLASS}:0.89',
+        'predictedNCCode': f'{_NC_1}:0-95;{_NC_3}:0.89',
+        'resource': _RESOURCE,
+        'routing': _ROUTING,
+        'sfcId': _SFC,
+        'source': _SOURCE})
     expected_url_log = 'base_url/aiml/v1/inspectionLog'
-
-    expected_filters_context = {
-        'scenario_id': '123',
-        'scenario_version': 1,
-    }
-
     expected_filters_log = {
-        'id': _TIME_1,
+        'timestamp': _TIME_1,
         'file_id': _FILE_1,
         'plant': _PLANT,
         'sfc': _SFC,
         'material': _MATERIAL,
         'operation': _OPERATION,
     }
-
     expected_filter_fields = {
         'file_id': 'fileID',
         'from_date': 'fromDate',
@@ -335,23 +336,14 @@ def test_get_details(mock_url, mock_fetch):
         'skip': 'skip',
         'source': 'source',
         'top': 'top',
-        'id': 'inspectionLogTime',
+        'timestamp': 'inspectionLogTime',
     }
-
-    mock_fetch.side_effect = [_MOCK_RESPONSE, _DETAILS_1]
-
-    inspection_logs = find_inspection_logs(**kwargs)
-
-    # the function find_inpection_logs does not return the dictionaries in the same order as the mock response, so
-    # matching them by their id is required
-    inspection_log = next(item for item in inspection_logs if getattr(item, 'id') == _TIME_1)
+    mock_fetch.return_value = _DETAILS_1
 
     actual = inspection_log._get_details()
 
     assert actual == _DETAILS_1
-
     mock_fetch.assert_has_calls([
-        call(expected_url_context, expected_filters_context, expected_filter_fields),
         call(expected_url_log, expected_filters_log, expected_filter_fields),
     ])
 
