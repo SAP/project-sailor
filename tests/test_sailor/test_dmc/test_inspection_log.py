@@ -195,13 +195,14 @@ def mock_details():
 
 def test_expected_public_attributes_are_present():
     expected_attributes = [
-        'file_id', 'id', 'type', 'view_name', 'logged_annotation', 'logged_nc_code', 'material', 'operation', 'plant',
-        'predicted_annotation', 'predicted_class', 'predicted_nc_code', 'resource', 'routing', 'sfc', 'source'
+        'file_id', 'timestamp', 'type', 'view_name', 'logged_annotation', 'logged_nc_code', 'material', 'operation',
+        'plant', 'predicted_annotation', 'predicted_class', 'predicted_nc_code', 'resource', 'routing', 'sfc', 'source'
     ]
 
     fieldmap_public_attributes = [field.our_name for field in InspectionLog._field_map.values() if field.is_exposed]
 
     assert expected_attributes == fieldmap_public_attributes
+    assert InspectionLog.id is not None
 
 
 def test_find_inspection_logs_correct_arguments(mock_url, mock_fetch):
@@ -233,7 +234,7 @@ def test_find_inspection_logs_correct_arguments(mock_url, mock_fetch):
         'skip': 'skip',
         'source': 'source',
         'top': 'top',
-        'id': 'inspectionLogTime',
+        'timestamp': 'inspectionLogTime',
     }
 
     find_inspection_logs(scenario_id=scenario_id, scenario_version=scenario_version)
@@ -253,20 +254,23 @@ def test_find_inspection_logs_raises_error_if_scenario_id_or_version_missing(moc
         find_inspection_logs(scenario_version=scenario_version)
 
 
-def test_correct_inspection_log_object(mock_url, mock_fetch):
+def test_find_inspection_logs_result(mock_url, mock_fetch):
     kwargs = {
         'scenario_id': '123',
         'scenario_version': 1,
     }
+    expected_result = InspectionLogSet([InspectionLog(result) for result in _MOCK_RESPONSE])
 
-    inspection_logs = find_inspection_logs(**kwargs)
+    actual = find_inspection_logs(**kwargs)
 
-    assert len(inspection_logs) == 3
-    assert type(inspection_logs) == InspectionLogSet
+    assert type(actual) == InspectionLogSet
+    assert expected_result == actual
 
-    expected_attributes = [{
+
+def test_inspection_log_constructs_correct_object():
+    expected_attributes = {
         'file_id': _FILE_1,
-        'id': _TIME_1,
+        'timestamp': _TIME_1,
         'type': _TYPE,
         'view_name': _VIEW_NAME,
         'logged_annotation': f'{_NC_1}:{_BB_NC_1_LOG};{_NC_3}:{_BB_NC_3_LOG}',
@@ -281,43 +285,13 @@ def test_correct_inspection_log_object(mock_url, mock_fetch):
         'routing': _ROUTING,
         'sfc': _SFC,
         'source': _SOURCE
-    }, {
-        'file_id': _FILE_2,
-        'id': _TIME_2,
-        'type': _TYPE,
-        'view_name': _VIEW_NAME,
-        'material': _MATERIAL,
-        'operation': _OPERATION,
-        'plant': _PLANT,
-        'predicted_annotation': f'{_NC_2}:[]',
-        'predicted_class': f'{_NC_2_CLASS}:0.75',
-        'predicted_nc_code': f'{_NC_2}:0.75',
-        'resource': _RESOURCE,
-        'routing': _ROUTING,
-        'sfc': _SFC,
-        'source': _SOURCE
-    }, {
-        'file_id': _FILE_2,
-        'id': _TIME_3,
-        'type': _TYPE,
-        'view_name': _VIEW_NAME,
-        'material': _MATERIAL,
-        'operation': _OPERATION,
-        'plant': _PLANT,
-        'resource': _RESOURCE,
-        'routing': _ROUTING,
-        'sfc': _SFC,
-        'source': _SOURCE
-    }]
+    }
+    actual = InspectionLog(_MOCK_RESPONSE[0])
 
-    for i in range(3):
-        # the function find_inpection_logs does not return the dictionaries in the same order as the mock response, so
-        # matching them by their id is required
-        matching_dict = next((item for item in expected_attributes if item['id'] == getattr(inspection_logs[i], 'id')),
-                             None)
-        for property_name, value in matching_dict.items():
-            assert type(inspection_logs[i]) == InspectionLog
-            assert getattr(inspection_logs[i], property_name) == value
+    for property_name, value in expected_attributes.items():
+        assert getattr(actual, property_name) == value
+
+
 
 
 def test_get_details(mock_url, mock_fetch):

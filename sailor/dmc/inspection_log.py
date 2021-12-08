@@ -5,6 +5,8 @@ Classes are provided for individual Inspection Logs as well as groups of Inspect
 """
 from base64 import b64decode
 from typing import Any, Dict, List, Tuple
+from functools import cached_property
+import hashlib
 
 import pandas as pd
 
@@ -16,7 +18,7 @@ from .utils import (DigitalManufacturingCloudEntity, DigitalManufacturingCloudEn
 # TODO: replace inspectionLogTime by a more suitable id as soon as one is available via the API
 _INSPECTION_LOG_FIELDS = [
     _DigitalManufacturingCloudField('file_id', 'fileId'),
-    _DigitalManufacturingCloudField('id', 'inspectionLogTime'),
+    _DigitalManufacturingCloudField('timestamp', 'inspectionLogTime'),
     _DigitalManufacturingCloudField('type', 'inspectionType'),
     _DigitalManufacturingCloudField('view_name', 'inspectionViewName'),
     _DigitalManufacturingCloudField('logged_annotation', 'loggedAnnotation'),
@@ -51,7 +53,7 @@ _INSPECTION_LOG_FILTER_FIELDS = {
     'skip': 'skip',
     'source': 'source',
     'top': 'top',
-    'id': 'inspectionLogTime',
+    'timestamp': 'inspectionLogTime',
 }
 
 
@@ -60,6 +62,18 @@ class InspectionLog(DigitalManufacturingCloudEntity):
     """Digital Manufacturing Cloud InspectionLog Object."""
 
     _field_map = {field.our_name: field for field in _INSPECTION_LOG_FIELDS}
+
+    @property
+    def id(self):
+        """Return the local replacement unique id of the InspectionLog."""
+        return self._unique_id
+
+    @cached_property
+    def _unique_id(self):
+        m = hashlib.sha256()
+        unique_string = self.plant + self.sfc + self.view_name + self.file_id + self.timestamp
+        m.update(unique_string.encode())
+        return m.hexdigest()
 
     # TODO: Review whether to do some remapping to fit syntax with INSPECTION_LOG_FIELDS
     # or add the properties to the Inspection Logs returned by find_inspection_logs()
@@ -74,7 +88,7 @@ class InspectionLog(DigitalManufacturingCloudEntity):
         # Material and operation might not be strictly necessary for identification of the correct Inspection Log,
         # however, if they are excluded the response will (or at the very least might) not contain any fileContent.
         params = {
-            'id': self.id,
+            'timestamp': self.timestamp,
             'file_id': self.file_id,
             'plant': self.plant,
             'sfc': self.sfc,
@@ -310,7 +324,7 @@ def find_inspection_logs(**kwargs) -> InspectionLogSet:
       kwargs = {
           'scenario_id': 'MyScenarioID',
           'scenario_version': 1,
-          'id': '2021-31-01 08:30:00:000',
+          'timestamp': '2021-31-01 08:30:00:000',
       }
 
       find_inspection_logs(**kwargs)
