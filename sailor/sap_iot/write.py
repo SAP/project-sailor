@@ -10,6 +10,8 @@ from functools import partial
 from collections import defaultdict
 import logging
 
+import numpy as np
+
 import sailor.assetcentral.indicators as ac_indicators
 from ..utils.timestamps import _timestamp_to_isoformat
 from ..utils.oauth_wrapper import get_oauth_client
@@ -49,6 +51,7 @@ def _upload_data_single_indicator_group(dataset, indicator_set, group_id, templa
     LOG.debug('Starting upload for %s, %s', group_id, template_id)
 
     df = dataset.filter(indicator_set=indicator_set).as_df(include_model=False).reset_index()
+    df = df.replace({np.nan: None})
     df = (
         df.assign(_time=df['timestamp'].apply(partial(_timestamp_to_isoformat, with_zulu=True)))
           .drop(columns='timestamp')

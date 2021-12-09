@@ -1,8 +1,10 @@
 from unittest.mock import patch
 
+import numpy as np
 import pytest
 
 from sailor.sap_iot.write import upload_indicator_data
+from sailor.utils.timestamps import _timestamp_to_isoformat
 from ..data_generators import make_dataset
 
 
@@ -86,6 +88,28 @@ def test_each_equipment_one_request(mock_request, mock_upload_url, make_indicato
 
     assert mock_request.call_count == 2
     assert urls == {request_base + equipment.id for equipment in equipment_set}
+
+
+def test_nan_dataset_written(mock_request, make_indicator_set, make_equipment_set):
+    indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'])
+    equipment_set = make_equipment_set(equipmentId=['equipment_A'])
+    dataset = make_dataset(indicator_set, equipment_set, 2)
+
+    none_indicator = indicator_set[0]
+    valid_indicator = indicator_set[1]
+    none_timestamp = _timestamp_to_isoformat(dataset._df.loc[0, 'timestamp'], with_zulu=True)
+    dataset._df.loc[0, none_indicator._unique_id] = np.nan
+
+    upload_indicator_data(dataset)
+    payloads = [args[-1]['json'] for args in mock_request.call_args_list]
+    for payload in payloads:
+        for values_at_timestamp in payload['Values']:
+            assert isinstance(values_at_timestamp[valid_indicator._liot_id], float)
+
+            if values_at_timestamp['_time'] == none_timestamp:
+                assert values_at_timestamp[none_indicator._liot_id] is None
+            else:
+                assert isinstance(values_at_timestamp[none_indicator._liot_id], float)
 
 
 def test_aggregate_indicators_in_dataset_raise(make_aggregated_indicator_set, make_equipment_set):
