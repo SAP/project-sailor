@@ -9,7 +9,7 @@ from rauth import OAuth2Service
 import jwt
 
 from sailor.utils.utils import warn_and_log
-from .config import SailorConfig
+from sailor.utils.config import SailorConfig
 from .scope_config import SCOPE_CONFIG
 
 LOG = logging.getLogger(__name__)
