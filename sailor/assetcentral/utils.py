@@ -3,8 +3,10 @@
 from copy import deepcopy
 from collections import UserDict
 import logging
+import time
 
 from sailor import _base
+from sailor.utils.oauth_wrapper.OAuthServiceImpl import RequestError
 from sailor.utils.config import SailorConfig
 from sailor.utils.utils import warn_and_log
 
@@ -13,8 +15,17 @@ LOG.addHandler(logging.NullHandler())
 
 
 def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
-    return _base.fetch_data('asset_central', _ac_response_handler,
-                            endpoint_url, unbreakable_filters, breakable_filters)
+    try:
+        return _base.fetch_data('asset_central', _ac_response_handler,
+                                endpoint_url, unbreakable_filters, breakable_filters)
+    except RequestError as e:
+        if e.status_code == 429:
+            LOG.debug('AssetCentral request was rate limited, will re-try once in 1s.')
+            time.sleep(1)
+            return _base.fetch_data('asset_central', _ac_response_handler,
+                                    endpoint_url, unbreakable_filters, breakable_filters)
+        else:
+            raise
 
 
 def _ac_response_handler(result_list, endpoint_data):
