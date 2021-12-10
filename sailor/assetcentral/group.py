@@ -5,10 +5,10 @@ Classes are provided for individual Groups as well as groups of Groups (GroupSet
 """
 
 from functools import cached_property
-import warnings
 
 from sailor import _base
-from ..utils.timestamps import _string_to_timestamp_parser
+from sailor.utils.timestamps import _string_to_timestamp_parser
+from sailor.utils.utils import warn_and_log
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _ac_application_url, _ac_fetch_data)
 from .constants import VIEW_GROUPS
@@ -57,7 +57,7 @@ class Group(AssetcentralEntity):
                         if item['businessObjectType'] == business_object_type]
 
         if not kwargs['id']:
-            warnings.warn(f'There are no "{member_name}" in this group!')
+            warn_and_log(f'There are no "{member_name}" in this group!', logger_name=__name__)
             return set_class([])
 
         return find_function(extended_filters=extended_filters, **kwargs)
@@ -133,7 +133,7 @@ class GroupSet(AssetcentralEntitySet):
         kwargs['id'] = set([item['businessObjectId'] for group in self.elements for item in group._members_raw
                             if item['businessObjectType'] == business_object_type])
         if not kwargs['id']:
-            warnings.warn(f'There are no "{member_name}" in any of the groups in this set!')
+            warn_and_log(f'There are no "{member_name}" in any of the groups in this set!', logger_name=__name__)
             return set_class([])
 
         return find_function(extended_filters=extended_filters, **kwargs)

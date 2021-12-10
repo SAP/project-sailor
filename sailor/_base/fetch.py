@@ -1,12 +1,11 @@
 from itertools import product
 import operator
 from typing import List
-import warnings
 import re
 import logging
 
-from ..utils.oauth_wrapper import get_oauth_client
-from ..utils.utils import DataNotFoundWarning, _is_non_string_iterable
+from sailor.utils.oauth_wrapper import get_oauth_client
+from sailor.utils.utils import DataNotFoundWarning, _is_non_string_iterable, warn_and_log
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -49,7 +48,7 @@ def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=
         result.extend(result_filter)
 
     if len(result) == 0:
-        warnings.warn(DataNotFoundWarning(), stacklevel=2)
+        warn_and_log(DataNotFoundWarning(), logger_name=__name__, stacklevel=2)
 
     return result
 
@@ -276,7 +275,8 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         unified_filters.append((key, _OPERATOR_MAP[o], v))
 
     if len(not_our_term) > 0:
-        warnings.warn(f'Following parameters are not in our terminology: {not_our_term}', stacklevel=3)
+        warn_and_log(f'Following parameters are not in our terminology: {not_our_term}', logger_name=__name__,
+                     stacklevel=3)
 
     return unified_filters
 

@@ -20,7 +20,7 @@ def _is_non_string_iterable(obj):
     return isinstance(obj, Iterable)
 
 
-def sailor_warning(message, logger_name, stacklevel=1, category=None):
+def warn_and_log(message, logger_name, stacklevel=1, category=None):
     logger = logging.getLogger(logger_name)
     logger.warning(message)
     warnings.warn(message, category=category, stacklevel=stacklevel)
