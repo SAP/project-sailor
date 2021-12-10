@@ -103,8 +103,8 @@ class TimeseriesDataset(object):
 
         if include_model is None:
             warn_and_log('Model information will be removed from the dataset after December 1 2021 as the '
-                          'equipment is fully identified by the equipment_id. If you require model information '
-                          'specify `include_model=True` explicitly.', category=FutureWarning, logger_name=__name__)
+                         'equipment is fully identified by the equipment_id. If you require model information '
+                         'specify `include_model=True` explicitly.', category=FutureWarning, logger_name=__name__)
             include_model = True
 
         if include_model:
@@ -160,8 +160,8 @@ class TimeseriesDataset(object):
         """
         if include_model is None:
             warn_and_log('Model information will be removed from the dataset after December 1 2021 as the '
-                          'equipment is fully identified by the equipment_id. If you require model information '
-                          'specify `include_model=True` explicitly.', category=FutureWarning, logger_name=__name__)
+                         'equipment is fully identified by the equipment_id. If you require model information '
+                         'specify `include_model=True` explicitly.', category=FutureWarning, logger_name=__name__)
             include_model = True
 
         if include_model:

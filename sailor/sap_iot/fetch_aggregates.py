@@ -157,7 +157,7 @@ def get_indicator_aggregates(start: Union[str, pd.Timestamp, datetime], end: Uni
         aggregation_interval = isodate.parse_duration(aggregation_interval)
         if duration != aggregation_interval:
             warn_and_log(f'The aggregation interval returned by the query ("{duration}") ' +
-                           f'does not match the requested aggregation interval ("{aggregation_interval}")',
+                         f'does not match the requested aggregation interval ("{aggregation_interval}")',
                          logger_name=__name__)
 
     return TimeseriesDataset(df, aggregated_indicators, equipment_set, start, end)
