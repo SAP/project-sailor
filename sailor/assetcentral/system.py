@@ -373,7 +373,8 @@ def create_analysis_table(indicator_data, equi_info):
     # join with leading equipment
     data = indicator_data.merge(equi_info)
     # drop model id and equipment id
-    data.drop(['model_id', 'equipment_id'], axis=1, inplace=True)
+    # data.drop(['model_id', 'equipment_id'], axis=1, inplace=True)
+    data.drop(['equipment_id'], axis=1, inplace=True)
     # create really long format
     long = data.melt(id_vars=['timestamp', 'leading_equipment', 'equi_counter'])
     long = long[long.equi_counter >= 0]
