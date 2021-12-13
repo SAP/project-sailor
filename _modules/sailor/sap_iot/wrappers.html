@@ -314,12 +314,6 @@
 <span class="sd">        column headers are replaced by a hierarchical index of template_id, indicator_group_name, indicator_name and</span>
 <span class="sd">        aggregation_function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">include_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Model information will be removed from the dataset after December 1 2021 as the &#39;</span>
-                          <span class="s1">&#39;equipment is fully identified by the equipment_id. If you require model information &#39;</span>
-                          <span class="s1">&#39;specify `include_model=True` explicitly.&#39;</span><span class="p">,</span> <span class="ne">FutureWarning</span><span class="p">)</span>
-            <span class="n">include_model</span> <span class="o">=</span> <span class="kc">True</span>
-
         <span class="k">if</span> <span class="n">include_model</span><span class="p">:</span>
             <span class="n">model_ids</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
                 <span class="p">[(</span><span class="n">equi</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">equi</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">equi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;model_id&#39;</span><span class="p">]</span>
