@@ -113,7 +113,7 @@ def _get_exported_bulk_timeseries_data(export_id: str,
     oauth_iot = get_oauth_client('sap_iot')
     base_url = SailorConfig.get('sap_iot', 'download_url')  # todo: figure out what to do about these urls
     request_url = f"{base_url}/v1/DownloadData('{export_id}')"
-
+    print(request_url)
     resp = oauth_iot.request('GET', request_url, headers={'Accept': 'application/octet-stream'})
     ifile = BytesIO(resp)
     try:

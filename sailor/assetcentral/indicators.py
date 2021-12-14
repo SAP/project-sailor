@@ -88,6 +88,21 @@ class AggregatedIndicator(Indicator):
         return f'{self._liot_id}_{self.aggregation_function}'
 
 
+class SystemIndicator(Indicator):
+    """An extension of the AssetCentral Indicator object that additionally holds hierarchy position information."""
+
+    def __init__(self, ac_json, hierarchy_position):
+        super(SystemIndicator, self).__init__(ac_json)
+        self.hierarchy_position = hierarchy_position
+
+    @cached_property
+    def _unique_id(self):
+        m = hashlib.sha256()
+        unique_string = self.id + self.indicator_group_id + self.template_id + str(self.hierarchy_position)
+        m.update(unique_string.encode())
+        return m.hexdigest()
+
+
 class IndicatorSet(AssetcentralEntitySet):
     """Class representing a group of Indicators."""
 
@@ -158,6 +173,36 @@ class AggregatedIndicatorSet(IndicatorSet):
                 aggregated_indicators.append(AggregatedIndicator(indicator.raw.copy(), aggregation_function))
 
         return cls(aggregated_indicators)
+
+
+class SystemIndicatorSet(IndicatorSet):
+    """Class representing a group of SystemIndicators."""
+
+    _element_type = SystemIndicator
+
+    def _unique_id_to_names(self):
+        """Get details on an opaque column_id in terms of AssetCentral names and aggregation_function."""
+        mapping = {}
+        for indicator in self:
+            mapping[indicator._unique_id] = (
+                indicator.template_id,  # apparently fetching the template name would need a remote call
+                indicator.indicator_group_name,
+                indicator.name,
+                indicator.hierarchy_position,
+            )
+        return mapping
+
+    def _unique_id_to_constituent_ids(self):
+        """Get details on an opaque column_id in terms of AssetCentral IDs and aggregation_function."""
+        mapping = {}
+        for indicator in self:
+            mapping[indicator._unique_id] = (
+                indicator.template_id,
+                indicator.indicator_group_id,
+                indicator.id,
+                indicator.hierarchy_position,
+            )
+        return mapping
 
 # while there is a generic '/services/api/v1/indicators' endpoint that allows to find indicators,
 # that endpoint returns a very different object from the one that you can find via the equipment.

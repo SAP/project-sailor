@@ -231,15 +231,17 @@ class SystemSet(AssetcentralEntitySet):
         return sap_iot.get_indicator_data(start, end, all_indicators, all_equipment)
 
     @staticmethod
-    def _fill_nones(sel_nodes, indicator_list, none_positions):
+    def _fill_nones(sel_nodes, indicator_list, none_positions, equi_counter):
         """Fill None for indicators of missing subtrees recursively."""
         for node in sel_nodes:
             if node['object_type'] == 'EQU':
+                equi_counter += 1
                 for indicator in node['indicators']:
                     none_positions.add(len(indicator_list))
                     indicator_list.append(None)
             if 'child_nodes' in node.keys():
-                SystemSet._fill_nones(node['child_nodes'], indicator_list, none_positions)
+                equi_counter = SystemSet._fill_nones(node['child_nodes'], indicator_list, none_positions, equi_counter)
+        return equi_counter
 
     @staticmethod
     def _map_comp_info(sel_nodes, sys_nodes, indicator_list, none_positions, equipment, equi_counter):
@@ -260,11 +262,15 @@ class SystemSet(AssetcentralEntitySet):
                     equi_counter = SystemSet._map_comp_info(node['child_nodes'], sys_nodes[node['key']]['child_nodes'],
                                                             indicator_list, none_positions, equipment, equi_counter)
                 else:
-                    SystemSet._fill_nones(node['child_nodes'], indicator_list, none_positions)
+                    equi_counter = SystemSet._fill_nones(node['child_nodes'], indicator_list, none_positions, equi_counter)
         return equi_counter
 
     def _map_component_information(self, selection):
-        """Map selection dictionary against component dictionary of systems in a system set."""
+        """Map selection dictionary against component dictionary of systems in a system set.
+        
+        system_indicators: dictionary of selected indicators
+        system_equipment: dictionary of pieces of equipment and their positions
+        """
         system_indicators = {}
         system_equipment = {}
         none_positions = set()
@@ -288,6 +294,24 @@ class SystemSet(AssetcentralEntitySet):
             for system in self:
                 for p in none_positions:
                     del system_indicators[system.id][p]
+            # keep only pieces of equipment for relevant indicators
+            keep_equi = set()
+            for indicator in system_indicators[self[0].id]:
+                keep_equi.add(indicator[0])
+            equi_map = {}
+            c = 0
+            for equi in system_equipment[self[0].id]:
+                if equi in keep_equi:
+                    equi_map[system_equipment[self[0].id][equi]] = c
+                    c += 1
+            sys_equipment = {}
+            for system in self:
+                equipment = {}
+                for equi in system_equipment[system.id]:
+                    if system_equipment[system.id][equi] in equi_map.keys():
+                        equipment[equi] = equi_map[system_equipment[system.id][equi]]
+                sys_equipment[system.id] = equipment
+            system_equipment = sys_equipment
         return system_indicators, system_equipment
 
     def lead_eq_and_counter(self, ec):
@@ -369,15 +393,22 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
 
 def create_analysis_table(indicator_data, equi_info):
     """Create analysis table for a system set."""
-    indicator_data.reset_index(inplace=True)
+    # indicator_data.reset_index(inplace=True)
+    id = indicator_data.reset_index()
     # join with leading equipment
-    data = indicator_data.merge(equi_info)
+    data = id.merge(equi_info)
+    return data
+    print(len(data))
     # drop model id and equipment id
     # data.drop(['model_id', 'equipment_id'], axis=1, inplace=True)
     data.drop(['equipment_id'], axis=1, inplace=True)
+    print(data[:50])
     # create really long format
     long = data.melt(id_vars=['timestamp', 'leading_equipment', 'equi_counter'])
+    print(len(long))
+    # print(long[:50])
     long = long[long.equi_counter >= 0]
+    print(len(long))
     # get rid of NAs
     long = long.dropna(subset=['value'])
     return long.pivot(index=['leading_equipment', 'timestamp'], columns=['variable', 'equi_counter'])
