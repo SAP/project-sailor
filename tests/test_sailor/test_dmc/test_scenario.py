@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from sailor.dmc.scenario import Scenario, ScenarioSet, find_scenarios
+from sailor.dmc.scenario import Scenario, ScenarioSet, get_active_scenarios
 
 
 @pytest.fixture
@@ -66,7 +66,7 @@ def test_correct_arguments(mock_url, mock_fetch):
         'sfc': 'sfc',
     }
 
-    find_scenarios(plant=plant, sfc=sfc)
+    get_active_scenarios(plant=plant, sfc=sfc)
 
     mock_fetch.assert_called_once_with(expected_url, expected_filters, expected_filter_fields)
 
@@ -80,7 +80,7 @@ def test_correct_scenario_object(mock_url, mock_fetch):
         'sfc': 'Example_SFC',
     }
 
-    scenarios = find_scenarios(**kwargs)
+    scenarios = get_active_scenarios(**kwargs)
 
     assert len(scenarios) == 1
     assert type(scenarios) == ScenarioSet
@@ -113,7 +113,7 @@ def test_get_inspection_logs(mock_url, mock_fetch, mock_find_inspection_logs):
         'sfc': 'Example_SFC',
     }
 
-    scenarios = find_scenarios(**kwargs)
+    scenarios = get_active_scenarios(**kwargs)
 
     scenario = scenarios[0]
 

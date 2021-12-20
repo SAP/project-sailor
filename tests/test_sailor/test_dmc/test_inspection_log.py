@@ -1,5 +1,6 @@
 from base64 import b64decode
 from unittest.mock import call, patch
+from copy import deepcopy
 
 import pandas as pd
 import pytest
@@ -182,21 +183,13 @@ def mock_url():
 @pytest.fixture
 def mock_fetch():
     with patch('sailor.dmc.inspection_log._dmc_fetch_data') as mock:
-        mock.return_value = _MOCK_RESPONSE
-        yield mock
-
-
-@pytest.fixture
-def mock_details():
-    with patch('sailor.dmc.inspection_log.InspectionLog._get_details') as mock:
-        mock.return_value = 'dummy'
         yield mock
 
 
 def test_expected_public_attributes_are_present():
     expected_attributes = [
-        'file_id', 'timestamp', 'type', 'view_name', 'logged_annotation', 'logged_nc_code', 'material', 'operation',
-        'plant', 'predicted_annotation', 'predicted_class', 'predicted_nc_code', 'resource', 'routing', 'sfc', 'source'
+        'file_id', 'timestamp', 'type', 'logged_nc_code', 'predicted_nc_code', 'is_conformant', 'logged_nc_details',
+        'predicted_nc_details', 'sfc', 'material', 'operation', 'plant', 'resource', 'routing', 'source', 'view_name',
     ]
 
     fieldmap_public_attributes = [field.our_name for field in InspectionLog._field_map.values() if field.is_exposed]
@@ -259,7 +252,8 @@ def test_find_inspection_logs_result(mock_url, mock_fetch):
         'scenario_id': '123',
         'scenario_version': 1,
     }
-    expected_result = InspectionLogSet([InspectionLog(result) for result in _MOCK_RESPONSE])
+    mock_fetch.return_value = deepcopy(_MOCK_RESPONSE)
+    expected_result = InspectionLogSet([InspectionLog(result) for result in deepcopy(_MOCK_RESPONSE)])
 
     actual = find_inspection_logs(**kwargs)
 
@@ -270,16 +264,16 @@ def test_find_inspection_logs_result(mock_url, mock_fetch):
 def test_inspection_log_constructs_correct_object():
     expected_attributes = {
         'file_id': _FILE_1,
-        'timestamp': _TIME_1,
+        'timestamp': pd.Timestamp(_TIME_1, tz='UTC'),
         'type': _TYPE,
         'view_name': _VIEW_NAME,
-        'logged_annotation': f'{_NC_1}:{_BB_NC_1_LOG};{_NC_3}:{_BB_NC_3_LOG}',
+        #'logged_annotation': f'{_NC_1}:{_BB_NC_1_LOG};{_NC_3}:{_BB_NC_3_LOG}',
         'logged_nc_code': f'{_NC_1};{_NC_3}',
         'material': _MATERIAL,
         'operation': _OPERATION,
         'plant': _PLANT,
-        'predicted_annotation': f'{_NC_1}:{_BB_NC_1_PRED};{_NC_3}:{_BB_NC_3_PRED}',
-        'predicted_class': f'{_NC_1_CLASS}:0.95;{_NC_3_CLASS}:0.89',
+        #'predicted_annotation': f'{_NC_1}:{_BB_NC_1_PRED};{_NC_3}:{_BB_NC_3_PRED}',
+        #'predicted_class': f'{_NC_1_CLASS}:0.95;{_NC_3_CLASS}:0.89',
         'predicted_nc_code': f'{_NC_1}:0-95;{_NC_3}:0.89',
         'resource': _RESOURCE,
         'routing': _ROUTING,
@@ -338,83 +332,66 @@ def test_get_details(mock_url, mock_fetch):
         'top': 'top',
         'timestamp': 'inspectionLogTime',
     }
-    mock_fetch.return_value = _DETAILS_1
+    mock_fetch.return_value = deepcopy(_DETAILS_1)
+    expected = deepcopy(inspection_log.raw)
+    expected.update(_DETAILS_1)
 
-    actual = inspection_log._get_details()
+    inspection_log._get_details()
 
-    assert actual == _DETAILS_1
+    assert inspection_log.raw == expected
     mock_fetch.assert_has_calls([
         call(expected_url_log, expected_filters_log, expected_filter_fields),
     ])
 
 
-def test_get_details_and_images(mock_url, mock_fetch, mock_details):
-    kwargs = {
-        'scenario_id': '123',
-        'scenario_version': 1,
-    }
+@pytest.mark.filterwarnings('ignore:No file content available for files')
+@pytest.mark.filterwarnings('ignore:Multiple inspection logs found referring to the same file.')
+def test_fetch_details_with_images(mock_url, mock_fetch):
+    details_list = [deepcopy(_DETAILS_1), deepcopy(_DETAILS_2), deepcopy(_DETAILS_3)]
+    mock_fetch.side_effect = details_list   # _fetch_details_with_images calls
 
-    details_list = [_DETAILS_1.copy(), _DETAILS_2.copy(), _DETAILS_3.copy()]
+    # constructing it like this because of keeping the order
+    inspection_logs = InspectionLogSet([])
+    inspection_logs.elements = [InspectionLog(response) for response in deepcopy(_MOCK_RESPONSE)]
 
     file_1_decoded = b64decode(_FILE_1_CONTENT)
     file_2_decoded = b64decode(_FILE_2_CONTENT)
 
-    expected_details = details_list
+    expected_raw_list = deepcopy(_MOCK_RESPONSE)
+    for i, detail in enumerate(details_list):
+        expected_raw_list[i].update(detail)
+        expected_raw_list[i].pop('fileContent')
 
-    mock_details.side_effect = details_list
+    inspection_logs._fetch_details_with_images()
 
-    inspection_logs = find_inspection_logs(**kwargs)
-
-    details, images = inspection_logs._get_details_and_images()
-
-    assert len(details) == 3
-    for i in range(len(details)):
-        assert details[i] == expected_details[i]
-
-    assert len(images) == 2
-    assert images[_FILE_1] == file_1_decoded
-    assert images[_FILE_2] == file_2_decoded
+    for i, log in enumerate(inspection_logs):
+        assert log.raw == expected_raw_list[i]
+    assert len(inspection_logs.images) == 2
+    assert inspection_logs.images[_FILE_1] == file_1_decoded
+    assert inspection_logs.images[_FILE_2] == file_2_decoded
 
 
-def test_get_details_and_images_skips_details_without_file_content(mock_url, mock_fetch, mock_details):
-    kwargs = {
-        'scenario_id': '123',
-        'scenario_version': 1,
-    }
+def test_fetch_details_with_images_warns_missing_file_content(mock_url, mock_fetch):
+    # constructing it like this because of keeping the order
+    inspection_logs = InspectionLogSet([])
+    inspection_logs.elements = [InspectionLog(response) for response in deepcopy(_MOCK_RESPONSE)]
 
-    details_list = [_DETAILS_1.copy(), _DETAILS_2.copy(), _DETAILS_3.copy()]
-
+    details_list = [deepcopy(_DETAILS_1), deepcopy(_DETAILS_2), deepcopy(_DETAILS_3)]
     details_list[0].pop('fileContent')
+    mock_fetch.side_effect = details_list
 
-    file_2_decoded = b64decode(_FILE_2_CONTENT)
-
-    expected_details = details_list[1:]
-
-    mock_details.side_effect = details_list
-
-    inspection_logs = find_inspection_logs(**kwargs)
-
-    details, images = inspection_logs._get_details_and_images()
-
-    assert len(details) == 2
-    for i in range(len(details)):
-        assert details[i] == expected_details[i]
-
-    assert len(images) == 1
-    assert images[_FILE_2] == file_2_decoded
+    with pytest.warns(UserWarning, match="No file content available for files: .*{'File1.png'}.*"):
+        inspection_logs._fetch_details_with_images()
 
 
-def test_as_ml_input(mock_url, mock_fetch, mock_details):
-    kwargs = {
-        'scenario_id': '123',
-        'scenario_version': 1,
-    }
+@pytest.mark.filterwarnings('ignore:No file content available for files')
+@pytest.mark.filterwarnings('ignore:Multiple inspection logs found referring to the same file.')
+def test_as_ml_input(mock_url, mock_fetch):
+    inspection_logs = InspectionLogSet([])
+    inspection_logs.elements = [InspectionLog(response) for response in deepcopy(_MOCK_RESPONSE)]
 
-    details_list = [_DETAILS_1.copy(), _DETAILS_2.copy(), _DETAILS_3.copy()]
-
-    mock_details.side_effect = details_list
-
-    inspection_logs = find_inspection_logs(**kwargs)
+    details_list = [deepcopy(_DETAILS_1), deepcopy(_DETAILS_2), deepcopy(_DETAILS_3)]
+    mock_fetch.side_effect = details_list
 
     df, images = inspection_logs.as_ml_input()
 
@@ -422,13 +399,14 @@ def test_as_ml_input(mock_url, mock_fetch, mock_details):
     assert len(images) == 2
 
     expected_columns = [
-        'fileContentType', 'fileId', 'inspectionLogTime', 'inspectionViewName', 'isConformant', 'loggedNCS', 'material',
-        'operation', 'plant', 'predictions', 'resource', 'routing', 'scenarioID', 'sfc', 'source'
+        'file_id', 'timestamp', 'type', 'logged_nc_code', 'predicted_nc_code', 'is_conformant', 'logged_nc_details',
+        'predicted_nc_details', 'sfc', 'material', 'operation', 'plant', 'resource', 'routing', 'source', 'view_name',
+        'id'
     ]
 
-    expected_timestamps = pd.to_datetime(pd.Series([_TIME_1, _TIME_3])).to_list()
-    unexpected_timestamps = pd.to_datetime(pd.Series([_TIME_2])).to_list()
-    actual_timestamps = df['inspectionLogTime'].to_list()
+    expected_timestamps = pd.to_datetime(pd.Series([_TIME_1, _TIME_3]), utc=True).to_list()
+    unexpected_timestamps = pd.to_datetime(pd.Series([_TIME_2]), utc=True).to_list()
+    actual_timestamps = df['timestamp'].to_list()
 
     assert sorted(expected_columns) == sorted(df.columns.to_list())
 
@@ -445,17 +423,14 @@ def test_as_ml_input(mock_url, mock_fetch, mock_details):
     assert images == expected_images
 
 
-def test_as_ml_input_with_duplicates(mock_url, mock_fetch, mock_details):
-    kwargs = {
-        'scenario_id': '123',
-        'scenario_version': 1,
-    }
+@pytest.mark.filterwarnings('ignore:No file content available for files')
+@pytest.mark.filterwarnings('ignore:Multiple inspection logs found referring to the same file.')
+def test_as_ml_input_with_duplicates(mock_url, mock_fetch):
+    inspection_logs = InspectionLogSet([])
+    inspection_logs.elements = [InspectionLog(response) for response in deepcopy(_MOCK_RESPONSE)]
 
-    details_list = [_DETAILS_1.copy(), _DETAILS_2.copy(), _DETAILS_3.copy()]
-
-    mock_details.side_effect = details_list
-
-    inspection_logs = find_inspection_logs(**kwargs)
+    details_list = [deepcopy(_DETAILS_1), deepcopy(_DETAILS_2), deepcopy(_DETAILS_3)]
+    mock_fetch.side_effect = details_list
 
     df, images = inspection_logs.as_ml_input(remove_duplicates=False)
 
@@ -463,29 +438,27 @@ def test_as_ml_input_with_duplicates(mock_url, mock_fetch, mock_details):
     assert len(images) == 2
 
     expected_columns = [
-        'fileContentType', 'fileId', 'inspectionLogTime', 'inspectionViewName', 'isConformant', 'loggedNCS', 'material',
-        'operation', 'plant', 'predictions', 'resource', 'routing', 'scenarioID', 'sfc', 'source'
+        'file_id', 'timestamp', 'type', 'logged_nc_code', 'predicted_nc_code', 'is_conformant', 'logged_nc_details',
+        'predicted_nc_details', 'sfc', 'material', 'operation', 'plant', 'resource', 'routing', 'source', 'view_name',
+        'id'
     ]
 
-    expected_timestamps = pd.to_datetime(pd.Series([_TIME_1, _TIME_2, _TIME_3])).to_list()
-    actual_timestamps = df['inspectionLogTime'].to_list()
+    expected_timestamps = pd.to_datetime(pd.Series([_TIME_1, _TIME_2, _TIME_3]), utc=True).to_list()
+    actual_timestamps = df['timestamp'].to_list()
 
     assert sorted(expected_columns) == sorted(df.columns.to_list())
 
     assert sorted(expected_timestamps) == sorted(actual_timestamps)
 
 
-def test_as_binary_classification_input(mock_url, mock_fetch, mock_details):
-    kwargs = {
-        'scenario_id': '123',
-        'scenario_version': 1,
-    }
+@pytest.mark.filterwarnings('ignore:No file content available for files')
+@pytest.mark.filterwarnings('ignore:Multiple inspection logs found referring to the same file.')
+def test_as_binary_classification_input(mock_url, mock_fetch):
+    inspection_logs = InspectionLogSet([])
+    inspection_logs.elements = [InspectionLog(response) for response in deepcopy(_MOCK_RESPONSE)]
 
-    details_list = [_DETAILS_1.copy(), _DETAILS_2.copy(), _DETAILS_3.copy()]
-
-    mock_details.side_effect = details_list
-
-    inspection_logs = find_inspection_logs(**kwargs)
+    details_list = [deepcopy(_DETAILS_1), deepcopy(_DETAILS_2), deepcopy(_DETAILS_3)]
+    mock_fetch.side_effect = details_list
 
     df, images = inspection_logs.as_binary_classification_input()
 
@@ -493,13 +466,14 @@ def test_as_binary_classification_input(mock_url, mock_fetch, mock_details):
     assert len(images) == 2
 
     expected_columns = [
-        'fileContentType', 'fileId', 'inspectionLogTime', 'inspectionViewName', 'isConformant', 'material', 'operation',
-        'plant', 'resource', 'routing', 'scenarioID', 'sfc', 'source'
+        'file_id', 'timestamp', 'type', 'is_conformant',
+        'sfc', 'material', 'operation', 'plant', 'resource', 'routing', 'source', 'view_name',
+        'id'
     ]
 
-    expected_timestamps = pd.to_datetime(pd.Series([_TIME_1, _TIME_3])).to_list()
-    unexpected_timestamps = pd.to_datetime(pd.Series([_TIME_2])).to_list()
-    actual_timestamps = df['inspectionLogTime'].to_list()
+    expected_timestamps = pd.to_datetime(pd.Series([_TIME_1, _TIME_3]), utc=True).to_list()
+    unexpected_timestamps = pd.to_datetime(pd.Series([_TIME_2]), utc=True).to_list()
+    actual_timestamps = df['timestamp'].to_list()
 
     assert sorted(expected_columns) == sorted(df.columns.to_list())
 
@@ -508,21 +482,18 @@ def test_as_binary_classification_input(mock_url, mock_fetch, mock_details):
     for ts in unexpected_timestamps:
         assert ts not in actual_timestamps
 
-    for index, row in df.iterrows():
-        assert row['isConformant'] in [True, False]
+    for _, row in df.iterrows():
+        assert row['is_conformant'] in [True, False]
 
 
-def test_as_multilabel_classification_input(mock_url, mock_fetch, mock_details):
-    kwargs = {
-        'scenario_id': '123',
-        'scenario_version': 1,
-    }
+@pytest.mark.filterwarnings('ignore:No file content available for files')
+@pytest.mark.filterwarnings('ignore:Multiple inspection logs found referring to the same file.')
+def test_as_multilabel_classification_input(mock_url, mock_fetch):
+    inspection_logs = InspectionLogSet([])
+    inspection_logs.elements = [InspectionLog(response) for response in deepcopy(_MOCK_RESPONSE)]
 
-    details_list = [_DETAILS_1.copy(), _DETAILS_2.copy(), _DETAILS_3.copy()]
-
-    mock_details.side_effect = details_list
-
-    inspection_logs = find_inspection_logs(**kwargs)
+    details_list = [deepcopy(_DETAILS_1), deepcopy(_DETAILS_2), deepcopy(_DETAILS_3)]
+    mock_fetch.side_effect = details_list
 
     df, images = inspection_logs.as_multilabel_classification_input()
 
@@ -530,13 +501,14 @@ def test_as_multilabel_classification_input(mock_url, mock_fetch, mock_details):
     assert len(images) == 2
 
     expected_columns = [
-        'fileContentType', 'fileId', 'inspectionLogTime', 'inspectionViewName', 'isConformant', 'loggedNCS', 'material',
-        'operation', 'plant', 'predictions', 'resource', 'routing', 'scenarioID', 'sfc', 'source'
+        'file_id', 'timestamp', 'type', 'logged_nc_code', 'predicted_nc_code', 'is_conformant', 'logged_nc_details',
+        'predicted_nc_details', 'sfc', 'material', 'operation', 'plant', 'resource', 'routing', 'source', 'view_name',
+        'id'
     ]
 
-    expected_timestamps = pd.to_datetime(pd.Series([_TIME_1, _TIME_2])).to_list()
-    unexpected_timestamps = pd.to_datetime(pd.Series([_TIME_3])).to_list()
-    actual_timestamps = df['inspectionLogTime'].to_list()
+    expected_timestamps = pd.to_datetime(pd.Series([_TIME_1, _TIME_2]), utc=True).to_list()
+    unexpected_timestamps = pd.to_datetime(pd.Series([_TIME_3]), utc=True).to_list()
+    actual_timestamps = df['timestamp'].to_list()
 
     assert sorted(expected_columns) == sorted(df.columns.to_list())
 
@@ -545,17 +517,17 @@ def test_as_multilabel_classification_input(mock_url, mock_fetch, mock_details):
     for ts in unexpected_timestamps:
         assert ts not in actual_timestamps
 
-    for index, row in df.iterrows():
-        assert (row['predictions'] != '[]') or (row['loggedNCS'] != '[]')
+    for _, row in df.iterrows():
+        assert (row['predicted_nc_details'] != '[]') or (row['loggend_nc_details'] != '[]')
 
 
 def _contains_bounding_box(row):
-    for prediction in row['predictions']:
+    for prediction in row['predicted_nc_details']:
         if 'predictionBoundingBoxCoords' in prediction.keys():
             if prediction['predictionBoundingBoxCoords'] != '[]':
                 return True
 
-    for logged_ncs in row['loggedNCS']:
+    for logged_ncs in row['logged_nc_details']:
         if 'defectBoundingBoxCoords' in logged_ncs.keys():
             if logged_ncs['defectBoundingBoxCoords'] != '[]':
                 return True
@@ -563,17 +535,14 @@ def _contains_bounding_box(row):
     return False
 
 
-def test_as_object_detection_input(mock_url, mock_fetch, mock_details):
-    kwargs = {
-        'scenario_id': '123',
-        'scenario_version': 1,
-    }
+@pytest.mark.filterwarnings('ignore:No file content available for files')
+@pytest.mark.filterwarnings('ignore:Multiple inspection logs found referring to the same file.')
+def test_as_object_detection_input(mock_url, mock_fetch):
+    inspection_logs = InspectionLogSet([])
+    inspection_logs.elements = [InspectionLog(response) for response in deepcopy(_MOCK_RESPONSE)]
 
-    details_list = [_DETAILS_1.copy(), _DETAILS_2.copy(), _DETAILS_3.copy()]
-
-    mock_details.side_effect = details_list
-
-    inspection_logs = find_inspection_logs(**kwargs)
+    details_list = [deepcopy(_DETAILS_1), deepcopy(_DETAILS_2), deepcopy(_DETAILS_3)]
+    mock_fetch.side_effect = details_list
 
     df, images = inspection_logs.as_object_detection_input()
 
@@ -581,13 +550,14 @@ def test_as_object_detection_input(mock_url, mock_fetch, mock_details):
     assert len(images) == 1
 
     expected_columns = [
-        'fileContentType', 'fileId', 'inspectionLogTime', 'inspectionViewName', 'isConformant', 'loggedNCS', 'material',
-        'operation', 'plant', 'predictions', 'resource', 'routing', 'scenarioID', 'sfc', 'source'
+        'file_id', 'timestamp', 'type', 'logged_nc_code', 'predicted_nc_code', 'is_conformant', 'logged_nc_details',
+        'predicted_nc_details', 'sfc', 'material', 'operation', 'plant', 'resource', 'routing', 'source', 'view_name',
+        'id'
     ]
 
-    expected_timestamps = pd.to_datetime(pd.Series([_TIME_1])).to_list()
-    unexpected_timestamps = pd.to_datetime(pd.Series([_TIME_2, _TIME_3])).to_list()
-    actual_timestamps = df['inspectionLogTime'].to_list()
+    expected_timestamps = pd.to_datetime(pd.Series([_TIME_1]), utc=True).to_list()
+    unexpected_timestamps = pd.to_datetime(pd.Series([_TIME_2, _TIME_3]), utc=True).to_list()
+    actual_timestamps = df['timestamp'].to_list()
 
     assert sorted(expected_columns) == sorted(df.columns.to_list())
 
@@ -602,6 +572,6 @@ def test_as_object_detection_input(mock_url, mock_fetch, mock_details):
 
     assert images == expected_images
 
-    for index, row in df.iterrows():
-        assert (row['predictions'] != '[]') or (row['loggedNCS'] != '[]')
+    for _, row in df.iterrows():
+        assert (row['predicted_nc_details'] != '[]') or (row['logged_nc_details'] != '[]')
         assert _contains_bounding_box(row)

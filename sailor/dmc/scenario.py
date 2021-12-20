@@ -63,25 +63,29 @@ class ScenarioSet(DigitalManufacturingCloudEntitySet):
     _element_type = Scenario
 
 
-def find_scenarios(**kwargs) -> ScenarioSet:
-    """Fetch Scenarios from Digital Manufacturing Cloud with the applied filters, return a ScenarioSet.
+def get_active_scenarios(**kwargs) -> ScenarioSet:
+    """Fetch active Scenarios from Digital Manufacturing Cloud with the applied filters, return a ScenarioSet.
 
     Any named keyword arguments are applied as equality filters, i.e. the name of the Scenario property is checked
     against the value of the keyword argument. A combination of 'plant' and 'sfc' or 'plant', 'material' and
     'operation' is required.
 
+    The equality filters in this function DO NOT behave the same as in find_* functions found in Sailor.
+    They do not behave like a WHERE clause in a SQL query. Instead, all properties describing a scenario need to be
+    specified. It is not enough to specify a subset if a scenario has more properties than that subset.
+
     Parameters
     ----------
     **kwargs
-        Only equality filters. Some parameters are mandatory.
+        Equality filters. Some parameters are mandatory (see above).
 
     Examples
     --------
-    Find all Scenarios with plant 'MyPlant' and sfc 'MySFC':
+    Get all active Scenarios with plant 'MyPlant' and sfc 'MySFC':
 
-      find_scenarios(plant='MyPlant', sfc='MySFC')
+      get_active_scenarios(plant='MyPlant', sfc='MySFC')
 
-    Find all Scenarios with plant 'MyPlant', operation 'MyOperation' and material 'MyMaterial':
+    Get all active Scenarios with plant 'MyPlant', operation 'MyOperation' and material 'MyMaterial':
 
       kwargs = {
           'plant': 'MyPlant',
@@ -89,7 +93,7 @@ def find_scenarios(**kwargs) -> ScenarioSet:
           'material': 'MyMaterial',
       }
 
-      find_scenarios(**kwargs)
+      get_active_scenarios(**kwargs)
     """
     error_msg_mandatory_properties = ("'plant' must specified along with either 'sfc' or a combination of "
                                       "'operation' and 'material'.")
