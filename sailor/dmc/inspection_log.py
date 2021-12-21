@@ -81,7 +81,7 @@ class InspectionLog(DigitalManufacturingCloudEntity):
         return m.hexdigest()
 
     def _has_details(self):
-        return any((key in self.raw for key in ['context', 'isConformant', 'loggedNCS', 'predictions', 'fileContent']))
+        return any((key in self.raw for key in ['context', 'isConformant', 'loggedNCS', 'predictions']))
 
     # TODO: Review whether to do some remapping to fit syntax with INSPECTION_LOG_FIELDS
     # or add the properties to the Inspection Logs returned by find_inspection_logs()
