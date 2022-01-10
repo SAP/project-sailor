@@ -1,4 +1,3 @@
-from collections import defaultdict
 from io import BytesIO
 from unittest.mock import patch, call
 
@@ -35,25 +34,22 @@ def make_csv_bytes():
 
 class TestRawDataAsyncFunctions:
     def test_export_start_request_delegate_call(self, mock_request, mock_config):
-        mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_BASE_URL')
-        expected_url = 'EXPORT_BASE_URL/v1/InitiateDataExport/indicator_group_id?timerange=start_date-end_date'
+        expected_url = 'EXPORT_URL/v1/InitiateDataExport/indicator_group_id?timerange=start_date-end_date'
 
         _start_bulk_timeseries_data_export('start_date', 'end_date', 'indicator_group_id')
 
         mock_request.assert_called_once_with('POST', expected_url)
 
     def test_export_status_request_delegate_call(self, mock_request, mock_config):
-        mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_BASE_URL')
         mock_request.return_value = dict(Status='The file is available for download.')
-        expected_url = 'EXPORT_BASE_URL/v1/DataExportStatus?requestId=export_id'
+        expected_url = 'EXPORT_URL/v1/DataExportStatus?requestId=export_id'
 
         _check_bulk_timeseries_export_status('export_id')
 
         mock_request.assert_called_once_with('GET', expected_url)
 
     def test_export_get_data_request_delegate_call(self, mock_request, mock_config):
-        mock_config.config.sap_iot = defaultdict(str, download_url='DOWNLOAD_BASE_URL')
-        expected_url = "DOWNLOAD_BASE_URL/v1/DownloadData('export_id')"
+        expected_url = "DOWNLOAD_URL/v1/DownloadData('export_id')"
         mock_request.return_value = b''
 
         with pytest.raises(RuntimeError):
@@ -142,11 +138,20 @@ class TestRawDataAsyncFunctions:
         assert len(data) == expected_rows
         assert set(data['equipment_id'].unique()) == expected_equipments
 
+    def test_process_one_file_empty(self, make_csv_bytes, make_indicator_set, make_equipment_set):
+        indicator_set = make_indicator_set(propertyId=['indicator_id_1'],
+                                           categoryID=['template_id_1'],
+                                           pstid=['indicator_group_id_1'])
+        equipment_set = make_equipment_set(equipmentId=['equipment_id_1'])
+
+        data = _process_one_file(BytesIO(b''), indicator_set, equipment_set)
+
+        assert isinstance(data, pd.DataFrame)
+
 
 class TestRawDataWrapperFunction:
     def test_get_indicator_data_two_indicator_groups(self, mock_zipfile, mock_gzip, mock_config, mock_request,
                                                      make_indicator_set, make_equipment_set, make_csv_bytes):
-        mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_URL', download_url='DOWNLOAD_URL')
 
         indicator_set = make_indicator_set(propertyId=[f'indicator_id_{x}' for x in [1, 2, 1, 2]],
                                            categoryID=[f'template_id_{x}' for x in [1, 1, 2, 2]],
@@ -204,8 +209,6 @@ class TestRawDataWrapperFunction:
         # This test will ascertain that the pd.merge in get_indicator_data works successfully when the csv `modelId`
         # column is empty for both cases -- resulting DataFrame filtered empty, and resulting DataFrame with content.
 
-        mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_URL', download_url='DOWNLOAD_URL')
-
         indicator_set = make_indicator_set(propertyId=['indicator_id_1'])
         equipment_set = make_equipment_set(equipmentId=[equipment_id])
 
@@ -245,8 +248,6 @@ class TestRawDataWrapperFunction:
 
     def test_get_indicator_data_missing_indicator_warning(self, mock_zipfile, mock_gzip, mock_config, mock_request,
                                                           make_indicator_set, make_equipment_set, make_csv_bytes):
-
-        mock_config.config.sap_iot = defaultdict(str, export_url='EXPORT_URL', download_url='DOWNLOAD_URL')
 
         indicator_set = make_indicator_set(propertyId=[f'indicator_id_{x}' for x in [1, 2, 3]],
                                            categoryID=[f'template_id_{x}' for x in [1, 1, 1]],
