@@ -152,12 +152,6 @@ class TimeseriesDataset(object):
         column headers are replaced by a hierarchical index of template_id, indicator_group_name, indicator_name and
         aggregation_function.
         """
-        if include_model is None:
-            warn_and_log('Model information will be removed from the dataset after December 1 2021 as the '
-                         'equipment is fully identified by the equipment_id. If you require model information '
-                         'specify `include_model=True` explicitly.', category=FutureWarning, logger_name=__name__)
-            include_model = True
-
         if include_model:
             model_ids = pd.DataFrame(
                 [(equi.id, equi.model_id) for equi in self._equipment_set], columns=['equipment_id', 'model_id']

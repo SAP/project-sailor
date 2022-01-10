@@ -81,10 +81,16 @@ def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_se
     selected_equipment_ids = [equipment.id for equipment in equipment_set]  # noqa: F841
     dtypes = {indicator._liot_id: float for indicator in indicator_set if indicator.datatype in float_types}
     dtypes.update({'equipmentId': 'object', 'indicatorGroupId': 'object', 'templateId': 'object'})
-    df = pd.read_csv(ifile,
-                     usecols=lambda x: x != 'modelId',
-                     parse_dates=['_TIME'], date_parser=partial(pd.to_datetime, utc=True, unit='ms', errors='coerce'),
-                     dtype=dtypes)
+
+    try:
+        df = pd.read_csv(ifile,
+                         usecols=lambda x: x != 'modelId',
+                         parse_dates=['_TIME'],
+                         date_parser=partial(pd.to_datetime, utc=True, unit='ms', errors='coerce'),
+                         dtype=dtypes)
+    except pd.errors.EmptyDataError:
+        LOG.debug('Empty file returned by SAP IoT API, ignoring the file.')
+        return pd.DataFrame()
 
     df = df.pivot(index=['_TIME', 'equipmentId'], columns=['indicatorGroupId', 'templateId'])
 

@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from collections import defaultdict
 
 import pytest
 
@@ -9,6 +10,7 @@ from sailor.assetcentral.equipment import Equipment, EquipmentSet
 @pytest.fixture()
 def mock_config():
     with patch('sailor.utils.config.SailorConfig') as mock:
+        mock.config.sap_iot = defaultdict(str, export_url='EXPORT_URL', download_url='DOWNLOAD_URL')
         yield mock
 
 
