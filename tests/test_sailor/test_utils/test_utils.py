@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+
 import pytest
 
 from sailor.utils.utils import WarningAdapter, DataNotFoundWarning
@@ -14,9 +15,9 @@ from sailor.utils.utils import WarningAdapter, DataNotFoundWarning
      {'msg': 'Warning (all parameters)', 'warning_stacklevel': 1, 'warning_category': FutureWarning})
 ])
 def test_custom_logging_adapter(caplog, input_for_custom_warning_function, testdescr):
-    LOG = logging.getLogger(__name__)
-    LOG.addHandler(logging.NullHandler())
-    log_adapter = WarningAdapter(LOG)
+    logger = logging.getLogger(__name__)
+    logger.addHandler(logging.NullHandler())
+    log_adapter = WarningAdapter(logger)
     with pytest.warns(None) as record:
         log_adapter.log_with_warning(**input_for_custom_warning_function)
 

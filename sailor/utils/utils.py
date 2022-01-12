@@ -22,11 +22,12 @@ def _is_non_string_iterable(obj):
 
 
 class WarningAdapter(logging.LoggerAdapter):
-    """ Allow a logger to convert warnings logs into real warnings to simplify logging setup for users."""
+    """Allow a logger to convert warnings logs into real warnings to simplify logging setup for users."""
+
     def __init__(self, logger, extra=None):
         super().__init__(logger, extra or {})
 
     def log_with_warning(self, msg, warning_stacklevel=1, warning_category=None, *args, **kwargs):
-        """ Delegate a warning call to the underlying logger and trigger a real warning with the same message."""
+        """Delegate a warning call to the underlying logger and trigger a real warning with the same message."""
         warnings.warn(msg, category=warning_category, stacklevel=warning_stacklevel + 1)
         self.log(WARNING, msg, *args, **kwargs)
