@@ -1,10 +1,15 @@
 """Utility functions for timestamp parsing."""
 
 import datetime
+import logging
 
 import pandas as pd
 
-from .utils import warn_and_log
+from .utils import WarningAdapter
+
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+log_adapter = WarningAdapter(LOG)
 
 
 def _odata_to_timestamp_parser(unit='ms'):
@@ -34,8 +39,8 @@ def _any_to_timestamp(value, default: pd.Timestamp = None):
     if timestamp.tzinfo:
         timestamp = timestamp.tz_convert('UTC')
     else:
-        warn_and_log('Trying to parse non-timezone-aware timestamp, assuming UTC.', logger_name=__name__,
-                     stacklevel=2)
+        log_adapter.log_with_warning('Trying to parse non-timezone-aware timestamp, assuming UTC.',
+                                     warning_stacklevel=2)
         timestamp = timestamp.tz_localize('UTC', ambiguous='NaT', nonexistent='NaT')
 
     return timestamp
@@ -58,8 +63,8 @@ def _timestamp_to_date_string(timestamp: pd.Timestamp):
     timestamp = timestamp.tz_localize(None)
     date = pd.Timestamp.date(timestamp)
     if pd.Timestamp(date) != timestamp:
-        warn_and_log('Casting timestamp to date, this operation will lose time-of-day information.',
-                     logger_name=__name__, stacklevel=3)
+        log_adapter.log_with_warning('Casting timestamp to date, this operation will lose time-of-day information.',
+                                     warning_stacklevel=3)
     return str(date)
 
 

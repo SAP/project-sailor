@@ -20,10 +20,11 @@ from sailor.assetcentral.indicators import AggregatedIndicatorSet, IndicatorSet
 from sailor.sap_iot.wrappers import TimeseriesDataset
 from sailor.utils.oauth_wrapper import get_oauth_client
 from sailor.sap_iot._common import request_aggregates_url
-from sailor.utils.utils import DataNotFoundWarning, warn_and_log
+from sailor.utils.utils import DataNotFoundWarning, WarningAdapter
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
+log_adapter = WarningAdapter(LOG)
 
 if TYPE_CHECKING:
     from ..assetcentral.equipment import EquipmentSet
@@ -150,15 +151,14 @@ def get_indicator_aggregates(start: Union[str, pd.Timestamp, datetime], end: Uni
 
     if df.empty:
         warning = DataNotFoundWarning('Could not find any data for the requested period.')
-        warn_and_log(warning, logger_name=__name__)
+        log_adapter.log_with_warning(warning)
 
     if aggregation_interval is not None and duration is not None:
         duration = isodate.parse_duration('P' + duration)
         aggregation_interval = isodate.parse_duration(aggregation_interval)
         if duration != aggregation_interval:
-            warn_and_log(f'The aggregation interval returned by the query ("{duration}") ' +
-                         f'does not match the requested aggregation interval ("{aggregation_interval}")',
-                         logger_name=__name__)
+            log_adapter.log_with_warning(f'The aggregation interval returned by the query ("{duration}") does ' +
+                                         f'not match the requested aggregation interval ("{aggregation_interval}")')
 
     return TimeseriesDataset(df, aggregated_indicators, equipment_set, start, end)
 

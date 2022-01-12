@@ -20,7 +20,7 @@ from sklearn.preprocessing import StandardScaler
 import sailor.assetcentral.indicators as ac_indicators
 from sailor.utils.plot_helper import _default_plot_theme
 from sailor.utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals
-from sailor.utils.utils import warn_and_log
+from sailor.utils.utils import WarningAdapter
 
 if TYPE_CHECKING:
     from ..assetcentral.indicators import IndicatorSet, AggregatedIndicatorSet
@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
+log_adapter = WarningAdapter(LOG)
 
 
 class TimeseriesDataset(object):
@@ -56,8 +57,8 @@ class TimeseriesDataset(object):
         if df_equipment_ids - set_equipment_ids:
             raise RuntimeError('Not all equipment ids in the data are provided in the equipment set.')
         if set_equipment_ids - df_equipment_ids:
-            warn_and_log('There is no data in the dataframe for some of the equipments in the equipment set.',
-                         logger_name=__name__)
+            log_adapter.log_with_warning(
+                'There is no data in the dataframe for some of the equipments in the equipment set.')
             self._equipment_set = self._equipment_set.filter(id=df_equipment_ids)
 
         df_indicator_ids = set(df.columns) - set(self.get_index_columns(include_model=False))
@@ -65,8 +66,8 @@ class TimeseriesDataset(object):
         if df_indicator_ids - set_indicator_ids:
             raise RuntimeError('Not all indicator ids in the data are provided in the indicator set.')
         if set_indicator_ids - df_indicator_ids:
-            warn_and_log('There is no data in the dataframe for some of the indicators in the indicator set.',
-                         logger_name=__name__)
+            log_adapter.log_with_warning(
+                'There is no data in the dataframe for some of the indicators in the indicator set.')
             self._indicator_set = self._indicator_set.filter(_unique_id=df_indicator_ids)
 
     @property
@@ -250,15 +251,15 @@ class TimeseriesDataset(object):
         # find equipment_set that are dropped from the plot and log them to the user
         empty_equipment_ids = set(selected_equipment_ids) - result_equipment_ids
         if empty_equipment_ids:
-            warn_and_log(f'Following equipment show no data and are removed from the plot: {empty_equipment_ids}',
-                         logger_name=__name__)
+            log_adapter.log_with_warning(
+                f'Following equipment show no data and are removed from the plot: {empty_equipment_ids}')
             selected_equipment_ids = set(selected_equipment_ids) - empty_equipment_ids
         # also indicators without data need to be removed from the plot due to unknown Y axis limits
         empty_indicators = data.columns[data.isna().all()].tolist()
         if empty_indicators:
             # Todo: speaking names in the log below? Currently using our uuid
-            warn_and_log(f'Following indicators show no data and are removed from the plot: {empty_indicators}',
-                         logger_name=__name__)
+            log_adapter.log_with_warning(
+                f'Following indicators show no data and are removed from the plot: {empty_indicators}')
             feature_vars = set(feature_vars) - set(empty_indicators)
 
         query_timedelta = end - start
@@ -400,8 +401,8 @@ class TimeseriesDataset(object):
             selected_indicator_set = self._indicator_set
 
         if len(selected_df) == 0:
-            warn_and_log('The selected filters removed all data, the resulting TimeseriesDataset is empty.',
-                         logger_name=__name__)
+            log_adapter.log_with_warning(
+                'The selected filters removed all data, the resulting TimeseriesDataset is empty.')
         LOG.debug('Filtered Dataset contains %s rows.', len(selected_df))
 
         return TimeseriesDataset(selected_df, selected_indicator_set, selected_equi_set,

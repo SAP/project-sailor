@@ -8,12 +8,13 @@ from furl import furl
 from rauth import OAuth2Service
 import jwt
 
-from sailor.utils.utils import warn_and_log
+from sailor.utils.utils import WarningAdapter
 from sailor.utils.config import SailorConfig
 from .scope_config import SCOPE_CONFIG
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
+log_adapter = WarningAdapter(LOG)
 
 
 class OAuth2Client():
@@ -83,8 +84,8 @@ class OAuth2Client():
             try:
                 self._resolve_configured_scopes()
             except Exception as exc:
-                warn_and_log('Could not resolve the configured scopes. Trying to continue without scopes...',
-                             logger_name=__name__)
+                log_adapter.log_with_warning(
+                    'Could not resolve the configured scopes. Trying to continue without scopes...')
                 LOG.debug(exc, exc_info=True)
 
         scope = ' '.join(self.resolved_scopes) if self.resolved_scopes else None
@@ -187,9 +188,9 @@ class OAuth2Client():
         # we consider the scope configuration invalid when at least one
         # corresponding prefixed scope from auth token is absent
         if missing_corresponding_scopes:
-            warn_and_log('Could not resolve all scopes. Scope configuration considered invalid. ' +
-                         f'Continuing without resolved scopes. Missing scopes: {missing_corresponding_scopes}.',
-                         logger_name=__name__)
+            log_adapter.log_with_warning('Could not resolve all scopes. Scope configuration considered invalid. ' +
+                                         f'Continuing without resolved scopes. Missing scopes: '
+                                         f'{missing_corresponding_scopes}.')
             self.resolved_scopes = []
         else:
             self.resolved_scopes = resolved_scopes
