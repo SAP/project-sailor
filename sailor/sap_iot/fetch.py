@@ -34,7 +34,6 @@ if TYPE_CHECKING:
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 log_adapter = WarningAdapter(LOG)
-logger = WarningAdapter(LOG)
 
 fixed_timeseries_columns = {
     '_TIME': 'timestamp',

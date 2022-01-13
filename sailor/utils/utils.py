@@ -2,7 +2,6 @@
 
 from collections.abc import Iterable
 import logging
-from logging import WARNING
 import warnings
 
 
@@ -30,4 +29,4 @@ class WarningAdapter(logging.LoggerAdapter):
     def log_with_warning(self, msg, warning_stacklevel=1, warning_category=None, *args, **kwargs):
         """Delegate a warning call to the underlying logger and trigger a real warning with the same message."""
         warnings.warn(msg, category=warning_category, stacklevel=warning_stacklevel + 1)
-        self.log(WARNING, msg, *args, **kwargs)
+        self.log(logging.WARNING, msg, *args, **kwargs)

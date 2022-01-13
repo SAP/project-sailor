@@ -98,10 +98,10 @@ class _AssetcentralWriteRequest(UserDict):
                 field.put_setter(self.data, value)
             else:
                 log_adapter.log_with_warning(
-                    f"Parameter '{key}' is not available for create or update requests and will be ignored.",
+                    f'Parameter "{key}" is not available for create or update requests and will be ignored.',
                     warning_stacklevel=5)
         else:
-            log_adapter.log_with_warning(f"Unknown name for {type(self).__name__} parameter found: '{key}'.")
+            log_adapter.log_with_warning(f'Unknown name for {type(self).__name__} parameter found: "{key}".')
             self.data[key] = value
 
     @classmethod
