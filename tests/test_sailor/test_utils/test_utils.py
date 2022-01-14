@@ -14,16 +14,15 @@ from sailor.utils.utils import WarningAdapter, DataNotFoundWarning
     ('Using all parameters',
      {'msg': 'Warning (all parameters)', 'warning_stacklevel': 1, 'warning_category': FutureWarning})
 ])
-def test_custom_logging_adapter(caplog, input_for_custom_warning_function, testdescr):
+def test_log_and_warning_from_adapter(caplog, recwarn, input_for_custom_warning_function, testdescr):
     logger = logging.getLogger(__name__)
     logger.addHandler(logging.NullHandler())
-    log_adapter = WarningAdapter(logger)
-    with pytest.warns(None) as record:
-        log_adapter.log_with_warning(**input_for_custom_warning_function)
+    logger = WarningAdapter(logger)
+    logger.log_with_warning(**input_for_custom_warning_function)
 
     # check that warning was triggered
-    assert len(record) == 1
-    assert str(record[0].message) == str(input_for_custom_warning_function['msg'])
+    assert len(recwarn) == 1
+    assert str(recwarn[-1].message) == str(input_for_custom_warning_function['msg'])
 
     # check that message was logged
     assert len(caplog.records) == 1
