@@ -24,7 +24,7 @@ from sailor.utils.utils import DataNotFoundWarning, WarningAdapter
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
-log_adapter = WarningAdapter(LOG)
+LOG = WarningAdapter(LOG)
 
 if TYPE_CHECKING:
     from ..assetcentral.equipment import EquipmentSet
@@ -151,14 +151,14 @@ def get_indicator_aggregates(start: Union[str, pd.Timestamp, datetime], end: Uni
 
     if df.empty:
         warning = DataNotFoundWarning('Could not find any data for the requested period.')
-        log_adapter.log_with_warning(warning)
+        LOG.log_with_warning(warning)
 
     if aggregation_interval is not None and duration is not None:
         duration = isodate.parse_duration('P' + duration)
         aggregation_interval = isodate.parse_duration(aggregation_interval)
         if duration != aggregation_interval:
-            log_adapter.log_with_warning(f'The aggregation interval returned by the query ("{duration}") does ' +
-                                         f'not match the requested aggregation interval ("{aggregation_interval}")')
+            LOG.log_with_warning(f'The aggregation interval returned by the query ("{duration}") does ' +
+                                 f'not match the requested aggregation interval ("{aggregation_interval}")')
 
     return TimeseriesDataset(df, aggregated_indicators, equipment_set, start, end)
 

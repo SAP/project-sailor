@@ -12,7 +12,7 @@ from sailor.utils.utils import WarningAdapter
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
-log_adapter = WarningAdapter(LOG)
+LOG = WarningAdapter(LOG)
 
 
 def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
@@ -97,11 +97,11 @@ class _AssetcentralWriteRequest(UserDict):
             if field.is_writable:
                 field.put_setter(self.data, value)
             else:
-                log_adapter.log_with_warning(
+                LOG.log_with_warning(
                     f'Parameter "{key}" is not available for create or update requests and will be ignored.',
                     warning_stacklevel=5)
         else:
-            log_adapter.log_with_warning(f'Unknown name for {type(self).__name__} parameter found: "{key}".')
+            LOG.log_with_warning(f'Unknown name for {type(self).__name__} parameter found: "{key}".')
             self.data[key] = value
 
     @classmethod

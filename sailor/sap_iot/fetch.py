@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
-log_adapter = WarningAdapter(LOG)
+LOG = WarningAdapter(LOG)
 
 fixed_timeseries_columns = {
     '_TIME': 'timestamp',
@@ -201,7 +201,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
             if error_message == 'Data not found for the requested date range':
                 warning = DataNotFoundWarning(
                     f'No data for indicator group {indicator_group} found in the requested time interval!')
-                log_adapter.log_with_warning(warning)
+                LOG.log_with_warning(warning)
                 continue
             else:
                 raise e
@@ -229,7 +229,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
                 for indicator in indicator_subset:
                     if indicator._unique_id not in data.columns:
                         warning = DataNotFoundWarning(f'Could not find any data for indicator {indicator}')
-                        log_adapter.log_with_warning(warning)
+                        LOG.log_with_warning(warning)
 
                 results = pd.merge(results, data, on=['equipment_id', 'timestamp'], how='outer')
 

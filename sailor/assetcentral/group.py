@@ -37,7 +37,7 @@ _GROUP_FIELDS = [
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
-log_adapter = WarningAdapter(LOG)
+LOG = WarningAdapter(LOG)
 
 
 @_base.add_properties
@@ -62,7 +62,7 @@ class Group(AssetcentralEntity):
                         if item['businessObjectType'] == business_object_type]
 
         if not kwargs['id']:
-            log_adapter.log_with_warning(f'There are no "{member_name}" in this group!')
+            LOG.log_with_warning(f'There are no "{member_name}" in this group!')
             return set_class([])
 
         return find_function(extended_filters=extended_filters, **kwargs)
@@ -138,7 +138,7 @@ class GroupSet(AssetcentralEntitySet):
         kwargs['id'] = set([item['businessObjectId'] for group in self.elements for item in group._members_raw
                             if item['businessObjectType'] == business_object_type])
         if not kwargs['id']:
-            log_adapter.log_with_warning(f'There are no "{member_name}" in any of the groups in this set!')
+            LOG.log_with_warning(f'There are no "{member_name}" in any of the groups in this set!')
             return set_class([])
 
         return find_function(extended_filters=extended_filters, **kwargs)

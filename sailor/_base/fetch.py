@@ -9,7 +9,7 @@ from sailor.utils.utils import DataNotFoundWarning, _is_non_string_iterable, War
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
-log_adapter = WarningAdapter(LOG)
+LOG = WarningAdapter(LOG)
 
 
 _OPERATOR_MAP = {
@@ -49,7 +49,7 @@ def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=
         result.extend(result_filter)
 
     if len(result) == 0:
-        log_adapter.log_with_warning(DataNotFoundWarning(), warning_stacklevel=2)
+        LOG.log_with_warning(DataNotFoundWarning(), warning_stacklevel=2)
 
     return result
 
@@ -276,8 +276,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         unified_filters.append((key, _OPERATOR_MAP[o], v))
 
     if len(not_our_term) > 0:
-        log_adapter.log_with_warning(f'Following parameters are not in our terminology: {not_our_term}',
-                                     warning_stacklevel=3)
+        LOG.log_with_warning(f'Following parameters are not in our terminology: {not_our_term}', warning_stacklevel=3)
 
     return unified_filters
 
