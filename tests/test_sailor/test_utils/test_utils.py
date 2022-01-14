@@ -41,11 +41,11 @@ def call_adapter_indirectly(logger, msg, stacklevel):
     call_adapter_directly(logger, msg, stacklevel)
 
 
-@pytest.mark.parametrize('testdescr,stacklevel,funcName_original,funcName_custom', [
+@pytest.mark.parametrize('testdescr,stacklevel,func_name_original,func_name_custom', [
     ('Call functions on adapter directly', 1, 'call_adapter_directly', 'call_adapter_directly'),
     ('Call functions on adapter indirectly', 2, 'call_adapter_indirectly', 'call_adapter_directly')
 ])
-def test_stacklevel_for_logging_adapter(caplog, stacklevel, funcName_original, funcName_custom, testdescr):
+def test_stacklevel_for_logging_adapter(caplog, stacklevel, func_name_original, func_name_custom, testdescr):
     logger = logging.getLogger(__name__)
     logger.addHandler(logging.NullHandler())
     logger.setLevel(logging.INFO)
@@ -53,7 +53,7 @@ def test_stacklevel_for_logging_adapter(caplog, stacklevel, funcName_original, f
 
     call_adapter_indirectly(logger, "Message text", stacklevel)
 
-    assert caplog.records[0].funcName == funcName_original  # when logger.warning is called
-    assert caplog.records[1].funcName == funcName_original  # when logger.error is called
-    assert caplog.records[2].funcName == funcName_original  # when logger.info is called
-    assert caplog.records[3].funcName == funcName_custom    # when logger.log_with_warning is called
+    assert caplog.records[0].funcName == func_name_original  # when logger.warning is called
+    assert caplog.records[1].funcName == func_name_original  # when logger.error is called
+    assert caplog.records[2].funcName == func_name_original  # when logger.info is called
+    assert caplog.records[3].funcName == func_name_custom    # when logger.log_with_warning is called
