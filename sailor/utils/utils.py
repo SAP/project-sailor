@@ -28,7 +28,7 @@ class WarningAdapter(logging.LoggerAdapter):
 
     def log_with_warning(self, msg, warning_stacklevel=1, warning_category=None):
         """Delegate a warning call to the underlying logger and trigger a real warning with the same message."""
-        warnings.warn(msg, category=warning_category, stacklevel=warning_stacklevel + 2)
+        warnings.warn(msg, category=warning_category, stacklevel=warning_stacklevel + 1)
         self.log(logging.WARNING, msg)
 
     def log(self, level, msg, *args, **kwargs):
