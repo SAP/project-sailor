@@ -32,7 +32,7 @@ class WarningAdapter(logging.LoggerAdapter):
         self.log(logging.WARNING, msg)
 
     def log(self, level, msg, *args, **kwargs):
-        """Adjust the stacklevel parameter, because the logging adapter introduces additional stack layers."""
+        """Delegate a log call to LoggerAdapter.log, after adjusting the stacklevel for introduced stack layers."""
         stacklevel_offset = 3
-        kwargs["stacklevel"] = kwargs.get("stacklevel", 1) + stacklevel_offset
+        kwargs['stacklevel'] = kwargs.get('stacklevel', 1) + stacklevel_offset
         super().log(level, msg, *args, **kwargs)
