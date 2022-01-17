@@ -173,7 +173,6 @@
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 
@@ -185,10 +184,11 @@
 <span class="kn">from</span> <span class="nn">sailor.sap_iot.wrappers</span> <span class="kn">import</span> <span class="n">TimeseriesDataset</span>
 <span class="kn">from</span> <span class="nn">sailor.utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span>
 <span class="kn">from</span> <span class="nn">sailor.sap_iot._common</span> <span class="kn">import</span> <span class="n">request_aggregates_url</span>
-<span class="kn">from</span> <span class="nn">..utils.utils</span> <span class="kn">import</span> <span class="n">DataNotFoundWarning</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.utils</span> <span class="kn">import</span> <span class="n">DataNotFoundWarning</span><span class="p">,</span> <span class="n">WarningAdapter</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">WarningAdapter</span><span class="p">(</span><span class="n">LOG</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..assetcentral.equipment</span> <span class="kn">import</span> <span class="n">EquipmentSet</span>
@@ -315,14 +315,14 @@
 
     <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
         <span class="n">warning</span> <span class="o">=</span> <span class="n">DataNotFoundWarning</span><span class="p">(</span><span class="s1">&#39;Could not find any data for the requested period.&#39;</span><span class="p">)</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">aggregation_interval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">duration</span> <span class="o">=</span> <span class="n">isodate</span><span class="o">.</span><span class="n">parse_duration</span><span class="p">(</span><span class="s1">&#39;P&#39;</span> <span class="o">+</span> <span class="n">duration</span><span class="p">)</span>
         <span class="n">aggregation_interval</span> <span class="o">=</span> <span class="n">isodate</span><span class="o">.</span><span class="n">parse_duration</span><span class="p">(</span><span class="n">aggregation_interval</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">duration</span> <span class="o">!=</span> <span class="n">aggregation_interval</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The aggregation interval returned by the query (&quot;</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s1">&quot;) &#39;</span> <span class="o">+</span>
-                          <span class="sa">f</span><span class="s1">&#39;does not match the requested aggregation interval (&quot;</span><span class="si">{</span><span class="n">aggregation_interval</span><span class="si">}</span><span class="s1">&quot;)&#39;</span><span class="p">)</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The aggregation interval returned by the query (&quot;</span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s1">&quot;) does &#39;</span> <span class="o">+</span>
+                                 <span class="sa">f</span><span class="s1">&#39;not match the requested aggregation interval (&quot;</span><span class="si">{</span><span class="n">aggregation_interval</span><span class="si">}</span><span class="s1">&quot;)&#39;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">TimeseriesDataset</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">aggregated_indicators</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span></div>
 

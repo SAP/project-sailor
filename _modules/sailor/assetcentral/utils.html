@@ -168,14 +168,15 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">UserDict</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
 <span class="kn">from</span> <span class="nn">sailor.utils.oauth_wrapper.OAuthServiceImpl</span> <span class="kn">import</span> <span class="n">RequestError</span>
-<span class="kn">from</span> <span class="nn">..utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.utils</span> <span class="kn">import</span> <span class="n">WarningAdapter</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">WarningAdapter</span><span class="p">(</span><span class="n">LOG</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_ac_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="o">=</span><span class="p">(),</span> <span class="n">breakable_filters</span><span class="o">=</span><span class="p">()):</span>
@@ -260,10 +261,11 @@
             <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">is_writable</span><span class="p">:</span>
                 <span class="n">field</span><span class="o">.</span><span class="n">put_setter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameter &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; is not available for create or update requests and will be ignored.&quot;</span><span class="p">,</span>
-                              <span class="n">stacklevel</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Parameter &quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&quot; is not available for create or update requests and will be ignored.&#39;</span><span class="p">,</span>
+                    <span class="n">warning_stacklevel</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown name for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> parameter found: &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unknown name for </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> parameter found: &quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&quot;.&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@classmethod</span>

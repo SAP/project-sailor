@@ -165,7 +165,6 @@
 <span></span><span class="sd">&quot;&quot;&quot;Improvements to OAuth and OData clients.&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
@@ -173,11 +172,13 @@
 <span class="kn">from</span> <span class="nn">rauth</span> <span class="kn">import</span> <span class="n">OAuth2Service</span>
 <span class="kn">import</span> <span class="nn">jwt</span>
 
-<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.utils</span> <span class="kn">import</span> <span class="n">WarningAdapter</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
 <span class="kn">from</span> <span class="nn">.scope_config</span> <span class="kn">import</span> <span class="n">SCOPE_CONFIG</span>
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">WarningAdapter</span><span class="p">(</span><span class="n">LOG</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="OAuth2Client"><a class="viewcode-back" href="../../../../apidoc/sailor.utils.oauth_wrapper.OAuthServiceImpl.html#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client">[docs]</a><span class="k">class</span> <span class="nc">OAuth2Client</span><span class="p">():</span>
@@ -247,7 +248,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_configured_scopes</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Could not resolve the configured scopes. Trying to continue without scopes...&#39;</span><span class="p">)</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span><span class="s1">&#39;Could not resolve the configured scopes. Trying to continue without scopes...&#39;</span><span class="p">)</span>
                 <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">scope</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resolved_scopes</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolved_scopes</span> <span class="k">else</span> <span class="kc">None</span>
@@ -350,8 +351,8 @@
         <span class="c1"># we consider the scope configuration invalid when at least one</span>
         <span class="c1"># corresponding prefixed scope from auth token is absent</span>
         <span class="k">if</span> <span class="n">missing_corresponding_scopes</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Could not resolve all scopes. Scope configuration considered invalid. &#39;</span> <span class="o">+</span>
-                          <span class="sa">f</span><span class="s1">&#39;Continuing without resolved scopes. Missing scopes: </span><span class="si">{</span><span class="n">missing_corresponding_scopes</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span><span class="s1">&#39;Could not resolve all scopes. Scope configuration considered invalid. &#39;</span> <span class="o">+</span>
+                                 <span class="sa">f</span><span class="s1">&#39;Continuing without resolved scopes. Missing scopes: </span><span class="si">{</span><span class="n">missing_corresponding_scopes</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">resolved_scopes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">resolved_scopes</span> <span class="o">=</span> <span class="n">resolved_scopes</span></div>

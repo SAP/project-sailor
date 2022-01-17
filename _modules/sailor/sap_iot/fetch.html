@@ -176,7 +176,6 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">BinaryIO</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">zipfile</span>
@@ -186,10 +185,10 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">import</span> <span class="nn">sailor.assetcentral.indicators</span> <span class="k">as</span> <span class="nn">ac_indicators</span>
-<span class="kn">from</span> <span class="nn">..utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span><span class="p">,</span> <span class="n">RequestError</span>
-<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_any_to_timestamp</span><span class="p">,</span> <span class="n">_timestamp_to_date_string</span>
-<span class="kn">from</span> <span class="nn">..utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
-<span class="kn">from</span> <span class="nn">..utils.utils</span> <span class="kn">import</span> <span class="n">DataNotFoundWarning</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span><span class="p">,</span> <span class="n">RequestError</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.timestamps</span> <span class="kn">import</span> <span class="n">_any_to_timestamp</span><span class="p">,</span> <span class="n">_timestamp_to_date_string</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.utils</span> <span class="kn">import</span> <span class="n">DataNotFoundWarning</span><span class="p">,</span> <span class="n">WarningAdapter</span>
 <span class="kn">from</span> <span class="nn">.wrappers</span> <span class="kn">import</span> <span class="n">TimeseriesDataset</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -198,6 +197,7 @@
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">WarningAdapter</span><span class="p">(</span><span class="n">LOG</span><span class="p">)</span>
 
 <span class="n">fixed_timeseries_columns</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;_TIME&#39;</span><span class="p">:</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">,</span>
@@ -365,7 +365,7 @@
             <span class="k">if</span> <span class="n">error_message</span> <span class="o">==</span> <span class="s1">&#39;Data not found for the requested date range&#39;</span><span class="p">:</span>
                 <span class="n">warning</span> <span class="o">=</span> <span class="n">DataNotFoundWarning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s1">&#39;No data for indicator group </span><span class="si">{</span><span class="n">indicator_group</span><span class="si">}</span><span class="s1"> found in the requested time interval!&#39;</span><span class="p">)</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
                 <span class="k">continue</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">e</span>
@@ -393,7 +393,7 @@
                 <span class="k">for</span> <span class="n">indicator</span> <span class="ow">in</span> <span class="n">indicator_subset</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">indicator</span><span class="o">.</span><span class="n">_unique_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
                         <span class="n">warning</span> <span class="o">=</span> <span class="n">DataNotFoundWarning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Could not find any data for indicator </span><span class="si">{</span><span class="n">indicator</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
+                        <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span><span class="n">warning</span><span class="p">)</span>
 
                 <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;outer&#39;</span><span class="p">)</span>
 

@@ -171,7 +171,6 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -183,8 +182,9 @@
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
 
 <span class="kn">import</span> <span class="nn">sailor.assetcentral.indicators</span> <span class="k">as</span> <span class="nn">ac_indicators</span>
-<span class="kn">from</span> <span class="nn">..utils.plot_helper</span> <span class="kn">import</span> <span class="n">_default_plot_theme</span>
-<span class="kn">from</span> <span class="nn">..utils.timestamps</span> <span class="kn">import</span> <span class="n">_any_to_timestamp</span><span class="p">,</span> <span class="n">_calculate_nice_sub_intervals</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.plot_helper</span> <span class="kn">import</span> <span class="n">_default_plot_theme</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.timestamps</span> <span class="kn">import</span> <span class="n">_any_to_timestamp</span><span class="p">,</span> <span class="n">_calculate_nice_sub_intervals</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.utils</span> <span class="kn">import</span> <span class="n">WarningAdapter</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">..assetcentral.indicators</span> <span class="kn">import</span> <span class="n">IndicatorSet</span><span class="p">,</span> <span class="n">AggregatedIndicatorSet</span>
@@ -192,6 +192,7 @@
 
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">WarningAdapter</span><span class="p">(</span><span class="n">LOG</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="TimeseriesDataset"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset">[docs]</a><span class="k">class</span> <span class="nc">TimeseriesDataset</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -220,7 +221,8 @@
         <span class="k">if</span> <span class="n">df_equipment_ids</span> <span class="o">-</span> <span class="n">set_equipment_ids</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Not all equipment ids in the data are provided in the equipment set.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">set_equipment_ids</span> <span class="o">-</span> <span class="n">df_equipment_ids</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;There is no data in the dataframe for some of the equipments in the equipment set.&#39;</span><span class="p">)</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span>
+                <span class="s1">&#39;There is no data in the dataframe for some of the equipments in the equipment set.&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_equipment_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">df_equipment_ids</span><span class="p">)</span>
 
         <span class="n">df_indicator_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_index_columns</span><span class="p">(</span><span class="n">include_model</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
@@ -228,7 +230,8 @@
         <span class="k">if</span> <span class="n">df_indicator_ids</span> <span class="o">-</span> <span class="n">set_indicator_ids</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Not all indicator ids in the data are provided in the indicator set.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">set_indicator_ids</span> <span class="o">-</span> <span class="n">df_indicator_ids</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;There is no data in the dataframe for some of the indicators in the indicator set.&#39;</span><span class="p">)</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span>
+                <span class="s1">&#39;There is no data in the dataframe for some of the indicators in the indicator set.&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">_unique_id</span><span class="o">=</span><span class="n">df_indicator_ids</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -412,13 +415,15 @@
         <span class="c1"># find equipment_set that are dropped from the plot and log them to the user</span>
         <span class="n">empty_equipment_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">selected_equipment_ids</span><span class="p">)</span> <span class="o">-</span> <span class="n">result_equipment_ids</span>
         <span class="k">if</span> <span class="n">empty_equipment_ids</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Following equipment show no data and are removed from the plot: </span><span class="si">{</span><span class="n">empty_equipment_ids</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Following equipment show no data and are removed from the plot: </span><span class="si">{</span><span class="n">empty_equipment_ids</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">selected_equipment_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">selected_equipment_ids</span><span class="p">)</span> <span class="o">-</span> <span class="n">empty_equipment_ids</span>
         <span class="c1"># also indicators without data need to be removed from the plot due to unknown Y axis limits</span>
         <span class="n">empty_indicators</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">empty_indicators</span><span class="p">:</span>
             <span class="c1"># Todo: speaking names in the log below? Currently using our uuid</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Following indicators show no data and are removed from the plot: </span><span class="si">{</span><span class="n">empty_indicators</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Following indicators show no data and are removed from the plot: </span><span class="si">{</span><span class="n">empty_indicators</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">feature_vars</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">feature_vars</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">empty_indicators</span><span class="p">)</span>
 
         <span class="n">query_timedelta</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
@@ -560,7 +565,8 @@
             <span class="n">selected_indicator_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indicator_set</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;The selected filters removed all data, the resulting TimeseriesDataset is empty.&#39;</span><span class="p">)</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">log_with_warning</span><span class="p">(</span>
+                <span class="s1">&#39;The selected filters removed all data, the resulting TimeseriesDataset is empty.&#39;</span><span class="p">)</span>
         <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Filtered Dataset contains </span><span class="si">%s</span><span class="s1"> rows.&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">selected_df</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">TimeseriesDataset</span><span class="p">(</span><span class="n">selected_df</span><span class="p">,</span> <span class="n">selected_indicator_set</span><span class="p">,</span> <span class="n">selected_equi_set</span><span class="p">,</span>

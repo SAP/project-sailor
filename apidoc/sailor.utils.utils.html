@@ -175,6 +175,96 @@
 <p>Use this warning to indicate that a query-like function returned an empty result.</p>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sailor.utils.utils.</span></span><span class="sig-name descname"><span class="pre">WarningAdapter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/utils/utils.html#WarningAdapter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.utils.utils.WarningAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">logging.LoggerAdapter</span></code></p>
+<p>Allow a logger to convert warnings logs into real warnings to simplify logging setup for users.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.critical">
+<span class="sig-name descname"><span class="pre">critical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.critical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delegate a critical call to the underlying logger.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delegate a debug call to the underlying logger.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.error">
+<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delegate an error call to the underlying logger.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.exception">
+<span class="sig-name descname"><span class="pre">exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delegate an exception call to the underlying logger.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.getEffectiveLevel">
+<span class="sig-name descname"><span class="pre">getEffectiveLevel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.getEffectiveLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the effective level for the underlying logger.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.hasHandlers">
+<span class="sig-name descname"><span class="pre">hasHandlers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.hasHandlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>See if the underlying logger has any handlers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.info">
+<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delegate an info call to the underlying logger.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.isEnabledFor">
+<span class="sig-name descname"><span class="pre">isEnabledFor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.isEnabledFor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is this logger enabled for level ‘level’?</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/utils/utils.html#WarningAdapter.log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delegate a log call to LoggerAdapter.log, after adjusting the stacklevel for introduced stack layers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.log_with_warning">
+<span class="sig-name descname"><span class="pre">log_with_warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warning_stacklevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warning_category</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/utils/utils.html#WarningAdapter.log_with_warning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.log_with_warning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delegate a warning call to the underlying logger and trigger a real warning with the same message.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the logging message and keyword arguments passed in to
+a logging call to insert contextual information. You can either
+manipulate the message itself, the keyword args or both. Return
+the message and kwargs modified (or not) to suit your needs.</p>
+<p>Normally, you’ll only need to override this one method in a
+LoggerAdapter subclass for your specific needs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.setLevel">
+<span class="sig-name descname"><span class="pre">setLevel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.setLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the specified level on the underlying logger.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sailor.utils.utils.WarningAdapter.warning">
+<span class="sig-name descname"><span class="pre">warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sailor.utils.utils.WarningAdapter.warning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delegate a warning call to the underlying logger.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
