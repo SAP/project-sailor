@@ -1,7 +1,6 @@
 """Improvements to OAuth and OData clients."""
 import logging
 import json
-import warnings
 from datetime import datetime, timezone
 import time
 
@@ -9,11 +8,13 @@ from furl import furl
 from rauth import OAuth2Service
 import jwt
 
-from ..config import SailorConfig
+from sailor.utils.utils import WarningAdapter
+from sailor.utils.config import SailorConfig
 from .scope_config import SCOPE_CONFIG
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 
 class OAuth2Client():
@@ -83,7 +84,7 @@ class OAuth2Client():
             try:
                 self._resolve_configured_scopes()
             except Exception as exc:
-                warnings.warn('Could not resolve the configured scopes. Trying to continue without scopes...')
+                LOG.log_with_warning('Could not resolve the configured scopes. Trying to continue without scopes...')
                 LOG.debug(exc, exc_info=True)
 
         scope = ' '.join(self.resolved_scopes) if self.resolved_scopes else None
@@ -186,8 +187,8 @@ class OAuth2Client():
         # we consider the scope configuration invalid when at least one
         # corresponding prefixed scope from auth token is absent
         if missing_corresponding_scopes:
-            warnings.warn('Could not resolve all scopes. Scope configuration considered invalid. ' +
-                          f'Continuing without resolved scopes. Missing scopes: {missing_corresponding_scopes}.')
+            LOG.log_with_warning('Could not resolve all scopes. Scope configuration considered invalid. ' +
+                                 f'Continuing without resolved scopes. Missing scopes: {missing_corresponding_scopes}.')
             self.resolved_scopes = []
         else:
             self.resolved_scopes = resolved_scopes

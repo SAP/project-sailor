@@ -4,11 +4,12 @@ Group module can be used to retrieve Groups information from AssetCentral.
 Classes are provided for individual Groups as well as groups of Groups (GroupSet).
 """
 
+import logging
 from functools import cached_property
-import warnings
 
 from sailor import _base
-from ..utils.timestamps import _string_to_timestamp_parser
+from sailor.utils.timestamps import _string_to_timestamp_parser
+from sailor.utils.utils import WarningAdapter
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _ac_application_url, _ac_fetch_data)
 from .constants import VIEW_GROUPS
@@ -34,6 +35,10 @@ _GROUP_FIELDS = [
     _AssetcentralField('_created_on', 'creationTime', get_extractor=_string_to_timestamp_parser(unit='ms')),
 ]
 
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
+
 
 @_base.add_properties
 class Group(AssetcentralEntity):
@@ -57,7 +62,7 @@ class Group(AssetcentralEntity):
                         if item['businessObjectType'] == business_object_type]
 
         if not kwargs['id']:
-            warnings.warn(f'There are no "{member_name}" in this group!')
+            LOG.log_with_warning(f'There are no "{member_name}" in this group!')
             return set_class([])
 
         return find_function(extended_filters=extended_filters, **kwargs)
@@ -133,7 +138,7 @@ class GroupSet(AssetcentralEntitySet):
         kwargs['id'] = set([item['businessObjectId'] for group in self.elements for item in group._members_raw
                             if item['businessObjectType'] == business_object_type])
         if not kwargs['id']:
-            warnings.warn(f'There are no "{member_name}" in any of the groups in this set!')
+            LOG.log_with_warning(f'There are no "{member_name}" in any of the groups in this set!')
             return set_class([])
 
         return find_function(extended_filters=extended_filters, **kwargs)

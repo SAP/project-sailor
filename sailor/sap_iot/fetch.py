@@ -12,7 +12,6 @@ from functools import partial
 from datetime import datetime
 from typing import TYPE_CHECKING, Union, BinaryIO
 import logging
-import warnings
 import time
 import json
 import zipfile
@@ -22,10 +21,10 @@ from io import BytesIO
 import pandas as pd
 
 import sailor.assetcentral.indicators as ac_indicators
-from ..utils.oauth_wrapper import get_oauth_client, RequestError
-from ..utils.timestamps import _any_to_timestamp, _timestamp_to_date_string
-from ..utils.config import SailorConfig
-from ..utils.utils import DataNotFoundWarning
+from sailor.utils.oauth_wrapper import get_oauth_client, RequestError
+from sailor.utils.timestamps import _any_to_timestamp, _timestamp_to_date_string
+from sailor.utils.config import SailorConfig
+from sailor.utils.utils import DataNotFoundWarning, WarningAdapter
 from .wrappers import TimeseriesDataset
 
 if TYPE_CHECKING:
@@ -34,6 +33,7 @@ if TYPE_CHECKING:
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 fixed_timeseries_columns = {
     '_TIME': 'timestamp',
@@ -201,7 +201,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
             if error_message == 'Data not found for the requested date range':
                 warning = DataNotFoundWarning(
                     f'No data for indicator group {indicator_group} found in the requested time interval!')
-                warnings.warn(warning)
+                LOG.log_with_warning(warning)
                 continue
             else:
                 raise e
@@ -229,7 +229,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
                 for indicator in indicator_subset:
                     if indicator._unique_id not in data.columns:
                         warning = DataNotFoundWarning(f'Could not find any data for indicator {indicator}')
-                        warnings.warn(warning)
+                        LOG.log_with_warning(warning)
 
                 results = pd.merge(results, data, on=['equipment_id', 'timestamp'], how='outer')
 
