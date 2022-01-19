@@ -62,7 +62,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Project "Sailor"'
-copyright = u'2021, SAP SE and project "Sailor" contributors'
+copyright = u'2022, SAP SE and project "Sailor" contributors'
 author = u'DSC Data Science Team'
 
 # The version info for the project you're documenting, acts as replacement for
