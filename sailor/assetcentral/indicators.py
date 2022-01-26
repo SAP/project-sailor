@@ -135,6 +135,13 @@ class IndicatorSet(AssetcentralEntitySet):
             )
         return mapping
 
+    def _unique_id_to_raw(self):
+        """Get details on an opaque column_id in terms of AssetCentral IDs."""
+        mapping = {}
+        for indicator in self:
+            mapping[indicator._unique_id] = indicator.raw
+        return mapping
+
 
 class AggregatedIndicatorSet(IndicatorSet):
     """Class representing a group of AggregatedIndicators."""

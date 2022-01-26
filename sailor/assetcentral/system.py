@@ -7,7 +7,8 @@ from __future__ import annotations
 
 import math
 import itertools
-from typing import TYPE_CHECKING, Union
+# from typing import TYPE_CHECKING, Union
+from typing import Union
 from datetime import datetime
 from functools import cached_property
 from operator import itemgetter
@@ -19,11 +20,12 @@ from sailor import sap_iot
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _ac_application_url, _ac_fetch_data)
 from .equipment import find_equipment, EquipmentSet
-from .indicators import IndicatorSet
+from .indicators import IndicatorSet, SystemIndicator, SystemIndicatorSet
+from ..sap_iot import TimeseriesDataset
 from .constants import VIEW_SYSTEMS
 
-if TYPE_CHECKING:
-    from ..sap_iot import TimeseriesDataset
+# if TYPE_CHECKING:
+#    from ..sap_iot import TimeseriesDataset
 
 _SYSTEM_FIELDS = [
     _AssetcentralField('name', 'internalId'),
@@ -208,7 +210,8 @@ class SystemSet(AssetcentralEntitySet):
     }
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> TimeseriesDataset:
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+                           indicators=None) -> TimeseriesDataset:
         """
         Fetch data for a set of systems for all component equipment of each system.
 
@@ -226,9 +229,10 @@ class SystemSet(AssetcentralEntitySet):
             End of time series data.
         """
         all_equipment = sum((system._hierarchy['equipment'] for system in self), EquipmentSet([]))
-        all_indicators = sum((equipment.find_equipment_indicators() for equipment in all_equipment), IndicatorSet([]))
+        if indicators is None:
+            indicators = sum((equipment.find_equipment_indicators() for equipment in all_equipment), IndicatorSet([]))
 
-        return sap_iot.get_indicator_data(start, end, all_indicators, all_equipment)
+        return sap_iot.get_indicator_data(start, end, indicators, all_equipment)
 
     @staticmethod
     def _fill_nones(sel_nodes, indicator_list, none_positions, equi_counter):
@@ -262,12 +266,13 @@ class SystemSet(AssetcentralEntitySet):
                     equi_counter = SystemSet._map_comp_info(node['child_nodes'], sys_nodes[node['key']]['child_nodes'],
                                                             indicator_list, none_positions, equipment, equi_counter)
                 else:
-                    equi_counter = SystemSet._fill_nones(node['child_nodes'], indicator_list, none_positions, equi_counter)
+                    equi_counter = SystemSet._fill_nones(node['child_nodes'], indicator_list, none_positions,
+                                                         equi_counter)
         return equi_counter
 
     def _map_component_information(self, selection):
         """Map selection dictionary against component dictionary of systems in a system set.
-        
+
         system_indicators: dictionary of selected indicators
         system_equipment: dictionary of pieces of equipment and their positions
         """
@@ -314,7 +319,7 @@ class SystemSet(AssetcentralEntitySet):
             system_equipment = sys_equipment
         return system_indicators, system_equipment
 
-    def lead_eq_and_counter(self, ec):
+    def lead_eq_and_counter(self, ec, lead_equi_path=[]):
         """Get leading equipment and equipment counter."""
 
         def equi_counter(equi_id, sys):
@@ -328,7 +333,7 @@ class SystemSet(AssetcentralEntitySet):
         for i in range(len(self)):
             eq = self[i]._hierarchy['equipment'].as_df()[['id']]
             eq.rename(columns={"id": "equipment_id"}, inplace=True)
-            eq['leading_equipment'] = self[i].get_leading_equipment([])
+            eq['leading_equipment'] = self[i].get_leading_equipment(lead_equi_path)
             eq['equi_counter'] = eq.equipment_id.apply(equi_counter, sys=self[i].id)
             if i == 0:
                 equi_info = eq
@@ -393,22 +398,32 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
 
 def create_analysis_table(indicator_data, equi_info):
     """Create analysis table for a system set."""
-    # indicator_data.reset_index(inplace=True)
-    id = indicator_data.reset_index()
+    id_df = indicator_data.as_df(speaking_names=False).reset_index()
     # join with leading equipment
-    data = id.merge(equi_info)
-    return data
-    print(len(data))
+    id_df = id_df.merge(equi_info)
     # drop model id and equipment id
     # data.drop(['model_id', 'equipment_id'], axis=1, inplace=True)
-    data.drop(['equipment_id'], axis=1, inplace=True)
-    print(data[:50])
+    id_df.drop(['equipment_id'], axis=1, inplace=True)
+    id_df.rename(columns={'leading_equipment': 'equipment_id'}, inplace=True)
     # create really long format
-    long = data.melt(id_vars=['timestamp', 'leading_equipment', 'equi_counter'])
-    print(len(long))
-    # print(long[:50])
+    long = id_df.melt(id_vars=['timestamp', 'equipment_id', 'equi_counter'])
     long = long[long.equi_counter >= 0]
-    print(len(long))
     # get rid of NAs
     long = long.dropna(subset=['value'])
-    return long.pivot(index=['leading_equipment', 'timestamp'], columns=['variable', 'equi_counter'])
+    wide = long.pivot(index=['equipment_id', 'timestamp'], columns=['variable', 'equi_counter'])
+    columns = []
+    rawmap = indicator_data._indicator_set._unique_id_to_raw()
+    sysindset = SystemIndicatorSet([])
+    for c in wide.columns:
+        sysind = SystemIndicator(rawmap[c[1]], c[2])
+        columns.append(sysind._unique_id)
+        sysindset += SystemIndicatorSet([sysind])
+    wide.columns = columns
+    wide.reset_index(inplace=True)
+    eq = set(id_df['equipment_id'].unique())
+    equipment_set = EquipmentSet([])
+    for e in indicator_data.equipment_set:
+        if e.id in eq:
+            equipment_set += EquipmentSet([e])
+    return TimeseriesDataset(wide, sysindset, equipment_set, indicator_data.nominal_data_start,
+                             indicator_data.nominal_data_end)
