@@ -284,7 +284,7 @@ def test_fill_nones(make_indicator_set):
                     'key': ('D5D8A6688B104C668634533ADCE341C9', 0)}]
     indicator_list = []
     none_positions = set()
-    SystemSet._fill_nones(child_nodes, indicator_list, none_positions)
+    SystemSet._fill_nones(child_nodes, indicator_list, none_positions, 0)
     assert indicator_list == [None, None, None, None, None, None]
     assert none_positions == {0, 1, 2, 3, 4, 5}
 
@@ -332,7 +332,7 @@ def test_map_comp_info(make_indicator_set):
                            ('A1ADCEA69C95454DA9FE19863804A0D6', ind3[0]), ('A1ADCEA69C95454DA9FE19863804A0D6', ind3[1])]
     indicator_list = []
     none_positions = set()
-    SystemSet._map_comp_info(selec_nodes, system_nodes, indicator_list, none_positions)
+    SystemSet._map_comp_info(selec_nodes, system_nodes, indicator_list, none_positions, {}, 0)
     assert indicator_list == expected_indicators
     assert none_positions == {2, 3}
 
@@ -522,8 +522,24 @@ def test_map_component_information(make_indicator_set, selection_dictionary, moc
                           None, None, None, None, None, None,
                           ('A5E0E42A344F422C8663206E61848FBF', ind2[0]),
                           ('A5E0E42A344F422C8663206E61848FBF', ind2[1])]}
-    act_sys_inds = system_set._map_component_information(selection_dictionary)
+    exp_equipment = {'1': {'DBB7885268EB41E3BF157AB890CCA1EF': 0,
+                           '042F55EF70BE49538BB6DA3F32B8738C': 1,
+                           'A1ADCEA69C95454DA9FE19863804A0D6': 2,
+                           'F988369A34404644A8DC470220FBBE34': 3,
+                           '8C3114ACDF854084B50EB19D61C0FC9F': 4,
+                           '4B8FB57B3F684F838F82BDDDB377AC76': 5,
+                           '0E779D3EA3C54F379AC89A7C539EDCFE': 6},
+                     '2': {'E4790550A91A4F2EAE1055E16FD9BE34': 0,
+                           'C91000E01AB845E08E0CDAFF0CD84621': 1,
+                           '0998250AA7AC45F0A878DB0E289FC5C1': 3,
+                           'E95A968289B6467CAF22DB3089F88616': 5},
+                     '3': {'0C6F06AAB482402D905F678E74E7053E': 0,
+                           '4C29728F4D2E400B8D22145271379759': 1,
+                           'CDED4A4CC20C4A8A8A257540B0CAC794': 2,
+                           'A5E0E42A344F422C8663206E61848FBF': 6}}
+    act_sys_inds, act_equipment = system_set._map_component_information(selection_dictionary)
     assert act_sys_inds == exp_sys_inds
+    assert act_equipment == exp_equipment
 
 
 def test_expected_public_attributes_are_present():
