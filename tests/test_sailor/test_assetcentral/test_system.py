@@ -264,6 +264,31 @@ def test_create_selection_dictionary(selection_dictionary, component_tree):
     assert actual_selection_dictionary == selection_dictionary
 
 
+def test_get_leading_equipment(component_tree):
+
+    def del_equis(component):
+        # convert pieces of equipment into systems to create a tree with systems only
+        if component['object_type'] == 'EQU':
+            component['object_type'] = 'SYS'
+        if 'child_nodes' in component.keys():
+            for child in component['child_nodes']:
+                del_equis(component['child_nodes'][child])
+
+    system = System({'systemId': 'SY0id', 'internalId': 'SY0', 'modelID': 'SY0'})
+    system._hierarchy = {}
+    system._hierarchy['component_tree'] = component_tree
+    # test 1: default behavior
+    lead_equi = system.get_leading_equipment([])
+    assert lead_equi == 'EM2-3id'
+    # test 2: path given
+    lead_equi = system.get_leading_equipment([('SY1', 1), ('EM1', 1)])
+    assert lead_equi == 'EM1-22id'
+    # test 3: no equipment in component tree
+    del_equis(system._hierarchy['component_tree'])
+    lead_equi = system.get_leading_equipment([])
+    assert lead_equi == 0
+
+
 def test_fill_nones(make_indicator_set):
     ind1 = make_indicator_set(propertyId=['1', '2'])
     ind2 = make_indicator_set(propertyId=['3', '4'])

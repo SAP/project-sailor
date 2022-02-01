@@ -103,6 +103,21 @@ class SystemIndicator(Indicator):
         return m.hexdigest()
 
 
+class SystemAggregatedIndicator(AggregatedIndicator):
+    """An extension of the AssetCentral Indicator object that additionally holds aggregation and hierarchy position information."""
+
+    def __init__(self, ac_json, aggregation_function, hierarchy_position):
+        super(SystemAggregatedIndicator, self).__init__(ac_json, aggregation_function)
+        self.hierarchy_position = hierarchy_position
+
+    @cached_property
+    def _unique_id(self):
+        m = hashlib.sha256()
+        unique_string = self.id + self.indicator_group_id + self.template_id + self.aggregation_function + str(self.hierarchy_position)
+        m.update(unique_string.encode())
+        return m.hexdigest()
+
+
 class IndicatorSet(AssetcentralEntitySet):
     """Class representing a group of Indicators."""
 
@@ -172,6 +187,16 @@ class AggregatedIndicatorSet(IndicatorSet):
             )
         return mapping
 
+    def _unique_id_to_raw(self):
+        """Get details on an opaque column_id in terms of AssetCentral IDs."""
+        mapping = {}
+        for indicator in self:
+            mapping[indicator._unique_id] = (
+                indicator.raw,
+                indicator.aggregation_function,
+            )
+        return mapping
+
     @classmethod
     def _from_indicator_set_and_aggregation_functions(cls, indicators, aggregation_functions):
         aggregated_indicators = []
@@ -207,6 +232,36 @@ class SystemIndicatorSet(IndicatorSet):
                 indicator.template_id,
                 indicator.indicator_group_id,
                 indicator.id,
+                indicator.hierarchy_position,
+            )
+        return mapping
+
+
+class SystemAggregatedIndicatorSet(IndicatorSet):
+    """Class representing a group of SystemAggregatedIndicators."""
+
+    _element_type = SystemAggregatedIndicator
+
+    def _unique_id_to_names(self):
+        mapping = {}
+        for indicator in self:
+            mapping[indicator._unique_id] = (
+                indicator.template_id,  # apparently fetching the template name would need a remote call
+                indicator.indicator_group_name,
+                indicator.name,
+                indicator.aggregation_function,
+                indicator.hierarchy_position,
+            )
+        return mapping
+
+    def _unique_id_to_constituent_ids(self):
+        mapping = {}
+        for indicator in self:
+            mapping[indicator._unique_id] = (
+                indicator.template_id,
+                indicator.indicator_group_id,
+                indicator.id,
+                indicator.aggregation_function,
                 indicator.hierarchy_position,
             )
         return mapping

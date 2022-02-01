@@ -17,10 +17,11 @@ import pandas as pd
 
 from sailor import _base
 from sailor import sap_iot
+import sailor.assetcentral.indicators as ac_indicators
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _ac_application_url, _ac_fetch_data)
 from .equipment import find_equipment, EquipmentSet
-from .indicators import IndicatorSet, SystemIndicator, SystemIndicatorSet
+from .indicators import IndicatorSet, SystemIndicator, SystemAggregatedIndicator, SystemIndicatorSet, SystemAggregatedIndicatorSet
 from ..sap_iot import TimeseriesDataset
 from .constants import VIEW_SYSTEMS
 
@@ -149,16 +150,15 @@ class System(AssetcentralEntity):
         return selection
 
     @staticmethod
-    def _find_first_equipment(comp_tree, level, equi_level):
+    def _find_first_equipment(comp_tree, level, equi_id, equi_level):
         """Find first equipment on highest level of a tree recursively."""
-        equi_id = 0
         for child in comp_tree['child_nodes']:
             if comp_tree['child_nodes'][child]['object_type'] == 'EQU':
                 return comp_tree['child_nodes'][child]['id'], level
             else:
                 if (level + 1) < equi_level:
                     equi_id, equi_level = System._find_first_equipment(comp_tree['child_nodes'][child], level+1,
-                                                                       equi_level)
+                                                                       equi_id, equi_level)
         return equi_id, equi_level
 
     def get_leading_equipment(self, path):
@@ -172,7 +172,7 @@ class System(AssetcentralEntity):
         else:
             # no path given: find first equipment on highest level
             # looks like a breadth-first search problem, but DFS is more efficient
-            equi_id, equi_level = System._find_first_equipment(self._hierarchy['component_tree'], 0, math.inf)
+            equi_id, equi_level = System._find_first_equipment(self._hierarchy['component_tree'], 0, 0, math.inf)
             return equi_id
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
@@ -398,6 +398,7 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
 
 def create_analysis_table(indicator_data, equi_info):
     """Create analysis table for a system set."""
+    agg = isinstance(indicator_data.indicator_set, ac_indicators.AggregatedIndicatorSet)
     id_df = indicator_data.as_df(speaking_names=False).reset_index()
     # join with leading equipment
     id_df = id_df.merge(equi_info)
@@ -413,11 +414,18 @@ def create_analysis_table(indicator_data, equi_info):
     wide = long.pivot(index=['equipment_id', 'timestamp'], columns=['variable', 'equi_counter'])
     columns = []
     rawmap = indicator_data._indicator_set._unique_id_to_raw()
-    sysindset = SystemIndicatorSet([])
+    sysindlist = []
     for c in wide.columns:
-        sysind = SystemIndicator(rawmap[c[1]], c[2])
+        if agg:
+            sysind = SystemAggregatedIndicator(rawmap[c[1]][0], rawmap[c[1]][1], c[2])
+        else:
+            sysind = SystemIndicator(rawmap[c[1]], c[2])
+        sysindlist.append(sysind)
         columns.append(sysind._unique_id)
-        sysindset += SystemIndicatorSet([sysind])
+    if agg:
+        sysindset = SystemAggregatedIndicatorSet(sysindlist)
+    else:
+        sysindset = SystemIndicatorSet(sysindlist)
     wide.columns = columns
     wide.reset_index(inplace=True)
     eq = set(id_df['equipment_id'].unique())
