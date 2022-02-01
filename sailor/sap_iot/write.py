@@ -13,6 +13,8 @@ import logging
 import numpy as np
 
 import sailor.assetcentral.indicators as ac_indicators
+from ..assetcentral.utils import _ac_application_url
+from ..assetcentral.constants import VIEW_TEMPLATES
 from ..utils.timestamps import _timestamp_to_isoformat
 from ..utils.oauth_wrapper import get_oauth_client
 from .wrappers import TimeseriesDataset
@@ -67,8 +69,24 @@ def _upload_data_single_indicator_group(dataset, indicator_set, group_id, templa
         }
         _upload_data_single_equipment(data_subset, equipment.id, tags)
 
+def _check_indicator_group_is_complete(uploaded_indicators, group_id, template_id):
+    missing = []
+    ig_id = group_id.replace('IG_', '')
 
-def upload_indicator_data(dataset: TimeseriesDataset):
+    request_url = _ac_application_url() + VIEW_TEMPLATES + '/' + template_id
+    oauth_ac = get_oauth_client('asset_central')
+    template = oauth_ac.request('GET', request_url)
+
+    for item in template:
+        for ig in (filter(lambda x: x['id'] == ig_id, item['indicatorGroups'])):
+            group_name = ig['internalId']
+
+            for indicator in (filter(lambda x: x['internalId'] not in uploaded_indicators, ig['indicators'])):
+                missing.append(indicator['internalId'])
+    if missing:
+        raise RuntimeError(f'Indicators {missing} in indicator group {group_name} are not in dataset. Update would overwrite missing indicators with "NaN" for the time period. If this is wanted, use "force_update" in the function call.')
+
+def upload_indicator_data(dataset: TimeseriesDataset, force_update = ''):
     """
     Upload a `TimeseriesDataset` to SAP IoT.
 
@@ -86,4 +104,11 @@ def upload_indicator_data(dataset: TimeseriesDataset):
 
     for (group_id, template_id), group_indicators in query_groups.items():
         selected_indicator_set = ac_indicators.IndicatorSet(group_indicators)
+
+        if force_update == '':
+            uploaded_indicators = list(selected_indicator_set.as_df()['name'])
+            _check_indicator_group_is_complete(uploaded_indicators, group_id, template_id) 
+
         _upload_data_single_indicator_group(dataset, selected_indicator_set, group_id, template_id)
+
+        
