@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import math
 import itertools
-# from typing import TYPE_CHECKING, Union
 from typing import Union
 from datetime import datetime
 from functools import cached_property
@@ -15,18 +14,16 @@ from operator import itemgetter
 
 import pandas as pd
 
-from sailor import _base
-from sailor import sap_iot
+from sailor import _base, sap_iot
 import sailor.assetcentral.indicators as ac_indicators
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _ac_application_url, _ac_fetch_data)
 from .equipment import find_equipment, EquipmentSet
-from .indicators import IndicatorSet, SystemIndicator, SystemAggregatedIndicator, SystemIndicatorSet, SystemAggregatedIndicatorSet
+from .indicators import (IndicatorSet, SystemIndicator, SystemAggregatedIndicator, SystemIndicatorSet,
+                         SystemAggregatedIndicatorSet)
 from ..sap_iot import TimeseriesDataset
 from .constants import VIEW_SYSTEMS
 
-# if TYPE_CHECKING:
-#    from ..sap_iot import TimeseriesDataset
 
 _SYSTEM_FIELDS = [
     _AssetcentralField('name', 'internalId'),
