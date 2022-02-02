@@ -25,7 +25,7 @@ def test_upload_is_split_by_indicator_group_and_template(mock_request, make_indi
     )
     dataset = make_dataset(indicator_set, equipment_set)
 
-    upload_indicator_data(dataset)
+    upload_indicator_data(dataset,'x')
 
     assert mock_request.call_count == 3
     assert all(args[0][0] == 'POST' for args in mock_request.call_args_list)
@@ -54,7 +54,7 @@ def test_upload_one_group_in_one_request(mock_request, make_indicator_set, make_
     )
     dataset = make_dataset(indicator_set, equipment_set)
 
-    upload_indicator_data(dataset)
+    upload_indicator_data(dataset,'x')
 
     assert mock_request.call_count == 2
     assert all(args[0][0] == 'POST' for args in mock_request.call_args_list)
@@ -83,7 +83,7 @@ def test_each_equipment_one_request(mock_request, mock_upload_url, make_indicato
     request_base = 'UPLOAD_BASE_URL/Timeseries/extend/Measurements/equipmentId/'
     mock_upload_url.side_effect = lambda x: f'{request_base}{x}'
 
-    upload_indicator_data(dataset)
+    upload_indicator_data(dataset,'x')
     urls = {args[0][1] for args in mock_request.call_args_list}
 
     assert mock_request.call_count == 2
@@ -100,7 +100,7 @@ def test_nan_dataset_written(mock_request, make_indicator_set, make_equipment_se
     none_timestamp = _timestamp_to_isoformat(dataset._df.loc[0, 'timestamp'], with_zulu=True)
     dataset._df.loc[0, none_indicator._unique_id] = np.nan
 
-    upload_indicator_data(dataset)
+    upload_indicator_data(dataset,'x')
     payloads = [args[-1]['json'] for args in mock_request.call_args_list]
     for payload in payloads:
         for values_at_timestamp in payload['Values']:
