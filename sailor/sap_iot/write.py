@@ -86,8 +86,8 @@ def _check_indicator_group_is_complete(uploaded_indicators, group_id, template_i
                 missing.append(indicator['internalId'])
     if missing:
         raise RuntimeError(f'Indicators {missing} in indicator group {group_name} are not in dataset. ' +
-                            'Update would overwrite missing indicators with "NaN" for the time period. ' +
-                            'If this is wanted, use "force_update" in the function call.')
+                           'Update would overwrite missing indicators with "NaN" for the time period. ' +
+                           'If this is wanted, use "force_update" in the function call.')
 
 
 def upload_indicator_data(dataset: TimeseriesDataset, force_update=''):
@@ -104,17 +104,17 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update=''):
     dataset
         TimeseriesDataset of indicators to be updated to SAP IoT.
     force_update
-        A flag to force an update of an IndicatorGroup with some indicators. 
+        A flag to force an update of an IndicatorGroup with some indicators.
         Indicators which are not in dataset will be set to 'NaN' for period of time
 
     Examples
     --------
-    Force update timeseries data of IndicatorGroup 'my_indicator_group'. 
+    Force update timeseries data of IndicatorGroup 'my_indicator_group'.
     Dataset 'my_some_timeseries_data' includes only some indicators of 'my_indicator_group'::
 
         upload_indicator_data(my_some_timeseries_data, force_update = 'x')
 
-    Update timeseries data of 'my_indicator_group' indicators. 
+    Update timeseries data of 'my_indicator_group' indicators.
     Dataset 'my_timeseries_data' has data of all indicators in the group::
 
         upload_indicator_data(my_timeseries_data)
