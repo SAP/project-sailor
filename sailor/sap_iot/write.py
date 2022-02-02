@@ -69,6 +69,7 @@ def _upload_data_single_indicator_group(dataset, indicator_set, group_id, templa
         }
         _upload_data_single_equipment(data_subset, equipment.id, tags)
 
+
 def _check_indicator_group_is_complete(uploaded_indicators, group_id, template_id):
     missing = []
     ig_id = group_id.replace('IG_', '')
@@ -78,13 +79,16 @@ def _check_indicator_group_is_complete(uploaded_indicators, group_id, template_i
     template = oauth_ac.request('GET', request_url)
 
     for item in template:
-        for ig in (filter(lambda x: x['id'] == ig_id, item['indicatorGroups'])):
+        for ig in (filter(lambda x: x['id']==ig_id, item['indicatorGroups'])):
             group_name = ig['internalId']
 
             for indicator in (filter(lambda x: x['internalId'] not in uploaded_indicators, ig['indicators'])):
                 missing.append(indicator['internalId'])
     if missing:
-        raise RuntimeError(f'Indicators {missing} in indicator group {group_name} are not in dataset. Update would overwrite missing indicators with "NaN" for the time period. If this is wanted, use "force_update" in the function call.')
+        raise RuntimeError(f'Indicators {missing} in indicator group {group_name} are not in dataset.\n
+        Update would overwrite missing indicators with "NaN" for the time period.\n
+        If this is wanted, use "force_update" in the function call.')
+
 
 def upload_indicator_data(dataset: TimeseriesDataset, force_update = ''):
     """
@@ -94,6 +98,23 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update = ''):
     The entire dataset will be uploaded. It may not contain any AggregatedIndicators.
     Please note that only some indicators from an IndicatorGroup are present in the dataset, SAP IoT will delete
     any values for the missing indicators for the uploaded timestamps.
+
+    Parameters
+    ----------
+    dataset
+        TimeseriesDataset of indicators to be updated to SAP IoT.
+    force_update
+        A flag to force an update of an IndicatorGroup with some indicators. Indicators which are not in dataset will be set to 'NaN' for period of time
+
+    Examples
+    --------
+    Force update timeseries data of IndicatorGroup 'my_indicator_group'. Dataset 'my_some_timeseries_data' includes only some indicators of 'my_indicator_group'::
+
+        upload_indicator_data(my_some_timeseries_data, force_update = 'x')
+
+    Update timeseries data of 'my_indicator_group' indicators. Dataset 'my_timeseries_data' has data of all indicators in the group::
+
+        upload_indicator_data(my_timeseries_data)
     """
     if isinstance(dataset.indicator_set, ac_indicators.AggregatedIndicatorSet):
         raise RuntimeError('TimeseriesDatasets containing aggregated indicators may not be uploaded to SAP IoT')
@@ -107,8 +128,7 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update = ''):
 
         if force_update == '':
             uploaded_indicators = list(selected_indicator_set.as_df()['name'])
-            _check_indicator_group_is_complete(uploaded_indicators, group_id, template_id) 
+            _check_indicator_group_is_complete(uploaded_indicators, group_id, template_id)
 
         _upload_data_single_indicator_group(dataset, selected_indicator_set, group_id, template_id)
 
-        
