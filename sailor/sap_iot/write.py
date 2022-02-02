@@ -85,9 +85,9 @@ def _check_indicator_group_is_complete(uploaded_indicators, group_id, template_i
             for indicator in (filter(lambda x: x['internalId'] not in uploaded_indicators, ig['indicators'])):
                 missing.append(indicator['internalId'])
     if missing:
-        raise RuntimeError(f'Indicators {missing} in indicator group {group_name} are not in dataset.\n
-        Update would overwrite missing indicators with "NaN" for the time period.\n
-        If this is wanted, use "force_update" in the function call.')
+        raise RuntimeError(f'Indicators {missing} in indicator group {group_name} are not in dataset. '\
+                            'Update would overwrite missing indicators with "NaN" for the time period. '\
+                            'If this is wanted, use "force_update" in the function call.')
 
 
 def upload_indicator_data(dataset: TimeseriesDataset, force_update = ''):
