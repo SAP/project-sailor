@@ -119,3 +119,16 @@ def test_aggregate_indicators_in_dataset_raise(make_aggregated_indicator_set, ma
 
     with pytest.raises(RuntimeError, match='aggregated indicators may not be uploaded to SAP IoT'):
         upload_indicator_data(dataset)
+
+@patch(oauth_ac.request('GET', request_url))
+def test_check_indicator_group_is_complete_raise(self, mock_template):
+    uploaded_indicators = ['indicator_id_A']
+    template = [{'id':'01',
+                      'internalId': 'ModelTemplate',
+                      'indicatorGroups':[{ 'indicators':
+                                          [{'internalId': 'indicator_id_A'}],
+                                          [{ 'internalId': 'indicator_id_B'}]}]}]
+    mock_template.return_value = template
+
+    with pytest.raises(RuntimeError, match='Indicators indicator_id_B in indicator group ModelTemplate are not in dataset.'):
+        _check_indicator_group_is_complete(uploaded_indicators, 'indicator_group_A', 'template')
