@@ -1,4 +1,5 @@
 import datetime
+import warnings
 
 import pytest
 import pandas as pd
@@ -47,8 +48,8 @@ def test_timestamp_to_date_string(input, expected, expect_warning, testdescr):
         with pytest.warns(UserWarning):
             actual = _timestamp_to_date_string(input)
     else:
-        with pytest.warns(None) as record:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
             actual = _timestamp_to_date_string(input)
-            if len(record) > 0:
-                pytest.fail('Did not expect a warning.')
+
     assert actual == expected
