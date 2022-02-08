@@ -145,5 +145,5 @@ def test_check_indicator_group_is_complete_raise_error(mock_request):
 
     mock_request.return_value = get_template(indicator_group_id, indicator_group_name, indicators)
 
-    with pytest.raises(RuntimeError, match = '[ \'indicator_id_B \' ]'):
+    with pytest.raises(RuntimeError, match='[ \'indicator_id_B \' ]'):
          _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 'template')
