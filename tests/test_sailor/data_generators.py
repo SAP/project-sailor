@@ -27,7 +27,7 @@ def make_dataset(indicator_set, equipment_set, rows_per_equipment=100,
 
 
 def get_template(indicator_group_id, indicator_group_name, indicators):
-    template = [{ 'indicatorGroups': [{ 'id': indicator_group_id,
-                                     'internalId' : indicator_group_name,
-                                     'indicators' : indicators}]}]
+    template = [{'indicatorGroups': [{'id': indicator_group_id,
+                                      'internalId': indicator_group_name,
+                                      'indicators': indicators}]}]
     return template
