@@ -1,4 +1,4 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -7,13 +7,12 @@ from sailor.sap_iot.write import upload_indicator_data, _check_indicator_group_i
 from sailor.utils.timestamps import _timestamp_to_isoformat
 from ..data_generators import make_dataset, get_template
 
-from sailor.utils.oauth_wrapper.OAuthServiceImpl import OAuth2Client
-
 
 @pytest.fixture(autouse=True)
 def mock_upload_url():
     with patch('sailor.sap_iot.write.request_upload_url') as mock:
         yield mock
+
 
 def test_upload_is_split_by_indicator_group_and_template(mock_request, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(
@@ -126,7 +125,7 @@ def test_check_indicator_group_is_complete(mock_request):
     indicator_group_id = 'indicator_group_A'
     indicator_group_name = 'indicator_group_name'
     indicators = [{'internalId': 'indicator_id_A'},
-                 {'internalId': 'indicator_id_B'}]
+                  {'internalId': 'indicator_id_B'}]
     uploaded_indicators = ['indicator_id_A', 'indicator_id_B']
 
     mock_request.return_value = get_template(indicator_group_id, indicator_group_name, indicators)
@@ -141,10 +140,10 @@ def test_check_indicator_group_is_complete_raise_error(mock_request):
     indicator_group_id = 'indicator_group_A'
     indicator_group_name = 'indicator_group_name'
     indicators = [{'internalId': 'indicator_id_A'},
-                 {'internalId': 'indicator_id_B'}]
+                  {'internalId': 'indicator_id_B'}]
     uploaded_indicators = ['indicator_id_A']
 
     mock_request.return_value = get_template(indicator_group_id, indicator_group_name, indicators)
 
-    with pytest.raises(RuntimeError, match = '[\'indicator_id_B\']'):
-            _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 'template')
+    with pytest.raises(RuntimeError, match = '[ \'indicator_id_B \' ]'):
+         _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 'template')
