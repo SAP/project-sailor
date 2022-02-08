@@ -1,18 +1,19 @@
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import numpy as np
 import pytest
 
-from sailor.sap_iot.write import upload_indicator_data
+from sailor.sap_iot.write import upload_indicator_data, _check_indicator_group_is_complete
 from sailor.utils.timestamps import _timestamp_to_isoformat
-from ..data_generators import make_dataset
+from ..data_generators import make_dataset, get_template
+
+from sailor.utils.oauth_wrapper.OAuthServiceImpl import OAuth2Client
 
 
 @pytest.fixture(autouse=True)
 def mock_upload_url():
     with patch('sailor.sap_iot.write.request_upload_url') as mock:
         yield mock
-
 
 def test_upload_is_split_by_indicator_group_and_template(mock_request, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(
@@ -120,15 +121,30 @@ def test_aggregate_indicators_in_dataset_raise(make_aggregated_indicator_set, ma
     with pytest.raises(RuntimeError, match='aggregated indicators may not be uploaded to SAP IoT'):
         upload_indicator_data(dataset)
 
-@patch(oauth_ac.request('GET', request_url))
-def test_check_indicator_group_is_complete_raise(self, mock_template):
-    uploaded_indicators = ['indicator_id_A']
-    template = [{'id':'01',
-                      'internalId': 'ModelTemplate',
-                      'indicatorGroups':[{ 'indicators':
-                                          [{'internalId': 'indicator_id_A'}],
-                                          [{ 'internalId': 'indicator_id_B'}]}]}]
-    mock_template.return_value = template
 
-    with pytest.raises(RuntimeError, match='Indicators indicator_id_B in indicator group ModelTemplate are not in dataset.'):
-        _check_indicator_group_is_complete(uploaded_indicators, 'indicator_group_A', 'template')
+def test_check_indicator_group_is_complete(mock_request):
+    indicator_group_id = 'indicator_group_A'
+    indicator_group_name = 'indicator_group_name'
+    indicators = [{'internalId': 'indicator_id_A'},
+                 {'internalId': 'indicator_id_B'}]
+    uploaded_indicators = ['indicator_id_A', 'indicator_id_B']
+
+    mock_request.return_value = get_template(indicator_group_id, indicator_group_name, indicators)
+
+    response = _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 'template')
+
+    assert mock_request.call_count == 1
+    assert(response is None)
+
+
+def test_check_indicator_group_is_complete_raise_error(mock_request):
+    indicator_group_id = 'indicator_group_A'
+    indicator_group_name = 'indicator_group_name'
+    indicators = [{'internalId': 'indicator_id_A'},
+                 {'internalId': 'indicator_id_B'}]
+    uploaded_indicators = ['indicator_id_A']
+
+    mock_request.return_value = get_template(indicator_group_id, indicator_group_name, indicators)
+
+    with pytest.raises(RuntimeError, match = '[\'indicator_id_B\']'):
+            _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 'template')

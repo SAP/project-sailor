@@ -77,13 +77,13 @@ def _check_indicator_group_is_complete(uploaded_indicators, group_id, template_i
     request_url = _ac_application_url() + VIEW_TEMPLATES + '/' + template_id
     oauth_ac = get_oauth_client('asset_central')
     template = oauth_ac.request('GET', request_url)
-
     for item in template:
         for ig in (filter(lambda x: x['id'] == ig_id, item['indicatorGroups'])):
             group_name = ig['internalId']
 
             for indicator in (filter(lambda x: x['internalId'] not in uploaded_indicators, ig['indicators'])):
                 missing.append(indicator['internalId'])
+
     if missing:
         raise RuntimeError(f'Indicators {missing} in indicator group {group_name} are not in dataset. ' +
                            'Update would overwrite missing indicators with "NaN" for the time period. ' +
@@ -110,12 +110,12 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update=''):
     Examples
     --------
     Force update timeseries data of IndicatorGroup 'my_indicator_group'.
-    Dataset 'my_some_timeseries_data' includes only some indicators of 'my_indicator_group'::
+    Dataset 'my_some_timeseries_data' which has only some indicators of 'my_indicator_group'::
 
         upload_indicator_data(my_some_timeseries_data, force_update = 'x')
 
     Update timeseries data of 'my_indicator_group' indicators.
-    Dataset 'my_timeseries_data' has data of all indicators in the group::
+    Dataset 'my_timeseries_data' includes all indicators of group 'my_indicator_group'::
 
         upload_indicator_data(my_timeseries_data)
     """
