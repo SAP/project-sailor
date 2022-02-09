@@ -4,7 +4,10 @@ Failure Mode module can be used to retrieve FailureMode information from AssetCe
 Classes are provided for individual FailureModes as well as groups of FailureModes (FailureModeSet).
 """
 
+import logging
+
 from sailor import _base
+from sailor.utils.utils import WarningAdapter
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _ac_application_url, _ac_fetch_data)
 from .constants import VIEW_FAILUREMODES
@@ -57,6 +60,10 @@ _FAILURE_MODE_FIELDS = [
     _AssetcentralField('_type_code', 'TypeCode'),
     _AssetcentralField('_detection_method', 'DetectionMethod'),
 ]
+
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 
 @_base.add_properties
@@ -129,4 +136,5 @@ def find_failure_modes(*, extended_filters=(), **kwargs) -> FailureModeSet:
 
     endpoint_url = _ac_application_url() + VIEW_FAILUREMODES
     object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    LOG.debug('Found %d equipments for the specified filters.', len(object_list))
     return FailureModeSet([FailureMode(obj) for obj in object_list])
