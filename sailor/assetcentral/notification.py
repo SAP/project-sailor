@@ -3,12 +3,15 @@ Retrieve Notification information from AssetCentral.
 
 Classes are provided for individual Notifications as well as groups of Notifications (NotificationSet).
 """
+import logging
+
 import pandas as pd
 import plotnine as p9
 
 import sailor.assetcentral.equipment
 from sailor import _base
 from sailor._base.masterdata import _nested_put_setter
+from sailor.utils.utils import WarningAdapter
 from ..utils.oauth_wrapper import get_oauth_client
 from ..utils.timestamps import _string_to_timestamp_parser
 from ..utils.plot_helper import _default_plot_theme
@@ -83,6 +86,10 @@ _NOTIFICATION_FIELDS = [
     _AssetcentralField('_assetcore_equipment_id', 'assetCoreEquipmentId'),  # duplicate of equipmentId?
     _AssetcentralField('_operator', 'operator'),
 ]
+
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 
 @_base.add_properties
@@ -264,6 +271,7 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
     object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    LOG.debug('Found %d notifications for the specified filters.', len(object_list))
     return NotificationSet([Notification(obj) for obj in object_list])
 
 
@@ -275,7 +283,8 @@ def _create_or_update_notification(request, method) -> Notification:
     response = oauth_client.request(method, endpoint_url, json=request.data)
     result = find_notifications(id=response['notificationID'])
     if len(result) != 1:
-        raise RuntimeError('Unexpected error when creating or updating the notification. Please try again.')
+        raise RuntimeError('Unexpected error when creating or updating the notification "%s" Please try again.',
+                           response['notificationID'])
     return result[0]
 
 
@@ -294,6 +303,7 @@ def create_notification(**kwargs) -> Notification:
 
     Example
     -------
+    ?? Why is this example with ">>>" and "..." ??
     >>> notf = create_notification(equipment_id='123', short_description='test',
     ...                            notification_type='M2', status='NEW', priority=5)
     """
