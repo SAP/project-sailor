@@ -7,8 +7,10 @@ Models can be of type Equipment, System or FunctionalLocation, but the type is n
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+import logging
 
 from sailor import _base
+from sailor.utils.utils import WarningAdapter
 from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_MODEL_INDICATORS, VIEW_MODELS
 from .indicators import Indicator, IndicatorSet
@@ -58,6 +60,10 @@ _MODEL_FIELDS = [
     _AssetcentralField('_manufacturer_search_terms', 'manufacturerSearchTerms'),
     _AssetcentralField('_class', 'class'),
 ]
+
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 
 @_base.add_properties
@@ -115,6 +121,7 @@ class Model(AssetcentralEntity):
 
         # AC-BUG: this api doesn't support filters (thank you AC) so we have to fetch all of them and then filter below
         object_list = _ac_fetch_data(endpoint_url)
+        LOG.debug("Retrieving indicators for model %s found %d objects.", self.id, len(object_list))
         filtered_objects = _base.apply_filters_post_request(object_list, kwargs, extended_filters,
                                                             Indicator._field_map)
 
@@ -182,4 +189,5 @@ def find_models(*, extended_filters=(), **kwargs) -> ModelSet:
 
     endpoint_url = _ac_application_url() + VIEW_MODELS
     object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    LOG.debug('Found %d models for the specified filters.', len(object_list))
     return ModelSet([Model(obj) for obj in object_list])
