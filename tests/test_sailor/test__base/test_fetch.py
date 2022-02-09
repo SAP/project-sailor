@@ -398,6 +398,22 @@ class TestComposeQueries:
             for item in sublist:
                 assert item in big_filter_string
 
+    def test_compose_queries_many_filters_break_by_one(self):
+        # for this test _compose_queries field name and field_values
+        # must be chosen such that exactly two queries result, and the
+        # second one gets just *one* entry. This assumes max_filter_length
+        # in _compose_queries is 2000
+
+        field_value = '144B9A523FB54D00B574365605C6E343'
+        field_values = [field_value] * 36
+        filters = parse_filter_parameters({'query_field_name': field_values})
+        queries = _compose_queries(*filters)
+
+        assert len(queries) == 2
+        assert queries[0].count(field_value) == 35
+        assert queries[1].count(field_value) == 1
+        assert not queries[1].startswith(' and ')
+
 
 class TestFetchData:
 
