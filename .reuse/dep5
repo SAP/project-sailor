@@ -29,9 +29,9 @@ Copyright:  2020-2022 SAP SE or an SAP affiliate company and project "Sailor" co
 License: Apache-2.0
 
 Files: docs/_templates/apidoc/module.rst_t, docs/_templates/apidoc/package.rst_t
-Copyright:  2007-2021 by the Sphinx team. Modifications 2022 SAP SE or an SAP affiliate company and project "Sailor" contributors
+Copyright:  2007-2021 by the Sphinx team. Modifications 2021 SAP SE or an SAP affiliate company and project "Sailor" contributors
 License: BSD-2-Clause
 
 Files: .ci/pydocstyle_wrapper.py
-Copyright: 2012 GreenSteam. 2014-2020 Amir Rachum. 2020 Sambhav Kothari. Modifications 2022 SAP SE or an SAP affiliate company and project "Sailor" contributors
+Copyright: 2012 GreenSteam. 2014-2020 Amir Rachum. 2020 Sambhav Kothari. Modifications 2021 SAP SE or an SAP affiliate company and project "Sailor" contributors
 License: MIT
