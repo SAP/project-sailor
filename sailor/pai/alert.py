@@ -7,6 +7,7 @@ Classes are provided for individual Alert as well as groups of Alerts (AlertSet)
 from functools import lru_cache
 from typing import Iterable
 import re
+import logging
 
 import plotnine as p9
 
@@ -14,6 +15,7 @@ import sailor.assetcentral.utils as ac_utils
 from sailor import _base
 from sailor.utils.oauth_wrapper import get_oauth_client
 from sailor.utils.timestamps import _odata_to_timestamp_parser, _any_to_timestamp, _timestamp_to_isoformat
+from sailor.utils.utils import WarningAdapter
 from sailor._base.masterdata import _qt_odata_datetimeoffset, _qt_double
 from .constants import ALERTS_READ_PATH, ALERTS_WRITE_PATH
 from .utils import (PredictiveAssetInsightsEntity, _PredictiveAssetInsightsField,
@@ -79,6 +81,10 @@ _ALERT_FIELDS = [
     _PredictiveAssetInsightsField('_top_functional_location_id', 'TopFunctionalLocationID'),
     _PredictiveAssetInsightsField('_equipment_description', 'EquipmentDescription'),
 ]
+
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 
 @_base.add_properties
@@ -202,6 +208,8 @@ def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
 
     endpoint_url = _pai_application_url() + ALERTS_READ_PATH
     object_list = _pai_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+
+    LOG.debug('Found %d alerts for the specified filters.', len(object_list))
     return AlertSet([Alert(obj) for obj in object_list])
 
 
@@ -243,13 +251,16 @@ def _create_alert(request) -> Alert:
     oauth_client = get_oauth_client('asset_central')
 
     response = oauth_client.request('POST', endpoint_url, json=request.data)
+    LOG.debug('Response of alert creation: \n%s', response.decode('utf-8'))
     alert_id = re.search(
                 r'[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}',
                 response.decode('utf-8')).group()
+    LOG.debug('Alert id "%s" was extracted from response.', alert_id)
 
     result = find_alerts(id=alert_id)
     if len(result) != 1:
         raise RuntimeError('Unexpected error when creating the alert. Please try again.')
+    LOG.debug('Alert "%s" was successfully created.')
     return result[0]
 
 
