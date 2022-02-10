@@ -136,5 +136,5 @@ def find_failure_modes(*, extended_filters=(), **kwargs) -> FailureModeSet:
 
     endpoint_url = _ac_application_url() + VIEW_FAILUREMODES
     object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
-    LOG.debug('Found %d equipments for the specified filters.', len(object_list))
+    LOG.debug('Found %d failure modes for the specified filters.', len(object_list))
     return FailureModeSet([FailureMode(obj) for obj in object_list])
