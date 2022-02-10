@@ -1,4 +1,5 @@
 from unittest.mock import call, patch
+import warnings
 
 import pandas as pd
 import pytest
@@ -98,7 +99,7 @@ def test_get_indicator_aggregates_with_pagination(mock_config, mock_request, pre
     assert len(result._df) == len(timestamps) * len(equipment_set)
 
 
-@pytest.mark.parametrize('requested_interval,returned_interval,warning', [
+@pytest.mark.parametrize('requested_interval,returned_interval,expect_warning', [
     (pd.Timedelta('P1D'), '1D', False),
     (pd.Timedelta('PT24H'), '1D', False),
     (pd.Timedelta('P1D'), 'T24H', False),
@@ -113,21 +114,20 @@ def test_get_indicator_aggregates_with_pagination(mock_config, mock_request, pre
     ('P15D', 'T336H', True),
     (None, 'ALL(T3H)', False)
 ])
-def test_get_indicator_aggregates_timestamp_warning(requested_interval, returned_interval, warning,
+def test_get_indicator_aggregates_timestamp_warning(requested_interval, returned_interval, expect_warning,
                                                     prepare_setup, mock_config, mock_request):
     start, end, equipment_set, indicator_set, aggregated_indicator_set = prepare_setup()
     timestamps = ['2020-01-02T00:00:00Z', '2020-01-03T00:00:00Z', '2020-01-04T00:00:00Z']
     test_response = make_sample_response(equipment_set, aggregated_indicator_set, timestamps, returned_interval)
     mock_request.side_effect = [test_response]
 
-    with pytest.warns(None) as record:
-        get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], requested_interval)
-
-    if warning:
-        assert len(record) == 1
-        assert str(record[0].message).startswith('The aggregation interval returned by the query')
+    if expect_warning:
+        with pytest.warns(UserWarning, match='The aggregation interval returned by the query'):
+            get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], requested_interval)
     else:
-        assert not record, record[0].message
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            get_indicator_aggregates(start, end, indicator_set, equipment_set, ['MIN', 'MAX'], requested_interval)
 
 
 def test_get_indicator_aggregates_two_groups(mock_config, make_indicator_set, prepare_setup):
