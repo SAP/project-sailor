@@ -398,6 +398,7 @@ class TestComposeQueries:
             for item in sublist:
                 assert item in big_filter_string
 
+    @pytest.mark.filterwarnings('ignore:Following parameters are not in our terminology')
     def test_compose_queries_many_filters_break_by_one(self):
         # for this test _compose_queries field name and field_values
         # must be chosen such that exactly two queries result, and the
