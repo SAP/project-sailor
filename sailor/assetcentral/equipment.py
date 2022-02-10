@@ -7,12 +7,14 @@ from __future__ import annotations
 
 from typing import Union, TYPE_CHECKING, Iterable
 from datetime import datetime, timedelta
+import logging
 
 import pandas as pd
 
 from sailor import _base
 from sailor import pai
 from sailor import sap_iot
+from sailor.utils.utils import WarningAdapter
 from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_EQUIPMENT, VIEW_OBJECTS
 from .failure_mode import find_failure_modes
@@ -80,6 +82,10 @@ _EQUIPMENT_FIELDS = [
     _AssetcentralField('_class', 'class'),
 ]
 
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
+
 
 @_base.add_properties
 class Equipment(AssetcentralEntity):
@@ -93,8 +99,12 @@ class Equipment(AssetcentralEntity):
         """Return the Location associated with this Equipment."""
         if self._location is None and self.location_name is not None:
             locations = find_locations(name=self.location_name)  # why do we have a name here, not an ID???
-            assert len(locations) == 1
+            if len(locations) > 1:
+                raise RuntimeError('Too many locations for "%s" found.', self.location_name)
+            elif len(locations) == 0:
+                raise RuntimeError('Could not find any location for "%s".', self.location_name)
             self._location = locations[0]
+            LOG.debug('Identified location with id "%s" for location name "%s"', locations[0].id, self.location_name)
         return self._location
 
     def find_equipment_indicators(self, *, extended_filters=(), **kwargs) -> IndicatorSet:
@@ -118,6 +128,7 @@ class Equipment(AssetcentralEntity):
         # AC-BUG: this endpoint just silently ignores filter parameters, so we can't really support them...
         endpoint_url = _ac_application_url() + VIEW_EQUIPMENT + f'({self.id})' + '/indicatorvalues'
         object_list = _ac_fetch_data(endpoint_url)
+        LOG.debug('Retrieving all indicators for equipment "%s" found %d objects.', self.id, len(object_list))
 
         filtered_objects = _base.apply_filters_post_request(object_list, kwargs, extended_filters,
                                                             Indicator._field_map)
@@ -172,6 +183,10 @@ class Equipment(AssetcentralEntity):
             raise RuntimeError('Can not manually filter for FailureMode ID when using this method.')
         endpoint_url = _ac_application_url() + VIEW_OBJECTS + 'EQU/' + self.id + '/failuremodes'
         object_list = _ac_fetch_data(endpoint_url)
+        if len(object_list) == 0:
+            LOG.debug('For equipment "%s" no failure modes were found.', self.id)
+            return FailureModeSet([])
+
         kwargs['id'] = [element['ID'] for element in object_list]
         return find_failure_modes(extended_filters=extended_filters, **kwargs)
 
@@ -232,6 +247,7 @@ class Equipment(AssetcentralEntity):
         if indicator_set is None:
             indicator_set = self.find_equipment_indicators()
 
+        LOG.debug('Requesting indicator data of equipment "%s" for %d indicators.', self.id, len(indicator_set))
         return sap_iot.get_indicator_data(start, end, indicator_set, EquipmentSet([self]))
 
     def create_notification(self, **kwargs) -> Notification:
@@ -393,6 +409,7 @@ class EquipmentSet(AssetcentralEntitySet):
         if indicator_set is None:
             indicator_set = self.find_common_indicators()
 
+        LOG.debug('Requesting indicator data of equipment set for %d indicators.', len(indicator_set))
         return sap_iot.get_indicator_data(start, end, indicator_set, self)
 
     def get_indicator_aggregates(
@@ -435,6 +452,7 @@ class EquipmentSet(AssetcentralEntitySet):
         if indicator_set is None:
             indicator_set = self.find_common_indicators()
 
+        LOG.debug('Requesting indicator aggregates of equipment set for %d indicators.', len(indicator_set))
         return sap_iot.get_indicator_aggregates(start, end, indicator_set, self,
                                                 aggregation_functions, aggregation_interval)
 
@@ -476,4 +494,5 @@ def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
 
     endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
     object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    LOG.debug('Found %d equipments for the specified filters.', len(object_list))
     return EquipmentSet([Equipment(obj) for obj in object_list])
