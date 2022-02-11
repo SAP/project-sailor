@@ -45,6 +45,23 @@ def _any_to_timestamp(value, default: pd.Timestamp = None):
     return timestamp
 
 
+def _any_to_timedelta(value, default: pd.Timedelta = None):
+    """Try to parse a timedelta provided in a variety of formats into a uniform representation as pd.Timedelta."""
+    if value is None:
+        return default
+
+    if isinstance(value, str):
+        timedelta = pd.Timedelta(value)
+    elif isinstance(value, datetime.timedelta):
+        timedelta = pd.Timedelta(value)
+    elif isinstance(value, pd.Timedelta):
+        timedelta = value
+    else:
+        raise RuntimeError('Can only parse ISO 8601 strings, pandas timesdeltas or python native timedeltas.')
+
+    return timedelta
+
+
 def _timestamp_to_isoformat(timestamp: pd.Timestamp, with_zulu=False):
     """Return an iso-format string of a timestamp after conversion to UTC and without the timezone information."""
     if timestamp.tzinfo:

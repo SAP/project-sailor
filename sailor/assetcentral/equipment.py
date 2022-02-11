@@ -80,6 +80,8 @@ _EQUIPMENT_FIELDS = [
     _AssetcentralField('_class', 'class'),
 ]
 
+timeout_seconds = sap_iot.fetch.GET_INDICATOR_DATA_TIMELIMIT_SECONDS
+
 
 @_base.add_properties
 class Equipment(AssetcentralEntity):
@@ -202,7 +204,9 @@ class Equipment(AssetcentralEntity):
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           indicator_set: IndicatorSet = None) -> TimeseriesDataset:
+                           indicator_set: IndicatorSet = None,
+                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = timeout_seconds
+                           ) -> TimeseriesDataset:
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.
 
@@ -218,6 +222,10 @@ class Equipment(AssetcentralEntity):
             Date of end of requested timeseries data. Any time component will be ignored
         indicator_set
             IndicatorSet for which timeseries data is returned.
+        timeout
+            Maximum amount of time the request may take. Can be specified as an ISO 8601 string
+            (like `PT2M` for 2-minute duration) or as a pandas.Timedelta or datetime.timedelta object.
+            If None, there is no time limit.
 
         Example
         -------
@@ -232,7 +240,7 @@ class Equipment(AssetcentralEntity):
         if indicator_set is None:
             indicator_set = self.find_equipment_indicators()
 
-        return sap_iot.get_indicator_data(start, end, indicator_set, EquipmentSet([self]))
+        return sap_iot.get_indicator_data(start, end, indicator_set, EquipmentSet([self]), timeout)
 
     def create_notification(self, **kwargs) -> Notification:
         """Create a new notification for this equipment.
@@ -363,7 +371,9 @@ class EquipmentSet(AssetcentralEntitySet):
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           indicator_set: IndicatorSet = None) -> TimeseriesDataset:
+                           indicator_set: IndicatorSet = None,
+                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = timeout_seconds
+                           ) -> TimeseriesDataset:
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.
 
@@ -378,6 +388,10 @@ class EquipmentSet(AssetcentralEntitySet):
             Date of end of requested timeseries data. Any time component will be ignored.
         indicator_set
             IndicatorSet for which timeseries data is returned.
+        timeout
+            Maximum amount of time the request may take. Can be specified as an ISO 8601 string
+            (like `PT2M` for 2-minute duration) or as a pandas.Timedelta or datetime.timedelta object.
+            If None, there is no time limit.
 
         Example
         -------
@@ -393,7 +407,7 @@ class EquipmentSet(AssetcentralEntitySet):
         if indicator_set is None:
             indicator_set = self.find_common_indicators()
 
-        return sap_iot.get_indicator_data(start, end, indicator_set, self)
+        return sap_iot.get_indicator_data(start, end, indicator_set, self, timeout)
 
     def get_indicator_aggregates(
             self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
