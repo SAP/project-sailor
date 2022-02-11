@@ -248,8 +248,8 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
             time.sleep(5)
             print('.', end='')
 
-        if timeout is not None and timeout > (time.time() - start_time):
-            LOG.debug("Timeout of '%s' seconds was reached for fetching indicator data.", timeout)
+        if timeout is not None and timeout < (time.time() - start_time):
+            LOG.debug('Timeout of %d seconds was reached for fetching indicator data.', timeout)
             break
     print()
 
