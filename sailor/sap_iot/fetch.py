@@ -35,7 +35,6 @@ LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 LOG = WarningAdapter(LOG)
 
-GET_INDICATOR_DATA_TIMELIMIT_SECONDS = None
 
 fixed_timeseries_columns = {
     '_TIME': 'timestamp',
@@ -152,8 +151,7 @@ def _get_exported_bulk_timeseries_data(export_id: str,
 def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                        end_date: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                        indicator_set: IndicatorSet, equipment_set: EquipmentSet,
-                       timeout: Union[str, pd.Timedelta, datetime.timedelta] = GET_INDICATOR_DATA_TIMELIMIT_SECONDS
-                       ) -> TimeseriesDataset:
+                       timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
     """
     Read indicator data for a certain time period, a set of equipments and a set of indicators.
 

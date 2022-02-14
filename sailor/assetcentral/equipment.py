@@ -80,8 +80,6 @@ _EQUIPMENT_FIELDS = [
     _AssetcentralField('_class', 'class'),
 ]
 
-timeout_seconds = sap_iot.fetch.GET_INDICATOR_DATA_TIMELIMIT_SECONDS
-
 
 @_base.add_properties
 class Equipment(AssetcentralEntity):
@@ -205,8 +203,7 @@ class Equipment(AssetcentralEntity):
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            indicator_set: IndicatorSet = None,
-                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = timeout_seconds
-                           ) -> TimeseriesDataset:
+                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.
 
@@ -372,8 +369,7 @@ class EquipmentSet(AssetcentralEntitySet):
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            indicator_set: IndicatorSet = None,
-                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = timeout_seconds
-                           ) -> TimeseriesDataset:
+                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.
 
