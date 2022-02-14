@@ -236,9 +236,9 @@ def create_alert(**kwargs) -> Alert:
 
     Example
     -------
-    >>> alert = create_alert(equipment_id='123', triggered_on='2020-07-31T13:23:00Z',
-    ...                      type='PUMP_TEMP_WARN', severity_code=5, indicator_id='ic1',
-    ...                      indicator_group_id='ig1', template_id='t1')
+        alert = create_alert(equipment_id='123', triggered_on='2020-07-31T13:23:00Z',
+                             type='PUMP_TEMP_WARN', severity_code=5, indicator_id='ic1',
+                             indicator_group_id='ig1', template_id='t1')
     """
     request = _AlertWriteRequest()
     request.insert_user_input(kwargs, forbidden_fields=['id'])

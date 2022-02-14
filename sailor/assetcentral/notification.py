@@ -303,9 +303,8 @@ def create_notification(**kwargs) -> Notification:
 
     Example
     -------
-    ?? Why is this example with ">>>" and "..." ??
-    >>> notf = create_notification(equipment_id='123', short_description='test',
-    ...                            notification_type='M2', status='NEW', priority=5)
+        notf = create_notification(equipment_id='123', short_description='test',
+                                   notification_type='M2', status='NEW', priority=5)
     """
     request = _AssetcentralWriteRequest(Notification._field_map)
     request.insert_user_input(kwargs, forbidden_fields=['id'])
@@ -330,7 +329,7 @@ def update_notification(notification: Notification, **kwargs) -> Notification:
 
     Examples
     --------
-    >>> notf = update_notification(notf, status='IPR', long_description='hello world')
+        notf = update_notification(notf, status='IPR', long_description='hello world')
     """
     request = _AssetcentralWriteRequest.from_object(notification)
     request.insert_user_input(kwargs, forbidden_fields=['id', 'equipment_id'])
