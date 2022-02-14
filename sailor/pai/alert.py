@@ -251,16 +251,16 @@ def _create_alert(request) -> Alert:
     oauth_client = get_oauth_client('asset_central')
 
     response = oauth_client.request('POST', endpoint_url, json=request.data)
-    LOG.debug('Response of alert creation: \n%s', response.decode('utf-8'))
-    alert_id = re.search(
-                r'[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}',
-                response.decode('utf-8')).group()
+    response = response.decode('utf-8')
+    LOG.debug('Response of alert creation: \n%s', response)
+    alert_id = re.search(r'[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}',
+                         response).group()
     LOG.debug('Alert id "%s" was extracted from response.', alert_id)
 
     result = find_alerts(id=alert_id)
     if len(result) != 1:
         raise RuntimeError('Unexpected error when creating the alert. Please try again.')
-    LOG.debug('Alert "%s" was successfully created.')
+    LOG.debug('Alert "%s" was successfully created.', alert_id)
     return result[0]
 
 
