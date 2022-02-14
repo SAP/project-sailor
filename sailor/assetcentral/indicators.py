@@ -104,8 +104,7 @@ class SystemIndicator(Indicator):
 
 
 class SystemAggregatedIndicator(AggregatedIndicator):
-    """An extension of the AssetCentral Indicator object
-       that additionally holds aggregation and hierarchy position information."""
+    """An extension of the AssetCentral Indicator object that additionally holds aggregation and hierarchy position information."""  # noqa: E501
 
     def __init__(self, ac_json, aggregation_function, hierarchy_position):
         super(SystemAggregatedIndicator, self).__init__(ac_json, aggregation_function)
