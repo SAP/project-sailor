@@ -284,9 +284,8 @@ class TestRawDataWrapperFunction:
         mock_gzip.side_effect = [BytesIO(make_csv_bytes(1, ''))]
         mock_check.return_value = False
 
-        caplog.set_level("DEBUG")
-        get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set, timeout="P2S")
-        assert 'Timeout of 2 seconds was reached for fetching indicator data.' in caplog.messages
+        with pytest.raises(RuntimeError, match='Timeout of 2 seconds was reached for fetching indicator data.'):
+            get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set, timeout="P2S")
 
 
 @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
