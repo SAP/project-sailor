@@ -71,8 +71,7 @@ def _upload_data_single_indicator_group(dataset, indicator_set, group_id, templa
 
 
 def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, template_id):
-    missing_list= []
-
+    missing_list = []
     request_url = _ac_application_url() + VIEW_TEMPLATES + '/' + template_id
     oauth_ac = get_oauth_client('asset_central')
     template = oauth_ac.request('GET', request_url)
@@ -81,15 +80,18 @@ def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 
         filtered_indicator_group = list(filter(lambda x: x['id'] == indicator_group_id, item['indicatorGroups']))
 
         if len(filtered_indicator_group) == 0:
-             raise RuntimeError('could not find an indicator group template for indicator group %s', group_id)
+            raise RuntimeError(f'Could not find an indicator group template for template {template_id}.')
 
         if len(filtered_indicator_group) > 1:
-            log.warning('more than one matching indicator group/template found for indicator template %s, selecting first', template_id)
+            group_id = filtered_indicator_group[0]['internalId'] + ', template: ' + template_id
+            LOG.warning('More than one matching indicator group/template found for %s, selecting first', 
+                        group_id)
 
         indicator_group = filtered_indicator_group[0]
         group_name = indicator_group['internalId']
 
-        missing_list.extend(x['internalId'] for x in indicator_group['indicators'] if x['id'] not in uploaded_indicators)
+        missing_list.extend(x['internalId'] for x in indicator_group['indicators'] 
+                            if x['id'] not in uploaded_indicators)
 
     if missing_list:
         raise RuntimeError(f'Indicators {missing_list} in indicator group {group_name} are not in dataset. ' +
@@ -136,7 +138,7 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update=False):
     for (group_id, template_id, indicator_group_id), group_indicators in query_groups.items():
         selected_indicator_set = ac_indicators.IndicatorSet(group_indicators)
 
-        if force_update == False:
+        if force_update is False:
             uploaded_indicators = [indicator.id for indicator in selected_indicator_set]
             _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, template_id)
 

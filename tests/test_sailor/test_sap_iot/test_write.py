@@ -123,13 +123,15 @@ def test_aggregate_indicators_in_dataset_raise(make_aggregated_indicator_set, ma
 
 def test_check_indicator_group_is_complete(mock_request):
     indicator_group_id = 'indicator_group_A'
+    id = 'indicator_group_A'
     indicator_group_name = 'indicator_group_name'
-    indicators = [{'internalId': 'indicator_id_A'},
-                  {'internalId': 'indicator_id_B'}]
+    indicators = [{'internalId': 'indicator_A',
+                   'id': 'indicator_id_A'},
+                  {'internalId': 'indicator_B',
+                   'id': 'indicator_id_B'}]
     uploaded_indicators = ['indicator_id_A', 'indicator_id_B']
 
     mock_request.return_value = get_template(indicator_group_id, indicator_group_name, indicators)
-
     response = _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 'template')
 
     assert mock_request.call_count == 1
@@ -138,12 +140,15 @@ def test_check_indicator_group_is_complete(mock_request):
 
 def test_check_indicator_group_is_complete_raise_error(mock_request):
     indicator_group_id = 'indicator_group_A'
+    id = 'indicator_group_A'
     indicator_group_name = 'indicator_group_name'
-    indicators = [{'internalId': 'indicator_id_A'},
-                  {'internalId': 'indicator_id_B'}]
+    indicators = [{'internalId': 'indicator_A',
+                   'id': 'indicator_id_A'},
+                  {'internalId': 'indicator_B',
+                   'id': 'indicator_id_B'}]
     uploaded_indicators = ['indicator_id_A']
 
     mock_request.return_value = get_template(indicator_group_id, indicator_group_name, indicators)
 
-    with pytest.raises(RuntimeError, match='[ \'indicator_id_B \' ]'):
+    with pytest.raises(RuntimeError, match='[ \'indicator_B \' ]'):
         _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 'template')
