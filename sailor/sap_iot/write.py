@@ -70,27 +70,34 @@ def _upload_data_single_indicator_group(dataset, indicator_set, group_id, templa
         _upload_data_single_equipment(data_subset, equipment.id, tags)
 
 
-def _check_indicator_group_is_complete(uploaded_indicators, group_id, template_id):
-    missing = []
-    ig_id = group_id.replace('IG_', '')
+def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, template_id):
+    missing_list= []
 
     request_url = _ac_application_url() + VIEW_TEMPLATES + '/' + template_id
     oauth_ac = get_oauth_client('asset_central')
     template = oauth_ac.request('GET', request_url)
+
     for item in template:
-        for ig in (filter(lambda x: x['id'] == ig_id, item['indicatorGroups'])):
-            group_name = ig['internalId']
+        filtered_indicator_group = list(filter(lambda x: x['id'] == indicator_group_id, item['indicatorGroups']))
 
-            for indicator in (filter(lambda x: x['internalId'] not in uploaded_indicators, ig['indicators'])):
-                missing.append(indicator['internalId'])
+        if len(filtered_indicator_group) == 0:
+             raise RuntimeError('could not find an indicator group template for indicator group %s', group_id)
 
-    if missing:
-        raise RuntimeError(f'Indicators {missing} in indicator group {group_name} are not in dataset. ' +
+        if len(filtered_indicator_group) > 1:
+            log.warning('more than one matching indicator group/template found for indicator template %s, selecting first', template_id)
+
+        indicator_group = filtered_indicator_group[0]
+        group_name = indicator_group['internalId']
+
+        missing_list.extend(x['internalId'] for x in indicator_group['indicators'] if x['id'] not in uploaded_indicators)
+
+    if missing_list:
+        raise RuntimeError(f'Indicators {missing_list} in indicator group {group_name} are not in dataset. ' +
                            'Update would overwrite missing indicators with "NaN" for the time period. ' +
                            'If this is wanted, use "force_update" in the function call.')
 
 
-def upload_indicator_data(dataset: TimeseriesDataset, force_update=''):
+def upload_indicator_data(dataset: TimeseriesDataset, force_update=False):
     """
     Upload a `TimeseriesDataset` to SAP IoT.
 
@@ -124,13 +131,13 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update=''):
 
     query_groups = defaultdict(list)
     for indicator in dataset.indicator_set:
-        query_groups[(indicator._liot_group_id, indicator.template_id)].append(indicator)
+        query_groups[(indicator._liot_group_id, indicator.template_id, indicator.indicator_group_id)].append(indicator)
 
-    for (group_id, template_id), group_indicators in query_groups.items():
+    for (group_id, template_id, indicator_group_id), group_indicators in query_groups.items():
         selected_indicator_set = ac_indicators.IndicatorSet(group_indicators)
 
-        if force_update == '':
-            uploaded_indicators = list(selected_indicator_set.as_df()['name'])
-            _check_indicator_group_is_complete(uploaded_indicators, group_id, template_id)
+        if force_update == False:
+            uploaded_indicators = [indicator.id for indicator in selected_indicator_set]
+            _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, template_id)
 
         _upload_data_single_indicator_group(dataset, selected_indicator_set, group_id, template_id)
