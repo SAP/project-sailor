@@ -247,7 +247,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
             print('.', end='')
 
         if timeout is not None and timeout < (time.monotonic() - start_time):
-            raise RuntimeError(f'Timeout of {timeout:.0f} seconds was reached for fetching indicator data.')
+            raise TimeoutError(f'Timeout of {timeout:.0f} seconds was reached for fetching indicator data.')
     print()
 
     wrapper = TimeseriesDataset(results, indicator_set, equipment_set, start_date, end_date)
