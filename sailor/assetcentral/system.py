@@ -177,7 +177,7 @@ class System(AssetcentralEntity):
         """
         all_indicators = sum((equi.find_equipment_indicators() for equi in self._hierarchy['equipment']),
                              IndicatorSet([]))
-        
+
         LOG.debug('Requesting indicator data of system "%s" for %d indicators.', self.id, len(all_indicators))
         return sap_iot.get_indicator_data(start, end, all_indicators, self._hierarchy['equipment'], timeout)
 
