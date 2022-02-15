@@ -216,7 +216,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sailor.assetcentral.system.System.get_indicator_data">
-<span class="sig-name descname"><span class="pre">get_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#System.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.System.get_indicator_data" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#System.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.System.get_indicator_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get timeseries data for all Equipment in the System.</p>
 <p>This is a wrapper for <a class="reference internal" href="sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data" title="sailor.sap_iot.fetch.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch.get_indicator_data()</span></code></a> that limits the fetch query
 to the equipment in this System.</p>
@@ -227,6 +227,9 @@ potentially making the dataset very sparse.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime.timestamp</em><em>, </em><em>datetime.date</em><em>]</em>) – Begin of time series data.</p></li>
 <li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime.timestamp</em><em>, </em><em>datetime.date</em><em>]</em>) – End of time series data.</p></li>
+<li><p><strong>timeout</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timedelta</em><em>, </em><em>datetime.timedelta</em><em>]</em>) – Maximum amount of time the request may take. Can be specified as an ISO 8601 string
+(like <cite>PT2M</cite> for 2-minute duration) or as a pandas.Timedelta or datetime.timedelta object.
+If None, there is no time limit.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -270,7 +273,7 @@ must match for an entity to be selected.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sailor.assetcentral.system.SystemSet.get_indicator_data">
-<span class="sig-name descname"><span class="pre">get_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#SystemSet.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.SystemSet.get_indicator_data" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/assetcentral/system.html#SystemSet.get_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.assetcentral.system.SystemSet.get_indicator_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch data for a set of systems for all component equipment of each system.</p>
 <p>This is a wrapper for <a class="reference internal" href="sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data" title="sailor.sap_iot.fetch.get_indicator_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch.get_indicator_data()</span></code></a> that limits the fetch query
 to the equipment in this SystemSet.</p>
@@ -281,6 +284,9 @@ potentially making the dataset very sparse.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>start</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime.timestamp</em><em>, </em><em>datetime.date</em><em>]</em>) – Begin of time series data.</p></li>
 <li><p><strong>end</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timestamp</em><em>, </em><em>datetime.timestamp</em><em>, </em><em>datetime.date</em><em>]</em>) – End of time series data.</p></li>
+<li><p><strong>timeout</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>pd.Timedelta</em><em>, </em><em>datetime.timedelta</em><em>]</em>) – Maximum amount of time the request may take. Can be specified as an ISO 8601 string
+(like <cite>PT2M</cite> for 2-minute duration) or as a pandas.Timedelta or datetime.timedelta object.
+If None, there is no time limit.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>

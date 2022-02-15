@@ -186,7 +186,7 @@
 
 <span class="kn">import</span> <span class="nn">sailor.assetcentral.indicators</span> <span class="k">as</span> <span class="nn">ac_indicators</span>
 <span class="kn">from</span> <span class="nn">sailor.utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span><span class="p">,</span> <span class="n">RequestError</span>
-<span class="kn">from</span> <span class="nn">sailor.utils.timestamps</span> <span class="kn">import</span> <span class="n">_any_to_timestamp</span><span class="p">,</span> <span class="n">_timestamp_to_date_string</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.timestamps</span> <span class="kn">import</span> <span class="n">_any_to_timestamp</span><span class="p">,</span> <span class="n">_timestamp_to_date_string</span><span class="p">,</span> <span class="n">_any_to_timedelta</span>
 <span class="kn">from</span> <span class="nn">sailor.utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
 <span class="kn">from</span> <span class="nn">sailor.utils.utils</span> <span class="kn">import</span> <span class="n">DataNotFoundWarning</span><span class="p">,</span> <span class="n">WarningAdapter</span>
 <span class="kn">from</span> <span class="nn">.wrappers</span> <span class="kn">import</span> <span class="n">TimeseriesDataset</span>
@@ -198,6 +198,7 @@
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
 <span class="n">LOG</span> <span class="o">=</span> <span class="n">WarningAdapter</span><span class="p">(</span><span class="n">LOG</span><span class="p">)</span>
+
 
 <span class="n">fixed_timeseries_columns</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;_TIME&#39;</span><span class="p">:</span> <span class="s1">&#39;timestamp&#39;</span><span class="p">,</span>
@@ -313,7 +314,8 @@
 
 <div class="viewcode-block" id="get_indicator_data"><a class="viewcode-back" href="../../../apidoc/sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data">[docs]</a><span class="k">def</span> <span class="nf">get_indicator_data</span><span class="p">(</span><span class="n">start_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
                        <span class="n">end_date</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">],</span>
-                       <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">:</span> <span class="n">EquipmentSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
+                       <span class="n">indicator_set</span><span class="p">:</span> <span class="n">IndicatorSet</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">:</span> <span class="n">EquipmentSet</span><span class="p">,</span>
+                       <span class="n">timeout</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeseriesDataset</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read indicator data for a certain time period, a set of equipments and a set of indicators.</span>
 
@@ -327,6 +329,8 @@
 <span class="sd">        IndicatorSet for which timeseries data is returned.</span>
 <span class="sd">    equipment_set:</span>
 <span class="sd">        Equipment set for which the timeseries data is read.</span>
+<span class="sd">    timeout:</span>
+<span class="sd">        Maximum amount of time the request may take. If None there is no time limit.</span>
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
@@ -341,6 +345,10 @@
     <span class="c1"># as well as individual equipment in `_process_one_file`.</span>
     <span class="k">if</span> <span class="n">start_date</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">end_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Time parameters must be specified&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">timeout</span> <span class="o">=</span> <span class="n">_any_to_timedelta</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 
     <span class="n">start_date</span> <span class="o">=</span> <span class="n">_any_to_timestamp</span><span class="p">(</span><span class="n">start_date</span><span class="p">)</span>
     <span class="n">end_date</span> <span class="o">=</span> <span class="n">_any_to_timestamp</span><span class="p">(</span><span class="n">end_date</span><span class="p">)</span>
@@ -381,6 +389,7 @@
     <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">schema</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Waiting for data export:&#39;</span><span class="p">)</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
     <span class="k">while</span> <span class="n">request_ids</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">request_id</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">request_ids</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">_check_bulk_timeseries_export_status</span><span class="p">(</span><span class="n">request_id</span><span class="p">):</span>
@@ -400,6 +409,9 @@
         <span class="k">if</span> <span class="n">request_ids</span><span class="p">:</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">timeout</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Timeout of </span><span class="si">{</span><span class="n">timeout</span><span class="si">:</span><span class="s1">.0f</span><span class="si">}</span><span class="s1"> seconds was reached for fetching indicator data.&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">()</span>
 
     <span class="n">wrapper</span> <span class="o">=</span> <span class="n">TimeseriesDataset</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">indicator_set</span><span class="p">,</span> <span class="n">equipment_set</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
