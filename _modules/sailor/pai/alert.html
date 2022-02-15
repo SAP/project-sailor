@@ -171,6 +171,7 @@
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">import</span> <span class="nn">plotnine</span> <span class="k">as</span> <span class="nn">p9</span>
 
@@ -178,6 +179,7 @@
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
 <span class="kn">from</span> <span class="nn">sailor.utils.oauth_wrapper</span> <span class="kn">import</span> <span class="n">get_oauth_client</span>
 <span class="kn">from</span> <span class="nn">sailor.utils.timestamps</span> <span class="kn">import</span> <span class="n">_odata_to_timestamp_parser</span><span class="p">,</span> <span class="n">_any_to_timestamp</span><span class="p">,</span> <span class="n">_timestamp_to_isoformat</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.utils</span> <span class="kn">import</span> <span class="n">WarningAdapter</span>
 <span class="kn">from</span> <span class="nn">sailor._base.masterdata</span> <span class="kn">import</span> <span class="n">_qt_odata_datetimeoffset</span><span class="p">,</span> <span class="n">_qt_double</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">ALERTS_READ_PATH</span><span class="p">,</span> <span class="n">ALERTS_WRITE_PATH</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">PredictiveAssetInsightsEntity</span><span class="p">,</span> <span class="n">_PredictiveAssetInsightsField</span><span class="p">,</span>
@@ -243,6 +245,10 @@
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_top_functional_location_id&#39;</span><span class="p">,</span> <span class="s1">&#39;TopFunctionalLocationID&#39;</span><span class="p">),</span>
     <span class="n">_PredictiveAssetInsightsField</span><span class="p">(</span><span class="s1">&#39;_equipment_description&#39;</span><span class="p">,</span> <span class="s1">&#39;EquipmentDescription&#39;</span><span class="p">),</span>
 <span class="p">]</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">WarningAdapter</span><span class="p">(</span><span class="n">LOG</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Alert"><a class="viewcode-back" href="../../../apidoc/sailor.pai.alert.html#sailor.pai.Alert">[docs]</a><span class="nd">@_base</span><span class="o">.</span><span class="n">add_properties</span>
@@ -366,6 +372,8 @@
 
     <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_pai_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">ALERTS_READ_PATH</span>
     <span class="n">object_list</span> <span class="o">=</span> <span class="n">_pai_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Found </span><span class="si">%d</span><span class="s1"> alerts for the specified filters.&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">object_list</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">AlertSet</span><span class="p">([</span><span class="n">Alert</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">])</span></div>
 
 
@@ -392,9 +400,9 @@
 
 <span class="sd">    Example</span>
 <span class="sd">    -------</span>
-<span class="sd">    &gt;&gt;&gt; alert = create_alert(equipment_id=&#39;123&#39;, triggered_on=&#39;2020-07-31T13:23:00Z&#39;,</span>
-<span class="sd">    ...                      type=&#39;PUMP_TEMP_WARN&#39;, severity_code=5, indicator_id=&#39;ic1&#39;,</span>
-<span class="sd">    ...                      indicator_group_id=&#39;ig1&#39;, template_id=&#39;t1&#39;)</span>
+<span class="sd">        alert = create_alert(equipment_id=&#39;123&#39;, triggered_on=&#39;2020-07-31T13:23:00Z&#39;,</span>
+<span class="sd">                             type=&#39;PUMP_TEMP_WARN&#39;, severity_code=5, indicator_id=&#39;ic1&#39;,</span>
+<span class="sd">                             indicator_group_id=&#39;ig1&#39;, template_id=&#39;t1&#39;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">request</span> <span class="o">=</span> <span class="n">_AlertWriteRequest</span><span class="p">()</span>
     <span class="n">request</span><span class="o">.</span><span class="n">insert_user_input</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">forbidden_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
@@ -407,13 +415,16 @@
     <span class="n">oauth_client</span> <span class="o">=</span> <span class="n">get_oauth_client</span><span class="p">(</span><span class="s1">&#39;asset_central&#39;</span><span class="p">)</span>
 
     <span class="n">response</span> <span class="o">=</span> <span class="n">oauth_client</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="n">endpoint_url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">alert_id</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
-                <span class="sa">r</span><span class="s1">&#39;[a-fA-F0-9]</span><span class="si">{8}</span><span class="s1">-[a-fA-F0-9]</span><span class="si">{4}</span><span class="s1">-[a-fA-F0-9]</span><span class="si">{4}</span><span class="s1">-[a-fA-F0-9]</span><span class="si">{4}</span><span class="s1">-[a-fA-F0-9]</span><span class="si">{12}</span><span class="s1">&#39;</span><span class="p">,</span>
-                <span class="n">response</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Response of alert creation: </span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+    <span class="n">alert_id</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[a-fA-F0-9]</span><span class="si">{8}</span><span class="s1">-[a-fA-F0-9]</span><span class="si">{4}</span><span class="s1">-[a-fA-F0-9]</span><span class="si">{4}</span><span class="s1">-[a-fA-F0-9]</span><span class="si">{4}</span><span class="s1">-[a-fA-F0-9]</span><span class="si">{12}</span><span class="s1">&#39;</span><span class="p">,</span>
+                         <span class="n">response</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Alert id &quot;</span><span class="si">%s</span><span class="s1">&quot; was extracted from response.&#39;</span><span class="p">,</span> <span class="n">alert_id</span><span class="p">)</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">find_alerts</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">alert_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Unexpected error when creating the alert. Please try again.&#39;</span><span class="p">)</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Alert &quot;</span><span class="si">%s</span><span class="s1">&quot; was successfully created.&#39;</span><span class="p">,</span> <span class="n">alert_id</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 

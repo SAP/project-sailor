@@ -331,10 +331,10 @@ and with a color representing the confirmed failure mode description.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">notf</span> <span class="o">=</span> <span class="n">create_notification</span><span class="p">(</span><span class="n">equipment_id</span><span class="o">=</span><span class="s1">&#39;123&#39;</span><span class="p">,</span> <span class="n">short_description</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span>
-<span class="gp">... </span>                           <span class="n">notification_type</span><span class="o">=</span><span class="s1">&#39;M2&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;NEW&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-</pre></div>
-</div>
+<dl class="simple">
+<dt>notf = create_notification(equipment_id=’123’, short_description=’test’,</dt><dd><p>notification_type=’M2’, status=’NEW’, priority=5)</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -411,9 +411,7 @@ This equals a PUT request in the traditional REST programming model.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">notf</span> <span class="o">=</span> <span class="n">update_notification</span><span class="p">(</span><span class="n">notf</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;IPR&#39;</span><span class="p">,</span> <span class="n">long_description</span><span class="o">=</span><span class="s1">&#39;hello world&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
+<p>notf = update_notification(notf, status=’IPR’, long_description=’hello world’)</p>
 </dd></dl>
 
 </div>

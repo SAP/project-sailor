@@ -170,6 +170,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
@@ -179,6 +180,7 @@
 
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">sap_iot</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.utils</span> <span class="kn">import</span> <span class="n">WarningAdapter</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">AssetcentralEntitySet</span><span class="p">,</span>
                     <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_ac_fetch_data</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.equipment</span> <span class="kn">import</span> <span class="n">find_equipment</span><span class="p">,</span> <span class="n">EquipmentSet</span>
@@ -220,6 +222,10 @@
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_operator_id&#39;</span><span class="p">,</span> <span class="s1">&#39;operatorID&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_completeness&#39;</span><span class="p">,</span> <span class="s1">&#39;completeness&#39;</span><span class="p">),</span>
 <span class="p">]</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">WarningAdapter</span><span class="p">(</span><span class="n">LOG</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="System"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.System">[docs]</a><span class="nd">@_base</span><span class="o">.</span><span class="n">add_properties</span>
@@ -330,6 +336,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">all_indicators</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">equi</span><span class="o">.</span><span class="n">find_equipment_indicators</span><span class="p">()</span> <span class="k">for</span> <span class="n">equi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">[</span><span class="s1">&#39;equipment&#39;</span><span class="p">]),</span>
                              <span class="n">IndicatorSet</span><span class="p">([]))</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Requesting indicator data of system &quot;</span><span class="si">%s</span><span class="s1">&quot; for </span><span class="si">%d</span><span class="s1"> indicators.&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_indicators</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">sap_iot</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">all_indicators</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">[</span><span class="s1">&#39;equipment&#39;</span><span class="p">])</span></div></div>
 
 
@@ -363,6 +370,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">all_equipment</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">system</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">[</span><span class="s1">&#39;equipment&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">system</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">),</span> <span class="n">EquipmentSet</span><span class="p">([]))</span>
         <span class="n">all_indicators</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">equipment</span><span class="o">.</span><span class="n">find_equipment_indicators</span><span class="p">()</span> <span class="k">for</span> <span class="n">equipment</span> <span class="ow">in</span> <span class="n">all_equipment</span><span class="p">),</span> <span class="n">IndicatorSet</span><span class="p">([]))</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Requesting indicator data of system set for </span><span class="si">%d</span><span class="s2"> equipments and </span><span class="si">%d</span><span class="s2"> indicators.&quot;</span><span class="p">,</span>
+                  <span class="nb">len</span><span class="p">(</span><span class="n">all_equipment</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_indicators</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">sap_iot</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">all_indicators</span><span class="p">,</span> <span class="n">all_equipment</span><span class="p">)</span></div>
 
@@ -467,6 +476,7 @@
 
     <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_SYSTEMS</span>
     <span class="n">object_list</span> <span class="o">=</span> <span class="n">_ac_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Found </span><span class="si">%d</span><span class="s1"> systems for the specified filters.&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">object_list</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">SystemSet</span><span class="p">([</span><span class="n">System</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">])</span></div>
 </pre></div>

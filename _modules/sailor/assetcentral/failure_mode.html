@@ -168,7 +168,10 @@
 <span class="sd">Classes are provided for individual FailureModes as well as groups of FailureModes (FailureModeSet).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
+
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.utils</span> <span class="kn">import</span> <span class="n">WarningAdapter</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AssetcentralEntity</span><span class="p">,</span> <span class="n">_AssetcentralField</span><span class="p">,</span> <span class="n">AssetcentralEntitySet</span><span class="p">,</span>
                     <span class="n">_ac_application_url</span><span class="p">,</span> <span class="n">_ac_fetch_data</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.constants</span> <span class="kn">import</span> <span class="n">VIEW_FAILUREMODES</span>
@@ -221,6 +224,10 @@
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_type_code&#39;</span><span class="p">,</span> <span class="s1">&#39;TypeCode&#39;</span><span class="p">),</span>
     <span class="n">_AssetcentralField</span><span class="p">(</span><span class="s1">&#39;_detection_method&#39;</span><span class="p">,</span> <span class="s1">&#39;DetectionMethod&#39;</span><span class="p">),</span>
 <span class="p">]</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">LOG</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">WarningAdapter</span><span class="p">(</span><span class="n">LOG</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="FailureMode"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.failure_mode.html#sailor.assetcentral.FailureMode">[docs]</a><span class="nd">@_base</span><span class="o">.</span><span class="n">add_properties</span>
@@ -293,6 +300,7 @@
 
     <span class="n">endpoint_url</span> <span class="o">=</span> <span class="n">_ac_application_url</span><span class="p">()</span> <span class="o">+</span> <span class="n">VIEW_FAILUREMODES</span>
     <span class="n">object_list</span> <span class="o">=</span> <span class="n">_ac_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Found </span><span class="si">%d</span><span class="s1"> failure modes for the specified filters.&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">object_list</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">FailureModeSet</span><span class="p">([</span><span class="n">FailureMode</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_list</span><span class="p">])</span></div>
 </pre></div>
 
