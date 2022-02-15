@@ -88,7 +88,7 @@ def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 
         raise RuntimeError(f'Could not find an indicator group {indicator_group_id} for template {template_id}.')
     if len(filtered_indicator_groups) > 1:
         LOG.warning(' More than one matching entry found for keys ' +
-                    'indicator_group_id %s, template_id %s. Selecting first.',indicator_group_id, template_id)
+                    'indicator_group_id %s, template_id %s. Selecting first.', indicator_group_id, template_id)
 
     indicator_group = filtered_indicator_groups[0]
     group_name = indicator_group['internalId']
