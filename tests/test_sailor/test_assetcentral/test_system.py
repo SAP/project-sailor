@@ -1,6 +1,9 @@
 import pytest
+import pandas as pd
 
-from sailor.assetcentral.system import SystemSet, System
+from sailor.assetcentral.system import SystemSet, System, create_analysis_table
+from ..data_generators import make_dataset
+
 
 # expected result of _traverse_components and input for _update_components
 systemcomponents_global = {'key': ('SY0', 0),
@@ -565,6 +568,18 @@ def test_map_component_information(make_indicator_set, selection_dictionary, moc
     act_sys_inds, act_equipment = system_set._map_component_information(selection_dictionary)
     assert act_sys_inds == exp_sys_inds
     assert act_equipment == exp_equipment
+
+
+def test_create_analysis_table(make_indicator_set, make_equipment_set):
+    indicator_set = make_indicator_set(propertyId=('ind1', 'ind2', 'ind3'))
+    equipment_set = make_equipment_set(equipmentId=('equi1', 'equi2', 'equi3'),
+                                       modelId=('model', 'model', 'model'))
+    dataset = make_dataset(indicator_set, equipment_set)
+    equi_info = pd.DataFrame(list(zip(['equi1', 'equi2', 'equi3'], ['equi2' for i in range(3)], [0, 5, 7])),
+                             columns=['equipment_id', 'leading_equipment', 'equi_counter'])
+    analysis_table = create_analysis_table(dataset, equi_info)
+    print(analysis_table.as_df())
+    assert len(analysis_table.as_df()) == 300
 
 
 def test_expected_public_attributes_are_present():

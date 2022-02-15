@@ -397,12 +397,14 @@ def create_analysis_table(indicator_data, equi_info):
     """Create analysis table for a system set."""
     agg = isinstance(indicator_data.indicator_set, ac_indicators.AggregatedIndicatorSet)
     id_df = indicator_data.as_df(speaking_names=False).reset_index()
+    print(id_df)
     # join with leading equipment
     id_df = id_df.merge(equi_info)
     # drop model id and equipment id
     # data.drop(['model_id', 'equipment_id'], axis=1, inplace=True)
     id_df.drop(['equipment_id'], axis=1, inplace=True)
     id_df.rename(columns={'leading_equipment': 'equipment_id'}, inplace=True)
+    print(id_df)
     # create really long format
     long = id_df.melt(id_vars=['timestamp', 'equipment_id', 'equi_counter'])
     long = long[long.equi_counter >= 0]
@@ -425,10 +427,7 @@ def create_analysis_table(indicator_data, equi_info):
         sysindset = SystemIndicatorSet(sysindlist)
     wide.columns = columns
     wide.reset_index(inplace=True)
-    eq = set(id_df['equipment_id'].unique())
-    equipment_set = EquipmentSet([])
-    for e in indicator_data.equipment_set:
-        if e.id in eq:
-            equipment_set += EquipmentSet([e])
+    equipment_set = EquipmentSet([e for e in indicator_data.equipment_set
+                                  if e.id in list(id_df['equipment_id'].unique())])
     return TimeseriesDataset(wide, sysindset, equipment_set, indicator_data.nominal_data_start,
                              indicator_data.nominal_data_end)
