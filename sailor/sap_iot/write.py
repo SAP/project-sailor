@@ -74,23 +74,21 @@ def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 
     missing_indicators = []
     request_url = _ac_application_url() + VIEW_TEMPLATES + '/' + template_id
     oauth_ac = get_oauth_client('asset_central')
-    template = oauth_ac.request('GET', request_url)
+    templates = oauth_ac.request('GET', request_url)
 
-    if len(template) == 0:
+    if len(templates) == 0:
         raise RuntimeError(f' No template found for template id {template_id}.')
-
-    if len(template) > 1:
+    if len(templates) > 1:
         LOG.warning(f'More than one template found for template id {template_id}. Selecting first.')
 
-    item = template[0]
-    filtered_indicator_groups = list(filter(lambda x: x['id'] == indicator_group_id, item['indicatorGroups']))
+    template = templates[0]
+    filtered_indicator_groups = list(filter(lambda x: x['id'] == indicator_group_id, template['indicatorGroups']))
 
     if len(filtered_indicator_groups) == 0:
         raise RuntimeError(f'Could not find an indicator group {indicator_group_id} for template {template_id}.')
-
     if len(filtered_indicator_groups) > 1:
-        group_id = filtered_indicator_groups[0]['internalId'] + ', template: ' + template_id
-        LOG.warning('More than one matching indicator group/template found for %s, selecting first', group_id)
+        LOG.warning(' More than one matching entry found for keys ' +
+                    'indicator_group_id %s, template_id %s. Selecting first.',indicator_group_id, template_id)
 
     indicator_group = filtered_indicator_groups[0]
     group_name = indicator_group['internalId']
