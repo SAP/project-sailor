@@ -95,7 +95,7 @@ def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 
     indicator_group = filtered_indicator_groups[0]
     group_name = indicator_group['internalId']
 
-    missing_indicators.extend(x['internalId'] for x in indicator_group['indicators'] 
+    missing_indicators.extend(x['internalId'] for x in indicator_group['indicators']
                               if x['id'] not in uploaded_indicators)
 
     if missing_indicators:
@@ -118,7 +118,7 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update=False):
     dataset
         TimeseriesDataset of indicators to be updated to SAP IoT.
     force_update
-        A boolean to force an update of an IndicatorGroup with some indicators. Default value is False, 
+        A boolean to force an update of an IndicatorGroup with some indicators. Default value is False,
         no forced update.
         When set 'True' indicators which are not in dataset will be set to 'NaN' for period of time.
 
