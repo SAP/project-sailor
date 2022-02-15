@@ -152,7 +152,8 @@ class System(AssetcentralEntity):
         return selection
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> TimeseriesDataset:
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
         """
         Get timeseries data for all Equipment in the System.
 
@@ -169,11 +170,16 @@ class System(AssetcentralEntity):
             Begin of time series data.
         end
             End of time series data.
+        timeout
+            Maximum amount of time the request may take. Can be specified as an ISO 8601 string
+            (like `PT2M` for 2-minute duration) or as a pandas.Timedelta or datetime.timedelta object.
+            If None, there is no time limit.
         """
         all_indicators = sum((equi.find_equipment_indicators() for equi in self._hierarchy['equipment']),
                              IndicatorSet([]))
+
         LOG.debug('Requesting indicator data of system "%s" for %d indicators.', self.id, len(all_indicators))
-        return sap_iot.get_indicator_data(start, end, all_indicators, self._hierarchy['equipment'])
+        return sap_iot.get_indicator_data(start, end, all_indicators, self._hierarchy['equipment'], timeout)
 
 
 class SystemSet(AssetcentralEntitySet):
@@ -187,7 +193,8 @@ class SystemSet(AssetcentralEntitySet):
     }
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date]) -> TimeseriesDataset:
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
         """
         Fetch data for a set of systems for all component equipment of each system.
 
@@ -203,13 +210,17 @@ class SystemSet(AssetcentralEntitySet):
             Begin of time series data.
         end
             End of time series data.
+        timeout
+            Maximum amount of time the request may take. Can be specified as an ISO 8601 string
+            (like `PT2M` for 2-minute duration) or as a pandas.Timedelta or datetime.timedelta object.
+            If None, there is no time limit.
         """
         all_equipment = sum((system._hierarchy['equipment'] for system in self), EquipmentSet([]))
         all_indicators = sum((equipment.find_equipment_indicators() for equipment in all_equipment), IndicatorSet([]))
         LOG.debug("Requesting indicator data of system set for %d equipments and %d indicators.",
                   len(all_equipment), len(all_indicators))
 
-        return sap_iot.get_indicator_data(start, end, all_indicators, all_equipment)
+        return sap_iot.get_indicator_data(start, end, all_indicators, all_equipment, timeout)
 
     @staticmethod
     def _fill_nones(sel_nodes, indicator_list, none_positions):

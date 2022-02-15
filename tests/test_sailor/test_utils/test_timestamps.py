@@ -4,7 +4,8 @@ import warnings
 import pytest
 import pandas as pd
 
-from sailor.utils.timestamps import _any_to_timestamp, _calculate_nice_sub_intervals, _timestamp_to_date_string
+from sailor.utils.timestamps import _any_to_timestamp, _any_to_timedelta, _calculate_nice_sub_intervals,\
+    _timestamp_to_date_string
 
 
 @pytest.mark.parametrize('testdescription,input,expected', [
@@ -24,6 +25,25 @@ from sailor.utils.timestamps import _any_to_timestamp, _calculate_nice_sub_inter
 @pytest.mark.filterwarnings('ignore:Trying to parse non-timezone-aware timestamp, assuming UTC.')
 def test_any_to_timestamp_types(input, expected, testdescription):
     actual = _any_to_timestamp(input)
+    assert actual == expected
+
+
+@pytest.mark.parametrize('testdescription,input,expected', [
+    ('iso8601 string',
+        'P2DT1H50M30S',
+        pd.Timedelta(days=2, hours=1, minutes=50, seconds=30)),
+    ('"<D> days <hours>:<min>:<seconds>" string ',
+        '2 days 01:50:30',
+        pd.Timedelta(days=2, hours=1, minutes=50, seconds=30)),
+    ('datetime.timedelta',
+        datetime.timedelta(days=2, hours=1, minutes=50, seconds=30),
+        pd.Timedelta(days=2, hours=1, minutes=50, seconds=30)),
+    ('pd.Timedelta',
+        pd.Timedelta(days=2, hours=1, minutes=50, seconds=30),
+        pd.Timedelta(days=2, hours=1, minutes=50, seconds=30))
+])
+def test_any_to_timedelta_types(input, expected, testdescription):
+    actual = _any_to_timedelta(input)
     assert actual == expected
 
 

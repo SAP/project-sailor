@@ -22,7 +22,7 @@ import pandas as pd
 
 import sailor.assetcentral.indicators as ac_indicators
 from sailor.utils.oauth_wrapper import get_oauth_client, RequestError
-from sailor.utils.timestamps import _any_to_timestamp, _timestamp_to_date_string
+from sailor.utils.timestamps import _any_to_timestamp, _timestamp_to_date_string, _any_to_timedelta
 from sailor.utils.config import SailorConfig
 from sailor.utils.utils import DataNotFoundWarning, WarningAdapter
 from .wrappers import TimeseriesDataset
@@ -34,6 +34,7 @@ if TYPE_CHECKING:
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 LOG = WarningAdapter(LOG)
+
 
 fixed_timeseries_columns = {
     '_TIME': 'timestamp',
@@ -149,7 +150,8 @@ def _get_exported_bulk_timeseries_data(export_id: str,
 
 def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                        end_date: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                       indicator_set: IndicatorSet, equipment_set: EquipmentSet) -> TimeseriesDataset:
+                       indicator_set: IndicatorSet, equipment_set: EquipmentSet,
+                       timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
     """
     Read indicator data for a certain time period, a set of equipments and a set of indicators.
 
@@ -163,6 +165,8 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
         IndicatorSet for which timeseries data is returned.
     equipment_set:
         Equipment set for which the timeseries data is read.
+    timeout:
+        Maximum amount of time the request may take. If None there is no time limit.
 
     Example
     -------
@@ -177,6 +181,10 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
     # as well as individual equipment in `_process_one_file`.
     if start_date is None or end_date is None:
         raise ValueError("Time parameters must be specified")
+
+    if timeout is not None:
+        timeout = _any_to_timedelta(timeout)
+        timeout = timeout.total_seconds()
 
     start_date = _any_to_timestamp(start_date)
     end_date = _any_to_timestamp(end_date)
@@ -217,6 +225,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
     results = pd.DataFrame(columns=schema.keys()).astype(schema)
 
     print('Waiting for data export:')
+    start_time = time.monotonic()
     while request_ids:
         for request_id in list(request_ids):
             if _check_bulk_timeseries_export_status(request_id):
@@ -236,6 +245,9 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
         if request_ids:
             time.sleep(5)
             print('.', end='')
+
+        if timeout is not None and timeout < (time.monotonic() - start_time):
+            raise TimeoutError(f'Timeout of {timeout:.0f} seconds was reached for fetching indicator data.')
     print()
 
     wrapper = TimeseriesDataset(results, indicator_set, equipment_set, start_date, end_date)
