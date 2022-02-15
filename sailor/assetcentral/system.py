@@ -221,11 +221,8 @@ class SystemSet(AssetcentralEntitySet):
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-<<<<<<< HEAD
-                           indicators=None) -> TimeseriesDataset:
-=======
+                           indicators=None,
                            timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
->>>>>>> origin/main
         """
         Fetch data for a set of systems for all component equipment of each system.
 
@@ -247,18 +244,11 @@ class SystemSet(AssetcentralEntitySet):
             If None, there is no time limit.
         """
         all_equipment = sum((system._hierarchy['equipment'] for system in self), EquipmentSet([]))
-<<<<<<< HEAD
         if indicators is None:
             indicators = sum((equipment.find_equipment_indicators() for equipment in all_equipment), IndicatorSet([]))
-
-        return sap_iot.get_indicator_data(start, end, indicators, all_equipment)
-=======
-        all_indicators = sum((equipment.find_equipment_indicators() for equipment in all_equipment), IndicatorSet([]))
         LOG.debug("Requesting indicator data of system set for %d equipments and %d indicators.",
-                  len(all_equipment), len(all_indicators))
-
-        return sap_iot.get_indicator_data(start, end, all_indicators, all_equipment, timeout)
->>>>>>> origin/main
+                  len(all_equipment), len(indicators))
+        return sap_iot.get_indicator_data(start, end, indicators, all_equipment, timeout)
 
     @staticmethod
     def _fill_nones(sel_nodes, indicator_list, none_positions, equi_counter):
