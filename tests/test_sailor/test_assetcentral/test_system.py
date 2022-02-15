@@ -568,6 +568,11 @@ def test_map_component_information(make_indicator_set, selection_dictionary, moc
     act_sys_inds, act_equipment = system_set._map_component_information(selection_dictionary)
     assert act_sys_inds == exp_sys_inds
     assert act_equipment == exp_equipment
+    act_sys_inds, act_equipment = system_set._map_component_information({})
+    exp_equipment = {'1': {'DBB7885268EB41E3BF157AB890CCA1EF': 0, '042F55EF70BE49538BB6DA3F32B8738C': 1}, 
+                     '2': {'E4790550A91A4F2EAE1055E16FD9BE34': 0, 'C91000E01AB845E08E0CDAFF0CD84621': 1}, 
+                     '3': {'0C6F06AAB482402D905F678E74E7053E': 0, '4C29728F4D2E400B8D22145271379759': 1}}
+    assert act_equipment == exp_equipment
 
 
 def test_create_analysis_table(make_indicator_set, make_equipment_set):
