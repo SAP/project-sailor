@@ -578,7 +578,6 @@ def test_create_analysis_table(make_indicator_set, make_equipment_set):
     equi_info = pd.DataFrame(list(zip(['equi1', 'equi2', 'equi3'], ['equi2' for i in range(3)], [0, 5, 7])),
                              columns=['equipment_id', 'leading_equipment', 'equi_counter'])
     analysis_table = create_analysis_table(dataset, equi_info)
-    print(analysis_table.as_df())
     assert len(analysis_table.as_df()) == 300
 
 

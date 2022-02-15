@@ -397,14 +397,12 @@ def create_analysis_table(indicator_data, equi_info):
     """Create analysis table for a system set."""
     agg = isinstance(indicator_data.indicator_set, ac_indicators.AggregatedIndicatorSet)
     id_df = indicator_data.as_df(speaking_names=False).reset_index()
-    print(id_df)
     # join with leading equipment
     id_df = id_df.merge(equi_info)
     # drop model id and equipment id
     # data.drop(['model_id', 'equipment_id'], axis=1, inplace=True)
     id_df.drop(['equipment_id'], axis=1, inplace=True)
     id_df.rename(columns={'leading_equipment': 'equipment_id'}, inplace=True)
-    print(id_df)
     # create really long format
     long = id_df.melt(id_vars=['timestamp', 'equipment_id', 'equi_counter'])
     long = long[long.equi_counter >= 0]
