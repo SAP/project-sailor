@@ -4,7 +4,10 @@ Workorder module can be used to retrieve Workorder information from AssetCentral
 Classes are provided for individual Workorders as well as groups of Workorders (WorkorderSet).
 """
 
+import logging
+
 from sailor import _base
+from sailor.utils.utils import WarningAdapter
 from ..utils.timestamps import _string_to_timestamp_parser
 from .constants import VIEW_WORKORDERS
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
@@ -56,6 +59,10 @@ _WORKORDER_FIELDS = [
     _AssetcentralField('_asset_core_equipment_id', 'assetCoreEquipmentId'),
     _AssetcentralField('_operator', 'operator'),
 ]
+
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 
 @_base.add_properties
@@ -130,4 +137,5 @@ def find_workorders(*, extended_filters=(), **kwargs) -> WorkorderSet:
 
     endpoint_url = _ac_application_url() + VIEW_WORKORDERS
     object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    LOG.debug('Found %d workorders for the specified filters.', len(object_list))
     return WorkorderSet([Workorder(obj) for obj in object_list])

@@ -39,6 +39,7 @@ class TestModel:
     def test_find_equipment_indicators_fetch_and_apply(self, mock_request, mock_apply, model, mock_url,
                                                        make_indicator_set):
         object_list = Mock(name='raw_object_list')
+        object_list.__len__ = lambda _: 2   # allows len(object_list). 2 just as example, actually any number is fine.
         mock_request.return_value = object_list
         mock_apply.return_value = [{'propertyId': 'indicator_1', 'pstid': 'group_id', 'categoryID': 'template_id'},
                                    {'propertyId': 'indicator_2', 'pstid': 'group_id', 'categoryID': 'template_id'}]

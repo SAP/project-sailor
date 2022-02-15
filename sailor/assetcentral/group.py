@@ -229,6 +229,6 @@ def find_groups(*, extended_filters=(), **kwargs) -> GroupSet:
     """
     endpoint_url = _ac_application_url() + VIEW_GROUPS
     object_list = _ac_fetch_data(endpoint_url)
-
+    LOG.debug("Retrieving groups found %d objects.", len(object_list))
     filtered_objects = _base.apply_filters_post_request(object_list, kwargs, extended_filters, Group._field_map)
     return GroupSet([Group(obj) for obj in filtered_objects])
