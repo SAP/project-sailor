@@ -86,16 +86,17 @@ def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 
     filtered_indicator_groups = list(filter(lambda x: x['id'] == indicator_group_id, item['indicatorGroups']))
 
     if len(filtered_indicator_groups) == 0:
-         raise RuntimeError(f'Could not find an indicator group {indicator_group_id} for template {template_id}.')
+        raise RuntimeError(f'Could not find an indicator group {indicator_group_id} for template {template_id}.')
 
     if len(filtered_indicator_groups) > 1:
-        group_id = filtered_indicator_group[0]['internalId'] + ', template: ' + template_id
+        group_id = filtered_indicator_groups[0]['internalId'] + ', template: ' + template_id
         LOG.warning('More than one matching indicator group/template found for %s, selecting first', group_id)
 
     indicator_group = filtered_indicator_groups[0]
     group_name = indicator_group['internalId']
 
-    missing_indicators.extend(x['internalId'] for x in indicator_group['indicators'] if x['id'] not in uploaded_indicators)
+    missing_indicators.extend(x['internalId'] for x in indicator_group['indicators'] 
+                              if x['id'] not in uploaded_indicators)
 
     if missing_indicators:
         raise RuntimeError(f'Indicators {missing_indicators} in indicator group {group_name} are not in dataset. ' +
@@ -117,7 +118,8 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update=False):
     dataset
         TimeseriesDataset of indicators to be updated to SAP IoT.
     force_update
-        A boolean to force an update of an IndicatorGroup with some indicators. Default value is False, no forced update.
+        A boolean to force an update of an IndicatorGroup with some indicators. Default value is False, 
+        no forced update.
         When set 'True' indicators which are not in dataset will be set to 'NaN' for period of time.
 
     Examples

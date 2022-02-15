@@ -123,7 +123,6 @@ def test_aggregate_indicators_in_dataset_raise(make_aggregated_indicator_set, ma
 
 def test_check_indicator_group_is_complete(mock_request):
     indicator_group_id = 'indicator_group_A'
-    id = 'indicator_group_A'
     indicator_group_name = 'indicator_group_name'
     indicators = [{'internalId': 'indicator_A',
                    'id': 'indicator_id_A'},
@@ -140,7 +139,6 @@ def test_check_indicator_group_is_complete(mock_request):
 
 def test_check_indicator_group_is_complete_raise_error(mock_request):
     indicator_group_id = 'indicator_group_A'
-    id = 'indicator_group_A'
     indicator_group_name = 'indicator_group_name'
     indicators = [{'internalId': 'indicator_A',
                    'id': 'indicator_id_A'},
