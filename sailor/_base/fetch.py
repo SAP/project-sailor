@@ -1,15 +1,15 @@
 from itertools import product
 import operator
 from typing import List
-import warnings
 import re
 import logging
 
-from ..utils.oauth_wrapper import get_oauth_client
-from ..utils.utils import DataNotFoundWarning, _is_non_string_iterable
+from sailor.utils.oauth_wrapper import get_oauth_client
+from sailor.utils.utils import DataNotFoundWarning, _is_non_string_iterable, WarningAdapter
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 
 _OPERATOR_MAP = {
@@ -49,7 +49,7 @@ def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=
         result.extend(result_filter)
 
     if len(result) == 0:
-        warnings.warn(DataNotFoundWarning(), stacklevel=2)
+        LOG.log_with_warning(DataNotFoundWarning(), warning_stacklevel=2)
 
     return result
 
@@ -205,7 +205,7 @@ def _compose_queries(unbreakable_filters, breakable_filters):
                 # this one is too long, but also the last element
                 # since we had to break, we have to add the last element separately
                 if end_idx == len(filter_group):
-                    result.extend(q + ' and ' + filter_group[-1] for q in filters)
+                    result.extend(q + ' and ' + filter_group[-1] if q != '' else filter_group[-1] for q in filters)
                     break
                 else:
                     start_idx = end_idx - 1
@@ -218,7 +218,6 @@ def _compose_queries(unbreakable_filters, breakable_filters):
             end_idx += 1
 
         filters = result
-
     return filters
 
 
@@ -276,7 +275,7 @@ def _unify_filters(equality_filters, extended_filters, field_map):
         unified_filters.append((key, _OPERATOR_MAP[o], v))
 
     if len(not_our_term) > 0:
-        warnings.warn(f'Following parameters are not in our terminology: {not_our_term}', stacklevel=3)
+        LOG.log_with_warning(f'Following parameters are not in our terminology: {not_our_term}', warning_stacklevel=3)
 
     return unified_filters
 

@@ -3,8 +3,10 @@ Location module can be used to retrieve Location information from AssetCentral.
 
 Classes are provided for individual Locations as well as groups of Locations (LocationSet).
 """
+import logging
 
 from sailor import _base
+from sailor.utils.utils import WarningAdapter
 from ..utils.timestamps import _string_to_timestamp_parser
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _ac_application_url, _ac_fetch_data)
@@ -30,6 +32,10 @@ _LOCATION_FIELDS = [
     _AssetcentralField('_image_URL', 'imageURL'),
     _AssetcentralField('_location_status', 'locationStatus'),
 ]
+
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 
 @_base.add_properties
@@ -104,4 +110,5 @@ def find_locations(*, extended_filters=(), **kwargs) -> LocationSet:
     endpoint_url = _ac_application_url() + VIEW_LOCATIONS
 
     object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    LOG.debug('Found %d locations for the specified filters.', len(object_list))
     return LocationSet([Location(obj) for obj in object_list])

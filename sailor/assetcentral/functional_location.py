@@ -5,7 +5,10 @@ Classes are provided for individual Functional Locations as well as groups
 of Functional Locations (FunctionalLocationSet).
 """
 
+import logging
+
 from sailor import _base
+from sailor.utils.utils import WarningAdapter
 from ..utils.timestamps import _string_to_timestamp_parser
 from .utils import _ac_fetch_data, AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet, \
     _ac_application_url
@@ -63,6 +66,10 @@ _FUNCTIONAL_LOCATION_FIELDS = [
     _AssetcentralField('_class', 'class')
 ]
 
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
+
 
 @_base.add_properties
 class FunctionalLocation(AssetcentralEntity):
@@ -114,4 +121,5 @@ def find_functional_locations(*, extended_filters=(), **kwargs) -> FunctionalLoc
 
     endpoint_url = _ac_application_url() + VIEW_FUNCTIONAL_LOCATIONS
     object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    LOG.debug('Found %d functional locations for the specified filters.', len(object_list))
     return FunctionalLocationSet([FunctionalLocation(obj) for obj in object_list])

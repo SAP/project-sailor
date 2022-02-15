@@ -4,14 +4,15 @@ from copy import deepcopy
 from collections import UserDict
 import logging
 import time
-import warnings
 
 from sailor import _base
 from sailor.utils.oauth_wrapper.OAuthServiceImpl import RequestError
-from ..utils.config import SailorConfig
+from sailor.utils.config import SailorConfig
+from sailor.utils.utils import WarningAdapter
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 
 def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
@@ -96,10 +97,11 @@ class _AssetcentralWriteRequest(UserDict):
             if field.is_writable:
                 field.put_setter(self.data, value)
             else:
-                warnings.warn(f"Parameter '{key}' is not available for create or update requests and will be ignored.",
-                              stacklevel=5)
+                LOG.log_with_warning(
+                    f'Parameter "{key}" is not available for create or update requests and will be ignored.',
+                    warning_stacklevel=5)
         else:
-            warnings.warn(f"Unknown name for {type(self).__name__} parameter found: '{key}'.")
+            LOG.log_with_warning(f'Unknown name for {type(self).__name__} parameter found: "{key}".')
             self.data[key] = value
 
     @classmethod
