@@ -151,9 +151,10 @@ def test_check_indicator_group_is_complete_raise_error(mock_request):
     with pytest.raises(RuntimeError, match='[ \'indicator_B \' ]'):
         _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 'template')
 
+
 def test_check_indicator_group_not_found_raise_error(mock_request):
-    indicator_group_id_A = 'indicator_group_A'
-    indicator_group_id_B = 'indicator_group_B'
+    indicator_group_id_a = 'indicator_group_A'
+    indicator_group_id_b = 'indicator_group_B'
     indicator_group_name = 'indicator_group_name'
     indicators = [{'internalId': 'indicator_A',
                    'id': 'indicator_id_A'},
@@ -161,7 +162,7 @@ def test_check_indicator_group_not_found_raise_error(mock_request):
                    'id': 'indicator_id_B'}]
     uploaded_indicators = ['indicator_id_A']
 
-    mock_request.return_value = get_template(indicator_group_id_A, indicator_group_name, indicators)
+    mock_request.return_value = get_template(indicator_group_id_a, indicator_group_name, indicators)
 
     with pytest.raises(RuntimeError, match='[Could not find an indicator group indicator_group_B.]'):
-        _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id_B, 'template')
+        _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id_b, 'template')
