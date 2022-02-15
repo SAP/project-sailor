@@ -71,30 +71,34 @@ def _upload_data_single_indicator_group(dataset, indicator_set, group_id, templa
 
 
 def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, template_id):
-    missing_list = []
+    missing_indicators = []
     request_url = _ac_application_url() + VIEW_TEMPLATES + '/' + template_id
     oauth_ac = get_oauth_client('asset_central')
     template = oauth_ac.request('GET', request_url)
 
-    for item in template:
-        filtered_indicator_group = list(filter(lambda x: x['id'] == indicator_group_id, item['indicatorGroups']))
+    if len(template) == 0:
+        raise RuntimeError(f' No template found for template id {template_id}.')
 
-        if len(filtered_indicator_group) == 0:
-            raise RuntimeError(f'Could not find an indicator group template for template {template_id}.')
+    if len(template) > 1:
+        LOG.warning(f'More than one template found for template id {template_id}. Selecting first.')
 
-        if len(filtered_indicator_group) > 1:
-            group_id = filtered_indicator_group[0]['internalId'] + ', template: ' + template_id
-            LOG.warning('More than one matching indicator group/template found for %s, selecting first', 
-                        group_id)
+    item = template[0]
+    filtered_indicator_groups = list(filter(lambda x: x['id'] == indicator_group_id, item['indicatorGroups']))
 
-        indicator_group = filtered_indicator_group[0]
-        group_name = indicator_group['internalId']
+    if len(filtered_indicator_groups) == 0:
+         raise RuntimeError(f'Could not find an indicator group {indicator_group_id} for template {template_id}.')
 
-        missing_list.extend(x['internalId'] for x in indicator_group['indicators'] 
-                            if x['id'] not in uploaded_indicators)
+    if len(filtered_indicator_groups) > 1:
+        group_id = filtered_indicator_group[0]['internalId'] + ', template: ' + template_id
+        LOG.warning('More than one matching indicator group/template found for %s, selecting first', group_id)
 
-    if missing_list:
-        raise RuntimeError(f'Indicators {missing_list} in indicator group {group_name} are not in dataset. ' +
+    indicator_group = filtered_indicator_groups[0]
+    group_name = indicator_group['internalId']
+
+    missing_indicators.extend(x['internalId'] for x in indicator_group['indicators'] if x['id'] not in uploaded_indicators)
+
+    if missing_indicators:
+        raise RuntimeError(f'Indicators {missing_indicators} in indicator group {group_name} are not in dataset. ' +
                            'Update would overwrite missing indicators with "NaN" for the time period. ' +
                            'If this is wanted, use "force_update" in the function call.')
 
@@ -113,15 +117,15 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update=False):
     dataset
         TimeseriesDataset of indicators to be updated to SAP IoT.
     force_update
-        A flag to force an update of an IndicatorGroup with some indicators.
-        Indicators which are not in dataset will be set to 'NaN' for period of time
+        A boolean to force an update of an IndicatorGroup with some indicators. Default value is False, no forced update.
+        When set 'True' indicators which are not in dataset will be set to 'NaN' for period of time.
 
     Examples
     --------
     Force update timeseries data of IndicatorGroup 'my_indicator_group'.
     Dataset 'my_some_timeseries_data' which has only some indicators of 'my_indicator_group'::
 
-        upload_indicator_data(my_some_timeseries_data, force_update = 'x')
+        upload_indicator_data(my_some_timeseries_data, force_update=True)
 
     Update timeseries data of 'my_indicator_group' indicators.
     Dataset 'my_timeseries_data' includes all indicators of group 'my_indicator_group'::
