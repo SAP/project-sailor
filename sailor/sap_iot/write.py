@@ -92,7 +92,7 @@ def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 
     indicator_group = filtered_indicator_groups[0]
     group_name = indicator_group['internalId']
 
-    missing_indicators = [x['internalId'] for x in indicator_group['indicators'] 
+    missing_indicators = [x['internalId'] for x in indicator_group['indicators']
                           if x['id'] not in uploaded_indicators]
 
     if missing_indicators:
