@@ -193,7 +193,7 @@
 indicator and equipment information is taken from the TimeseriesDataset.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="sailor.sap_iot.write.upload_indicator_data">
-<span class="sig-prename descclassname"><span class="pre">sailor.sap_iot.write.</span></span><span class="sig-name descname"><span class="pre">upload_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/write.html#upload_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.write.upload_indicator_data" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">sailor.sap_iot.write.</span></span><span class="sig-name descname"><span class="pre">upload_indicator_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sailor/sap_iot/write.html#upload_indicator_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sailor.sap_iot.write.upload_indicator_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Upload a <cite>TimeseriesDataset</cite> to SAP IoT.</p>
 <p>This functionality is currently in BETA. Please report any bugs at <a class="reference external" href="https://github.com/SAP/project-sailor/issues">https://github.com/SAP/project-sailor/issues</a>.
 The entire dataset will be uploaded. It may not contain any AggregatedIndicators.
@@ -201,9 +201,25 @@ Please note that only some indicators from an IndicatorGroup are present in the 
 any values for the missing indicators for the uploaded timestamps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dataset</strong> (<a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset"><em>sailor.sap_iot.wrappers.TimeseriesDataset</em></a>) – </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset"><em>sailor.sap_iot.wrappers.TimeseriesDataset</em></a>) – TimeseriesDataset of indicators to be updated to SAP IoT.</p></li>
+<li><p><strong>force_update</strong> – A boolean to force an update of an IndicatorGroup with some indicators. Default value is False,
+no forced update.
+When set ‘True’ indicators which are not in dataset will be set to ‘NaN’ for period of time.</p></li>
+</ul>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>Force update timeseries data of IndicatorGroup ‘my_indicator_group’.
+Dataset ‘my_some_timeseries_data’ which has only some indicators of ‘my_indicator_group’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">upload_indicator_data</span><span class="p">(</span><span class="n">my_some_timeseries_data</span><span class="p">,</span> <span class="n">force_update</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Update timeseries data of ‘my_indicator_group’ indicators.
+Dataset ‘my_timeseries_data’ includes all indicators of group ‘my_indicator_group’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">upload_indicator_data</span><span class="p">(</span><span class="n">my_timeseries_data</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </div>
