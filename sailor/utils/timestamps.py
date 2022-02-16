@@ -27,12 +27,12 @@ def _any_to_timestamp(value, default: pd.Timestamp = None):
 
     if isinstance(value, str):
         timestamp = pd.Timestamp(value)
+    elif isinstance(value, pd.Timestamp):
+        timestamp = value
     elif isinstance(value, datetime.datetime):
         timestamp = pd.Timestamp(value)
     elif isinstance(value, datetime.date):
         timestamp = pd.Timestamp(value)
-    elif isinstance(value, pd.Timestamp):
-        timestamp = value
     else:
         raise RuntimeError('Can only parse ISO 8601 strings, pandas timestamps or python native timestamps.')
 
@@ -43,6 +43,23 @@ def _any_to_timestamp(value, default: pd.Timestamp = None):
         timestamp = timestamp.tz_localize('UTC', ambiguous='NaT', nonexistent='NaT')
 
     return timestamp
+
+
+def _any_to_timedelta(value, default: pd.Timedelta = None):
+    """Try to parse a timedelta provided in a variety of formats into a uniform representation as pd.Timedelta."""
+    if value is None:
+        return default
+
+    if isinstance(value, str):
+        timedelta = pd.Timedelta(value)
+    elif isinstance(value, pd.Timedelta):
+        timedelta = value
+    elif isinstance(value, datetime.timedelta):
+        timedelta = pd.Timedelta(value)
+    else:
+        raise RuntimeError('Can only parse ISO 8601 strings, pandas timesdeltas or python native timedeltas.')
+
+    return timedelta
 
 
 def _timestamp_to_isoformat(timestamp: pd.Timestamp, with_zulu=False):

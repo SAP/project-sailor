@@ -205,7 +205,7 @@ def _compose_queries(unbreakable_filters, breakable_filters):
                 # this one is too long, but also the last element
                 # since we had to break, we have to add the last element separately
                 if end_idx == len(filter_group):
-                    result.extend(q + ' and ' + filter_group[-1] for q in filters)
+                    result.extend(q + ' and ' + filter_group[-1] if q != '' else filter_group[-1] for q in filters)
                     break
                 else:
                     start_idx = end_idx - 1
@@ -218,7 +218,6 @@ def _compose_queries(unbreakable_filters, breakable_filters):
             end_idx += 1
 
         filters = result
-
     return filters
 
 
