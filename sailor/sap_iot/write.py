@@ -71,7 +71,6 @@ def _upload_data_single_indicator_group(dataset, indicator_set, group_id, templa
 
 
 def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, template_id):
-    missing_indicators = []
     request_url = _ac_application_url() + VIEW_TEMPLATES + '/' + template_id
     oauth_ac = get_oauth_client('asset_central')
     templates = oauth_ac.request('GET', request_url)
@@ -93,8 +92,8 @@ def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 
     indicator_group = filtered_indicator_groups[0]
     group_name = indicator_group['internalId']
 
-    missing_indicators.extend(x['internalId'] for x in indicator_group['indicators']
-                              if x['id'] not in uploaded_indicators)
+    missing_indicators = [x['internalId'] for x in indicator_group['indicators'] 
+                          if x['id'] not in uploaded_indicators]
 
     if missing_indicators:
         raise RuntimeError(f'Indicators {missing_indicators} in indicator group {group_name} are not in dataset. ' +
