@@ -284,9 +284,10 @@ class TestRawDataWrapperFunction:
         mock_gzip.side_effect = [BytesIO(make_csv_bytes(1, ''))]
         mock_check.return_value = False
 
-        with pytest.raises(TimeoutError, match='Timeout of 2 seconds was reached for fetching indicator data.'):
-            get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set,
-                               timeout="P2S")
+        with pytest.raises(TimeoutError, match='Timeout of 0 seconds was reached for fetching indicator data.'):
+            with patch('time.sleep'):
+                get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set,
+                                   timeout="P0S")
 
 
 @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')
