@@ -9,6 +9,7 @@ indicator and equipment information is taken from the TimeseriesDataset.
 from functools import partial
 from collections import defaultdict
 import logging
+import warnings
 
 import numpy as np
 
@@ -101,7 +102,7 @@ def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 
                            'If this is wanted, use "force_update" in the function call.')
 
 
-def upload_indicator_data(dataset: TimeseriesDataset, force_update=False):
+def upload_indicator_data(dataset: TimeseriesDataset, force_update=True):
     """
     Upload a `TimeseriesDataset` to SAP IoT.
 
@@ -131,6 +132,11 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update=False):
 
         upload_indicator_data(my_timeseries_data)
     """
+    if force_update is True:
+        warnings.warn('Starting June 1st this function will raise an error if not all indicators' +
+                      ' in the IndicatorSet are provided in the data. To recover the current behaviour' +
+                      ' you will have to specify force_update=True', category=FutureWarning)
+
     if isinstance(dataset.indicator_set, ac_indicators.AggregatedIndicatorSet):
         raise RuntimeError('TimeseriesDatasets containing aggregated indicators may not be uploaded to SAP IoT')
 

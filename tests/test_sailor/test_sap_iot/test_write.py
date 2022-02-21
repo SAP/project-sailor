@@ -14,6 +14,7 @@ def mock_upload_url():
         yield mock
 
 
+@pytest.mark.filterwarnings('ignore:Starting June 1st this function will raise an error if not all indicators')
 def test_upload_is_split_by_indicator_group_and_template(mock_request, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(
         propertyId=['indicator_id_A', 'indicator_id_B', 'indicator_id_A'],
@@ -25,7 +26,7 @@ def test_upload_is_split_by_indicator_group_and_template(mock_request, make_indi
     )
     dataset = make_dataset(indicator_set, equipment_set)
 
-    upload_indicator_data(dataset, 'x')
+    upload_indicator_data(dataset, force_update=True)
 
     assert mock_request.call_count == 3
     assert all(args[0][0] == 'POST' for args in mock_request.call_args_list)
@@ -44,6 +45,7 @@ def test_upload_is_split_by_indicator_group_and_template(mock_request, make_indi
         assert all(value.keys() == {'_time', indicator._liot_id} for value in matching_payload['Values'])
 
 
+@pytest.mark.filterwarnings('ignore:Starting June 1st this function will raise an error if not all indicators')
 def test_upload_one_group_in_one_request(mock_request, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(
         propertyId=['indicator_id_A', 'indicator_id_B', 'indicator_id_A'],
@@ -54,7 +56,7 @@ def test_upload_one_group_in_one_request(mock_request, make_indicator_set, make_
     )
     dataset = make_dataset(indicator_set, equipment_set)
 
-    upload_indicator_data(dataset, 'x')
+    upload_indicator_data(dataset, force_update=True)
 
     assert mock_request.call_count == 2
     assert all(args[0][0] == 'POST' for args in mock_request.call_args_list)
@@ -76,6 +78,7 @@ def test_upload_one_group_in_one_request(mock_request, make_indicator_set, make_
         assert all(value.keys() == expected_keys for value in matching_payload['Values'])
 
 
+@pytest.mark.filterwarnings('ignore:Starting June 1st this function will raise an error if not all indicators')
 def test_each_equipment_one_request(mock_request, mock_upload_url, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'])
     equipment_set = make_equipment_set(equipmentId=['equipment_A', 'equipment_B'])
@@ -83,13 +86,14 @@ def test_each_equipment_one_request(mock_request, mock_upload_url, make_indicato
     request_base = 'UPLOAD_BASE_URL/Timeseries/extend/Measurements/equipmentId/'
     mock_upload_url.side_effect = lambda x: f'{request_base}{x}'
 
-    upload_indicator_data(dataset, 'x')
+    upload_indicator_data(dataset, force_update=True)
     urls = {args[0][1] for args in mock_request.call_args_list}
 
     assert mock_request.call_count == 2
     assert urls == {request_base + equipment.id for equipment in equipment_set}
 
 
+@pytest.mark.filterwarnings('ignore:Starting June 1st this function will raise an error if not all indicators')
 def test_nan_dataset_written(mock_request, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'])
     equipment_set = make_equipment_set(equipmentId=['equipment_A'])
@@ -100,7 +104,7 @@ def test_nan_dataset_written(mock_request, make_indicator_set, make_equipment_se
     none_timestamp = _timestamp_to_isoformat(dataset._df.loc[0, 'timestamp'], with_zulu=True)
     dataset._df.loc[0, none_indicator._unique_id] = np.nan
 
-    upload_indicator_data(dataset, 'x')
+    upload_indicator_data(dataset, force_update=True)
     payloads = [args[-1]['json'] for args in mock_request.call_args_list]
     for payload in payloads:
         for values_at_timestamp in payload['Values']:
@@ -118,7 +122,7 @@ def test_aggregate_indicators_in_dataset_raise(make_aggregated_indicator_set, ma
     dataset = make_dataset(aggregated_indicator_set, equipment_set)
 
     with pytest.raises(RuntimeError, match='aggregated indicators may not be uploaded to SAP IoT'):
-        upload_indicator_data(dataset)
+        upload_indicator_data(dataset, force_update=False)
 
 
 def test_check_indicator_group_is_complete(mock_request):
