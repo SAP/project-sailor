@@ -14,7 +14,7 @@ def mock_upload_url():
         yield mock
 
 
-@pytest.mark.filterwarnings('ignore:Starting June 1st this function will raise an error if not all indicators')
+@pytest.mark.filterwarnings('ignore:Starting July 1st this function will raise an error if not all indicators')
 def test_upload_is_split_by_indicator_group_and_template(mock_request, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(
         propertyId=['indicator_id_A', 'indicator_id_B', 'indicator_id_A'],
@@ -45,7 +45,7 @@ def test_upload_is_split_by_indicator_group_and_template(mock_request, make_indi
         assert all(value.keys() == {'_time', indicator._liot_id} for value in matching_payload['Values'])
 
 
-@pytest.mark.filterwarnings('ignore:Starting June 1st this function will raise an error if not all indicators')
+@pytest.mark.filterwarnings('ignore:Starting July 1st this function will raise an error if not all indicators')
 def test_upload_one_group_in_one_request(mock_request, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(
         propertyId=['indicator_id_A', 'indicator_id_B', 'indicator_id_A'],
@@ -78,7 +78,7 @@ def test_upload_one_group_in_one_request(mock_request, make_indicator_set, make_
         assert all(value.keys() == expected_keys for value in matching_payload['Values'])
 
 
-@pytest.mark.filterwarnings('ignore:Starting June 1st this function will raise an error if not all indicators')
+@pytest.mark.filterwarnings('ignore:Starting July 1st this function will raise an error if not all indicators')
 def test_each_equipment_one_request(mock_request, mock_upload_url, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'])
     equipment_set = make_equipment_set(equipmentId=['equipment_A', 'equipment_B'])
@@ -93,7 +93,7 @@ def test_each_equipment_one_request(mock_request, mock_upload_url, make_indicato
     assert urls == {request_base + equipment.id for equipment in equipment_set}
 
 
-@pytest.mark.filterwarnings('ignore:Starting June 1st this function will raise an error if not all indicators')
+@pytest.mark.filterwarnings('ignore:Starting July 1st this function will raise an error if not all indicators')
 def test_nan_dataset_written(mock_request, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'])
     equipment_set = make_equipment_set(equipmentId=['equipment_A'])
