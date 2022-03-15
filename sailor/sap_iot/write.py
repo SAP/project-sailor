@@ -9,11 +9,11 @@ indicator and equipment information is taken from the TimeseriesDataset.
 from functools import partial
 from collections import defaultdict
 import logging
-import warnings
 
 import numpy as np
 
 import sailor.assetcentral.indicators as ac_indicators
+from sailor.utils.utils import WarningAdapter
 from ..assetcentral.utils import _ac_application_url
 from ..assetcentral.constants import VIEW_TEMPLATES
 from ..utils.timestamps import _timestamp_to_isoformat
@@ -23,6 +23,7 @@ from ._common import request_upload_url
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 
 # Unfortunately there is no guidance from SAP IoT yet on how much data can be uploaded at once.
@@ -133,9 +134,9 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update=True):
         upload_indicator_data(my_timeseries_data)
     """
     if force_update is True:
-        warnings.warn('Starting June 1st this function will raise an error if not all indicators' +
-                      ' in the IndicatorSet are provided in the data. To recover the current behaviour' +
-                      ' you will have to specify force_update=True', category=FutureWarning)
+        LOG.log_with_warning('Starting July 1st this function will raise an error if not all indicators' +
+                             ' in the IndicatorSet are provided in the data. To recover the current behaviour' +
+                             ' you will have to specify force_update=True', warning_category=FutureWarning)
 
     if isinstance(dataset.indicator_set, ac_indicators.AggregatedIndicatorSet):
         raise RuntimeError('TimeseriesDatasets containing aggregated indicators may not be uploaded to SAP IoT')
