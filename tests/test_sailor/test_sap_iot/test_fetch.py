@@ -269,24 +269,20 @@ class TestRawDataWrapperFunction:
     @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators')
     @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the equipments')
     @patch('sailor.sap_iot.fetch._check_bulk_timeseries_export_status')
-    def test_get_indicator_data_timeout_reached(self, mock_check, caplog, mock_zipfile, mock_gzip, mock_config,
-                                                mock_request, make_indicator_set, make_equipment_set, make_csv_bytes):
+    def test_get_indicator_data_timeout_reached(self, mock_check, mock_request, make_indicator_set, make_equipment_set):
 
         indicator_set = make_indicator_set(propertyId=['indicator_id_1'])
         equipment_set = make_equipment_set(equipmentId=['equipment_id_1'])
 
         mock_request.side_effect = [
-            {'RequestId': 'test_request_id_1'},
-            {'Status': 'The file is available for download.'}, b'mock_zip_content',
+            {'RequestId': 'test_request_id_1'}
         ]
-        mock_zipfile.ZipFile.return_value.filelist = ['inner_file_1']
-        mock_zipfile.ZipFile.return_value.read.return_value = b'mock_gzip_content'
-        mock_gzip.side_effect = [BytesIO(make_csv_bytes(1, ''))]
         mock_check.return_value = False
 
-        with pytest.raises(TimeoutError, match='Timeout of 2 seconds was reached for fetching indicator data.'):
-            get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set,
-                               timeout="P2S")
+        with pytest.raises(TimeoutError, match='Timeout of 0 seconds was reached for fetching indicator data.'):
+            with patch('time.sleep'):
+                get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set,
+                                   timeout="P0S")
 
 
 @pytest.mark.filterwarnings('ignore:Could not find any data for indicator')

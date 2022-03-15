@@ -217,7 +217,7 @@ class Equipment(AssetcentralEntity):
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           indicator_set: IndicatorSet = None,
+                           indicator_set: IndicatorSet = None, *,
                            timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to this equipment.
@@ -253,7 +253,7 @@ class Equipment(AssetcentralEntity):
             indicator_set = self.find_equipment_indicators()
 
         LOG.debug('Requesting indicator data of equipment "%s" for %d indicators.', self.id, len(indicator_set))
-        return sap_iot.get_indicator_data(start, end, indicator_set, EquipmentSet([self]), timeout)
+        return sap_iot.get_indicator_data(start, end, indicator_set, EquipmentSet([self]), timeout=timeout)
 
     def create_notification(self, **kwargs) -> Notification:
         """Create a new notification for this equipment.
@@ -384,7 +384,7 @@ class EquipmentSet(AssetcentralEntitySet):
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           indicator_set: IndicatorSet = None,
+                           indicator_set: IndicatorSet = None, *,
                            timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
         """
         Fetch timeseries data from SAP Internet of Things for Indicators attached to all equipments in this set.
@@ -420,7 +420,7 @@ class EquipmentSet(AssetcentralEntitySet):
             indicator_set = self.find_common_indicators()
 
         LOG.debug('Requesting indicator data of equipment set for %d indicators.', len(indicator_set))
-        return sap_iot.get_indicator_data(start, end, indicator_set, self, timeout)
+        return sap_iot.get_indicator_data(start, end, indicator_set, self, timeout=timeout)
 
     def get_indicator_aggregates(
             self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],

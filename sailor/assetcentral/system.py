@@ -152,7 +152,7 @@ class System(AssetcentralEntity):
         return selection
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date], *,
                            timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
         """
         Get timeseries data for all Equipment in the System.
@@ -179,7 +179,7 @@ class System(AssetcentralEntity):
                              IndicatorSet([]))
 
         LOG.debug('Requesting indicator data of system "%s" for %d indicators.', self.id, len(all_indicators))
-        return sap_iot.get_indicator_data(start, end, all_indicators, self._hierarchy['equipment'], timeout)
+        return sap_iot.get_indicator_data(start, end, all_indicators, self._hierarchy['equipment'], timeout=timeout)
 
 
 class SystemSet(AssetcentralEntitySet):
@@ -193,7 +193,7 @@ class SystemSet(AssetcentralEntitySet):
     }
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date], *,
                            timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
         """
         Fetch data for a set of systems for all component equipment of each system.
@@ -220,7 +220,7 @@ class SystemSet(AssetcentralEntitySet):
         LOG.debug("Requesting indicator data of system set for %d equipments and %d indicators.",
                   len(all_equipment), len(all_indicators))
 
-        return sap_iot.get_indicator_data(start, end, all_indicators, all_equipment, timeout)
+        return sap_iot.get_indicator_data(start, end, all_indicators, all_equipment, timeout=timeout)
 
     @staticmethod
     def _fill_nones(sel_nodes, indicator_list, none_positions):
