@@ -335,13 +335,13 @@ class SystemSet(AssetcentralEntitySet):
             system_equipment = sys_equipment
         return system_indicators, system_equipment
 
-    def lead_eq_and_counter(self, ec, lead_equi_path=[]):
+    def _get_leading_equipment_and_equipment_counter(self, system_equipment, lead_equi_path=[]):
         """Get leading equipment and equipment counter."""
 
         def equi_counter(equi_id, sys):
             """Get equipment counter (function makes apply() nicer)."""
-            if equi_id in ec[sys].keys():
-                return ec[sys][equi_id]
+            if equi_id in system_equipment[sys].keys():
+                return system_equipment[sys][equi_id]
             else:
                 return -1
 
@@ -413,8 +413,9 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
     return SystemSet([System(obj) for obj in object_list])
 
 
-def create_analysis_table(indicator_data, equi_info):
+def create_analysis_table(system_set, indicator_data, system_equipment, lead_equi_path=[]):
     """Create analysis table for a system set."""
+    equi_info = system_set._get_leading_equipment_and_equipment_counter(system_equipment, lead_equi_path)
     agg = isinstance(indicator_data.indicator_set, ac_indicators.AggregatedIndicatorSet)
     id_df = indicator_data.as_df(speaking_names=False).reset_index()
     # join with leading equipment
