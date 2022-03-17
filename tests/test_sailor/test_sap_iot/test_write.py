@@ -3,9 +3,9 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from sailor.sap_iot.write import upload_indicator_data
+from sailor.sap_iot.write import upload_indicator_data, _check_indicator_group_is_complete
 from sailor.utils.timestamps import _timestamp_to_isoformat
-from ..data_generators import make_dataset
+from ..data_generators import make_dataset, get_template
 
 
 @pytest.fixture(autouse=True)
@@ -14,6 +14,7 @@ def mock_upload_url():
         yield mock
 
 
+@pytest.mark.filterwarnings('ignore:Starting July 1st this function will raise an error if not all indicators')
 def test_upload_is_split_by_indicator_group_and_template(mock_request, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(
         propertyId=['indicator_id_A', 'indicator_id_B', 'indicator_id_A'],
@@ -25,7 +26,7 @@ def test_upload_is_split_by_indicator_group_and_template(mock_request, make_indi
     )
     dataset = make_dataset(indicator_set, equipment_set)
 
-    upload_indicator_data(dataset)
+    upload_indicator_data(dataset, force_update=True)
 
     assert mock_request.call_count == 3
     assert all(args[0][0] == 'POST' for args in mock_request.call_args_list)
@@ -44,6 +45,7 @@ def test_upload_is_split_by_indicator_group_and_template(mock_request, make_indi
         assert all(value.keys() == {'_time', indicator._liot_id} for value in matching_payload['Values'])
 
 
+@pytest.mark.filterwarnings('ignore:Starting July 1st this function will raise an error if not all indicators')
 def test_upload_one_group_in_one_request(mock_request, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(
         propertyId=['indicator_id_A', 'indicator_id_B', 'indicator_id_A'],
@@ -54,7 +56,7 @@ def test_upload_one_group_in_one_request(mock_request, make_indicator_set, make_
     )
     dataset = make_dataset(indicator_set, equipment_set)
 
-    upload_indicator_data(dataset)
+    upload_indicator_data(dataset, force_update=True)
 
     assert mock_request.call_count == 2
     assert all(args[0][0] == 'POST' for args in mock_request.call_args_list)
@@ -76,6 +78,7 @@ def test_upload_one_group_in_one_request(mock_request, make_indicator_set, make_
         assert all(value.keys() == expected_keys for value in matching_payload['Values'])
 
 
+@pytest.mark.filterwarnings('ignore:Starting July 1st this function will raise an error if not all indicators')
 def test_each_equipment_one_request(mock_request, mock_upload_url, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'])
     equipment_set = make_equipment_set(equipmentId=['equipment_A', 'equipment_B'])
@@ -83,13 +86,14 @@ def test_each_equipment_one_request(mock_request, mock_upload_url, make_indicato
     request_base = 'UPLOAD_BASE_URL/Timeseries/extend/Measurements/equipmentId/'
     mock_upload_url.side_effect = lambda x: f'{request_base}{x}'
 
-    upload_indicator_data(dataset)
+    upload_indicator_data(dataset, force_update=True)
     urls = {args[0][1] for args in mock_request.call_args_list}
 
     assert mock_request.call_count == 2
     assert urls == {request_base + equipment.id for equipment in equipment_set}
 
 
+@pytest.mark.filterwarnings('ignore:Starting July 1st this function will raise an error if not all indicators')
 def test_nan_dataset_written(mock_request, make_indicator_set, make_equipment_set):
     indicator_set = make_indicator_set(propertyId=['indicator_id_A', 'indicator_id_B'])
     equipment_set = make_equipment_set(equipmentId=['equipment_A'])
@@ -100,7 +104,7 @@ def test_nan_dataset_written(mock_request, make_indicator_set, make_equipment_se
     none_timestamp = _timestamp_to_isoformat(dataset._df.loc[0, 'timestamp'], with_zulu=True)
     dataset._df.loc[0, none_indicator._unique_id] = np.nan
 
-    upload_indicator_data(dataset)
+    upload_indicator_data(dataset, force_update=True)
     payloads = [args[-1]['json'] for args in mock_request.call_args_list]
     for payload in payloads:
         for values_at_timestamp in payload['Values']:
@@ -118,4 +122,51 @@ def test_aggregate_indicators_in_dataset_raise(make_aggregated_indicator_set, ma
     dataset = make_dataset(aggregated_indicator_set, equipment_set)
 
     with pytest.raises(RuntimeError, match='aggregated indicators may not be uploaded to SAP IoT'):
-        upload_indicator_data(dataset)
+        upload_indicator_data(dataset, force_update=False)
+
+
+def test_check_indicator_group_is_complete(mock_request):
+    indicator_group_id = 'indicator_group_A'
+    indicator_group_name = 'indicator_group_name'
+    indicators = [{'internalId': 'indicator_A',
+                   'id': 'indicator_id_A'},
+                  {'internalId': 'indicator_B',
+                   'id': 'indicator_id_B'}]
+    uploaded_indicators = ['indicator_id_A', 'indicator_id_B']
+
+    mock_request.return_value = get_template(indicator_group_id, indicator_group_name, indicators)
+    response = _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 'template')
+
+    assert mock_request.call_count == 1
+    assert(response is None)
+
+
+def test_check_indicator_group_is_complete_raise_error(mock_request):
+    indicator_group_id = 'indicator_group_A'
+    indicator_group_name = 'indicator_group_name'
+    indicators = [{'internalId': 'indicator_A',
+                   'id': 'indicator_id_A'},
+                  {'internalId': 'indicator_B',
+                   'id': 'indicator_id_B'}]
+    uploaded_indicators = ['indicator_id_A']
+
+    mock_request.return_value = get_template(indicator_group_id, indicator_group_name, indicators)
+
+    with pytest.raises(RuntimeError, match='[ \'indicator_B \' ]'):
+        _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 'template')
+
+
+def test_check_indicator_group_not_found_raise_error(mock_request):
+    indicator_group_id_a = 'indicator_group_A'
+    indicator_group_id_b = 'indicator_group_B'
+    indicator_group_name = 'indicator_group_name'
+    indicators = [{'internalId': 'indicator_A',
+                   'id': 'indicator_id_A'},
+                  {'internalId': 'indicator_B',
+                   'id': 'indicator_id_B'}]
+    uploaded_indicators = ['indicator_id_A']
+
+    mock_request.return_value = get_template(indicator_group_id_a, indicator_group_name, indicators)
+
+    with pytest.raises(RuntimeError, match='[Could not find an indicator group indicator_group_B.]'):
+        _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id_b, 'template')
