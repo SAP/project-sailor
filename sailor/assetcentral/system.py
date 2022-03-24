@@ -16,14 +16,13 @@ from operator import itemgetter
 import pandas as pd
 
 from sailor import _base, sap_iot
-import sailor.assetcentral.indicators as ac_indicators
+from sailor.sap_iot.wrappers import TimeseriesDataset
 from sailor.utils.utils import WarningAdapter
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _ac_application_url, _ac_fetch_data)
 from .equipment import find_equipment, EquipmentSet
-from .indicators import (IndicatorSet, SystemIndicator, SystemAggregatedIndicator, SystemIndicatorSet,
-                         SystemAggregatedIndicatorSet)
-from ..sap_iot import TimeseriesDataset
+from .indicators import (IndicatorSet, SystemIndicator, SystemAggregatedIndicator, AggregatedIndicatorSet,
+                         SystemIndicatorSet, SystemAggregatedIndicatorSet)
 from .constants import VIEW_SYSTEMS
 
 
@@ -179,7 +178,8 @@ class System(AssetcentralEntity):
             return equi_id
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date], *,
+                           end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
+                           indicator_set: IndicatorSet = None, *,
                            timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
         """
         Get timeseries data for all Equipment in the System.
@@ -197,16 +197,19 @@ class System(AssetcentralEntity):
             Begin of time series data.
         end
             End of time series data.
+        indicator_set
+            IndicatorSet for which timeseries data is returned.
         timeout
             Maximum amount of time the request may take. Can be specified as an ISO 8601 string
             (like `PT2M` for 2-minute duration) or as a pandas.Timedelta or datetime.timedelta object.
             If None, there is no time limit.
         """
-        all_indicators = sum((equi.find_equipment_indicators() for equi in self._hierarchy['equipment']),
-                             IndicatorSet([]))
+        if indicator_set is None:
+            indicator_set = sum((equi.find_equipment_indicators() for equi in self._hierarchy['equipment']),
+                                IndicatorSet([]))
 
-        LOG.debug('Requesting indicator data of system "%s" for %d indicators.', self.id, len(all_indicators))
-        return sap_iot.get_indicator_data(start, end, all_indicators, self._hierarchy['equipment'], timeout=timeout)
+        LOG.debug('Requesting indicator data of system "%s" for %d indicators.', self.id, len(indicator_set))
+        return sap_iot.get_indicator_data(start, end, indicator_set, self._hierarchy['equipment'], timeout=timeout)
 
 
 class SystemSet(AssetcentralEntitySet):
@@ -238,6 +241,8 @@ class SystemSet(AssetcentralEntitySet):
             Begin of time series data.
         end
             End of time series data.
+        indicator_set
+            IndicatorSet for which timeseries data is returned.
         timeout
             Maximum amount of time the request may take. Can be specified as an ISO 8601 string
             (like `PT2M` for 2-minute duration) or as a pandas.Timedelta or datetime.timedelta object.
@@ -245,7 +250,8 @@ class SystemSet(AssetcentralEntitySet):
         """
         all_equipment = sum((system._hierarchy['equipment'] for system in self), EquipmentSet([]))
         if indicator_set is None:
-            indicator_set = sum((equipment.find_equipment_indicators() for equipment in all_equipment), IndicatorSet([]))
+            indicator_set = sum((equipment.find_equipment_indicators() for equipment in all_equipment),
+                                IndicatorSet([]))
         LOG.debug("Requesting indicator data of system set for %d equipments and %d indicators.",
                   len(all_equipment), len(indicator_set))
         return sap_iot.get_indicator_data(start, end, indicator_set, all_equipment, timeout=timeout)
@@ -413,15 +419,29 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
     return SystemSet([System(obj) for obj in object_list])
 
 
-def create_analysis_table(system_set, indicator_data, system_equipment, lead_equi_path=[]):
-    """Create analysis table for a system set."""
-    equi_info = system_set._get_leading_equipment_and_equipment_counter(system_equipment, lead_equi_path)
-    agg = isinstance(indicator_data.indicator_set, ac_indicators.AggregatedIndicatorSet)
+def create_analysis_table(system_set: SystemSet, indicator_data: TimeseriesDataset, system_equipment,
+                          leading_equipment_path=[]):
+    """Create analysis table for a system set.
+
+    An analysis table is a table in which each row contains all indicator data that are valid for a system and a
+    timestamp. The system is represented by its leading piece of equipment. The data columns are represented by
+    SystemIndicators or SystemAggregatedIndicators, i.e. their key consists of information about the indicator,
+    the equipment counter, and for SystemAggregatedIndicators the aggregation function.
+
+    Parameters
+    ----------
+    system_set: Set of systems for which data is collected
+    indicator_data: TimeseriesDataset containing the relevant indicator data
+    system_equipment: dictionary that contains the equipment id and a counter, which is used to distinguish multiple
+    occurrences of an equipment model in a system, for the relevant pieces of equipment that are assigned to a system
+    leading_equipment_path: path to the leading piece of equipment of a system
+    """
+    equi_info = system_set._get_leading_equipment_and_equipment_counter(system_equipment, leading_equipment_path)
+    agg = isinstance(indicator_data.indicator_set, AggregatedIndicatorSet)
     id_df = indicator_data.as_df(speaking_names=False).reset_index()
     # join with leading equipment
     id_df = id_df.merge(equi_info)
-    # drop model id and equipment id
-    # data.drop(['model_id', 'equipment_id'], axis=1, inplace=True)
+    # drop equipment id
     id_df.drop(['equipment_id'], axis=1, inplace=True)
     id_df.rename(columns={'leading_equipment': 'equipment_id'}, inplace=True)
     # create really long format
@@ -429,7 +449,9 @@ def create_analysis_table(system_set, indicator_data, system_equipment, lead_equ
     long = long[long.equi_counter >= 0]
     # get rid of NAs
     long = long.dropna(subset=['value'])
+    # create wide format
     wide = long.pivot(index=['equipment_id', 'timestamp'], columns=['variable', 'equi_counter'])
+    # create columns and System(Aggregated)Indicators
     columns = []
     rawmap = indicator_data._indicator_set._unique_id_to_raw()
     sysindlist = []
@@ -448,5 +470,5 @@ def create_analysis_table(system_set, indicator_data, system_equipment, lead_equ
     wide.reset_index(inplace=True)
     equipment_set = EquipmentSet([e for e in indicator_data.equipment_set
                                   if e.id in list(id_df['equipment_id'].unique())])
-    return TimeseriesDataset(wide, sysindset, equipment_set, indicator_data.nominal_data_start,
-                             indicator_data.nominal_data_end)
+    return sap_iot.TimeseriesDataset(wide, sysindset, equipment_set, indicator_data.nominal_data_start,
+                                     indicator_data.nominal_data_end)

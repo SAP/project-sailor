@@ -1,5 +1,4 @@
 import pytest
-import pandas as pd
 
 from sailor.assetcentral.system import SystemSet, System, create_analysis_table
 from ..data_generators import make_dataset
@@ -576,16 +575,44 @@ def test_map_component_information(make_indicator_set, selection_dictionary, moc
 
 
 def test_create_analysis_table(make_indicator_set, make_equipment_set):
-    indicator_set = make_indicator_set(propertyId=('ind1', 'ind2', 'ind3'))
+    indicator_set = make_indicator_set(propertyId=('1', '2', '3'))
     equipment_set = make_equipment_set(equipmentId=('equi1', 'equi2', 'equi3'),
                                        modelId=('model', 'model', 'model'))
+    system = System({'systemId': 'SY0id', 'internalId': 'SY0', 'modelID': 'SY0'})
+    system._hierarchy = {}
+    system._hierarchy['component_tree'] = {'id': '1',
+                                           'name': 'SY0',
+                                           'order': None,
+                                           'object_type': 'SYS',
+                                           'child_nodes': {('EQU', 0):
+                                                           {'id': 'equi1',
+                                                            'name': 'equi1',
+                                                            'order': '1',
+                                                            'object_type': 'EQU',
+                                                            'indicators': indicator_set[0],
+                                                            'child_nodes': {}},
+                                                           ('EQU', 1):
+                                                           {'id': 'equi2',
+                                                            'name': 'equi2',
+                                                            'order': '2',
+                                                            'object_type': 'EQU',
+                                                            'indicators': indicator_set[1],
+                                                            'child_nodes': {}},
+                                                           ('EQU', 2):
+                                                           {'id': 'equi3',
+                                                            'name': 'equi3',
+                                                            'order': '3',
+                                                            'object_type': 'EQU',
+                                                            'indicators': indicator_set[2],
+                                                            'child_nodes': {}}}}
+    system._hierarchy['equipment'] = equipment_set
+    system_set = SystemSet([system])
     dataset = make_dataset(indicator_set, equipment_set)
-    equi_info = pd.DataFrame(list(zip(['equi1', 'equi2', 'equi3'], ['equi2' for i in range(3)], [0, 5, 7])),
-                             columns=['equipment_id', 'leading_equipment', 'equi_counter'])
-    # to be adapted
-    # analysis_table = create_analysis_table(dataset, equi_info)
-    # assert len(analysis_table.as_df()) == 300
-    assert len(dataset.as_df()) > 0 and len(equi_info) > 0
+    system_equipment = {'SY0id': {'equi1': 0, 'equi2': 5, 'equi3': 7}}
+    # equi_info = pd.DataFrame(list(zip(['equi1', 'equi2', 'equi3'], ['equi2' for i in range(3)], [0, 5, 7])),
+    #                         columns=['equipment_id', 'leading_equipment', 'equi_counter'])
+    analysis_table = create_analysis_table(system_set, dataset, system_equipment)
+    assert len(analysis_table.as_df()) == 300
 
 
 def test_expected_public_attributes_are_present():
