@@ -609,8 +609,6 @@ def test_create_analysis_table(make_indicator_set, make_equipment_set):
     system_set = SystemSet([system])
     dataset = make_dataset(indicator_set, equipment_set)
     system_equipment = {'SY0id': {'equi1': 0, 'equi2': 5, 'equi3': 7}}
-    # equi_info = pd.DataFrame(list(zip(['equi1', 'equi2', 'equi3'], ['equi2' for i in range(3)], [0, 5, 7])),
-    #                         columns=['equipment_id', 'leading_equipment', 'equi_counter'])
     analysis_table = create_analysis_table(system_set, dataset, system_equipment)
     assert len(analysis_table.as_df()) == 300
 

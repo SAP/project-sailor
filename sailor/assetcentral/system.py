@@ -163,7 +163,7 @@ class System(AssetcentralEntity):
                                                                        equi_id, equi_level)
         return equi_id, equi_level
 
-    def get_leading_equipment(self, path):
+    def get_leading_equipment(self, path=[]):
         """Get leading piece of equipment (by path or default)."""
         if path:
             child_nodes = self._hierarchy['component_tree']['child_nodes']
@@ -292,7 +292,7 @@ class SystemSet(AssetcentralEntitySet):
                                                          equi_counter)
         return equi_counter
 
-    def _map_component_information(self, selection):
+    def _map_component_information(self, selection={}):
         """Map selection dictionary against component dictionary of systems in a system set.
 
         system_indicators: dictionary of selected indicators
