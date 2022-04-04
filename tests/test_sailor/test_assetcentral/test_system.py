@@ -1,7 +1,7 @@
 import pytest
 
 from sailor.assetcentral.system import SystemSet, System, create_analysis_table
-from ..data_generators import make_dataset
+from tests.test_sailor.data_generators import make_dataset
 
 
 # expected result of _traverse_components and input for _update_components

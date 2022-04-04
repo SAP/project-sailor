@@ -16,7 +16,6 @@ from operator import itemgetter
 import pandas as pd
 
 from sailor import _base, sap_iot
-from sailor.sap_iot.wrappers import TimeseriesDataset
 from sailor.utils.utils import WarningAdapter
 from .utils import (AssetcentralEntity, _AssetcentralField, AssetcentralEntitySet,
                     _ac_application_url, _ac_fetch_data)
@@ -63,6 +62,7 @@ LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 LOG = WarningAdapter(LOG)
 
+Path = list[(str, int)]
 
 @_base.add_properties
 class System(AssetcentralEntity):
@@ -163,7 +163,7 @@ class System(AssetcentralEntity):
                                                                        equi_id, equi_level)
         return equi_id, equi_level
 
-    def get_leading_equipment(self, path=[]):
+    def get_leading_equipment(self, path: Path = None):
         """Get leading piece of equipment (by path or default)."""
         if path:
             child_nodes = self._hierarchy['component_tree']['child_nodes']
@@ -180,7 +180,7 @@ class System(AssetcentralEntity):
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            indicator_set: IndicatorSet = None, *,
-                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
+                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> sap_iot.TimeseriesDataset:
         """
         Get timeseries data for all Equipment in the System.
 
@@ -225,7 +225,7 @@ class SystemSet(AssetcentralEntitySet):
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            indicator_set: IndicatorSet = None, *,
-                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
+                           timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> sap_iot.TimeseriesDataset:
         """
         Fetch data for a set of systems for all component equipment of each system.
 
@@ -262,7 +262,7 @@ class SystemSet(AssetcentralEntitySet):
         for node in sel_nodes:
             if node['object_type'] == 'EQU':
                 equi_counter += 1
-                for indicator in node['indicators']:
+                for _ in node['indicators']:
                     none_positions.add(len(indicator_list))
                     indicator_list.append(None)
             if 'child_nodes' in node.keys():
@@ -292,17 +292,28 @@ class SystemSet(AssetcentralEntitySet):
                                                          equi_counter)
         return equi_counter
 
-    def _map_component_information(self, selection={}):
+    def _map_component_information(self, selection: dict = None):
         """Map selection dictionary against component dictionary of systems in a system set.
 
-        system_indicators: dictionary of selected indicators
-        system_equipment: dictionary of pieces of equipment and their positions
+        Parameters
+        ----------
+        selection
+            dictionary of pieces of equipment and indicators that are to be selected
+            if selection is None or {}, all pieces of equipment and indicators are selected that appear for all
+            systems of the system set
+        
+        Returns
+        -------
+        system_indicators: dict
+            dictionary of selected indicators
+        system_equipment: dict
+            dictionary of pieces of equipment and their positions
         """
         system_indicators = {}
         system_equipment = {}
         none_positions = set()
         intersection = False
-        if len(selection) == 0:
+        if not selection:
             # build selection dictionary from one of the systems
             intersection = True
             selection = System._create_selection_dictionary(self[0]._hierarchy['component_tree'])
@@ -341,7 +352,7 @@ class SystemSet(AssetcentralEntitySet):
             system_equipment = sys_equipment
         return system_indicators, system_equipment
 
-    def _get_leading_equipment_and_equipment_counter(self, system_equipment, lead_equi_path=[]):
+    def _get_leading_equipment_and_equipment_counter(self, system_equipment: dict, lead_equi_path: Path = None):
         """Get leading equipment and equipment counter."""
 
         def equi_counter(equi_id, sys):
@@ -419,8 +430,8 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
     return SystemSet([System(obj) for obj in object_list])
 
 
-def create_analysis_table(system_set: SystemSet, indicator_data: TimeseriesDataset, system_equipment,
-                          leading_equipment_path=[]):
+def create_analysis_table(system_set: SystemSet, indicator_data: sap_iot.TimeseriesDataset, system_equipment: dict,
+                          leading_equipment_path: Path = None):
     """Create analysis table for a system set.
 
     An analysis table is a table in which each row contains all indicator data that are valid for a system and a
@@ -430,11 +441,16 @@ def create_analysis_table(system_set: SystemSet, indicator_data: TimeseriesDatas
 
     Parameters
     ----------
-    system_set: Set of systems for which data is collected
-    indicator_data: TimeseriesDataset containing the relevant indicator data
-    system_equipment: dictionary that contains the equipment id and a counter, which is used to distinguish multiple
-    occurrences of an equipment model in a system, for the relevant pieces of equipment that are assigned to a system
-    leading_equipment_path: path to the leading piece of equipment of a system
+    system_set
+        Set of systems for which data is collected
+    indicator_data
+        TimeseriesDataset containing the relevant indicator data
+    system_equipment
+        dictionary that contains the equipment id and a counter, which is used to distinguish multiple
+        occurrences of an equipment model in a system, for the relevant pieces of equipment that are assigned to a
+        system
+    leading_equipment_path
+        path to the leading piece of equipment of a system
     """
     equi_info = system_set._get_leading_equipment_and_equipment_counter(system_equipment, leading_equipment_path)
     agg = isinstance(indicator_data.indicator_set, AggregatedIndicatorSet)
