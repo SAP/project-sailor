@@ -42,7 +42,7 @@ class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES, defaults=(None,
 
         Example
         -------
-        >>> SailorConfig.get('asset_central', 'client_id')
+            SailorConfig.get('asset_central', 'client_id')
         """
         if SailorConfig.config is None:
             SailorConfig.load()

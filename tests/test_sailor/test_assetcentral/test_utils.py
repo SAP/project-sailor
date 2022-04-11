@@ -12,7 +12,7 @@ class TestAssetcentralRequest:
 
     def test_setitem_sets_raw_and_emits_warning_if_key_not_found_in_mapping(self):
         actual = _AssetcentralWriteRequest({})
-        with pytest.warns(UserWarning, match="Unknown name for _AssetcentralWriteRequest parameter found: 'abc'"):
+        with pytest.warns(UserWarning, match='Unknown name for _AssetcentralWriteRequest parameter found: "abc"'):
             actual.update({'abc': 1})
         assert actual == {'abc': 1}
 
@@ -20,7 +20,7 @@ class TestAssetcentralRequest:
         field_map = {'our_name': _AssetcentralField('our_name', 'their_name_get')}
         actual = _AssetcentralWriteRequest(field_map)
 
-        with pytest.warns(UserWarning, match="Parameter 'our_name' is not available"):
+        with pytest.warns(UserWarning, match='Parameter "our_name" is not available'):
             actual.update({'our_name': 1})
 
         assert actual == {}

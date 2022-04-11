@@ -1,9 +1,15 @@
 """Utility functions for timestamp parsing."""
 
 import datetime
-import warnings
+import logging
 
 import pandas as pd
+
+from .utils import WarningAdapter
+
+LOG = logging.getLogger(__name__)
+LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
 
 
 def _odata_to_timestamp_parser(unit='ms'):
@@ -21,22 +27,39 @@ def _any_to_timestamp(value, default: pd.Timestamp = None):
 
     if isinstance(value, str):
         timestamp = pd.Timestamp(value)
+    elif isinstance(value, pd.Timestamp):
+        timestamp = value
     elif isinstance(value, datetime.datetime):
         timestamp = pd.Timestamp(value)
     elif isinstance(value, datetime.date):
         timestamp = pd.Timestamp(value)
-    elif isinstance(value, pd.Timestamp):
-        timestamp = value
     else:
         raise RuntimeError('Can only parse ISO 8601 strings, pandas timestamps or python native timestamps.')
 
     if timestamp.tzinfo:
         timestamp = timestamp.tz_convert('UTC')
     else:
-        warnings.warn('Trying to parse non-timezone-aware timestamp, assuming UTC.', stacklevel=2)
+        LOG.log_with_warning('Trying to parse non-timezone-aware timestamp, assuming UTC.', warning_stacklevel=2)
         timestamp = timestamp.tz_localize('UTC', ambiguous='NaT', nonexistent='NaT')
 
     return timestamp
+
+
+def _any_to_timedelta(value, default: pd.Timedelta = None):
+    """Try to parse a timedelta provided in a variety of formats into a uniform representation as pd.Timedelta."""
+    if value is None:
+        return default
+
+    if isinstance(value, str):
+        timedelta = pd.Timedelta(value)
+    elif isinstance(value, pd.Timedelta):
+        timedelta = value
+    elif isinstance(value, datetime.timedelta):
+        timedelta = pd.Timedelta(value)
+    else:
+        raise RuntimeError('Can only parse ISO 8601 strings, pandas timesdeltas or python native timedeltas.')
+
+    return timedelta
 
 
 def _timestamp_to_isoformat(timestamp: pd.Timestamp, with_zulu=False):
@@ -56,7 +79,8 @@ def _timestamp_to_date_string(timestamp: pd.Timestamp):
     timestamp = timestamp.tz_localize(None)
     date = pd.Timestamp.date(timestamp)
     if pd.Timestamp(date) != timestamp:
-        warnings.warn('Casting timestamp to date, this operation will lose time-of-day information.', stacklevel=3)
+        LOG.log_with_warning('Casting timestamp to date, this operation will lose time-of-day information.',
+                             warning_stacklevel=3)
     return str(date)
 
 

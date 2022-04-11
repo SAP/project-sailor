@@ -12,7 +12,6 @@ from functools import partial
 from datetime import datetime
 from typing import TYPE_CHECKING, Union, BinaryIO
 import logging
-import warnings
 import time
 import json
 import zipfile
@@ -22,10 +21,10 @@ from io import BytesIO
 import pandas as pd
 
 import sailor.assetcentral.indicators as ac_indicators
-from ..utils.oauth_wrapper import get_oauth_client, RequestError
-from ..utils.timestamps import _any_to_timestamp, _timestamp_to_date_string
-from ..utils.config import SailorConfig
-from ..utils.utils import DataNotFoundWarning
+from sailor.utils.oauth_wrapper import get_oauth_client, RequestError
+from sailor.utils.timestamps import _any_to_timestamp, _timestamp_to_date_string, _any_to_timedelta
+from sailor.utils.config import SailorConfig
+from sailor.utils.utils import DataNotFoundWarning, WarningAdapter
 from .wrappers import TimeseriesDataset
 
 if TYPE_CHECKING:
@@ -34,6 +33,8 @@ if TYPE_CHECKING:
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
+LOG = WarningAdapter(LOG)
+
 
 fixed_timeseries_columns = {
     '_TIME': 'timestamp',
@@ -82,10 +83,16 @@ def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_se
     selected_equipment_ids = [equipment.id for equipment in equipment_set]  # noqa: F841
     dtypes = {indicator._liot_id: float for indicator in indicator_set if indicator.datatype in float_types}
     dtypes.update({'equipmentId': 'object', 'indicatorGroupId': 'object', 'templateId': 'object'})
-    df = pd.read_csv(ifile,
-                     usecols=lambda x: x != 'modelId',
-                     parse_dates=['_TIME'], date_parser=partial(pd.to_datetime, utc=True, unit='ms', errors='coerce'),
-                     dtype=dtypes)
+
+    try:
+        df = pd.read_csv(ifile,
+                         usecols=lambda x: x != 'modelId',
+                         parse_dates=['_TIME'],
+                         date_parser=partial(pd.to_datetime, utc=True, unit='ms', errors='coerce'),
+                         dtype=dtypes)
+    except pd.errors.EmptyDataError:
+        LOG.debug('Empty file returned by SAP IoT API, ignoring the file.')
+        return pd.DataFrame()
 
     df = df.pivot(index=['_TIME', 'equipmentId'], columns=['indicatorGroupId', 'templateId'])
 
@@ -143,7 +150,8 @@ def _get_exported_bulk_timeseries_data(export_id: str,
 
 def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                        end_date: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
-                       indicator_set: IndicatorSet, equipment_set: EquipmentSet) -> TimeseriesDataset:
+                       indicator_set: IndicatorSet, equipment_set: EquipmentSet, *,
+                       timeout: Union[str, pd.Timedelta, datetime.timedelta] = None) -> TimeseriesDataset:
     """
     Read indicator data for a certain time period, a set of equipments and a set of indicators.
 
@@ -157,6 +165,8 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
         IndicatorSet for which timeseries data is returned.
     equipment_set:
         Equipment set for which the timeseries data is read.
+    timeout:
+        Maximum amount of time the request may take. If None there is no time limit.
 
     Example
     -------
@@ -171,6 +181,10 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
     # as well as individual equipment in `_process_one_file`.
     if start_date is None or end_date is None:
         raise ValueError("Time parameters must be specified")
+
+    if timeout is not None:
+        timeout = _any_to_timedelta(timeout)
+        timeout = timeout.total_seconds()
 
     start_date = _any_to_timestamp(start_date)
     end_date = _any_to_timestamp(end_date)
@@ -195,7 +209,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
             if error_message == 'Data not found for the requested date range':
                 warning = DataNotFoundWarning(
                     f'No data for indicator group {indicator_group} found in the requested time interval!')
-                warnings.warn(warning)
+                LOG.log_with_warning(warning)
                 continue
             else:
                 raise e
@@ -211,6 +225,7 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
     results = pd.DataFrame(columns=schema.keys()).astype(schema)
 
     print('Waiting for data export:')
+    start_time = time.monotonic()
     while request_ids:
         for request_id in list(request_ids):
             if _check_bulk_timeseries_export_status(request_id):
@@ -223,13 +238,16 @@ def get_indicator_data(start_date: Union[str, pd.Timestamp, datetime.timestamp, 
                 for indicator in indicator_subset:
                     if indicator._unique_id not in data.columns:
                         warning = DataNotFoundWarning(f'Could not find any data for indicator {indicator}')
-                        warnings.warn(warning)
+                        LOG.log_with_warning(warning)
 
                 results = pd.merge(results, data, on=['equipment_id', 'timestamp'], how='outer')
 
         if request_ids:
             time.sleep(5)
             print('.', end='')
+
+        if timeout is not None and timeout < (time.monotonic() - start_time):
+            raise TimeoutError(f'Timeout of {timeout:.0f} seconds was reached for fetching indicator data.')
     print()
 
     wrapper = TimeseriesDataset(results, indicator_set, equipment_set, start_date, end_date)

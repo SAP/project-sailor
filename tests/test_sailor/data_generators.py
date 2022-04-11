@@ -24,3 +24,10 @@ def make_dataset(indicator_set, equipment_set, rows_per_equipment=100,
     for indicator in indicator_set:
         data[indicator._unique_id] = generator.uniform(size=len(data))
     return TimeseriesDataset(data, indicator_set, equipment_set, nominal_start_date, nominal_end_date)
+
+
+def get_template(indicator_group_id, indicator_group_name, indicators):
+    template = [{'indicatorGroups': [{'id': indicator_group_id,
+                                      'internalId': indicator_group_name,
+                                      'indicators': indicators}]}]
+    return template
