@@ -8,7 +8,7 @@ from __future__ import annotations
 import math
 import itertools
 import logging
-from typing import Union
+from typing import Union, List, Tuple, Dict
 from datetime import datetime
 from functools import cached_property
 from operator import itemgetter
@@ -62,7 +62,9 @@ LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 LOG = WarningAdapter(LOG)
 
-Path = list[(str, int)]
+# Path = list[(str, int)] needs Python 3.9
+Path = List[Tuple[str, int]]
+
 
 @_base.add_properties
 class System(AssetcentralEntity):
@@ -301,7 +303,7 @@ class SystemSet(AssetcentralEntitySet):
             dictionary of pieces of equipment and indicators that are to be selected
             if selection is None or {}, all pieces of equipment and indicators are selected that appear for all
             systems of the system set
-        
+
         Returns
         -------
         system_indicators: dict
@@ -352,7 +354,7 @@ class SystemSet(AssetcentralEntitySet):
             system_equipment = sys_equipment
         return system_indicators, system_equipment
 
-    def _get_leading_equipment_and_equipment_counter(self, system_equipment: dict, lead_equi_path: Path = None):
+    def _get_leading_equipment_and_equipment_counter(self, system_equipment: Dict, lead_equi_path: Path = None):
         """Get leading equipment and equipment counter."""
 
         def equi_counter(equi_id, sys):
@@ -430,7 +432,7 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
     return SystemSet([System(obj) for obj in object_list])
 
 
-def create_analysis_table(system_set: SystemSet, indicator_data: sap_iot.TimeseriesDataset, system_equipment: dict,
+def create_analysis_table(system_set: SystemSet, indicator_data: sap_iot.TimeseriesDataset, selection: Dict = None,
                           leading_equipment_path: Path = None):
     """Create analysis table for a system set.
 
@@ -445,13 +447,12 @@ def create_analysis_table(system_set: SystemSet, indicator_data: sap_iot.Timeser
         Set of systems for which data is collected
     indicator_data
         TimeseriesDataset containing the relevant indicator data
-    system_equipment
-        dictionary that contains the equipment id and a counter, which is used to distinguish multiple
-        occurrences of an equipment model in a system, for the relevant pieces of equipment that are assigned to a
-        system
+    selection
+        dictionary that contains information about the pieces of equipment and indicators that are to be selected
     leading_equipment_path
         path to the leading piece of equipment of a system
     """
+    systemindicators, system_equipment = system_set._map_component_information(selection)
     equi_info = system_set._get_leading_equipment_and_equipment_counter(system_equipment, leading_equipment_path)
     agg = isinstance(indicator_data.indicator_set, AggregatedIndicatorSet)
     id_df = indicator_data.as_df(speaking_names=False).reset_index()

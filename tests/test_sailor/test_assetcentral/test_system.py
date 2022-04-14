@@ -575,7 +575,10 @@ def test_map_component_information(make_indicator_set, selection_dictionary, moc
 
 
 def test_create_analysis_table(make_indicator_set, make_equipment_set):
-    indicator_set = make_indicator_set(propertyId=('1', '2', '3'))
+    indicator_set = make_indicator_set(propertyId=('0', '1', '2'))
+    indicator_set0 = make_indicator_set(propertyId=('0'))
+    indicator_set1 = make_indicator_set(propertyId=('1'))
+    indicator_set2 = make_indicator_set(propertyId=('2'))
     equipment_set = make_equipment_set(equipmentId=('equi1', 'equi2', 'equi3'),
                                        modelId=('model', 'model', 'model'))
     system = System({'systemId': 'SY0id', 'internalId': 'SY0', 'modelID': 'SY0'})
@@ -589,27 +592,26 @@ def test_create_analysis_table(make_indicator_set, make_equipment_set):
                                                             'name': 'equi1',
                                                             'order': '1',
                                                             'object_type': 'EQU',
-                                                            'indicators': indicator_set[0],
+                                                            'indicators': indicator_set0,
                                                             'child_nodes': {}},
                                                            ('EQU', 1):
                                                            {'id': 'equi2',
                                                             'name': 'equi2',
                                                             'order': '2',
                                                             'object_type': 'EQU',
-                                                            'indicators': indicator_set[1],
+                                                            'indicators': indicator_set1,
                                                             'child_nodes': {}},
                                                            ('EQU', 2):
                                                            {'id': 'equi3',
                                                             'name': 'equi3',
                                                             'order': '3',
                                                             'object_type': 'EQU',
-                                                            'indicators': indicator_set[2],
+                                                            'indicators': indicator_set2,
                                                             'child_nodes': {}}}}
     system._hierarchy['equipment'] = equipment_set
     system_set = SystemSet([system])
     dataset = make_dataset(indicator_set, equipment_set)
-    system_equipment = {'SY0id': {'equi1': 0, 'equi2': 5, 'equi3': 7}}
-    analysis_table = create_analysis_table(system_set, dataset, system_equipment)
+    analysis_table = create_analysis_table(system_set, dataset)
     assert len(analysis_table.as_df()) == 300
 
 
