@@ -5,4 +5,4 @@ general:
 
 steps:
   dockerExecute:
-    dockerImage: 'python:3.8.10-slim'
+    dockerImage: 'python:3.8-slim'
