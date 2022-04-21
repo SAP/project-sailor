@@ -1,78 +1,36 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Filter Language &mdash; Project &#34;Sailor&#34;  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-
-  
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="_static/favicon.ico"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="API documentation" href="apidoc.html" />
     <link rel="prev" title="Tutorial" href="tutorial.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> Project "Sailor"
-          
-
-          
-            
             <img src="_static/sailor_logo_100x100.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -80,18 +38,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -104,75 +51,32 @@
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Project "Sailor"</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Filter Language</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-            
               <a href="https://github.com/SAP/project-sailor/blob/main/docs/filter_language.rst" class="fa fa-github"> Edit on GitHub</a>
-            
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="filter-language">
-<span id="filter"></span><h1>Filter Language<a class="headerlink" href="#filter-language" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="filter-language">
+<span id="filter"></span><h1>Filter Language<a class="headerlink" href="#filter-language" title="Permalink to this headline"></a></h1>
 <p>Project “Sailor” supports retrieval of objects such as <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment" title="sailor.assetcentral.equipment.Equipment"><code class="xref py py-class docutils literal notranslate"><span class="pre">Equipment</span></code></a> or
 <a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification" title="sailor.assetcentral.notification.Notification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Notification</span></code></a> from AssetCentral through functions like
 <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.find_equipment" title="sailor.assetcentral.equipment.find_equipment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_equipment()</span></code></a> or <a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.find_notifications" title="sailor.assetcentral.notification.find_notifications"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_notifications()</span></code></a>.
@@ -190,8 +94,8 @@ another field of the object.</p></li>
 by calling the <a class="reference internal" href="apidoc/sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity.get_available_properties" title="sailor.assetcentral.utils.AssetcentralEntity.get_available_properties"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_available_properties()</span></code></a> classmethod of the object, such as
 <code class="docutils literal notranslate"><span class="pre">Notification.get_available_properties()</span></code> etc. This method returns a set of all known and
 and filterable fields.</p>
-<div class="section" id="named-keyword-arguments">
-<h2>Named Keyword Arguments<a class="headerlink" href="#named-keyword-arguments" title="Permalink to this headline">¶</a></h2>
+<section id="named-keyword-arguments">
+<h2>Named Keyword Arguments<a class="headerlink" href="#named-keyword-arguments" title="Permalink to this headline"></a></h2>
 <p>Any <strong>named keyword argument</strong> is applied as an equality filter.</p>
 <ul class="simple">
 <li><p>The <strong>key</strong> of the keyword argument determines the field of the object against which the filter is executed.</p></li>
@@ -215,9 +119,9 @@ with description ‘MyOtherNotification’ and start date ‘2020-07-01’.</p>
                    <span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;2020-07-01&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="extended-filters">
-<h2>Extended Filters<a class="headerlink" href="#extended-filters" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="extended-filters">
+<h2>Extended Filters<a class="headerlink" href="#extended-filters" title="Permalink to this headline"></a></h2>
 <p>The <em>extended_filters</em> parameter can be used to specify filters that cannot be expressed as an equality or filters
 that should refer to another field of the same object.
 Extended filters need to be provided as <code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code>. Each element in the list needs to be provided as a <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>
@@ -241,55 +145,38 @@ will return all notifications where the start date of the malfunction is equal t
                    <span class="n">equipment_id</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id1&#39;</span><span class="p">,</span> <span class="s1">&#39;id2&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="apidoc.html" class="btn btn-neutral float-right" title="API documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tutorial.html" class="btn btn-neutral float-left" title="Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="apidoc.html" class="btn btn-neutral float-right" title="API documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2022, SAP SE and project &#34;Sailor&#34; contributors.
-
-    </p>
+    <p>&#169; Copyright 2022, SAP SE and project &#34;Sailor&#34; contributors.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-    
+  </script>  
 
   <style>
     /* Sidebar header (and topbar for mobile) */
