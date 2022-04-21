@@ -176,7 +176,7 @@ class System(AssetcentralEntity):
         else:
             # no path given: find first equipment on highest level
             # looks like a breadth-first search problem, but DFS is more efficient
-            equi_id, equi_level = System._find_first_equipment(self._hierarchy['component_tree'], 0, 0, math.inf)
+            equi_id, _ = System._find_first_equipment(self._hierarchy['component_tree'], 0, 0, math.inf)
             return equi_id
 
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
@@ -294,7 +294,7 @@ class SystemSet(AssetcentralEntitySet):
                                                          equi_counter)
         return equi_counter
 
-    def _map_component_information(self, selection: dict = None):
+    def _map_component_information(self, selection: Dict = None):
         """Map selection dictionary against component dictionary of systems in a system set.
 
         Parameters
@@ -452,7 +452,7 @@ def create_analysis_table(system_set: SystemSet, indicator_data: sap_iot.Timeser
     leading_equipment_path
         path to the leading piece of equipment of a system
     """
-    systemindicators, system_equipment = system_set._map_component_information(selection)
+    _, system_equipment = system_set._map_component_information(selection)
     equi_info = system_set._get_leading_equipment_and_equipment_counter(system_equipment, leading_equipment_path)
     agg = isinstance(indicator_data.indicator_set, AggregatedIndicatorSet)
     id_df = indicator_data.as_df(speaking_names=False).reset_index()
