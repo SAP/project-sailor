@@ -224,6 +224,12 @@ class SystemSet(AssetcentralEntitySet):
         },
     }
 
+    def get_leading_equipment(self) -> pd.DataFrame:
+        """Get a DataFrame that contains all system ids together with their leading equipment id."""
+        leading_equipments = {system.get_leading_equipment(): system.id for system in self}
+        return pd.DataFrame([leading_equipments.keys(), leading_equipments.values()],
+                            index=['equipment_id', 'system_id']).transpose()
+
     def get_indicator_data(self, start: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            end: Union[str, pd.Timestamp, datetime.timestamp, datetime.date],
                            indicator_set: IndicatorSet = None, *,
