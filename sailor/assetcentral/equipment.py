@@ -127,7 +127,7 @@ class Equipment(AssetcentralEntity):
         """
         # AC-BUG: this endpoint just silently ignores filter parameters, so we can't really support them...
         endpoint_url = _ac_application_url() + VIEW_EQUIPMENT + f'({self.id})' + '/indicatorvalues'
-        object_list = _ac_fetch_data(endpoint_url)
+        object_list = _ac_fetch_data(endpoint_url, paginate=False)
         LOG.debug('Retrieving all indicators for equipment "%s" found %d objects.', self.id, len(object_list))
 
         filtered_objects = _base.apply_filters_post_request(object_list, kwargs, extended_filters,
@@ -182,7 +182,7 @@ class Equipment(AssetcentralEntity):
         if 'id' in kwargs or 'ID' in kwargs:
             raise RuntimeError('Can not manually filter for FailureMode ID when using this method.')
         endpoint_url = _ac_application_url() + VIEW_OBJECTS + 'EQU/' + self.id + '/failuremodes'
-        object_list = _ac_fetch_data(endpoint_url)
+        object_list = _ac_fetch_data(endpoint_url, paginate=False)
         if len(object_list) == 0:
             LOG.debug('For equipment "%s" no failure modes were found.', self.id)
             return FailureModeSet([])

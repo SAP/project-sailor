@@ -5,9 +5,9 @@ from sailor import _base
 from ..utils.config import SailorConfig
 
 
-def _pai_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
+def _pai_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), **kwargs):
     return _base.fetch_data('predictive_asset_insights', _pai_response_handler,
-                            endpoint_url, unbreakable_filters, breakable_filters)
+                            endpoint_url, unbreakable_filters, breakable_filters, **kwargs)
 
 
 def _pai_application_url():

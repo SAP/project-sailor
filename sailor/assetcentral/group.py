@@ -49,7 +49,7 @@ class Group(AssetcentralEntity):
     @cached_property
     def _members_raw(self):
         endpoint_url = _ac_application_url() + VIEW_GROUPS + f'/{self.id}/businessobjects'
-        object_list = _ac_fetch_data(endpoint_url)
+        object_list = _ac_fetch_data(endpoint_url, paginate=False)
         return object_list
 
     def _generic_get_members(self, business_object_type, set_class, find_function, extended_filters, **kwargs):
@@ -228,7 +228,7 @@ def find_groups(*, extended_filters=(), **kwargs) -> GroupSet:
         groups = find_groups(extended_filters=['risk_value > 0'])
     """
     endpoint_url = _ac_application_url() + VIEW_GROUPS
-    object_list = _ac_fetch_data(endpoint_url)
+    object_list = _ac_fetch_data(endpoint_url, paginate=False)
     LOG.debug("Retrieving groups found %d objects.", len(object_list))
     filtered_objects = _base.apply_filters_post_request(object_list, kwargs, extended_filters, Group._field_map)
     return GroupSet([Group(obj) for obj in filtered_objects])

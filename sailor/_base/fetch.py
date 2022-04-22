@@ -24,7 +24,8 @@ _OPERATOR_MAP = {
 _EXTENDED_FILTER_PATTERN = re.compile(r'^(\w+) *?(>=|<=|==|!=|<|>) *(.*?)$')
 
 
-def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=(), breakable_filters=()) -> List:
+def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=(), breakable_filters=(), *,
+               paginate=True) -> List:
     """Retrieve data from a supported odata service.
 
     A response_handler function needs to be passed which must extract the results
@@ -39,25 +40,38 @@ def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=
     result = []
     for filter_string in filters:
         result_filter = []
-
-        skip = 0
-        while True:
-            params = {'$filter': filter_string} if filter_string else {}
-            params.update({'$skip': skip, '$top': 10000, '$format': 'json'})
-
-            endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
-            result_filter = response_handler(result_filter, endpoint_data)
-
-            if skip >= len(result_filter):
-                break
-            skip = len(result_filter)
-            LOG.info('Fetch data progress: %d', skip)
+        params = {'$filter': filter_string} if filter_string else {}
+        if paginate:
+            result_filter = _fetch_call_paginate(oauth_client, response_handler, endpoint_url, params, result_filter)
+        else:
+            result_filter = _fetch_call(oauth_client, response_handler, endpoint_url, params, result_filter)
         result.extend(result_filter)
 
     if len(result) == 0:
         LOG.log_with_warning(DataNotFoundWarning(), warning_stacklevel=2)
 
     return result
+
+
+def _fetch_call(oauth_client, response_handler, endpoint_url, params, result_filter):
+    params.update({'$format': 'json'})
+    endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
+    response_handler(result_filter, endpoint_data)
+    return result_filter
+
+
+def _fetch_call_paginate(oauth_client, response_handler, endpoint_url, params, result_filter):
+    skip = 0
+    while True:
+        params.update({'$skip': skip, '$top': 50000})
+
+        result_filter = _fetch_call(oauth_client, response_handler, endpoint_url, params, result_filter)
+
+        if skip >= len(result_filter):
+            break
+        skip = len(result_filter)
+        LOG.info('Fetch data progress: %d', skip)
+    return result_filter
 
 
 def parse_filter_parameters(equality_filters=None, extended_filters=(), field_map=None):
