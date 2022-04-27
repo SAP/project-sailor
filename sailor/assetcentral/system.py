@@ -224,9 +224,9 @@ class SystemSet(AssetcentralEntitySet):
         },
     }
 
-    def get_leading_equipment(self) -> pd.DataFrame:
+    def get_leading_equipment(self, path: Path = None) -> pd.DataFrame:
         """Get a DataFrame that contains all system ids together with their leading equipment id."""
-        leading_equipments = {system.get_leading_equipment(): system.id for system in self}
+        leading_equipments = {system.get_leading_equipment(path=path): system.id for system in self}
         return pd.DataFrame([leading_equipments.keys(), leading_equipments.values()],
                             index=['equipment_id', 'system_id']).transpose()
 

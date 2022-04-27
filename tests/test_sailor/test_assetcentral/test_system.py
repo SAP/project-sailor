@@ -291,6 +291,176 @@ def test_get_leading_equipment(component_tree):
     assert lead_equi == 0
 
 
+def test_systemset_get_leading_equipment(make_indicator_set):
+    s1 = System({'systemId': '1', 'internalId': 'SY1'})
+    s2 = System({'systemId': '2', 'internalId': 'SY2'})
+    s3 = System({'systemId': '3', 'internalId': 'SY3'})
+    ind1 = make_indicator_set(propertyId=['1', '2'])
+    ind2 = make_indicator_set(propertyId=['3', '4'])
+    system_set = SystemSet([s1, s2, s3])
+    s1._hierarchy = {}
+    s1._hierarchy['component_tree'] = {'id': '1',
+                                       'name': 'SY0-1',
+                                       'order': None,
+                                       'object_type': 'SYS',
+                                       'child_nodes': {('SY1', 0):
+                                                       {'id': '2262176B8E5F440CAEA8D2C39BC1A42C',
+                                                        'name': 'SY1-1-1',
+                                                        'order': '1',
+                                                        'object_type': 'SYS',
+                                                        'child_nodes': {('EM1', 0):
+                                                                        {'id': 'DBB7885268EB41E3BF157AB890CCA1EF',
+                                                                         'name': 'EM1-1-11',
+                                                                         'order': '1',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind1,
+                                                                         'child_nodes': {}},
+                                                                        ('EM1', 1):
+                                                                        {'id': '042F55EF70BE49538BB6DA3F32B8738C',
+                                                                         'name': 'EM1-1-12',
+                                                                         'order': '2',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind1,
+                                                                         'child_nodes': {}},
+                                                                        ('EM2', 0):
+                                                                        {'id': 'A1ADCEA69C95454DA9FE19863804A0D6',
+                                                                         'name': 'EM2-1-13',
+                                                                         'order': '3',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind2,
+                                                                         'child_nodes': {}}}},
+                                                       ('SY1', 1):
+                                                       {'id': '7788327C06844D24943AA59E2E14BB04',
+                                                        'name': 'SY1-2',
+                                                        'order': '2',
+                                                        'object_type': 'SYS',
+                                                        'child_nodes': {('EM1', 0):
+                                                                        {'id': 'F988369A34404644A8DC470220FBBE34',
+                                                                         'name': 'EM1-1-21',
+                                                                         'order': '1',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind1,
+                                                                         'child_nodes': {}},
+                                                                        ('EM1', 1):
+                                                                        {'id': '8C3114ACDF854084B50EB19D61C0FC9F',
+                                                                         'name': 'EM1-1-22',
+                                                                         'order': '2',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind1,
+                                                                         'child_nodes': {}},
+                                                                        ('EM2', 0):
+                                                                        {'id': '4B8FB57B3F684F838F82BDDDB377AC76',
+                                                                         'name': 'EM2-1-23',
+                                                                         'order': '3',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind2,
+                                                                         'child_nodes': {}}}},
+                                                       ('EM2', 0):
+                                                       {'id': '0E779D3EA3C54F379AC89A7C539EDCFE',
+                                                        'name': 'EM2-1-3',
+                                                        'order': '3',
+                                                        'object_type': 'EQU',
+                                                        'indicators': ind2,
+                                                        'child_nodes': {}}}}
+    s2._hierarchy = {}
+    s2._hierarchy['component_tree'] = {'id': '2',
+                                       'name': 'SY0-2',
+                                       'order': None,
+                                       'object_type': 'SYS',
+                                       'child_nodes': {('SY1', 0):
+                                                       {'id': '486F8199A82D4582B4718912A3A72037',
+                                                        'name': 'SY1-2-1',
+                                                        'order': '1',
+                                                        'object_type': 'SYS',
+                                                        'child_nodes': {('EM1', 0):
+                                                                        {'id': 'E4790550A91A4F2EAE1055E16FD9BE34',
+                                                                         'name': 'EM1-2-11',
+                                                                         'order': '1',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind1,
+                                                                         'child_nodes': {}},
+                                                                        ('EM1', 1):
+                                                                        {'id': 'C91000E01AB845E08E0CDAFF0CD84621',
+                                                                         'name': 'EM1-2-12', 'order': '2',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind1,
+                                                                         'child_nodes': {}}}},
+                                                       ('SY1', 1):
+                                                       {'id': '76BD5F44CDE646E9B087574CEE9AF310',
+                                                        'name': 'SY1-2-2',
+                                                        'order': '2',
+                                                        'object_type': 'SYS',
+                                                        'child_nodes': {('EM1', 0):
+                                                                        {'id': '0998250AA7AC45F0A878DB0E289FC5C1',
+                                                                         'name': 'EM1-2-21',
+                                                                         'order': '1',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind1,
+                                                                         'child_nodes': {}},
+                                                                        ('EM2', 0):
+                                                                        {'id': 'E95A968289B6467CAF22DB3089F88616',
+                                                                         'name': 'EM2-2-23',
+                                                                         'order': '2',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind2,
+                                                                         'child_nodes': {}}}}}}
+    s3._hierarchy = {}
+    s3._hierarchy['component_tree'] = {'id': '3',
+                                       'name': 'SY0-3',
+                                       'order': None,
+                                       'object_type': 'SYS',
+                                       'child_nodes': {('SY1', 0):
+                                                       {'id': 'C0C88AB553F74980BEF53ECBB4635E4C',
+                                                        'name': 'SY1-3-1',
+                                                        'order': '1',
+                                                        'object_type': 'SYS',
+                                                        'child_nodes': {('EM1', 0):
+                                                                        {'id': '0C6F06AAB482402D905F678E74E7053E',
+                                                                         'name': 'EM1-3-11',
+                                                                         'order': '1',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind1,
+                                                                         'child_nodes': {}},
+                                                                        ('EM1', 1):
+                                                                        {'id': '4C29728F4D2E400B8D22145271379759',
+                                                                         'name': 'EM1-3-12',
+                                                                         'order': '2',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind1,
+                                                                         'child_nodes': {}},
+                                                                        ('EM2', 0):
+                                                                        {'id': 'CDED4A4CC20C4A8A8A257540B0CAC794',
+                                                                         'name': 'EM2-3-13',
+                                                                         'order': '3',
+                                                                         'object_type': 'EQU',
+                                                                         'indicators': ind2,
+                                                                         'child_nodes': {}}}},
+                                                       ('EM2', 0):
+                                                       {'id': 'A5E0E42A344F422C8663206E61848FBF',
+                                                        'name': 'EM2-3-3',
+                                                        'order': '2', 'object_type': 'EQU',
+                                                        'indicators': ind2,
+                                                        'child_nodes': {}}}}
+    # without path
+    result_df = system_set.get_leading_equipment()
+    result = result_df.to_dict(orient='split')
+    assert result['columns'] == ['equipment_id', 'system_id']
+    assert len(result['data']) == 3
+    assert ['0E779D3EA3C54F379AC89A7C539EDCFE', '1'] in result['data']
+    assert ['E4790550A91A4F2EAE1055E16FD9BE34', '2'] in result['data']
+    assert ['A5E0E42A344F422C8663206E61848FBF', '3'] in result['data']
+
+    # with path
+    path = [('SY1', 0), ('EM1', 1)]
+    result_df = system_set.get_leading_equipment(path=path)
+    result = result_df.to_dict(orient='split')
+    assert result['columns'] == ['equipment_id', 'system_id']
+    assert len(result['data']) == 3
+    assert ['042F55EF70BE49538BB6DA3F32B8738C', '1'] in result['data']
+    assert ['C91000E01AB845E08E0CDAFF0CD84621', '2'] in result['data']
+    assert ['4C29728F4D2E400B8D22145271379759', '3'] in result['data']
+
+
 def test_fill_nones(make_indicator_set):
     ind1 = make_indicator_set(propertyId=['1', '2'])
     ind2 = make_indicator_set(propertyId=['3', '4'])
@@ -364,7 +534,7 @@ def test_map_comp_info(make_indicator_set):
     assert none_positions == {2, 3}
 
 
-def test_map_component_information(make_indicator_set, selection_dictionary, mock_config):
+def test_map_component_information(make_indicator_set, selection_dictionary):
     s1 = System({'systemId': '1', 'internalId': 'SY1'})
     s2 = System({'systemId': '2', 'internalId': 'SY2'})
     s3 = System({'systemId': '3', 'internalId': 'SY3'})
