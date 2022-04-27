@@ -170,6 +170,8 @@ class System(AssetcentralEntity):
         if path:
             child_nodes = self._hierarchy['component_tree']['child_nodes']
             for p in path:
+                if p not in child_nodes:
+                    raise RuntimeError(f'Path entry {p} not found in system {self.name}')
                 object_id = child_nodes[p]['id']
                 child_nodes = child_nodes[p]['child_nodes']
             return object_id
