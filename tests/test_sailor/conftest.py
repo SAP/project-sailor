@@ -3,7 +3,9 @@ from collections import defaultdict
 
 import pytest
 
-from sailor.assetcentral.indicators import Indicator, IndicatorSet, AggregatedIndicator, AggregatedIndicatorSet
+from sailor.assetcentral.indicators import (Indicator, IndicatorSet, AggregatedIndicator, AggregatedIndicatorSet,
+                                            SystemIndicator, SystemIndicatorSet, SystemAggregatedIndicator,
+                                            SystemAggregatedIndicatorSet)
 from sailor.assetcentral.equipment import Equipment, EquipmentSet
 
 
@@ -59,6 +61,48 @@ def make_aggregated_indicator_set(make_aggregated_indicator):
             for i, value in enumerate(values):
                 indicator_defs[i][k] = value
         return AggregatedIndicatorSet([make_aggregated_indicator(**x) for x in indicator_defs])
+    return maker
+
+
+@pytest.fixture
+def make_system_indicator():
+    def maker(hierarchy_position=42, **kwargs):
+        kwargs.setdefault('propertyId', 'id')
+        kwargs.setdefault('pstid', 'group_id')
+        kwargs.setdefault('categoryID', 'template_id')
+        return SystemIndicator(kwargs, hierarchy_position)
+    return maker
+
+
+@pytest.fixture
+def make_system_indicator_set(make_system_indicator):
+    def maker(**kwargs):
+        indicator_defs = [dict() for _ in list(kwargs.values())[0]]
+        for k, values in kwargs.items():
+            for i, value in enumerate(values):
+                indicator_defs[i][k] = value
+        return SystemIndicatorSet([make_system_indicator(**x) for x in indicator_defs])
+    return maker
+
+
+@pytest.fixture
+def make_system_aggregated_indicator():
+    def maker(aggregation_function='mean', hierarchy_position=42, **kwargs):
+        kwargs.setdefault('propertyId', 'id')
+        kwargs.setdefault('pstid', 'group_id')
+        kwargs.setdefault('categoryID', 'template_id')
+        return SystemAggregatedIndicator(kwargs, aggregation_function, hierarchy_position)
+    return maker
+
+
+@pytest.fixture
+def make_system_aggregated_indicator_set(make_system_aggregated_indicator):
+    def maker(**kwargs):
+        indicator_defs = [dict() for _ in list(kwargs.values())[0]]
+        for k, values in kwargs.items():
+            for i, value in enumerate(values):
+                indicator_defs[i][k] = value
+        return SystemAggregatedIndicatorSet([make_system_aggregated_indicator(**x) for x in indicator_defs])
     return maker
 
 
