@@ -8,6 +8,7 @@ from sailor.pai import constants
 from sailor import pai
 from sailor.pai.utils import _PredictiveAssetInsightsField
 from sailor.pai.alert import Alert, AlertSet, _AlertWriteRequest, create_alert
+from sailor._base.fetch import fetch_data
 
 
 @pytest.fixture
@@ -154,6 +155,7 @@ class TestAlertSet:
 
 
 @pytest.mark.filterwarnings('ignore:Unknown name for _AlertWriteRequest parameter found')
+@patch.dict(fetch_data.__kwdefaults__, {'paginate': False})
 def test_create_alert_create_calls_and_result(mock_ac_url, mock_pai_url, mock_request):
     input_kwargs = {'param1': 'abc123', 'param2': 'def456'}
     mock_post_response = b'12345678-1234-1234-1234-1234567890ab'
@@ -178,6 +180,7 @@ def test_create_alert_create_calls_and_result(mock_ac_url, mock_pai_url, mock_re
     ({'d': {'results': [{'AlertId': '123'}, {'AlertId': '456'}]}}),
 ])
 @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
+@patch.dict(fetch_data.__kwdefaults__, {'paginate': False})
 @patch('sailor.pai.alert._AlertWriteRequest')
 def test_create_alert_raises_when_find_has_no_single_result(mock_wr, mock_pai_url, mock_ac_url, mock_request,
                                                             find_call_result):
@@ -188,6 +191,7 @@ def test_create_alert_raises_when_find_has_no_single_result(mock_wr, mock_pai_ur
         create_alert()
 
 
+@patch.dict(fetch_data.__kwdefaults__, {'paginate': False})
 def test_create_alert_integration(mock_pai_url, mock_ac_url, mock_request):
     create_kwargs = {
         'triggered_on': '2020-07-31T13:23:02Z',

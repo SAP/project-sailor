@@ -2,6 +2,7 @@ from unittest.mock import patch, MagicMock, call
 
 import pytest
 
+from sailor._base.fetch import fetch_data
 from sailor.assetcentral.notification import (
     Notification, create_notification, update_notification, _create_or_update_notification)
 from sailor.assetcentral.constants import VIEW_NOTIFICATIONS
@@ -19,6 +20,7 @@ def mock_url():
     ({'abc': 1, 'def': 2}, create_notification, VIEW_NOTIFICATIONS, 'notificationID', 'notificationId'),
 ])
 @pytest.mark.filterwarnings('ignore:Unknown name for _AssetcentralWriteRequest parameter found')
+@patch.dict(fetch_data.__kwdefaults__, {'paginate': False})
 def test_generic_create_calls_and_result(mock_url, mock_request,
                                          input_kwargs, api_path, create_function, put_id_name, get_id_name):
     mock_post_response = {put_id_name: '123'}
@@ -44,6 +46,7 @@ def test_generic_create_calls_and_result(mock_url, mock_request,
     ([{'notificationId': '123'}, {'notificationId': '456'}]),
 ])
 @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
+@patch.dict(fetch_data.__kwdefaults__, {'paginate': False})
 def test_generic_create_update_raises_when_find_has_no_single_result(mock_url, mock_request, find_call_result):
     successful_create_result = {'notificationID': '123'}
     mock_request.side_effect = [successful_create_result, find_call_result]
@@ -52,6 +55,7 @@ def test_generic_create_update_raises_when_find_has_no_single_result(mock_url, m
         _create_or_update_notification(MagicMock(), '')
 
 
+@patch.dict(fetch_data.__kwdefaults__, {'paginate': False})
 def test_create_notification_integration(mock_url, mock_request):
     create_kwargs = {'equipment_id': 'XYZ', 'notification_type': 'M2',
                      'short_description': 'test', 'priority': 15, 'status': 'NEW'}
@@ -78,6 +82,7 @@ def test_create_notification_integration(mock_url, mock_request):
     (True),
     (False),
 ])
+@patch.dict(fetch_data.__kwdefaults__, {'paginate': False})
 def test_update_notification_integration(mock_url, mock_request, is_object_method, monkeypatch):
     # we need to overwrite __eq__ for a valid equality test in this context as update_notification returns a new object
     # whereas notification.update returns the same object

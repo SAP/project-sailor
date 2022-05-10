@@ -24,7 +24,7 @@ def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), *
             LOG.debug('AssetCentral request was rate limited, will re-try once in 1s.')
             time.sleep(1)
             return _base.fetch_data('asset_central', _ac_response_handler,
-                                    endpoint_url, unbreakable_filters, breakable_filters)
+                                    endpoint_url, unbreakable_filters, breakable_filters, **kwargs)
         else:
             raise
 
