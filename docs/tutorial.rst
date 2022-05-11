@@ -12,6 +12,7 @@ in your SAP backends. In particular, you will learn how to:
 - :ref:`Explore and visualize master data <how_to_explore_data>`
 - :ref:`Read timeseries data from SAP IoT <how_to_read_timeseries>`
 - :ref:`Use the TimeseriesDataset <how_to_work_with_data>`
+- :ref:`Working with Systems <working_with_systems>`
 - :ref:`Create and update master data <how_to_write_master_data>`
 - :ref:`Build custom plots on the extracted data <how_to_custom_plot>`
 - :ref:`Build a machine learning model on the extracted data <how_to_model>`
@@ -248,6 +249,44 @@ Finally, you might be interested in plotting the resulting dataset::
     data.plot()
 
 .. image:: _static/data_plot.png
+
+
+
+.. _working_with_systems:
+
+Working with Systems
+====================
+Systems are hierarchical data structures in AssetCentral. With SAP Predictive Asset Insights it is possible to create quite
+deeply nested system trees consisting of many systems and equipment. Retrieving these systems and the timeseries data
+associated with it can be a cumbersome task. Sailor provides some functionality to support data scientists in exploring systems.
+
+Find systems and get indicator data::
+
+    ss16 = find_systems(name = ['JK0_SY0-1','JK0_SY0-6'])
+    data16 = ss16.get_indicator_data('2021-05-01','2021-05-07')
+    data16.as_df()
+
+.. image:: _static/systemset_indicator_data.png
+
+By default, the ``TimeseriesDataset`` contains every piece of equipment from every system encountered by traversing the trees of each system in the ``SystemSet``.
+Some indicators might not be used with some equipment. In these cases the values are set to NaN.
+
+Above representation answers the question: *"which data is in my system?"* In some cases a wide table format is preferred.
+E.g., for the training of **machine learning models**, it is desirable to to have all the indicator values of all the equipment grouped by system. 
+
+A wide **analysis table** can be created as follows::
+
+    from sailor.assetcentral.system import create_analysis_table
+    wide16 = create_analysis_table(ss16, data16)
+    wide16.as_df(speaking_names=True)
+
+.. image:: _static/systemset_analysis_table.png
+
+In a wide analysis table each piece of equipment is represented as a column for each indicator it occurs.
+The equipment appears as a unique number (unique within an analysis).
+Each system is represented by a so called *leading equipment* as the ``equipment_name``. Find the leading equipment for each system 
+by calling ``get_leading_equipment()`` on the ``SystemSet``.
+
 
 
 .. _how_to_write_master_data:
