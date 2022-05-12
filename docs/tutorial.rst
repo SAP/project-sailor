@@ -264,7 +264,7 @@ Find systems and get indicator data::
 
     ss16 = find_systems(name = ['JK0_SY0-1','JK0_SY0-6'])
     data16 = ss16.get_indicator_data('2021-05-01','2021-05-07')
-    data16.as_df()
+    data16.as_df(speaking_names=True)
 
 .. image:: _static/systemset_indicator_data.png
 
