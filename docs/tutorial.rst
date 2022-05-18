@@ -271,6 +271,10 @@ Find systems and get indicator data::
 By default, the ``TimeseriesDataset`` contains every piece of equipment from every system encountered by traversing the trees of each system in the ``SystemSet``.
 Some indicators might not be used with some equipment. In these cases the values are set to NaN.
 
+Analysis tables for systems
+---------------------------
+.. versionadded:: 1.9.0
+
 Above representation answers the question: *"which data is in my system?"* In some cases a wide table format is preferred.
 E.g., for the training of **machine learning models**, it is desirable to to have all the indicator values of all the equipment grouped by system. 
 

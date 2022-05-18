@@ -166,7 +166,10 @@ class System(AssetcentralEntity):
         return equi_id, equi_level
 
     def get_leading_equipment(self, path: Path = None):
-        """Get leading piece of equipment (by path or default)."""
+        """Get leading piece of equipment (by path or default).
+
+        .. versionadded:: 1.9.0
+        """
         if path:
             child_nodes = self._hierarchy['component_tree']['child_nodes']
             for p in path:
@@ -227,7 +230,10 @@ class SystemSet(AssetcentralEntitySet):
     }
 
     def get_leading_equipment(self, path: Path = None) -> pd.DataFrame:
-        """Get a DataFrame that contains all system ids together with their leading equipment id."""
+        """Get a DataFrame that contains all system ids together with their leading equipment id.
+
+        .. versionadded:: 1.9.0
+        """
         leading_equipments = {system.get_leading_equipment(path=path): system.id for system in self}
         return pd.DataFrame([leading_equipments.keys(), leading_equipments.values()],
                             index=['equipment_id', 'system_id']).transpose()
@@ -441,13 +447,15 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
 
 
 def create_analysis_table(system_set: SystemSet, indicator_data: sap_iot.TimeseriesDataset, selection: Dict = None,
-                          leading_equipment_path: Path = None):
+                          leading_equipment_path: Path = None) -> sap_iot.TimeseriesDataset:
     """Create analysis table for a system set.
 
     An analysis table is a table in which each row contains all indicator data that are valid for a system and a
     timestamp. The system is represented by its leading piece of equipment. The data columns are represented by
     SystemIndicators or SystemAggregatedIndicators, i.e. their key consists of information about the indicator,
     the equipment counter, and for SystemAggregatedIndicators the aggregation function.
+
+    .. versionadded:: 1.9.0
 
     Parameters
     ----------
