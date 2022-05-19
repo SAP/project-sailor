@@ -286,8 +286,10 @@ A wide **analysis table** can be created as follows::
 
 .. image:: _static/systemset_analysis_table.png
 
-In a wide analysis table each piece of equipment is represented as a column for each indicator it occurs.
-The equipment appears as a unique number (unique within an analysis).
+In a wide analysis table, all the information for a system and a timestamp is represented in a single row.
+Since one indicator can be assigned to multiple pieces of equipment, a uniquely numbered column is used to distinguish
+between the indicator instances that are created by such assignments. This number is unique within a single analysis table.
+
 Each system is represented by a so called *leading equipment* as the ``equipment_name``. Find the leading equipment for each system 
 by calling ``get_leading_equipment()`` on the ``SystemSet``.
 
