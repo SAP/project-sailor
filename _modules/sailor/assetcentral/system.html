@@ -237,7 +237,10 @@
         <span class="k">return</span> <span class="n">equi_id</span><span class="p">,</span> <span class="n">equi_level</span>
 
 <div class="viewcode-block" id="System.get_leading_equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.System.get_leading_equipment">[docs]</a>    <span class="k">def</span> <span class="nf">get_leading_equipment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get leading piece of equipment (by path or default).&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get leading piece of equipment (by path or default).</span>
+
+<span class="sd">        .. versionadded:: 1.9.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
             <span class="n">child_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hierarchy</span><span class="p">[</span><span class="s1">&#39;component_tree&#39;</span><span class="p">][</span><span class="s1">&#39;child_nodes&#39;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
@@ -298,7 +301,10 @@
     <span class="p">}</span>
 
 <div class="viewcode-block" id="SystemSet.get_leading_equipment"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.SystemSet.get_leading_equipment">[docs]</a>    <span class="k">def</span> <span class="nf">get_leading_equipment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Get a DataFrame that contains all system ids together with their leading equipment id.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Get a DataFrame that contains all system ids together with their leading equipment id.</span>
+
+<span class="sd">        .. versionadded:: 1.9.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">leading_equipments</span> <span class="o">=</span> <span class="p">{</span><span class="n">system</span><span class="o">.</span><span class="n">get_leading_equipment</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">):</span> <span class="n">system</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">system</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">leading_equipments</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">leading_equipments</span><span class="o">.</span><span class="n">values</span><span class="p">()],</span>
                             <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">,</span> <span class="s1">&#39;system_id&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span></div>
@@ -512,13 +518,15 @@
 
 
 <div class="viewcode-block" id="create_analysis_table"><a class="viewcode-back" href="../../../apidoc/sailor.assetcentral.system.html#sailor.assetcentral.create_analysis_table">[docs]</a><span class="k">def</span> <span class="nf">create_analysis_table</span><span class="p">(</span><span class="n">system_set</span><span class="p">:</span> <span class="n">SystemSet</span><span class="p">,</span> <span class="n">indicator_data</span><span class="p">:</span> <span class="n">sap_iot</span><span class="o">.</span><span class="n">TimeseriesDataset</span><span class="p">,</span> <span class="n">selection</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                          <span class="n">leading_equipment_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+                          <span class="n">leading_equipment_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sap_iot</span><span class="o">.</span><span class="n">TimeseriesDataset</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create analysis table for a system set.</span>
 
 <span class="sd">    An analysis table is a table in which each row contains all indicator data that are valid for a system and a</span>
 <span class="sd">    timestamp. The system is represented by its leading piece of equipment. The data columns are represented by</span>
 <span class="sd">    SystemIndicators or SystemAggregatedIndicators, i.e. their key consists of information about the indicator,</span>
 <span class="sd">    the equipment counter, and for SystemAggregatedIndicators the aggregation function.</span>
+
+<span class="sd">    .. versionadded:: 1.9.0</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

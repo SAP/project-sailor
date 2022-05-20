@@ -47,6 +47,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#exploring-data">Exploring Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#read-timeseries-data">Read Timeseries Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#working-with-timeseries-data">Working with Timeseries Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-systems">Working with Systems</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#analysis-tables-for-systems">Analysis tables for systems</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#writing-master-data">Writing Master Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#customization">Customization</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#building-custom-visualizations">Building Custom Visualizations</a></li>
@@ -94,6 +98,7 @@ in your SAP backends. In particular, you will learn how to:</p>
 <li><p><a class="reference internal" href="#how-to-explore-data"><span class="std std-ref">Explore and visualize master data</span></a></p></li>
 <li><p><a class="reference internal" href="#how-to-read-timeseries"><span class="std std-ref">Read timeseries data from SAP IoT</span></a></p></li>
 <li><p><a class="reference internal" href="#how-to-work-with-data"><span class="std std-ref">Use the TimeseriesDataset</span></a></p></li>
+<li><p><a class="reference internal" href="#working-with-systems"><span class="std std-ref">Working with Systems</span></a></p></li>
 <li><p><a class="reference internal" href="#how-to-write-master-data"><span class="std std-ref">Create and update master data</span></a></p></li>
 <li><p><a class="reference internal" href="#how-to-custom-plot"><span class="std std-ref">Build custom plots on the extracted data</span></a></p></li>
 <li><p><a class="reference internal" href="#how-to-model"><span class="std std-ref">Build a machine learning model on the extracted data</span></a></p></li>
@@ -269,6 +274,41 @@ Interpolation of <code class="docutils literal notranslate"><span class="pre">Na
 </pre></div>
 </div>
 <img alt="_images/data_plot.png" src="_images/data_plot.png" />
+</section>
+<section id="working-with-systems">
+<span id="id2"></span><h2>Working with Systems<a class="headerlink" href="#working-with-systems" title="Permalink to this headline"></a></h2>
+<p>Systems are hierarchical data structures in AssetCentral. With SAP Predictive Asset Insights it is possible to create quite
+deeply nested system trees consisting of many systems and equipment. Retrieving these systems and the timeseries data
+associated with it can be a cumbersome task. Sailor provides some functionality to support data scientists in exploring systems.</p>
+<p>Find systems and get indicator data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ss16</span> <span class="o">=</span> <span class="n">find_systems</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;JK0_SY0-1&#39;</span><span class="p">,</span><span class="s1">&#39;JK0_SY0-6&#39;</span><span class="p">])</span>
+<span class="n">data16</span> <span class="o">=</span> <span class="n">ss16</span><span class="o">.</span><span class="n">get_indicator_data</span><span class="p">(</span><span class="s1">&#39;2021-05-01&#39;</span><span class="p">,</span><span class="s1">&#39;2021-05-07&#39;</span><span class="p">)</span>
+<span class="n">data16</span><span class="o">.</span><span class="n">as_df</span><span class="p">(</span><span class="n">speaking_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/systemset_indicator_data.png" src="_images/systemset_indicator_data.png" />
+<p>By default, the <code class="docutils literal notranslate"><span class="pre">TimeseriesDataset</span></code> contains every piece of equipment from every system encountered by traversing the trees of each system in the <code class="docutils literal notranslate"><span class="pre">SystemSet</span></code>.
+Some indicators might not be used with some equipment. In these cases the values are set to NaN.</p>
+<section id="analysis-tables-for-systems">
+<h3>Analysis tables for systems<a class="headerlink" href="#analysis-tables-for-systems" title="Permalink to this headline"></a></h3>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.9.0.</span></p>
+</div>
+<p>Above representation answers the question: <em>“which data is in my system?”</em> In some cases a wide table format is preferred.
+E.g., for the training of <strong>machine learning models</strong>, it is desirable to to have all the indicator values of all the equipment grouped by system.</p>
+<p>A wide <strong>analysis table</strong> can be created as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sailor.assetcentral.system</span> <span class="kn">import</span> <span class="n">create_analysis_table</span>
+<span class="n">wide16</span> <span class="o">=</span> <span class="n">create_analysis_table</span><span class="p">(</span><span class="n">ss16</span><span class="p">,</span> <span class="n">data16</span><span class="p">)</span>
+<span class="n">wide16</span><span class="o">.</span><span class="n">as_df</span><span class="p">(</span><span class="n">speaking_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/systemset_analysis_table.png" src="_images/systemset_analysis_table.png" />
+<p>In a wide analysis table, all the information for a system and a timestamp is represented in a single row.
+Since one indicator can be assigned to multiple pieces of equipment, a uniquely numbered column is used to distinguish
+between the indicator instances that are created by such assignments. This number is unique within a single analysis table.</p>
+<p>Each system is represented by a so called <em>leading equipment</em> as the <code class="docutils literal notranslate"><span class="pre">equipment_name</span></code>. Find the leading equipment for each system
+by calling <code class="docutils literal notranslate"><span class="pre">get_leading_equipment()</span></code> on the <code class="docutils literal notranslate"><span class="pre">SystemSet</span></code>.</p>
+</section>
 </section>
 <section id="writing-master-data">
 <span id="how-to-write-master-data"></span><h2>Writing Master Data<a class="headerlink" href="#writing-master-data" title="Permalink to this headline"></a></h2>
