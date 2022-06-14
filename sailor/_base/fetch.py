@@ -4,14 +4,14 @@ from typing import List
 import re
 import logging
 
-from sailor.utils.oauth_wrapper import get_oauth_client
+from sailor.utils.oauth_wrapper import get_oauth_client, RequestError
 from sailor.utils.utils import DataNotFoundWarning, _is_non_string_iterable, WarningAdapter
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 LOG = WarningAdapter(LOG)
 
-
+_FETCH_CALL_RETRY_LIMIT = 10
 _OPERATOR_MAP = {
     '>': 'gt',
     '<': 'lt',
@@ -20,16 +20,18 @@ _OPERATOR_MAP = {
     '!=': 'ne',
     '==': 'eq'
 }
-
 _EXTENDED_FILTER_PATTERN = re.compile(r'^(\w+) *?(>=|<=|==|!=|<|>) *(.*?)$')
 
 
-def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=(), breakable_filters=(), *,
-               paginate=False) -> List:
+def fetch_data(client_name, response_handler, error_handler, endpoint_url, unbreakable_filters=(), breakable_filters=(),
+               *, paginate=False) -> List:
     """Retrieve data from a supported odata service.
 
-    A response_handler function needs to be passed which must extract the results
-    returned from the odata service endpoint response into a list.
+    response handler
+        A function that accepts (result_filter, endpoint_data) and needs to modify the result_filter list.
+    error_handler
+        A function that accepts (RequestError, retry_count) and re-raises on irrecoverable error or retry count.
+        Does not return anything if a retry should be attempted.
     """
     filters = _compose_queries(unbreakable_filters, breakable_filters)
     oauth_client = get_oauth_client(client_name)
@@ -42,9 +44,9 @@ def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=
         result_filter = []
         params = {'$filter': filter_string} if filter_string else {}
         if paginate:
-            result_filter = _fetch_call_paginate(oauth_client, response_handler, endpoint_url, params, result_filter)
+            result_filter = _fetch_call_paginate(oauth_client, response_handler, error_handler, endpoint_url, params, result_filter)
         else:
-            result_filter = _fetch_call(oauth_client, response_handler, endpoint_url, params, result_filter)
+            result_filter = _fetch_call(oauth_client, response_handler, error_handler, endpoint_url, params, result_filter)
         result.extend(result_filter)
 
     if len(result) == 0:
@@ -53,19 +55,28 @@ def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=
     return result
 
 
-def _fetch_call(oauth_client, response_handler, endpoint_url, params, result_filter):
+def _fetch_call(oauth_client, response_handler, error_handler, endpoint_url, params, result_filter):
     params.update({'$format': 'json'})
-    endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
+    endpoint_data = None
+    retry_count = 0
+    while endpoint_data is None:
+        try:
+            endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
+        except RequestError as exc:
+            if (retry_count := retry_count + 1) > _FETCH_CALL_RETRY_LIMIT:
+                raise
+            error_handler(exc, retry_count)
+
     response_handler(result_filter, endpoint_data)
     return result_filter
 
 
-def _fetch_call_paginate(oauth_client, response_handler, endpoint_url, params, result_filter):
+def _fetch_call_paginate(oauth_client, response_handler, error_handler, endpoint_url, params, result_filter):
     skip = 0
     while True:
         params.update({'$skip': skip, '$top': 50000})
 
-        result_filter = _fetch_call(oauth_client, response_handler, endpoint_url, params, result_filter)
+        result_filter = _fetch_call(oauth_client, response_handler, error_handler, endpoint_url, params, result_filter)
 
         if skip >= len(result_filter):
             break

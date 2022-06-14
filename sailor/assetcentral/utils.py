@@ -16,17 +16,19 @@ LOG = WarningAdapter(LOG)
 
 
 def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), **kwargs):
-    try:
-        return _base.fetch_data('asset_central', _ac_response_handler,
-                                endpoint_url, unbreakable_filters, breakable_filters, **kwargs)
-    except RequestError as e:
-        if e.status_code == 429:
-            LOG.debug('AssetCentral request was rate limited, will re-try once in 1s.')
-            time.sleep(1)
-            return _base.fetch_data('asset_central', _ac_response_handler,
-                                    endpoint_url, unbreakable_filters, breakable_filters, **kwargs)
-        else:
-            raise
+    return _base.fetch_data('asset_central', _ac_response_handler, _ac_error_handler,
+                            endpoint_url, unbreakable_filters, breakable_filters, **kwargs)
+
+
+def _ac_error_handler(exc: RequestError, retry_count):
+    if retry_count > 1:
+        raise
+    if exc.status_code == 429:
+        LOG.debug('AssetCentral request was rate limited, will re-try once in 1s.')
+        time.sleep(1)
+        return
+    else:
+        raise exc
 
 
 def _ac_response_handler(result_list, endpoint_data):

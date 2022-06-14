@@ -2,17 +2,22 @@
 
 
 from sailor import _base
+from sailor.utils.oauth_wrapper.OAuthServiceImpl import RequestError
 from ..utils.config import SailorConfig
 
 
 def _pai_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), **kwargs):
-    return _base.fetch_data('predictive_asset_insights', _pai_response_handler,
+    return _base.fetch_data('predictive_asset_insights', _pai_response_handler, _pai_error_handler,
                             endpoint_url, unbreakable_filters, breakable_filters, **kwargs)
 
 
 def _pai_application_url():
     """Return the PredictiveAssetInsights (PAI) application URL from the SailorConfig."""
     return SailorConfig.get('predictive_asset_insights', 'application_url')
+
+
+def _pai_error_handler(exc: RequestError, retry_count):
+    raise exc
 
 
 def _pai_response_handler(result_list, endpoint_data):

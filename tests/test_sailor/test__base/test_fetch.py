@@ -423,6 +423,10 @@ class TestFetchData:
         result.extend(endpoint_data)
         return result
 
+    @staticmethod
+    def default_error_handler(exc, retry_count):
+        raise exc
+
     # pagination is tested on all tests
     @pytest.fixture(scope='class', params=[True, False])
     def paginate_param(self, request):
@@ -442,7 +446,7 @@ class TestFetchData:
         else:
             mock_request.return_value = remote_return
 
-        actual = fetch_data('dummy_client_name', self.generic_response_handler,
+        actual = fetch_data('dummy_client_name', self.generic_response_handler, self.default_error_handler,
                             '', unbreakable_filters, breakable_filters, paginate=paginate_param)
         assert not issubclass(actual.__class__, str)
         assert isinstance(actual, Iterable)
@@ -456,7 +460,7 @@ class TestFetchData:
             expected_params.update({'$skip': 1, '$top': 50000})
         mock_request.side_effect = [{'single': 'result'}, []]
 
-        fetch_data('dummy_client_name', self.generic_response_handler,
+        fetch_data('dummy_client_name', self.generic_response_handler, self.default_error_handler,
                    '', unbreakable_filters, breakable_filters, paginate=paginate_param)
 
         if paginate_param is True:
@@ -475,7 +479,7 @@ class TestFetchData:
             expected_parameters.update({'$skip': 1, '$top': 50000})
         mock_request.side_effect = [{'single': 'result'}, []]
 
-        fetch_data('dummy_client_name', self.generic_response_handler,
+        fetch_data('dummy_client_name', self.generic_response_handler, self.default_error_handler,
                    '', unbreakable_filters, breakable_filters, paginate=paginate_param)
 
         if paginate_param is True:
@@ -494,7 +498,7 @@ class TestFetchData:
         else:
             mock_request.side_effect = [["result1-1", "result1-2"], ["result2-1"]]
 
-        actual = fetch_data('dummy_client_name', self.generic_response_handler,
+        actual = fetch_data('dummy_client_name', self.generic_response_handler, self.default_error_handler,
                             '', unbreakable_filters, breakable_filters, paginate=paginate_param)
 
         assert actual == expected_result
