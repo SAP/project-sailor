@@ -127,7 +127,7 @@ class Equipment(AssetcentralEntity):
         """
         # AC-BUG: this endpoint just silently ignores filter parameters, so we can't really support them...
         endpoint_url = _ac_application_url() + VIEW_EQUIPMENT + f'({self.id})' + '/indicatorvalues'
-        object_list = _ac_fetch_data(endpoint_url, paginate=False)
+        object_list = _ac_fetch_data(endpoint_url)
         LOG.debug('Retrieving all indicators for equipment "%s" found %d objects.', self.id, len(object_list))
 
         filtered_objects = _base.apply_filters_post_request(object_list, kwargs, extended_filters,
@@ -182,7 +182,7 @@ class Equipment(AssetcentralEntity):
         if 'id' in kwargs or 'ID' in kwargs:
             raise RuntimeError('Can not manually filter for FailureMode ID when using this method.')
         endpoint_url = _ac_application_url() + VIEW_OBJECTS + 'EQU/' + self.id + '/failuremodes'
-        object_list = _ac_fetch_data(endpoint_url, paginate=False)
+        object_list = _ac_fetch_data(endpoint_url)
         if len(object_list) == 0:
             LOG.debug('For equipment "%s" no failure modes were found.', self.id)
             return FailureModeSet([])
@@ -503,6 +503,6 @@ def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
         _base.parse_filter_parameters(kwargs, extended_filters, Equipment._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
-    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters, paginate=True)
     LOG.debug('Found %d equipments for the specified filters.', len(object_list))
     return EquipmentSet([Equipment(obj) for obj in object_list])

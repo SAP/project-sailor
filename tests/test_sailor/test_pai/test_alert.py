@@ -9,6 +9,7 @@ from sailor import pai
 from sailor.pai.utils import _PredictiveAssetInsightsField
 from sailor.pai.alert import Alert, AlertSet, _AlertWriteRequest, create_alert
 from sailor._base.fetch import fetch_data
+import sailor._base
 
 
 @pytest.fixture
@@ -55,6 +56,11 @@ def get_parameters(test_object):
         },
     }
     return test_params[test_object]
+
+
+def fetch_data_paginate_false(*args, **kwargs):
+    kwargs.update({'paginate': False})
+    return fetch_data(*args, **kwargs)
 
 
 class TestAlert():
@@ -155,13 +161,13 @@ class TestAlertSet:
 
 
 @pytest.mark.filterwarnings('ignore:Unknown name for _AlertWriteRequest parameter found')
-@patch.dict(fetch_data.__kwdefaults__, {'paginate': False})
-def test_create_alert_create_calls_and_result(mock_ac_url, mock_pai_url, mock_request):
+def test_create_alert_create_calls_and_result(mock_ac_url, mock_pai_url, mock_request, monkeypatch):
     input_kwargs = {'param1': 'abc123', 'param2': 'def456'}
     mock_post_response = b'12345678-1234-1234-1234-1234567890ab'
     mock_get_response = {'d': {'results': [{'some': 'result'}]}}
     mock_request.side_effect = [mock_post_response, mock_get_response]
     expected_request_dict = input_kwargs
+    monkeypatch.setattr(sailor._base, 'fetch_data', fetch_data_paginate_false)  # set pagination to False
 
     # mock validate so that validation does not fail
     with patch('sailor.assetcentral.utils._AssetcentralWriteRequest.validate'):
@@ -180,19 +186,18 @@ def test_create_alert_create_calls_and_result(mock_ac_url, mock_pai_url, mock_re
     ({'d': {'results': [{'AlertId': '123'}, {'AlertId': '456'}]}}),
 ])
 @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
-@patch.dict(fetch_data.__kwdefaults__, {'paginate': False})
 @patch('sailor.pai.alert._AlertWriteRequest')
 def test_create_alert_raises_when_find_has_no_single_result(mock_wr, mock_pai_url, mock_ac_url, mock_request,
-                                                            find_call_result):
+                                                            find_call_result, monkeypatch):
     successful_create_result = b'12345678-1234-1234-1234-1234567890ab'
     mock_request.side_effect = [successful_create_result, find_call_result]
+    monkeypatch.setattr(sailor._base, 'fetch_data', fetch_data_paginate_false)  # set pagination to False
 
     with pytest.raises(RuntimeError, match='Unexpected error'):
         create_alert()
 
 
-@patch.dict(fetch_data.__kwdefaults__, {'paginate': False})
-def test_create_alert_integration(mock_pai_url, mock_ac_url, mock_request):
+def test_create_alert_integration(mock_pai_url, mock_ac_url, mock_request, monkeypatch):
     create_kwargs = {
         'triggered_on': '2020-07-31T13:23:02Z',
         'description': 'Test alert',
@@ -228,6 +233,7 @@ def test_create_alert_integration(mock_pai_url, mock_ac_url, mock_request):
         'AlertId': '12345678-1234-1234-1234-1234567890ab'}
         ]}}
     mock_request.side_effect = [mock_post_response, mock_get_response]
+    monkeypatch.setattr(sailor._base, 'fetch_data', fetch_data_paginate_false)  # set pagination to False
 
     actual = create_alert(**create_kwargs)
 

@@ -25,7 +25,7 @@ _EXTENDED_FILTER_PATTERN = re.compile(r'^(\w+) *?(>=|<=|==|!=|<|>) *(.*?)$')
 
 
 def fetch_data(client_name, response_handler, endpoint_url, unbreakable_filters=(), breakable_filters=(), *,
-               paginate=True) -> List:
+               paginate=False) -> List:
     """Retrieve data from a supported odata service.
 
     A response_handler function needs to be passed which must extract the results

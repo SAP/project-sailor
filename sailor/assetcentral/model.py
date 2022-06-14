@@ -120,7 +120,7 @@ class Model(AssetcentralEntity):
         endpoint_url = _ac_application_url() + VIEW_MODEL_INDICATORS + f'({self.id})' + '/indicatorvalues'
 
         # AC-BUG: this api doesn't support filters (thank you AC) so we have to fetch all of them and then filter below
-        object_list = _ac_fetch_data(endpoint_url, paginate=False)
+        object_list = _ac_fetch_data(endpoint_url)
         LOG.debug("Retrieving indicators for model %s found %d objects.", self.id, len(object_list))
         filtered_objects = _base.apply_filters_post_request(object_list, kwargs, extended_filters,
                                                             Indicator._field_map)
@@ -188,6 +188,6 @@ def find_models(*, extended_filters=(), **kwargs) -> ModelSet:
         _base.parse_filter_parameters(kwargs, extended_filters, Model._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_MODELS
-    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters, paginate=True)
     LOG.debug('Found %d models for the specified filters.', len(object_list))
     return ModelSet([Model(obj) for obj in object_list])

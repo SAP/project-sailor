@@ -109,6 +109,6 @@ def find_locations(*, extended_filters=(), **kwargs) -> LocationSet:
 
     endpoint_url = _ac_application_url() + VIEW_LOCATIONS
 
-    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters, paginate=True)
     LOG.debug('Found %d locations for the specified filters.', len(object_list))
     return LocationSet([Location(obj) for obj in object_list])

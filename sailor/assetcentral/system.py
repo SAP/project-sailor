@@ -120,7 +120,7 @@ class System(AssetcentralEntity):
     def _hierarchy(self):
         """Prepare component tree and cache it."""
         endpoint_url = _ac_application_url() + VIEW_SYSTEMS + f'({self.id})' + '/components'
-        comps = _ac_fetch_data(endpoint_url, paginate=False)[0]
+        comps = _ac_fetch_data(endpoint_url)[0]
         self.__hierarchy = {}
         self.__hierarchy['component_tree'], equipment_ids, system_ids = System._traverse_components(comps, 0, [], [])
         if system_ids:
@@ -440,7 +440,7 @@ def find_systems(*, extended_filters=(), **kwargs) -> SystemSet:
         _base.parse_filter_parameters(kwargs, extended_filters, System._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_SYSTEMS
-    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters, paginate=True)
     LOG.debug('Found %d systems for the specified filters.', len(object_list))
 
     return SystemSet([System(obj) for obj in object_list])

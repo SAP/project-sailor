@@ -136,6 +136,6 @@ def find_workorders(*, extended_filters=(), **kwargs) -> WorkorderSet:
         _base.parse_filter_parameters(kwargs, extended_filters, Workorder._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_WORKORDERS
-    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters, paginate=True)
     LOG.debug('Found %d workorders for the specified filters.', len(object_list))
     return WorkorderSet([Workorder(obj) for obj in object_list])
