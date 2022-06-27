@@ -21,9 +21,10 @@ def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), *
 
 
 def _ac_error_handler(exc: RequestError, retry_count):
+    """Handle ONLY rate limit errors."""
     if retry_count > 1:
-        raise
-    if exc.status_code == 429:
+        raise exc
+    elif exc.status_code == 429:
         LOG.debug('AssetCentral request was rate limited, will re-try once in 1s.')
         time.sleep(1)
         return

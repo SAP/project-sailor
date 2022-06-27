@@ -28,7 +28,7 @@ def fetch_data(client_name, response_handler, error_handler, endpoint_url, unbre
     """Retrieve data from a supported odata service.
 
     response handler
-        A function that accepts (result_filter, endpoint_data) and needs to modify the result_filter list.
+        A function that accepts (result_filter, endpoint_data) and needs to modify the ``result_filter`` list.
     error_handler
         A function that accepts (RequestError, retry_count) and re-raises on irrecoverable error or retry count.
         Does not return anything if a retry should be attempted.
@@ -44,9 +44,11 @@ def fetch_data(client_name, response_handler, error_handler, endpoint_url, unbre
         result_filter = []
         params = {'$filter': filter_string} if filter_string else {}
         if paginate:
-            result_filter = _fetch_call_paginate(oauth_client, response_handler, error_handler, endpoint_url, params, result_filter)
+            result_filter = _fetch_call_paginate(oauth_client, response_handler, error_handler, endpoint_url, params,
+                                                 result_filter)
         else:
-            result_filter = _fetch_call(oauth_client, response_handler, error_handler, endpoint_url, params, result_filter)
+            result_filter = _fetch_call(oauth_client, response_handler, error_handler, endpoint_url, params,
+                                        result_filter)
         result.extend(result_filter)
 
     if len(result) == 0:
@@ -67,7 +69,7 @@ def _fetch_call(oauth_client, response_handler, error_handler, endpoint_url, par
                 raise
             error_handler(exc, retry_count)
 
-    response_handler(result_filter, endpoint_data)
+    result_filter = response_handler(result_filter, endpoint_data)
     return result_filter
 
 
