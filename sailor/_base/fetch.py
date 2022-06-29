@@ -30,8 +30,8 @@ def fetch_data(client_name, response_handler, error_handler, endpoint_url, unbre
     response handler
         A function that accepts (result_filter, endpoint_data) and needs to modify the ``result_filter`` list.
     error_handler
-        A function that accepts (RequestError, retry_count) and re-raises on irrecoverable error or retry count.
-        Does not return anything if a retry should be attempted.
+        A function that accepts (RequestError, retry_count) and decides based on this input whether to retry the last
+        request or re-raise the error. Should not return anything if a retry should be attempted.
     """
     filters = _compose_queries(unbreakable_filters, breakable_filters)
     oauth_client = get_oauth_client(client_name)
@@ -65,6 +65,7 @@ def _fetch_call(oauth_client, response_handler, error_handler, endpoint_url, par
         try:
             endpoint_data = oauth_client.request('GET', endpoint_url, params=params)
         except RequestError as exc:
+            # safeguard against error_handlers that are not implemented correctly
             if (retry_count := retry_count + 1) > _FETCH_CALL_RETRY_LIMIT:
                 raise
             error_handler(exc, retry_count)
