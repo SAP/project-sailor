@@ -2,6 +2,8 @@ from unittest.mock import patch, MagicMock, call
 
 import pytest
 
+import sailor._base
+from sailor._base.fetch import fetch_data
 from sailor.assetcentral.notification import (
     Notification, create_notification, update_notification, _create_or_update_notification)
 from sailor.assetcentral.constants import VIEW_NOTIFICATIONS
@@ -14,12 +16,21 @@ def mock_url():
         yield mock
 
 
+@pytest.fixture
+def mock_fetch_data_paginate_false(monkeypatch):
+    def fetch_data_paginate_false(*args, **kwargs):
+        kwargs.update({'paginate': False})
+        return fetch_data(*args, **kwargs)
+    monkeypatch.setattr(sailor._base, 'fetch_data', fetch_data_paginate_false)
+    yield
+
+
 # TODO: this test is a blueprint for testing create functions generically
 @pytest.mark.parametrize('input_kwargs,create_function,api_path,put_id_name,get_id_name', [
     ({'abc': 1, 'def': 2}, create_notification, VIEW_NOTIFICATIONS, 'notificationID', 'notificationId'),
 ])
 @pytest.mark.filterwarnings('ignore:Unknown name for _AssetcentralWriteRequest parameter found')
-def test_generic_create_calls_and_result(mock_url, mock_request,
+def test_generic_create_calls_and_result(mock_fetch_data_paginate_false, mock_url, mock_request,
                                          input_kwargs, api_path, create_function, put_id_name, get_id_name):
     mock_post_response = {put_id_name: '123'}
     mock_get_response = {'some': 'result'}
@@ -44,7 +55,8 @@ def test_generic_create_calls_and_result(mock_url, mock_request,
     ([{'notificationId': '123'}, {'notificationId': '456'}]),
 ])
 @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
-def test_generic_create_update_raises_when_find_has_no_single_result(mock_url, mock_request, find_call_result):
+def test_generic_create_update_raises_when_find_has_no_single_result(mock_fetch_data_paginate_false, mock_url,
+                                                                     mock_request, find_call_result):
     successful_create_result = {'notificationID': '123'}
     mock_request.side_effect = [successful_create_result, find_call_result]
 
@@ -52,7 +64,7 @@ def test_generic_create_update_raises_when_find_has_no_single_result(mock_url, m
         _create_or_update_notification(MagicMock(), '')
 
 
-def test_create_notification_integration(mock_url, mock_request):
+def test_create_notification_integration(mock_fetch_data_paginate_false, mock_url, mock_request):
     create_kwargs = {'equipment_id': 'XYZ', 'notification_type': 'M2',
                      'short_description': 'test', 'priority': 15, 'status': 'NEW'}
     mock_post_response = {'notificationID': '123'}
@@ -78,7 +90,8 @@ def test_create_notification_integration(mock_url, mock_request):
     (True),
     (False),
 ])
-def test_update_notification_integration(mock_url, mock_request, is_object_method, monkeypatch):
+def test_update_notification_integration(mock_url, mock_request, is_object_method, monkeypatch,
+                                         mock_fetch_data_paginate_false):
     # we need to overwrite __eq__ for a valid equality test in this context as update_notification returns a new object
     # whereas notification.update returns the same object
     monkeypatch.setattr(Notification, '__eq__', object.__eq__)

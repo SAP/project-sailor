@@ -8,6 +8,8 @@ from sailor.pai import constants
 from sailor import pai
 from sailor.pai.utils import _PredictiveAssetInsightsField
 from sailor.pai.alert import Alert, AlertSet, _AlertWriteRequest, create_alert
+from sailor._base.fetch import fetch_data
+import sailor._base
 
 
 @pytest.fixture
@@ -42,6 +44,15 @@ def mock_pai_url():
     with patch('sailor.pai.alert._pai_application_url') as mock:
         mock.return_value = 'pai_base_url'
         yield mock
+
+
+@pytest.fixture
+def mock_fetch_data_paginate_false(monkeypatch):
+    def fetch_data_paginate_false(*args, **kwargs):
+        kwargs.update({'paginate': False})
+        return fetch_data(*args, **kwargs)
+    monkeypatch.setattr(sailor._base, 'fetch_data', fetch_data_paginate_false)
+    yield
 
 
 def get_parameters(test_object):
@@ -154,7 +165,7 @@ class TestAlertSet:
 
 
 @pytest.mark.filterwarnings('ignore:Unknown name for _AlertWriteRequest parameter found')
-def test_create_alert_create_calls_and_result(mock_ac_url, mock_pai_url, mock_request):
+def test_create_alert_create_calls_and_result(mock_ac_url, mock_pai_url, mock_request, mock_fetch_data_paginate_false):
     input_kwargs = {'param1': 'abc123', 'param2': 'def456'}
     mock_post_response = b'12345678-1234-1234-1234-1234567890ab'
     mock_get_response = {'d': {'results': [{'some': 'result'}]}}
@@ -180,7 +191,7 @@ def test_create_alert_create_calls_and_result(mock_ac_url, mock_pai_url, mock_re
 @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
 @patch('sailor.pai.alert._AlertWriteRequest')
 def test_create_alert_raises_when_find_has_no_single_result(mock_wr, mock_pai_url, mock_ac_url, mock_request,
-                                                            find_call_result):
+                                                            find_call_result, mock_fetch_data_paginate_false):
     successful_create_result = b'12345678-1234-1234-1234-1234567890ab'
     mock_request.side_effect = [successful_create_result, find_call_result]
 
@@ -188,7 +199,7 @@ def test_create_alert_raises_when_find_has_no_single_result(mock_wr, mock_pai_ur
         create_alert()
 
 
-def test_create_alert_integration(mock_pai_url, mock_ac_url, mock_request):
+def test_create_alert_integration(mock_pai_url, mock_ac_url, mock_request, mock_fetch_data_paginate_false):
     create_kwargs = {
         'triggered_on': '2020-07-31T13:23:02Z',
         'description': 'Test alert',

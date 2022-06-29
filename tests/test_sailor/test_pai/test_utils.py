@@ -17,7 +17,7 @@ def test_pai_fetch_data_integration(mock_request):
     expected = ['result1', 'result2']
     mock_request.return_value = {'d': {'results': expected}}
 
-    actual = _pai_fetch_data('', unbreakable_filters, breakable_filters)
+    actual = _pai_fetch_data('', unbreakable_filters, breakable_filters, paginate=False)
 
     mock_request.assert_called_once_with('GET', '', params=expected_parameters)
     assert actual == expected

@@ -270,7 +270,7 @@ def find_notifications(*, extended_filters=(), **kwargs) -> NotificationSet:
         _base.parse_filter_parameters(kwargs, extended_filters, Notification._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_NOTIFICATIONS
-    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters, paginate=True)
     LOG.debug('Found %d notifications for the specified filters.', len(object_list))
     return NotificationSet([Notification(obj) for obj in object_list])
 
