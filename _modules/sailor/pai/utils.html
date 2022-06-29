@@ -73,17 +73,22 @@
 
 
 <span class="kn">from</span> <span class="nn">sailor</span> <span class="kn">import</span> <span class="n">_base</span>
+<span class="kn">from</span> <span class="nn">sailor.utils.oauth_wrapper.OAuthServiceImpl</span> <span class="kn">import</span> <span class="n">RequestError</span>
 <span class="kn">from</span> <span class="nn">..utils.config</span> <span class="kn">import</span> <span class="n">SailorConfig</span>
 
 
-<span class="k">def</span> <span class="nf">_pai_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="o">=</span><span class="p">(),</span> <span class="n">breakable_filters</span><span class="o">=</span><span class="p">()):</span>
-    <span class="k">return</span> <span class="n">_base</span><span class="o">.</span><span class="n">fetch_data</span><span class="p">(</span><span class="s1">&#39;predictive_asset_insights&#39;</span><span class="p">,</span> <span class="n">_pai_response_handler</span><span class="p">,</span>
-                            <span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_pai_fetch_data</span><span class="p">(</span><span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="o">=</span><span class="p">(),</span> <span class="n">breakable_filters</span><span class="o">=</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_base</span><span class="o">.</span><span class="n">fetch_data</span><span class="p">(</span><span class="s1">&#39;predictive_asset_insights&#39;</span><span class="p">,</span> <span class="n">_pai_response_handler</span><span class="p">,</span> <span class="n">_pai_error_handler</span><span class="p">,</span>
+                            <span class="n">endpoint_url</span><span class="p">,</span> <span class="n">unbreakable_filters</span><span class="p">,</span> <span class="n">breakable_filters</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_pai_application_url</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Return the PredictiveAssetInsights (PAI) application URL from the SailorConfig.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">SailorConfig</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;predictive_asset_insights&#39;</span><span class="p">,</span> <span class="s1">&#39;application_url&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_pai_error_handler</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="n">RequestError</span><span class="p">,</span> <span class="n">retry_count</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="n">exc</span>
 
 
 <span class="k">def</span> <span class="nf">_pai_response_handler</span><span class="p">(</span><span class="n">result_list</span><span class="p">,</span> <span class="n">endpoint_data</span><span class="p">):</span>
