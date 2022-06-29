@@ -503,6 +503,6 @@ def find_equipment(*, extended_filters=(), **kwargs) -> EquipmentSet:
         _base.parse_filter_parameters(kwargs, extended_filters, Equipment._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_EQUIPMENT
-    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters, paginate=True)
     LOG.debug('Found %d equipments for the specified filters.', len(object_list))
     return EquipmentSet([Equipment(obj) for obj in object_list])

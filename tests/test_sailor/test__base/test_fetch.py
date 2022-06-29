@@ -423,6 +423,15 @@ class TestFetchData:
         result.extend(endpoint_data)
         return result
 
+    @staticmethod
+    def default_error_handler(exc, retry_count):
+        raise exc
+
+    # pagination is tested on all tests
+    @pytest.fixture(scope='class', params=[True, False])
+    def paginate_param(self, request):
+        return request.param
+
     @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
     @pytest.mark.parametrize('testdesc,unbreakable_filters,breakable_filters,remote_return', [
         ('no filters - single return', [], [], {'a': 'dict'}),
@@ -430,46 +439,67 @@ class TestFetchData:
         ('no filters - list return', [], [], ['result']),
         ('filters - list return', ['a gt b'], [['c eq 1']], ['result']),
     ])
-    def test_returns_iterable(self, mock_request, unbreakable_filters, breakable_filters, remote_return, testdesc):
-        mock_request.return_value = remote_return
-        actual = fetch_data('dummy_client_name', self.generic_response_handler,
-                            '', unbreakable_filters, breakable_filters)
+    def test_returns_iterable(self, mock_request, unbreakable_filters, breakable_filters, remote_return,
+                              paginate_param, testdesc):
+        if paginate_param:
+            mock_request.side_effect = [remote_return, []]
+        else:
+            mock_request.return_value = remote_return
+
+        actual = fetch_data('dummy_client_name', self.generic_response_handler, self.default_error_handler,
+                            '', unbreakable_filters, breakable_filters, paginate=paginate_param)
         assert not issubclass(actual.__class__, str)
         assert isinstance(actual, Iterable)
 
-    def test_no_filters_makes_remote_call_without_query_params(self, mock_request):
-        mock_request.return_value = ['result']
+    @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
+    def test_no_filters_makes_remote_call_without_query_params(self, mock_request, paginate_param):
         unbreakable_filters = []
         breakable_filters = []
         expected_params = {'$format': 'json'}
+        if paginate_param is True:
+            expected_params.update({'$skip': 1, '$top': 50000})
+        mock_request.side_effect = [{'single': 'result'}, []]
 
-        actual = fetch_data('dummy_client_name', self.generic_response_handler,
-                            '', unbreakable_filters, breakable_filters)
+        fetch_data('dummy_client_name', self.generic_response_handler, self.default_error_handler,
+                   '', unbreakable_filters, breakable_filters, paginate=paginate_param)
 
-        mock_request.assert_called_once_with('GET', '', params=expected_params)
-        assert actual == ['result']
+        if paginate_param is True:
+            assert mock_request.call_count == 2
+            mock_request.assert_called_with('GET', '', params=expected_params)
+        else:
+            mock_request.assert_called_once_with('GET', '', params=expected_params)
 
     @pytest.mark.filterwarnings('ignore::sailor.utils.utils.DataNotFoundWarning')
-    def test_adds_filter_parameter_on_call(self, mock_request):
+    def test_adds_filter_parameter_on_call(self, mock_request, paginate_param):
         unbreakable_filters = ["location eq 'Walldorf'"]
         breakable_filters = [["manufacturer eq 'abcCorp'"]]
         expected_parameters = {'$filter': "location eq 'Walldorf' and (manufacturer eq 'abcCorp')",
                                '$format': 'json'}
+        if paginate_param is True:
+            expected_parameters.update({'$skip': 1, '$top': 50000})
+        mock_request.side_effect = [{'single': 'result'}, []]
 
-        fetch_data('dummy_client_name', self.generic_response_handler,
-                   '', unbreakable_filters, breakable_filters)
+        fetch_data('dummy_client_name', self.generic_response_handler, self.default_error_handler,
+                   '', unbreakable_filters, breakable_filters, paginate=paginate_param)
 
-        mock_request.assert_called_once_with('GET', '', params=expected_parameters)
+        if paginate_param is True:
+            assert mock_request.call_count == 2
+            mock_request.assert_called_with('GET', '', params=expected_parameters)
+        if paginate_param is False:
+            mock_request.assert_called_once_with('GET', '', params=expected_parameters)
 
-    def test_multiple_calls_aggregated_result(self, mock_request):
+    def test_multiple_calls_aggregated_result(self, mock_request, paginate_param):
         unbreakable_filters = ["location eq 'Walldorf'"]
         # causes _compose_queries to generate two filter strings
         breakable_filters = [["manufacturer eq 'abcCorp'"] * 100]
-        mock_request.side_effect = [["result1-1", "result1-2"], ["result2-1"]]
         expected_result = ["result1-1", "result1-2", "result2-1"]
+        if paginate_param is True:
+            mock_request.side_effect = [["result1-1", "result1-2"], [], ["result2-1"], []]
+        else:
+            mock_request.side_effect = [["result1-1", "result1-2"], ["result2-1"]]
 
-        actual = fetch_data('dummy_client_name', self.generic_response_handler,
-                            '', unbreakable_filters, breakable_filters)
+        actual = fetch_data('dummy_client_name', self.generic_response_handler, self.default_error_handler,
+                            '', unbreakable_filters, breakable_filters, paginate=paginate_param)
 
         assert actual == expected_result
 

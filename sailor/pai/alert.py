@@ -207,7 +207,7 @@ def find_alerts(*, extended_filters=(), **kwargs) -> AlertSet:
         _base.parse_filter_parameters(kwargs, extended_filters, Alert._field_map)
 
     endpoint_url = _pai_application_url() + ALERTS_READ_PATH
-    object_list = _pai_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _pai_fetch_data(endpoint_url, unbreakable_filters, breakable_filters, paginate=True)
 
     LOG.debug('Found %d alerts for the specified filters.', len(object_list))
     return AlertSet([Alert(obj) for obj in object_list])

@@ -188,6 +188,6 @@ def find_models(*, extended_filters=(), **kwargs) -> ModelSet:
         _base.parse_filter_parameters(kwargs, extended_filters, Model._field_map)
 
     endpoint_url = _ac_application_url() + VIEW_MODELS
-    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters)
+    object_list = _ac_fetch_data(endpoint_url, unbreakable_filters, breakable_filters, paginate=True)
     LOG.debug('Found %d models for the specified filters.', len(object_list))
     return ModelSet([Model(obj) for obj in object_list])

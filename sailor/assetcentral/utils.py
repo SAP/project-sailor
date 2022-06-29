@@ -15,18 +15,21 @@ LOG.addHandler(logging.NullHandler())
 LOG = WarningAdapter(LOG)
 
 
-def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=()):
-    try:
-        return _base.fetch_data('asset_central', _ac_response_handler,
-                                endpoint_url, unbreakable_filters, breakable_filters)
-    except RequestError as e:
-        if e.status_code == 429:
-            LOG.debug('AssetCentral request was rate limited, will re-try once in 1s.')
-            time.sleep(1)
-            return _base.fetch_data('asset_central', _ac_response_handler,
-                                    endpoint_url, unbreakable_filters, breakable_filters)
-        else:
-            raise
+def _ac_fetch_data(endpoint_url, unbreakable_filters=(), breakable_filters=(), **kwargs):
+    return _base.fetch_data('asset_central', _ac_response_handler, _ac_error_handler,
+                            endpoint_url, unbreakable_filters, breakable_filters, **kwargs)
+
+
+def _ac_error_handler(exc: RequestError, retry_count):
+    """Handle ONLY rate limit errors."""
+    if retry_count > 1:
+        raise exc
+    elif exc.status_code == 429:
+        LOG.debug('AssetCentral request was rate limited, will re-try once in 1s.')
+        time.sleep(1)
+        return
+    else:
+        raise exc
 
 
 def _ac_response_handler(result_list, endpoint_data):

@@ -110,7 +110,7 @@ def test_ac_fetch_data_integration(mock_request):
                            '$format': 'json'}
     expected = mock_request.return_value = ['result1']
 
-    actual = _ac_fetch_data('', unbreakable_filters, breakable_filters)
+    actual = _ac_fetch_data('', unbreakable_filters, breakable_filters, paginate=False)
 
     mock_request.assert_called_once_with('GET', '', params=expected_parameters)
     assert actual == expected
@@ -121,7 +121,7 @@ def test_ac_fetch_data_rate_limiting(mock_sleep, mock_request):
     exception = RequestError('test_message', 429, 'reason', 'error_text')
     mock_request.side_effect = [exception, 'retry-response']
 
-    actual = _ac_fetch_data('')
+    actual = _ac_fetch_data('', paginate=False)
 
     assert mock_request.call_count == 2
     assert actual == ['retry-response']
