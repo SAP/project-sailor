@@ -134,7 +134,7 @@ def test_check_indicator_group_is_complete(mock_request):
     response = _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 'template')
 
     assert mock_request.call_count == 1
-    assert(response is None)
+    assert response is None
 
 
 def test_check_indicator_group_is_complete_raise_error(mock_request):
