@@ -103,7 +103,7 @@ def _check_indicator_group_is_complete(uploaded_indicators, indicator_group_id, 
                            'If this is wanted, use "force_update" in the function call.')
 
 
-def upload_indicator_data(dataset: TimeseriesDataset, force_update=True):
+def upload_indicator_data(dataset: TimeseriesDataset, force_update=False):
     """
     Upload a `TimeseriesDataset` to SAP IoT.
 
@@ -133,11 +133,6 @@ def upload_indicator_data(dataset: TimeseriesDataset, force_update=True):
 
         upload_indicator_data(my_timeseries_data)
     """
-    if force_update is True:
-        LOG.log_with_warning('Starting July 1st this function will raise an error if not all indicators' +
-                             ' in the IndicatorSet are provided in the data. To recover the current behaviour' +
-                             ' you will have to specify force_update=True', warning_category=FutureWarning)
-
     if isinstance(dataset.indicator_set, ac_indicators.AggregatedIndicatorSet):
         raise RuntimeError('TimeseriesDatasets containing aggregated indicators may not be uploaded to SAP IoT')
 
