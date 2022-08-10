@@ -94,11 +94,7 @@ class OAuth2Client():
         response = session.request(method, url, **req_kwargs)
         if response.ok:
             if response.headers.get('content-type', '').lower() == 'application/json':
-                # TODO: remove this workaround when API has been fixed
-                try:
-                    return response.json()
-                except json.JSONDecodeError:
-                    return response.content
+                return response.json()
             else:
                 return response.content
         else:
