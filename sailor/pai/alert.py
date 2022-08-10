@@ -250,7 +250,7 @@ def _create_alert(request) -> Alert:
     endpoint_url = ac_utils._ac_application_url() + ALERTS_WRITE_PATH
     oauth_client = get_oauth_client('asset_central')
 
-    response = oauth_client.request('POST', endpoint_url, json=request.data)
+    response = oauth_client.request('POST', endpoint_url, json=request.data, headers={'Accept': 'text/plain'})
     response = response.decode('utf-8')
     LOG.debug('Response of alert creation: \n%s', response)
     alert_id = re.search(r'[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}',

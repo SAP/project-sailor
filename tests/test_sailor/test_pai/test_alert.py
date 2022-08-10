@@ -177,7 +177,8 @@ def test_create_alert_create_calls_and_result(mock_ac_url, mock_pai_url, mock_re
         actual = create_alert(**input_kwargs)
 
     mock_request.assert_has_calls([
-        call('POST', 'ac_base_url' + constants.ALERTS_WRITE_PATH, json=expected_request_dict),
+        call('POST', 'ac_base_url' + constants.ALERTS_WRITE_PATH, json=expected_request_dict,
+             headers={'Accept': 'text/plain'}),
         call('GET', 'pai_base_url' + constants.ALERTS_READ_PATH,
              params={'$filter': "AlertId eq '12345678-1234-1234-1234-1234567890ab'", '$format': 'json'})])
     assert type(actual) == Alert
@@ -239,7 +240,8 @@ def test_create_alert_integration(mock_pai_url, mock_ac_url, mock_request, mock_
     actual = create_alert(**create_kwargs)
 
     mock_request.assert_has_calls([
-        call('POST', 'ac_base_url/ain/services/api/v1/alerts', json=expected_request_dict),
+        call('POST', 'ac_base_url/ain/services/api/v1/alerts', json=expected_request_dict,
+             headers={'Accept': 'text/plain'}),
         call('GET', 'pai_base_url/alerts/odata/v1/Alerts', params={
             '$filter': "AlertId eq '12345678-1234-1234-1234-1234567890ab'", '$format': 'json'})])
     assert type(actual) == Alert
