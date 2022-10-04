@@ -20,7 +20,7 @@ idna==3.3
     # via requests
 isodate==0.6.1
     # via -r requirements.in
-joblib==1.1.0
+joblib==1.2.0
     # via scikit-learn
 kiwisolver==1.4.4
     # via matplotlib
