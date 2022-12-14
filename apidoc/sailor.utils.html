@@ -15,7 +15,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -58,8 +60,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils</span></code></li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils</span></code></li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/SAP/project-sailor/blob/main/docs/apidoc/sailor.utils.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -70,15 +72,22 @@
            <div itemprop="articleBody">
              
   <section id="sailor-utils">
-<h1><a class="reference internal" href="#module-sailor.utils" title="sailor.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils</span></code></a><a class="headerlink" href="#sailor-utils" title="Permalink to this headline"></a></h1>
+<h1><a class="reference internal" href="#module-sailor.utils" title="sailor.utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils</span></code></a><a class="headerlink" href="#sailor-utils" title="Permalink to this heading"></a></h1>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="sailor.utils.oauth_wrapper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.oauth_wrapper</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sailor.utils.oauth_wrapper.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="sailor.utils.oauth_wrapper.OAuthServiceImpl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.oauth_wrapper.OAuthServiceImpl</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.utils.oauth_wrapper.clients.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.oauth_wrapper.clients</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.oauth_wrapper.OAuthServiceImpl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.oauth_wrapper.OAuthServiceImpl</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.utils.oauth_wrapper.OAuthServiceImpl.html#sailor.utils.oauth_wrapper.OAuthServiceImpl.RequestError"><code class="docutils literal notranslate"><span class="pre">RequestError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.utils.oauth_wrapper.OAuthServiceImpl.html#sailor.utils.oauth_wrapper.OAuthServiceImpl.OAuth2Client"><code class="docutils literal notranslate"><span class="pre">OAuth2Client</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.oauth_wrapper.clients.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.oauth_wrapper.clients</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.utils.oauth_wrapper.clients.html#sailor.utils.oauth_wrapper.clients.get_oauth_client"><code class="docutils literal notranslate"><span class="pre">get_oauth_client()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="sailor.utils.oauth_wrapper.scope_config.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.oauth_wrapper.scope_config</span></code></a></li>
 </ul>
 </li>
@@ -89,18 +98,52 @@
 </div>
 </section>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="sailor.utils.config.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.config</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="sailor.utils.config.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.config</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.SailorConfig"><code class="docutils literal notranslate"><span class="pre">SailorConfig</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.SailorConfig.count"><code class="docutils literal notranslate"><span class="pre">SailorConfig.count()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.SailorConfig.from_env"><code class="docutils literal notranslate"><span class="pre">SailorConfig.from_env()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.SailorConfig.from_yaml"><code class="docutils literal notranslate"><span class="pre">SailorConfig.from_yaml()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.SailorConfig.get"><code class="docutils literal notranslate"><span class="pre">SailorConfig.get()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.SailorConfig.index"><code class="docutils literal notranslate"><span class="pre">SailorConfig.index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.SailorConfig.load"><code class="docutils literal notranslate"><span class="pre">SailorConfig.load()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.SailorConfig.asset_central"><code class="docutils literal notranslate"><span class="pre">SailorConfig.asset_central</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.SailorConfig.predictive_asset_insights"><code class="docutils literal notranslate"><span class="pre">SailorConfig.predictive_asset_insights</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.SailorConfig.sap_iot"><code class="docutils literal notranslate"><span class="pre">SailorConfig.sap_iot</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.try_log"><code class="docutils literal notranslate"><span class="pre">try_log()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="sailor.utils.plot_helper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.plot_helper</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="sailor.utils.timestamps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.timestamps</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="sailor.utils.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.utils</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="sailor.utils.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.utils</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.DataNotFoundWarning"><code class="docutils literal notranslate"><span class="pre">DataNotFoundWarning</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter"><code class="docutils literal notranslate"><span class="pre">WarningAdapter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.critical"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.critical()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.debug"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.debug()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.error"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.exception"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.exception()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.getEffectiveLevel"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.getEffectiveLevel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.hasHandlers"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.hasHandlers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.info"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.info()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.isEnabledFor"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.isEnabledFor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.log"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.log()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.log_with_warning"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.log_with_warning()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.process"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.process()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.setLevel"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.setLevel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter.warning"><code class="docutils literal notranslate"><span class="pre">WarningAdapter.warning()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
 <section id="module-sailor.utils">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sailor.utils" title="Permalink to this headline"></a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sailor.utils" title="Permalink to this heading"></a></h2>
 </section>
 </section>
 

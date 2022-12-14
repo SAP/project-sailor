@@ -15,7 +15,9 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -75,8 +77,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Getting started</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Getting started</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/SAP/project-sailor/blob/main/docs/introduction.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -87,7 +89,7 @@
            <div itemprop="articleBody">
              
   <section id="getting-started">
-<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h1>
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
 <p><strong>Project “Sailor”</strong> allows you to easily access data from your SAP Digital Supply Chain software products for data science projects like
 predictive maintenance or master data analysis.</p>
 <p>Once your data is available, it is your choice how to work with it. Project “Sailor” comes with several predefined functions to support you
@@ -95,20 +97,20 @@ in exploring your data. Adding to that you can create custom plots or even build
 You can learn more about that on our <a class="reference external" href="https://sap.github.io/project-sailor/tutorial.html">tutorial page</a>.
 “Sailor” provides you with a set of functions out of the box, but most importantly it facilitates flexibility and extensibility.</p>
 <section id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline"></a></h2>
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h2>
 <p>You need access to SAP Asset Central and the SAP IoT services in order to use “Sailor”.</p>
 <p>Since the project “Sailor” is implemented in Python you need to have Python installed. Currently we support Python &gt;=3.8.
 The required python packages are automatically installed while installing “Sailor”.</p>
 </section>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
 <p>Install the package with pip</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">sailor</span>
 </pre></div>
 </div>
 </section>
 <section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h2>
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading"></a></h2>
 <p>“Sailor” talks to two services: SAP Asset Central and SAP IoT.
 You have two options of specifying the configuration:</p>
 <ol class="arabic simple">
@@ -117,7 +119,7 @@ You have two options of specifying the configuration:</p>
 </ol>
 <p>The above order is honoured when “Sailor” checks for the configuration.</p>
 <section id="environment">
-<h3>Environment<a class="headerlink" href="#environment" title="Permalink to this headline"></a></h3>
+<h3>Environment<a class="headerlink" href="#environment" title="Permalink to this heading"></a></h3>
 <p>A JSON string can be provided with the environment variable <code class="docutils literal notranslate"><span class="pre">SAILOR_CONFIG_JSON</span></code>. Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAILOR_CONFIG_JSON&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
     <span class="s1">&#39;asset_central&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -148,7 +150,7 @@ You have two options of specifying the configuration:</p>
 </div>
 </section>
 <section id="yaml-file">
-<h3>YAML file<a class="headerlink" href="#yaml-file" title="Permalink to this headline"></a></h3>
+<h3>YAML file<a class="headerlink" href="#yaml-file" title="Permalink to this heading"></a></h3>
 <p>Specify the location of a YAML file via environment variable (e.g.: <code class="docutils literal notranslate"><span class="pre">SAILOR_CONFIG_PATH=/home/my_sailor_config.yml</span></code>). Alternatively you can put a YAML file named <code class="docutils literal notranslate"><span class="pre">config.yml</span></code> next to your main script/notebook without setting the <code class="docutils literal notranslate"><span class="pre">SAILOR_CONFIG_PATH</span></code>. Example YAML file:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">asset_central</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ACexampleId</span><span class="w"></span>
@@ -175,7 +177,7 @@ You have two options of specifying the configuration:</p>
 </section>
 </section>
 <section id="quickstart-example">
-<h2>Quickstart Example<a class="headerlink" href="#quickstart-example" title="Permalink to this headline"></a></h2>
+<h2>Quickstart Example<a class="headerlink" href="#quickstart-example" title="Permalink to this heading"></a></h2>
 <p>The following code snippet can be used to quickly get started with “Sailor”. It shows you how to read data of equipments, notifications and sensor data from your SAP backends. In addition to that there are predefined plotting functions which can be used to explore your data.</p>
 <p>For a detailed example please visit our <a class="reference external" href="https://sap.github.io/project-sailor/tutorial.html">tutorial page</a>. It will walk you through the functionality offered by project “Sailor” step by step.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -195,25 +197,25 @@ You have two options of specifying the configuration:</p>
 </div>
 </section>
 <section id="limitations">
-<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline"></a></h2>
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this heading"></a></h2>
 <p>Currently we do not support parallel data processing frameworks.
 You are bound by the limitations of the pandas DataFrame and the computing hardware running our code.</p>
 </section>
 <section id="known-issues">
-<h2>Known Issues<a class="headerlink" href="#known-issues" title="Permalink to this headline"></a></h2>
+<h2>Known Issues<a class="headerlink" href="#known-issues" title="Permalink to this heading"></a></h2>
 <p>There are currently no known issues. All upcoming issues are tracked as <a class="reference external" href="https://github.com/SAP/project-sailor/issues">GitHub Issues</a> in the repository.</p>
 </section>
 <section id="how-to-obtain-support">
-<h2>How to obtain support<a class="headerlink" href="#how-to-obtain-support" title="Permalink to this headline"></a></h2>
+<h2>How to obtain support<a class="headerlink" href="#how-to-obtain-support" title="Permalink to this heading"></a></h2>
 <p>If you encountered a bug or have a feature request, please create a <a class="reference external" href="https://github.com/SAP/project-sailor/issues">GitHub Issue</a> in the repository.
 You can also get in touch with the developers directly by reaching out to <a class="reference external" href="mailto:project&#46;sailor&#37;&#52;&#48;sap&#46;com">project<span>&#46;</span>sailor<span>&#64;</span>sap<span>&#46;</span>com</a> in order to obtain support.</p>
 </section>
 <section id="contributing">
-<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline"></a></h2>
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading"></a></h2>
 <p>We welcome all contributions either in form of issues, code contributions, questions or any other formats. For details please refer to the <a class="reference external" href="https://sap.github.io/project-sailor/contributing.html">Contributing Page</a> in the documentation.</p>
 </section>
 <section id="licensing">
-<h2>Licensing<a class="headerlink" href="#licensing" title="Permalink to this headline"></a></h2>
+<h2>Licensing<a class="headerlink" href="#licensing" title="Permalink to this heading"></a></h2>
 <p>Please see our <a class="reference external" href="https://github.com/SAP/project-sailor/blob/main/LICENSE">LICENSE</a> for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available via the <a class="reference external" href="https://api.reuse.software/info/github.com/SAP/project-sailor">REUSE tool</a>.</p>
 </section>
 </section>

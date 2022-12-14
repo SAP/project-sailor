@@ -15,7 +15,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -58,8 +60,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor</span></code></li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor</span></code></li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/SAP/project-sailor/blob/main/docs/apidoc/sailor.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -70,46 +72,146 @@
            <div itemprop="articleBody">
              
   <section id="sailor">
-<h1><a class="reference internal" href="#module-sailor" title="sailor"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor</span></code></a><a class="headerlink" href="#sailor" title="Permalink to this headline"></a></h1>
+<h1><a class="reference internal" href="#module-sailor" title="sailor"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor</span></code></a><a class="headerlink" href="#sailor" title="Permalink to this heading"></a></h1>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline"></a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="sailor.assetcentral.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.constants</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.equipment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.failure_mode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.failure_mode</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.functional_location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.functional_location</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.group.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.group</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.indicators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.model</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.notification.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.workorder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.equipment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.equipment</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment"><code class="docutils literal notranslate"><span class="pre">Equipment</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet"><code class="docutils literal notranslate"><span class="pre">EquipmentSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.find_equipment"><code class="docutils literal notranslate"><span class="pre">find_equipment()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.html#module-sailor.assetcentral">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.failure_mode.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.failure_mode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.FailureMode"><code class="docutils literal notranslate"><span class="pre">FailureMode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.FailureModeSet"><code class="docutils literal notranslate"><span class="pre">FailureModeSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.failure_mode.html#sailor.assetcentral.failure_mode.find_failure_modes"><code class="docutils literal notranslate"><span class="pre">find_failure_modes()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.functional_location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.functional_location</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.functional_location.html#sailor.assetcentral.functional_location.FunctionalLocation"><code class="docutils literal notranslate"><span class="pre">FunctionalLocation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.functional_location.html#sailor.assetcentral.functional_location.FunctionalLocationSet"><code class="docutils literal notranslate"><span class="pre">FunctionalLocationSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.functional_location.html#sailor.assetcentral.functional_location.find_functional_locations"><code class="docutils literal notranslate"><span class="pre">find_functional_locations()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.group.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.group</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.group.html#sailor.assetcentral.group.Group"><code class="docutils literal notranslate"><span class="pre">Group</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.group.html#sailor.assetcentral.group.GroupSet"><code class="docutils literal notranslate"><span class="pre">GroupSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.group.html#sailor.assetcentral.group.find_groups"><code class="docutils literal notranslate"><span class="pre">find_groups()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.indicators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.indicators</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.AggregatedIndicator"><code class="docutils literal notranslate"><span class="pre">AggregatedIndicator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.AggregatedIndicatorSet"><code class="docutils literal notranslate"><span class="pre">AggregatedIndicatorSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.Indicator"><code class="docutils literal notranslate"><span class="pre">Indicator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.IndicatorSet"><code class="docutils literal notranslate"><span class="pre">IndicatorSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.SystemAggregatedIndicator"><code class="docutils literal notranslate"><span class="pre">SystemAggregatedIndicator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.SystemAggregatedIndicatorSet"><code class="docutils literal notranslate"><span class="pre">SystemAggregatedIndicatorSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.SystemIndicator"><code class="docutils literal notranslate"><span class="pre">SystemIndicator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.indicators.html#sailor.assetcentral.indicators.SystemIndicatorSet"><code class="docutils literal notranslate"><span class="pre">SystemIndicatorSet</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.location.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.location</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.location.html#sailor.assetcentral.location.Location"><code class="docutils literal notranslate"><span class="pre">Location</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.location.html#sailor.assetcentral.location.LocationSet"><code class="docutils literal notranslate"><span class="pre">LocationSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.location.html#sailor.assetcentral.location.find_locations"><code class="docutils literal notranslate"><span class="pre">find_locations()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.model</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.model.html#sailor.assetcentral.model.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.model.html#sailor.assetcentral.model.ModelSet"><code class="docutils literal notranslate"><span class="pre">ModelSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.model.html#sailor.assetcentral.model.find_models"><code class="docutils literal notranslate"><span class="pre">find_models()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.notification.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.notification</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification"><code class="docutils literal notranslate"><span class="pre">Notification</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.NotificationSet"><code class="docutils literal notranslate"><span class="pre">NotificationSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.create_notification"><code class="docutils literal notranslate"><span class="pre">create_notification()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.find_notifications"><code class="docutils literal notranslate"><span class="pre">find_notifications()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.notification.html#sailor.assetcentral.notification.update_notification"><code class="docutils literal notranslate"><span class="pre">update_notification()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.system</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.system.html#sailor.assetcentral.system.System"><code class="docutils literal notranslate"><span class="pre">System</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.system.html#sailor.assetcentral.system.SystemSet"><code class="docutils literal notranslate"><span class="pre">SystemSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.system.html#sailor.assetcentral.system.create_analysis_table"><code class="docutils literal notranslate"><span class="pre">create_analysis_table()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.system.html#sailor.assetcentral.system.find_systems"><code class="docutils literal notranslate"><span class="pre">find_systems()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.utils</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralRequestValidationError"><code class="docutils literal notranslate"><span class="pre">AssetcentralRequestValidationError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntity"><code class="docutils literal notranslate"><span class="pre">AssetcentralEntity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.utils.html#sailor.assetcentral.utils.AssetcentralEntitySet"><code class="docutils literal notranslate"><span class="pre">AssetcentralEntitySet</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.workorder.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.assetcentral.workorder</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.Workorder"><code class="docutils literal notranslate"><span class="pre">Workorder</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.WorkorderSet"><code class="docutils literal notranslate"><span class="pre">WorkorderSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.assetcentral.workorder.html#sailor.assetcentral.workorder.find_workorders"><code class="docutils literal notranslate"><span class="pre">find_workorders()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.assetcentral.html#module-sailor.assetcentral">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.html#sailor.assetcentral.find_equipment"><code class="docutils literal notranslate"><span class="pre">find_equipment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.html#sailor.assetcentral.find_failure_modes"><code class="docutils literal notranslate"><span class="pre">find_failure_modes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.html#sailor.assetcentral.find_functional_locations"><code class="docutils literal notranslate"><span class="pre">find_functional_locations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.html#sailor.assetcentral.find_groups"><code class="docutils literal notranslate"><span class="pre">find_groups()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.html#sailor.assetcentral.find_locations"><code class="docutils literal notranslate"><span class="pre">find_locations()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.html#sailor.assetcentral.find_models"><code class="docutils literal notranslate"><span class="pre">find_models()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.html#sailor.assetcentral.find_notifications"><code class="docutils literal notranslate"><span class="pre">find_notifications()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.html#sailor.assetcentral.find_systems"><code class="docutils literal notranslate"><span class="pre">find_systems()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.assetcentral.html#sailor.assetcentral.find_workorders"><code class="docutils literal notranslate"><span class="pre">find_workorders()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sailor.pai.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sailor.pai.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="sailor.pai.alert.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai.alert</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.pai.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai.constants</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.pai.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai.utils</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.pai.alert.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai.alert</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.pai.alert.html#sailor.pai.alert.Alert"><code class="docutils literal notranslate"><span class="pre">Alert</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.pai.alert.html#sailor.pai.alert.AlertSet"><code class="docutils literal notranslate"><span class="pre">AlertSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.pai.alert.html#sailor.pai.alert.create_alert"><code class="docutils literal notranslate"><span class="pre">create_alert()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.pai.alert.html#sailor.pai.alert.find_alerts"><code class="docutils literal notranslate"><span class="pre">find_alerts()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="sailor.pai.html#module-sailor.pai">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.pai.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai.constants</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.pai.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.pai.utils</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.pai.utils.html#sailor.pai.utils.PredictiveAssetInsightsEntity"><code class="docutils literal notranslate"><span class="pre">PredictiveAssetInsightsEntity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.pai.utils.html#sailor.pai.utils.PredictiveAssetInsightsEntitySet"><code class="docutils literal notranslate"><span class="pre">PredictiveAssetInsightsEntitySet</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sailor.pai.html#module-sailor.pai">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sailor.pai.html#sailor.pai.create_alert"><code class="docutils literal notranslate"><span class="pre">create_alert()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.pai.html#sailor.pai.find_alerts"><code class="docutils literal notranslate"><span class="pre">find_alerts()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sailor.sap_iot.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.fetch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.fetch_aggregates.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch_aggregates</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.wrappers</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.write.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.fetch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data"><code class="docutils literal notranslate"><span class="pre">get_indicator_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.fetch_aggregates.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch_aggregates</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.sap_iot.fetch_aggregates.html#sailor.sap_iot.fetch_aggregates.get_indicator_aggregates"><code class="docutils literal notranslate"><span class="pre">get_indicator_aggregates()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.wrappers</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.write.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.sap_iot.write.html#sailor.sap_iot.write.upload_indicator_data"><code class="docutils literal notranslate"><span class="pre">upload_indicator_data()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.html#module-sailor.sap_iot">Module contents</a></li>
@@ -125,10 +227,18 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.utils.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="sailor.utils.config.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.config.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.config</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.SailorConfig"><code class="docutils literal notranslate"><span class="pre">SailorConfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.utils.config.html#sailor.utils.config.try_log"><code class="docutils literal notranslate"><span class="pre">try_log()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="sailor.utils.plot_helper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.plot_helper</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="sailor.utils.timestamps.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.timestamps</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.utils</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.utils.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.utils.utils</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.DataNotFoundWarning"><code class="docutils literal notranslate"><span class="pre">DataNotFoundWarning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="sailor.utils.utils.html#sailor.utils.utils.WarningAdapter"><code class="docutils literal notranslate"><span class="pre">WarningAdapter</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sailor.utils.html#module-sailor.utils">Module contents</a></li>
@@ -138,7 +248,7 @@
 </div>
 </section>
 <section id="module-sailor">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sailor" title="Permalink to this headline"></a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sailor" title="Permalink to this heading"></a></h2>
 </section>
 </section>
 

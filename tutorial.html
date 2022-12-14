@@ -15,7 +15,9 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -77,8 +79,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Tutorial</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Tutorial</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/SAP/project-sailor/blob/main/docs/tutorial.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -89,7 +91,7 @@
            <div itemprop="articleBody">
              
   <section id="tutorial">
-<span id="id1"></span><h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline"></a></h1>
+<span id="id1"></span><h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this heading"></a></h1>
 <p>In this tutorial, you will learn how to use project “Sailor” to build your own algorithms and models from data stored
 in your SAP backends. In particular, you will learn how to:</p>
 <ul class="simple">
@@ -104,7 +106,7 @@ in your SAP backends. In particular, you will learn how to:</p>
 <li><p><a class="reference internal" href="#how-to-model"><span class="std std-ref">Build a machine learning model on the extracted data</span></a></p></li>
 </ul>
 <section id="configuration">
-<span id="how-to-configure"></span><h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline"></a></h2>
+<span id="how-to-configure"></span><h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading"></a></h2>
 <p>Before using the functions provided as part of project “Sailor,” you will have to configure the package to work
 with your SAP systems. For a detailed description of the configuration, please refer to the
 <a class="reference internal" href="introduction.html"><span class="doc">Getting started guide</span></a>.</p>
@@ -117,7 +119,7 @@ packages like this:</p>
 </div>
 </section>
 <section id="reading-master-data">
-<span id="how-to-read-master-data"></span><h2>Reading Master Data<a class="headerlink" href="#reading-master-data" title="Permalink to this headline"></a></h2>
+<span id="how-to-read-master-data"></span><h2>Reading Master Data<a class="headerlink" href="#reading-master-data" title="Permalink to this heading"></a></h2>
 <p>To start the analysis, we first identify the equipment of interest. We use <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.find_equipment" title="sailor.assetcentral.equipment.find_equipment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_equipment()</span></code></a> to search for the pieces of equipment
 of interest - namely those belonging to the model <code class="docutils literal notranslate"><span class="pre">my_model_name</span></code>. The function returns a <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.EquipmentSet" title="sailor.assetcentral.equipment.EquipmentSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">EquipmentSet</span></code></a>,
 an object representing multiple pieces of equipment. The convenience function <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_df()</span></code> returns a representation of the
@@ -171,7 +173,7 @@ Again, a <code class="docutils literal notranslate"><span class="pre">pandas</sp
 </div>
 </section>
 <section id="exploring-data">
-<span id="how-to-explore-data"></span><h2>Exploring Data<a class="headerlink" href="#exploring-data" title="Permalink to this headline"></a></h2>
+<span id="how-to-explore-data"></span><h2>Exploring Data<a class="headerlink" href="#exploring-data" title="Permalink to this heading"></a></h2>
 <p>To facilitate exploration and use of the extracted data for exploration, visualization, and model building, the <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_df()</span></code> function
 is provided for all objects. The functions provide representations of the objects as <code class="docutils literal notranslate"><span class="pre">pandas</span></code> dataframe.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">notification_set</span><span class="o">.</span><span class="n">as_df</span><span class="p">()</span>
@@ -219,7 +221,7 @@ a timeseries dataset locally as described in <a class="reference internal" href=
 </div>
 </section>
 <section id="read-timeseries-data">
-<span id="how-to-read-timeseries"></span><h2>Read Timeseries Data<a class="headerlink" href="#read-timeseries-data" title="Permalink to this headline"></a></h2>
+<span id="how-to-read-timeseries"></span><h2>Read Timeseries Data<a class="headerlink" href="#read-timeseries-data" title="Permalink to this heading"></a></h2>
 <p>For many use cases like anomaly detection, failure prediction, or remaining-useful-life prediction, it is useful to look at the machine’s
 sensor data. Sensor data is attached to equipment via indicators. An indicator is a description of measured values.</p>
 <p>To find out which indicators are defined for a piece of equipment, you can use <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment.find_equipment_indicators" title="sailor.assetcentral.equipment.Equipment.find_equipment_indicators"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_equipment_indicators()</span></code></a></p>
@@ -250,7 +252,7 @@ If here the indicator set is left blank, then all indicators returned by <a clas
 </div>
 </section>
 <section id="working-with-timeseries-data">
-<span id="how-to-work-with-data"></span><h2>Working with Timeseries Data<a class="headerlink" href="#working-with-timeseries-data" title="Permalink to this headline"></a></h2>
+<span id="how-to-work-with-data"></span><h2>Working with Timeseries Data<a class="headerlink" href="#working-with-timeseries-data" title="Permalink to this heading"></a></h2>
 <p>Timeseries data is always returned as a <a class="reference internal" href="apidoc/sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeseriesDataset</span></code></a>.
 With this object you have some options on how to work with the data contained within it.</p>
 <p>You can retrieve the data as a DataFrame:</p>
@@ -276,7 +278,7 @@ Interpolation of <code class="docutils literal notranslate"><span class="pre">Na
 <img alt="_images/data_plot.png" src="_images/data_plot.png" />
 </section>
 <section id="working-with-systems">
-<span id="id2"></span><h2>Working with Systems<a class="headerlink" href="#working-with-systems" title="Permalink to this headline"></a></h2>
+<span id="id2"></span><h2>Working with Systems<a class="headerlink" href="#working-with-systems" title="Permalink to this heading"></a></h2>
 <p>Systems are hierarchical data structures in AssetCentral. With SAP Predictive Asset Insights it is possible to create quite
 deeply nested system trees consisting of many systems and equipment. Retrieving these systems and the timeseries data
 associated with it can be a cumbersome task. Sailor provides some functionality to support data scientists in exploring systems.</p>
@@ -290,7 +292,7 @@ associated with it can be a cumbersome task. Sailor provides some functionality 
 <p>By default, the <code class="docutils literal notranslate"><span class="pre">TimeseriesDataset</span></code> contains every piece of equipment from every system encountered by traversing the trees of each system in the <code class="docutils literal notranslate"><span class="pre">SystemSet</span></code>.
 Some indicators might not be used with some equipment. In these cases the values are set to NaN.</p>
 <section id="analysis-tables-for-systems">
-<h3>Analysis tables for systems<a class="headerlink" href="#analysis-tables-for-systems" title="Permalink to this headline"></a></h3>
+<h3>Analysis tables for systems<a class="headerlink" href="#analysis-tables-for-systems" title="Permalink to this heading"></a></h3>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.9.0.</span></p>
 </div>
@@ -311,7 +313,7 @@ by calling <code class="docutils literal notranslate"><span class="pre">get_lead
 </section>
 </section>
 <section id="writing-master-data">
-<span id="how-to-write-master-data"></span><h2>Writing Master Data<a class="headerlink" href="#writing-master-data" title="Permalink to this headline"></a></h2>
+<span id="how-to-write-master-data"></span><h2>Writing Master Data<a class="headerlink" href="#writing-master-data" title="Permalink to this heading"></a></h2>
 <p>We also aim to provide the possibility to write data to all backend systems supported by Sailor.
 In this example we show you how to create notifications in AssetCentral.</p>
 <p>Notifications are usually created for some equipment.
@@ -338,9 +340,9 @@ Notification object to send our desired changes to Assetcentral:</p>
 e.g., from when using the <code class="docutils literal notranslate"><span class="pre">find_*</span></code> functions.</p>
 </section>
 <section id="customization">
-<h2>Customization<a class="headerlink" href="#customization" title="Permalink to this headline"></a></h2>
+<h2>Customization<a class="headerlink" href="#customization" title="Permalink to this heading"></a></h2>
 <section id="building-custom-visualizations">
-<span id="how-to-custom-plot"></span><h3>Building Custom Visualizations<a class="headerlink" href="#building-custom-visualizations" title="Permalink to this headline"></a></h3>
+<span id="how-to-custom-plot"></span><h3>Building Custom Visualizations<a class="headerlink" href="#building-custom-visualizations" title="Permalink to this heading"></a></h3>
 <p>To build your custom analysis or plot, you can use the data in any <code class="xref py py-class docutils literal notranslate"><span class="pre">ResultSet</span></code> and transform
 it into a <cite>pandas</cite> dataframe using <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_df()</span></code>. The data frame can then form the
 basis of your visualization.</p>
@@ -355,7 +357,7 @@ basis of your visualization.</p>
 <img alt="_images/custom_plot.png" src="_images/custom_plot.png" />
 </section>
 <section id="building-custom-machine-learning-models">
-<span id="how-to-model"></span><h3>Building Custom Machine Learning Models<a class="headerlink" href="#building-custom-machine-learning-models" title="Permalink to this headline"></a></h3>
+<span id="how-to-model"></span><h3>Building Custom Machine Learning Models<a class="headerlink" href="#building-custom-machine-learning-models" title="Permalink to this heading"></a></h3>
 <p>Building machine learning models can be done using the same starting point as building custom visualizations, namely the method
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">as_df()</span></code>.</p>
 <p>This is an example of the steps necessary to train an isolation forest for detecting anomalies in the timeseries data.</p>

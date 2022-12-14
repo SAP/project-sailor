@@ -15,7 +15,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -75,9 +77,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../apidoc.html">API documentation</a> &raquo;</li>
-      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../apidoc.html">API documentation</a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/SAP/project-sailor/blob/main/docs/apidoc/sailor.sap_iot.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -88,20 +90,46 @@
            <div itemprop="articleBody">
              
   <section id="sailor-sap-iot">
-<h1><a class="reference internal" href="#module-sailor.sap_iot" title="sailor.sap_iot"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></a><a class="headerlink" href="#sailor-sap-iot" title="Permalink to this headline"></a></h1>
+<h1><a class="reference internal" href="#module-sailor.sap_iot" title="sailor.sap_iot"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></a><a class="headerlink" href="#sailor-sap-iot" title="Permalink to this heading"></a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="sailor.sap_iot.fetch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="sailor.sap_iot.fetch_aggregates.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch_aggregates</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="sailor.sap_iot.wrappers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.wrappers</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="sailor.sap_iot.write.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="sailor.sap_iot.fetch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.fetch.html#sailor.sap_iot.fetch.get_indicator_data"><code class="docutils literal notranslate"><span class="pre">get_indicator_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sailor.sap_iot.fetch_aggregates.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.fetch_aggregates</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.fetch_aggregates.html#sailor.sap_iot.fetch_aggregates.get_indicator_aggregates"><code class="docutils literal notranslate"><span class="pre">get_indicator_aggregates()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sailor.sap_iot.wrappers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.wrappers</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.aggregate"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.aggregate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.as_df"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.as_df()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.filter"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.filter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_feature_columns"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.get_feature_columns()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_index_columns"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.get_index_columns()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_key_columns"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.get_key_columns()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.get_time_column"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.get_time_column()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.interpolate"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.interpolate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.normalize"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.normalize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.plot"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.equipment_set"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.equipment_set</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset.indicator_set"><code class="docutils literal notranslate"><span class="pre">TimeseriesDataset.indicator_set</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sailor.sap_iot.write.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sailor.sap_iot.write.html#sailor.sap_iot.write.upload_indicator_data"><code class="docutils literal notranslate"><span class="pre">upload_indicator_data()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
 <section id="module-sailor.sap_iot">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sailor.sap_iot" title="Permalink to this headline"></a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sailor.sap_iot" title="Permalink to this heading"></a></h2>
 </section>
 </section>
 

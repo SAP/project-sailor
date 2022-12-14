@@ -15,7 +15,9 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -75,10 +77,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../apidoc.html">API documentation</a> &raquo;</li>
-          <li><a href="sailor.sap_iot.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></a> &raquo;</li>
-      <li><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../apidoc.html">API documentation</a></li>
+          <li class="breadcrumb-item"><a href="sailor.sap_iot.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot</span></code></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/SAP/project-sailor/blob/main/docs/apidoc/sailor.sap_iot.write.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -89,7 +91,7 @@
            <div itemprop="articleBody">
              
   <section id="module-sailor.sap_iot.write">
-<span id="sailor-sap-iot-write"></span><h1><a class="reference internal" href="#module-sailor.sap_iot.write" title="sailor.sap_iot.write"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></a><a class="headerlink" href="#module-sailor.sap_iot.write" title="Permalink to this headline"></a></h1>
+<span id="sailor-sap-iot-write"></span><h1><a class="reference internal" href="#module-sailor.sap_iot.write" title="sailor.sap_iot.write"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sailor.sap_iot.write</span></code></a><a class="headerlink" href="#module-sailor.sap_iot.write" title="Permalink to this heading"></a></h1>
 <p>Timeseries module can be used to write timeseries data to the SAP iot extension timeseries api.</p>
 <p>Currently only a single function to upload a <cite>TimeseriesDataset</cite> is exposed. It will upload the full dataset,
 indicator and equipment information is taken from the TimeseriesDataset.</p>
@@ -104,7 +106,7 @@ any values for the missing indicators for the uploaded timestamps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset"><em>sailor.sap_iot.wrappers.TimeseriesDataset</em></a>) – TimeseriesDataset of indicators to be updated to SAP IoT.</p></li>
+<li><p><strong>dataset</strong> (<a class="reference internal" href="sailor.sap_iot.wrappers.html#sailor.sap_iot.wrappers.TimeseriesDataset" title="sailor.sap_iot.wrappers.TimeseriesDataset"><em>TimeseriesDataset</em></a>) – TimeseriesDataset of indicators to be updated to SAP IoT.</p></li>
 <li><p><strong>force_update</strong> – A boolean to force an update of an IndicatorGroup with some indicators. Default value is False,
 no forced update.
 When set ‘True’ indicators which are not in dataset will be set to ‘NaN’ for period of time.</p></li>

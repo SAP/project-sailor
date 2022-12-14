@@ -15,7 +15,9 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -64,8 +66,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Filter Language</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Filter Language</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/SAP/project-sailor/blob/main/docs/filter_language.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
@@ -76,7 +78,7 @@
            <div itemprop="articleBody">
              
   <section id="filter-language">
-<span id="filter"></span><h1>Filter Language<a class="headerlink" href="#filter-language" title="Permalink to this headline"></a></h1>
+<span id="filter"></span><h1>Filter Language<a class="headerlink" href="#filter-language" title="Permalink to this heading"></a></h1>
 <p>Project “Sailor” supports retrieval of objects such as <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.Equipment" title="sailor.assetcentral.equipment.Equipment"><code class="xref py py-class docutils literal notranslate"><span class="pre">Equipment</span></code></a> or
 <a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.Notification" title="sailor.assetcentral.notification.Notification"><code class="xref py py-class docutils literal notranslate"><span class="pre">Notification</span></code></a> from AssetCentral through functions like
 <a class="reference internal" href="apidoc/sailor.assetcentral.equipment.html#sailor.assetcentral.equipment.find_equipment" title="sailor.assetcentral.equipment.find_equipment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_equipment()</span></code></a> or <a class="reference internal" href="apidoc/sailor.assetcentral.notification.html#sailor.assetcentral.notification.find_notifications" title="sailor.assetcentral.notification.find_notifications"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_notifications()</span></code></a>.
@@ -95,7 +97,7 @@ by calling the <a class="reference internal" href="apidoc/sailor.assetcentral.ut
 <code class="docutils literal notranslate"><span class="pre">Notification.get_available_properties()</span></code> etc. This method returns a set of all known and
 and filterable fields.</p>
 <section id="named-keyword-arguments">
-<h2>Named Keyword Arguments<a class="headerlink" href="#named-keyword-arguments" title="Permalink to this headline"></a></h2>
+<h2>Named Keyword Arguments<a class="headerlink" href="#named-keyword-arguments" title="Permalink to this heading"></a></h2>
 <p>Any <strong>named keyword argument</strong> is applied as an equality filter.</p>
 <ul class="simple">
 <li><p>The <strong>key</strong> of the keyword argument determines the field of the object against which the filter is executed.</p></li>
@@ -121,7 +123,7 @@ with description ‘MyOtherNotification’ and start date ‘2020-07-01’.</p>
 </div>
 </section>
 <section id="extended-filters">
-<h2>Extended Filters<a class="headerlink" href="#extended-filters" title="Permalink to this headline"></a></h2>
+<h2>Extended Filters<a class="headerlink" href="#extended-filters" title="Permalink to this heading"></a></h2>
 <p>The <em>extended_filters</em> parameter can be used to specify filters that cannot be expressed as an equality or filters
 that should refer to another field of the same object.
 Extended filters need to be provided as <code class="xref py py-obj docutils literal notranslate"><span class="pre">List</span></code>. Each element in the list needs to be provided as a <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>
