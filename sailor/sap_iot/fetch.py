@@ -8,7 +8,6 @@ to interact with the data in AssetCentral terms (see wrappers.py for the conveni
 from __future__ import annotations
 
 from collections import defaultdict
-from functools import partial
 from datetime import datetime
 from typing import TYPE_CHECKING, Union, BinaryIO
 import logging
@@ -87,9 +86,8 @@ def _process_one_file(ifile: BinaryIO, indicator_set: IndicatorSet, equipment_se
     try:
         df = pd.read_csv(ifile,
                          usecols=lambda x: x != 'modelId',
-                         parse_dates=['_TIME'],
-                         date_parser=partial(pd.to_datetime, utc=True, unit='ms', errors='coerce'),
                          dtype=dtypes)
+        df['_TIME'] = pd.to_datetime(df['_TIME'], utc=True, unit='ms', errors='coerce')
     except pd.errors.EmptyDataError:
         LOG.debug('Empty file returned by SAP IoT API, ignoring the file.')
         return pd.DataFrame()
