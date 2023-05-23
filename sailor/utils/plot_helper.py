@@ -17,7 +17,6 @@ def _p9_to_svg(plotnine_plot):
 
 def _default_plot_theme():
     """Provide a default plot theme for out plots."""
-
     common_style = dict(
         axis_text_x=p9.element_text(rotation=45, ha='right'),
         axis_title_x=p9.element_text(margin={'t': 20}),
