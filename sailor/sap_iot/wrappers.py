@@ -473,7 +473,7 @@ class TimeseriesDataset(object):
         """
         def _fill_group(grp):
             target_times = pd.date_range(self.nominal_data_start, self.nominal_data_end, freq=interval,
-                                         closed='left').round(interval)
+                                         inclusive='left').round(interval)
 
             new_index = pd.DatetimeIndex(target_times.union(grp.timestamp))
             with_all_timestamps = grp.set_index(self.get_time_column()).reindex(new_index).sort_index()
