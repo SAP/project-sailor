@@ -86,7 +86,7 @@ requests==2.31.0
     #   rauth
 scikit-learn==1.2.0
     # via -r requirements.in
-scipy==1.9.3
+scipy==1.10.0
     # via
     #   mizani
     #   plotnine
