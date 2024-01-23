@@ -1,6 +1,7 @@
 furl>=2.1.3
 pyjwt>=2.4.0
-matplotlib
+matplotlib<3.8; python_version <'3.10'
+matplotlib>=3.8; python_version >='3.10'
 pandas>=1.4.0,<2
 plotnine
 pyyaml
