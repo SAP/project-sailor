@@ -222,6 +222,8 @@ class TestRawDataWrapperFunction:
 
         get_indicator_data('2020-01-01T00:00:00Z', '2020-02-01T00:00:00Z', indicator_set, equipment_set)
 
+    @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators '
+                                'in the indicator set.')
     def test_get_indicator_data_requesterror_handled(self, mock_request, make_indicator_set):
         mock_request.side_effect = RequestError('msg', '400', 'reason',
                                                 '{"message": "Data not found for the requested date range"}')
@@ -246,6 +248,8 @@ class TestRawDataWrapperFunction:
 
         assert str(exception_info.value) == content
 
+    @pytest.mark.filterwarnings('ignore:There is no data in the dataframe for some of the indicators '
+                                'in the indicator set.')
     def test_get_indicator_data_missing_indicator_warning(self, mock_zipfile, mock_gzip, mock_config, mock_request,
                                                           make_indicator_set, make_equipment_set, make_csv_bytes):
 
