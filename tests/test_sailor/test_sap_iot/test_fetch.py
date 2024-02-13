@@ -4,7 +4,7 @@ from unittest.mock import patch, call
 import pytest
 import pandas as pd
 
-from sailor.sap_iot.fetch import _start_bulk_timeseries_data_export, _check_bulk_timeseries_export_status,\
+from sailor.sap_iot.fetch import _start_bulk_timeseries_data_export, _check_bulk_timeseries_export_status, \
     _get_exported_bulk_timeseries_data, _process_one_file, get_indicator_data
 from sailor.sap_iot import TimeseriesDataset
 from sailor.assetcentral.indicators import IndicatorSet
