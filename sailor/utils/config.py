@@ -1,11 +1,11 @@
 """Provides configuration management for Sailor."""
-from collections import namedtuple
-from contextlib import contextmanager
-import os
-import logging
 import json
+import logging
+import os
 import sys
 import warnings
+from collections import namedtuple
+from contextlib import contextmanager
 
 import yaml
 
@@ -14,7 +14,7 @@ from .utils import DataNotFoundWarning
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
-CONFIG_PROPERTIES = ('asset_central', 'sap_iot', 'predictive_asset_insights')
+CONFIG_PROPERTIES = ('asset_central', 'sap_iot', 'predictive_asset_insights', 'dmc')
 
 
 @contextmanager
@@ -85,8 +85,10 @@ class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES, defaults=(None,
             LOG.info('Successfully loaded config from environment.')
             return SailorConfig.config
 
-        yaml_paths = [os.getenv('SAILOR_CONFIG_PATH', os.path.join(os.path.abspath(os.curdir), 'config.yml')),
-                      os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'config.yml')]
+        yaml_paths = [
+            os.getenv('SAILOR_CONFIG_PATH', os.path.join(os.path.abspath(os.curdir), 'config.yml')),
+            os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'config.yml')
+        ]
         yaml_paths = [p for p in yaml_paths if os.path.exists(p)]
         try:
             yaml_config_path = yaml_paths[0]
@@ -108,7 +110,7 @@ class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES, defaults=(None,
         Uses ``SAILOR_CONFIG_JSON`` in environment. Value needs to be JSON encoded.
         """
         config_dict = json.loads(os.environ['SAILOR_CONFIG_JSON'])
-        with try_log(TypeError, lambda e: 'Missing configuration parameter(s): %s' % str(e)[str(e).find(':')+2:]):
+        with try_log(TypeError, lambda e: 'Missing configuration parameter(s): %s' % str(e)[str(e).find(':') + 2:]):
             return cls(**config_dict)
 
     @classmethod
@@ -116,7 +118,7 @@ class SailorConfig(namedtuple('SailorConfig', CONFIG_PROPERTIES, defaults=(None,
         """Load config from YAML file."""
         with open(path, 'r') as f:
             config_dict = yaml.safe_load(f)
-        with try_log(TypeError, lambda e: 'Missing configuration parameter(s): %s' % str(e)[str(e).find(':')+2:]):
+        with try_log(TypeError, lambda e: 'Missing configuration parameter(s): %s' % str(e)[str(e).find(':') + 2:]):
             return cls(**config_dict)
 
 
