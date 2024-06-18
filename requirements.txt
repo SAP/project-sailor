@@ -101,5 +101,5 @@ statsmodels==0.14.1
     # via plotnine
 threadpoolctl==3.2.0
     # via scikit-learn
-urllib3==2.1.0
+urllib3==2.2.2
     # via requests
