@@ -163,7 +163,7 @@ You can also get in touch with the developers directly by reaching out to `proje
 Contributing
 ============
 
-We welcome all contributions either in form of issues, code contributions, questions or any other formats. For details please refer to the `Contributing Page <https://sap.github.io/project-sailor/contributing.html>`__ in the documentation.
+We welcome all contributions either in form of issues, code contributions, questions or any other formats. For details please refer to the `Contributing Page <https://sap.github.io/project-sailor/contributing.html>`__ in the documentation. Please also take a look at the general SAP `contribution information <https://github.com/SAP/.github/blob/main/CONTRIBUTING.md>`__.
 
 
 Licensing
