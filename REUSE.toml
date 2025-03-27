@@ -1,0 +1,23 @@
+version = 1
+SPDX-PackageName = "project \"Sailor\""
+SPDX-PackageSupplier = "DSC Datascience Team <project.sailor@sap.com>"
+SPDX-PackageDownloadLocation = "https://github.com/sap/project-sailor"
+SPDX-PackageComment = "The code in this project may include calls to APIs (“API Calls”) of\n SAP or third-party products or services developed outside of this project\n (“External Products”).\n “APIs” means application programming interfaces, as well as their respective\n specifications and implementing code that allows software to communicate with\n other software.\n API Calls to External Products are not licensed under the open source license\n that governs this project. The use of such API Calls and related External\n Products are subject to applicable additional agreements with the relevant\n provider of the External Products. In no event shall the open source license\n that governs this project grant any rights in or to any External Products,or\n alter, expand or supersede any terms of the applicable additional agreements.\n If you have a valid license agreement with SAP for the use of a particular SAP\n External Product, then you may make use of any API Calls included in this\n project’s code for that SAP External Product, subject to the terms of such\n license agreement. If you do not have a valid license agreement for the use of\n a particular SAP External Product, then you may only make use of any API Calls\n in this project for that SAP External Product for your internal, non-productive\n and non-commercial test and evaluation of such API Calls. Nothing herein grants\n you any rights to use or access any SAP External Product, or provide any third\n parties the right to use of access any SAP External Product, through API Calls."
+
+[[annotations]]
+path = "**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020-2022 SAP SE or an SAP affiliate company and project \"Sailor\" contributors"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["docs/_templates/apidoc/module.rst_t,", "docs/_templates/apidoc/package.rst_t"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2007-2021 by the Sphinx team. Modifications 2022 SAP SE or an SAP affiliate company and project \"Sailor\" contributors"
+SPDX-License-Identifier = "BSD-2-Clause"
+
+[[annotations]]
+path = ".ci/pydocstyle_wrapper.py"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2012 GreenSteam. 2014-2020 Amir Rachum. 2020 Sambhav Kothari. Modifications 2022 SAP SE or an SAP affiliate company and project \"Sailor\" contributors"
+SPDX-License-Identifier = "MIT"
