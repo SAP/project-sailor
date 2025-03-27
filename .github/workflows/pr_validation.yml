@@ -82,13 +82,13 @@ jobs:
           fetch-depth: 0
 
       - name: Get coverage report
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
           name: coverage
         continue-on-error: true
 
       - name: Get linting reports
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4.1.7
         with:
           name: linting-reports
         continue-on-error: true
